@@ -89,12 +89,12 @@ export const AlertList = memo(
     if (error) {
       return (
         <div
-          className="p-4 bg-error/10 text-error rounded-md"
+          className="p-component-md bg-error/10 text-error rounded-md"
           role="alert"
           aria-live="assertive"
         >
           <p className="font-medium">Failed to load alerts</p>
-          <p className="text-sm mt-1">{error.message}</p>
+          <p className="text-sm mt-component-xs">{error.message}</p>
         </div>
       );
     }
@@ -105,10 +105,10 @@ export const AlertList = memo(
 
     if (alerts.length === 0) {
       return (
-        <div className="text-center py-12 text-muted-foreground">
-          <Icon icon={Inbox} className="h-12 w-12 mx-auto mb-4 opacity-30" aria-hidden="true" />
+        <div className="text-center py-component-xl text-muted-foreground">
+          <Icon icon={Inbox} className="h-12 w-12 mx-auto mb-component-lg opacity-30" aria-hidden="true" />
           <p className="text-lg font-display font-semibold">No alerts found</p>
-          <p className="text-sm mt-1">
+          <p className="text-sm mt-component-sm">
             {shouldShowAcknowledged
               ? 'No alerts match your filters.'
               : 'All caught up! No active alerts at the moment.'}
@@ -132,13 +132,13 @@ export const AlertList = memo(
                 severityInfo.borderClass
               )}
             >
-              <div className="flex items-start justify-between gap-4">
+              <div className="flex items-start justify-between gap-component-md">
                 <div className="flex-1 min-w-0">
                   {/* Title and Severity */}
-                  <div className="flex items-center gap-component-sm mb-2 flex-wrap">
+                  <div className="flex items-center gap-component-sm mb-component-sm flex-wrap">
                     <span
                       className={cn(
-                        'inline-block px-2 py-0.5 text-xs font-medium rounded',
+                        'inline-block px-component-sm py-0.5 text-xs font-medium rounded',
                         severityInfo.badgeClass
                       )}
                     >
@@ -153,7 +153,7 @@ export const AlertList = memo(
                   </div>
 
                   {/* Message */}
-                  <p className="text-sm text-muted-foreground mb-2">{alert.message}</p>
+                  <p className="text-sm text-muted-foreground mb-component-sm">{alert.message}</p>
 
                   {/* Metadata */}
                   <div className="flex items-center gap-component-md text-xs text-muted-foreground">
@@ -172,7 +172,7 @@ export const AlertList = memo(
 
                   {/* Acknowledgment Info */}
                   {isAcknowledged && (
-                    <div className="mt-2 text-xs text-muted-foreground">
+                    <div className="mt-component-sm text-xs text-muted-foreground">
                       Acknowledged by {alert.acknowledgedBy} •
                       {' '}
                       {formatDistanceToNow(new Date(alert.acknowledgedAt!), {
@@ -189,7 +189,7 @@ export const AlertList = memo(
                     disabled={isAcknowledging}
                     aria-label={`Acknowledge alert: ${alert.title}`}
                     className={cn(
-                      'min-h-[44px] px-3 py-1.5 text-sm border border-border rounded-[var(--semantic-radius-button)]',
+                      'min-h-[44px] px-component-md py-component-sm text-sm border border-border rounded-[var(--semantic-radius-button)]',
                       'hover:bg-muted disabled:opacity-50 transition-colors',
                       'whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                       'focus-visible:ring-offset-2'
@@ -212,7 +212,7 @@ export const AlertList = memo(
 
         {/* Pagination Info */}
         {hasNextPage && (
-          <div className="text-center pt-component-md">
+          <div className="text-center pt-component-lg">
             <button
               aria-label={`Load more alerts, ${totalCount - alerts.length} remaining`}
               className={cn(

@@ -155,7 +155,7 @@ export const PortRegistryViewDesktop = React.memo(function PortRegistryViewDeskt
           </button>
         ),
         cell: (item) => (
-          <Badge variant="outline" className="font-mono font-semibold text-sm">
+          <Badge variant="outline" className="font-mono font-semibold text-xs">
             {item.port}
           </Badge>
         ),
@@ -194,7 +194,7 @@ export const PortRegistryViewDesktop = React.memo(function PortRegistryViewDeskt
         header: 'Instance',
         cell: (item) => (
           <div>
-            <div className="font-medium text-sm">Instance {item.instanceID.slice(-6)}</div>
+            <div className="font-medium text-xs">Instance {item.instanceID.slice(-6)}</div>
             <div className="text-xs text-muted-foreground font-mono break-all">
               {item.instanceID}
             </div>
@@ -247,8 +247,8 @@ export const PortRegistryViewDesktop = React.memo(function PortRegistryViewDeskt
                 Centralized port allocation tracking for service instances
               </CardDescription>
             </div>
-            <div className="flex items-center gap-2">
-              <Badge variant="outline" className="text-base px-3 py-1">
+            <div className="flex items-center gap-component-sm">
+              <Badge variant="outline" className="text-base px-component-md py-1">
                 {sortedAllocations.length} {sortedAllocations.length === 1 ? 'port' : 'ports'}
               </Badge>
               <Button
@@ -259,7 +259,7 @@ export const PortRegistryViewDesktop = React.memo(function PortRegistryViewDeskt
                 aria-label="Refresh port allocations"
               >
                 <RefreshCw
-                  className={cn('h-4 w-4 mr-1', loading && 'animate-spin')}
+                  className={cn('h-4 w-4 mr-component-xs', loading && 'animate-spin')}
                   aria-hidden="true"
                 />
                 Refresh
@@ -272,7 +272,7 @@ export const PortRegistryViewDesktop = React.memo(function PortRegistryViewDeskt
         <CardContent className="border-t pt-component-sm">
           <div className="flex items-center gap-component-md">
             {/* Protocol Filter */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-component-sm">
               <span className="text-sm font-medium">Protocol:</span>
               <Select
                 value={filters.protocol || 'all'}
@@ -292,7 +292,7 @@ export const PortRegistryViewDesktop = React.memo(function PortRegistryViewDeskt
             </div>
 
             {/* Service Type Filter */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-component-sm">
               <span className="text-sm font-medium">Service:</span>
               <Select
                 value={filters.serviceType || 'all'}
@@ -339,10 +339,10 @@ export const PortRegistryViewDesktop = React.memo(function PortRegistryViewDeskt
             </div>
           ) : error ? (
             <div className="p-component-lg text-center">
-              <div className="text-error font-medium mb-2">
+              <div className="text-error font-medium mb-component-sm">
                 Failed to load port allocations
               </div>
-              <p className="text-sm text-muted-foreground mb-4">{error.message}</p>
+              <p className="text-sm text-muted-foreground mb-component-md">{error.message}</p>
               <Button
                 variant="outline"
                 onClick={() => refetch()}
@@ -366,7 +366,7 @@ export const PortRegistryViewDesktop = React.memo(function PortRegistryViewDeskt
       {/* Empty State */}
       {!loading && sortedAllocations.length === 0 && !error && (
         <div className="text-center py-component-lg">
-          <div className="text-muted-foreground mx-auto mb-4 flex justify-center">
+          <div className="text-muted-foreground mx-auto mb-component-md flex justify-center">
             <svg
               className="h-16 w-16 stroke-1"
               xmlns="http://www.w3.org/2000/svg"
@@ -381,7 +381,7 @@ export const PortRegistryViewDesktop = React.memo(function PortRegistryViewDeskt
               />
             </svg>
           </div>
-          <h3 className="text-lg font-semibold mb-2">No Port Allocations</h3>
+          <h3 className="text-lg font-semibold mb-component-sm">No Port Allocations</h3>
           <p className="text-sm text-muted-foreground max-w-md mx-auto">
             No ports have been allocated for this router yet. Ports will appear here
             when service instances are created.

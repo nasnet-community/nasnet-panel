@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/routers",
+  "title": "routers",
+  "description": "List all managed routers",
+  "source": "@site/docs/api/operations/queries/routers.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/routers",
+  "permalink": "/api/operations/queries/routers",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "routers",
+    "title": "routers"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "router",
+    "permalink": "/api/operations/queries/router"
+  },
+  "next": {
+    "title": "routes",
+    "permalink": "/api/operations/queries/routes"
+  }
+}

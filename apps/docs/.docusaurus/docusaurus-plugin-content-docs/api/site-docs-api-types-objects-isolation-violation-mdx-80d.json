@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/isolation-violation",
+  "title": "IsolationViolation",
+  "description": "An isolation violation detected during pre-start checks.",
+  "source": "@site/docs/api/types/objects/isolation-violation.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/isolation-violation",
+  "permalink": "/api/types/objects/isolation-violation",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "isolation-violation",
+    "title": "IsolationViolation"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "IsolationStatus",
+    "permalink": "/api/types/objects/isolation-status"
+  },
+  "next": {
+    "title": "ISPInfo",
+    "permalink": "/api/types/objects/ispinfo"
+  }
+}

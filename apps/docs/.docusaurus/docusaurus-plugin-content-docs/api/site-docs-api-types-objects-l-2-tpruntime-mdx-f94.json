@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/l2-tpruntime",
+  "title": "L2TPRuntime",
+  "description": "L2TP runtime state",
+  "source": "@site/docs/api/types/objects/l2-tpruntime.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/l2-tpruntime",
+  "permalink": "/api/types/objects/l2-tpruntime",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "l2-tpruntime",
+    "title": "L2TPRuntime"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "L2TPDeployment",
+    "permalink": "/api/types/objects/l2-tpdeployment"
+  },
+  "next": {
+    "title": "LANNetworkConfig",
+    "permalink": "/api/types/objects/lannetwork-config"
+  }
+}

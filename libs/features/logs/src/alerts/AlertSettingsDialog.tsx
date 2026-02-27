@@ -119,7 +119,7 @@ export const AlertSettingsDialog = React.memo(
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         {trigger || (
-          <Button variant="ghost" size="sm" className="gap-2">
+          <Button variant="ghost" size="sm" className="gap-component-sm">
             {isEnabled ? (
               <Bell className="h-4 w-4" />
             ) : (
@@ -137,7 +137,7 @@ export const AlertSettingsDialog = React.memo(
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6 py-4">
+        <div className="space-y-6 py-component-md">
           {/* Global Enable */}
           <div className="flex items-center justify-between">
             <div>
@@ -153,7 +153,7 @@ export const AlertSettingsDialog = React.memo(
             <>
               {/* Browser Notification Permission */}
               {isBrowserNotificationSupported && (
-                <div className="flex items-center justify-between p-4 rounded-card-sm bg-slate-50 dark:bg-slate-800">
+                <div className="flex items-center justify-between p-component-md rounded-card-sm bg-muted">
                   <div>
                     <p className="font-medium">Browser Notifications</p>
                     <p className="text-sm text-muted-foreground">
@@ -209,7 +209,7 @@ export const AlertSettingsDialog = React.memo(
 
               {/* Sound Toggle */}
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-component-sm">
                   {settings.soundEnabled ? (
                     <Volume2 className="h-4 w-4" />
                   ) : (
@@ -236,7 +236,7 @@ export const AlertSettingsDialog = React.memo(
                     variant="outline"
                     size="sm"
                     onClick={handleCreateRule}
-                    className="gap-2"
+                    className="gap-component-sm"
                   >
                     <Plus className="h-4 w-4" />
                     Add Rule
@@ -249,7 +249,7 @@ export const AlertSettingsDialog = React.memo(
                       <CardHeader className="pb-2">
                         <div className="flex items-center justify-between">
                           <CardTitle className="text-base">{rule.name}</CardTitle>
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-component-sm">
                             <Switch
                               checked={rule.enabled}
                               onCheckedChange={() => toggleRule(rule.id)}
@@ -293,7 +293,7 @@ export const AlertSettingsDialog = React.memo(
                   ))}
 
                   {settings.rules.length === 0 && (
-                    <p className="text-sm text-muted-foreground text-center py-4">
+                    <p className="text-sm text-muted-foreground text-center py-component-md">
                       No alert rules configured. Add a rule to start receiving
                       alerts.
                     </p>
@@ -365,7 +365,7 @@ const RuleEditorDialog = React.memo(
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
+        <div className="space-y-4 py-component-md">
           {/* Rule Name */}
           <div className="space-y-2">
             <label htmlFor="rule-name-input" className="text-sm font-medium">Rule Name</label>
@@ -384,7 +384,7 @@ const RuleEditorDialog = React.memo(
             <label htmlFor="topics-fieldset" className="text-sm font-medium">
               Topics (empty = all topics)
             </label>
-            <fieldset id="topics-fieldset" className="flex flex-wrap gap-2">
+            <fieldset id="topics-fieldset" className="flex flex-wrap gap-component-sm">
               {ALL_TOPICS.map((topic) => (
                 <Button
                   key={topic}
@@ -404,7 +404,7 @@ const RuleEditorDialog = React.memo(
             <label htmlFor="severities-fieldset" className="text-sm font-medium">
               Severities (empty = all severities)
             </label>
-            <fieldset id="severities-fieldset" className="flex flex-wrap gap-2">
+            <fieldset id="severities-fieldset" className="flex flex-wrap gap-component-sm">
               {ALL_SEVERITIES.map((severity) => (
                 <Button
                   key={severity}
@@ -475,7 +475,7 @@ const RuleEditorDialog = React.memo(
           </div>
         </div>
 
-        <div className="flex justify-end gap-2">
+        <div className="flex justify-end gap-component-sm">
           <Button variant="outline" onClick={onCancel}>
             Cancel
           </Button>

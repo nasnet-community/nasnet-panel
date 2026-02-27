@@ -1,0 +1,24 @@
+{
+  "id": "feature-dashboard",
+  "title": "Feature: Dashboard (libs/features/dashboard)",
+  "description": "Overview",
+  "source": "@site/../../libs/features/docs/feature-dashboard.md",
+  "sourceDirName": ".",
+  "slug": "/feature-dashboard",
+  "permalink": "/docs/features/feature-dashboard",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/features/docs/feature-dashboard.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Feature Module: Alerts (libs/features/alerts)",
+    "permalink": "/docs/features/feature-alerts"
+  },
+  "next": {
+    "title": "Feature: Diagnostics (libs/features/diagnostics)",
+    "permalink": "/docs/features/feature-diagnostics"
+  }
+}

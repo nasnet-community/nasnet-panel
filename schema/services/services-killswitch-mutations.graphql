@@ -1,0 +1,11 @@
+# ============================================
+# KILL SWITCH MUTATIONS
+# ============================================
+
+extend type Mutation {
+  """
+  Enable or update kill switch for a device routing.
+  Creates MikroTik filter rules to block traffic when service is unhealthy.
+  """
+  setKillSwitch(input: SetKillSwitchInput!): DeviceRouting!
+}

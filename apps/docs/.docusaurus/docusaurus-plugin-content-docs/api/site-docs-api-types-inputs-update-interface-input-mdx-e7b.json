@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/update-interface-input",
+  "title": "UpdateInterfaceInput",
+  "description": "Input for updating interface settings",
+  "source": "@site/docs/api/types/inputs/update-interface-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/update-interface-input",
+  "permalink": "/api/types/inputs/update-interface-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "update-interface-input",
+    "title": "UpdateInterfaceInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "UpdateCheckScheduleInput",
+    "permalink": "/api/types/inputs/update-check-schedule-input"
+  },
+  "next": {
+    "title": "UpdateNotificationChannelConfigInput",
+    "permalink": "/api/types/inputs/update-notification-channel-config-input"
+  }
+}

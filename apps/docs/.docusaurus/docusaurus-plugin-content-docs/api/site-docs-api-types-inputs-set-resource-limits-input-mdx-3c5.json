@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/set-resource-limits-input",
+  "title": "SetResourceLimitsInput",
+  "description": "Input for setting resource limits on a service instance.",
+  "source": "@site/docs/api/types/inputs/set-resource-limits-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/set-resource-limits-input",
+  "permalink": "/api/types/inputs/set-resource-limits-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "set-resource-limits-input",
+    "title": "SetResourceLimitsInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "SetKillSwitchInput",
+    "permalink": "/api/types/inputs/set-kill-switch-input"
+  },
+  "next": {
+    "title": "SetTrafficQuotaInput",
+    "permalink": "/api/types/inputs/set-traffic-quota-input"
+  }
+}

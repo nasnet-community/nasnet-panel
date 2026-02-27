@@ -12,16 +12,18 @@ type ExtraConfigState struct {
 	UPNPConfig        *UPNPConfig           `json:"upnpConfig,omitempty"`
 	NATPMPConfig      *NATPMPConfig         `json:"natpmpConfig,omitempty"`
 	UsefulServices    *UsefulServicesConfig `json:"usefulServices,omitempty"`
+	Games             []GameConfigEntry     `json:"games,omitempty"`
 }
 
 // === Router Identity ===
 
 // RouterIdentityRomon defines router identity and RoMON configuration.
 type RouterIdentityRomon struct {
-	RouterName    *string `json:"routerName,omitempty"`
-	RouterComment *string `json:"routerComment,omitempty"`
-	RoMONEnabled  *bool   `json:"romonEnabled,omitempty"`
-	RoMONSecret   *string `json:"romonSecret,omitempty"`
+	RouterName     *string `json:"routerName,omitempty"`
+	RouterComment  *string `json:"routerComment,omitempty"`
+	RoMONEnabled   *bool   `json:"romonEnabled,omitempty"`
+	RoMONSecret    *string `json:"romonSecret,omitempty"`
+	RouterIdentity *string `json:"routerIdentity,omitempty"`
 }
 
 // === Service Configuration ===
@@ -45,11 +47,18 @@ type Services struct {
 
 // ServicePort defines a service with port configuration.
 type ServicePort struct {
-	Enabled *bool `json:"enabled,omitempty"`
-	Port    *int  `json:"port,omitempty"`
+	Enabled *bool   `json:"enabled,omitempty"`
+	Port    *int    `json:"port,omitempty"`
+	Type    *string `json:"type,omitempty"` // TS tri-state: "Enable"|"Disable"|"Local"
 }
 
 // === RUI Configuration ===
+
+// ScheduleIntervalConfig defines a schedule with an interval and a time.
+type ScheduleIntervalConfig struct {
+	Interval string `json:"interval"`
+	Time     string `json:"time"`
+}
 
 // RUIConfig defines RUI (RouterOS User Interface) configuration.
 type RUIConfig struct {
@@ -58,6 +67,11 @@ type RUIConfig struct {
 	Theme          *string `json:"theme,omitempty"`
 	LanguageCode   *string `json:"languageCode,omitempty"`
 	SessionTimeout *int    `json:"sessionTimeout,omitempty"`
+	// TS fields
+	Timezone        *string                 `json:"timezone,omitempty"`
+	Reboot          *ScheduleIntervalConfig `json:"reboot,omitempty"`
+	Update          *ScheduleIntervalConfig `json:"update,omitempty"`
+	IPAddressUpdate *ScheduleIntervalConfig `json:"ipAddressUpdate,omitempty"`
 }
 
 // === Interval Configuration ===
@@ -80,6 +94,24 @@ type GameConfig struct {
 	NetflowEnabled *bool `json:"netflowEnabled,omitempty"`
 }
 
+// GameConfigEntry is a superset of Go's GameConfig and TS's GameConfig (per-game entry with name/network/ports).
+type GameConfigEntry struct {
+	// TS fields
+	Name    *string    `json:"name,omitempty"`
+	Network *string    `json:"network,omitempty"`
+	Ports   *GamePorts `json:"ports,omitempty"`
+	// Go fields
+	WAN2WAN        *bool `json:"wan2wan,omitempty"`
+	DoSProtection  *bool `json:"dosProtection,omitempty"`
+	NetflowEnabled *bool `json:"netflowEnabled,omitempty"`
+}
+
+// GamePorts defines TCP and UDP port lists for a game entry.
+type GamePorts struct {
+	TCP []string `json:"tcp,omitempty"`
+	UDP []string `json:"udp,omitempty"`
+}
+
 // === Certificate Configuration ===
 
 // CertificateConfig defines certificate management.
@@ -88,6 +120,9 @@ type CertificateConfig struct {
 	CertificateProvider *string `json:"certificateProvider,omitempty"`
 	AutoRenew           *bool   `json:"autoRenew,omitempty"`
 	RenewalDaysBefore   *int    `json:"renewalDaysBefore,omitempty"`
+	// TS fields
+	SelfSigned  *bool `json:"selfSigned,omitempty"`
+	LetsEncrypt *bool `json:"letsEncrypt,omitempty"`
 }
 
 // === NTP Configuration ===
@@ -108,6 +143,10 @@ type GraphingConfig struct {
 	Interval  *int    `json:"interval,omitempty"`
 	Retention *int    `json:"retention,omitempty"`
 	Storage   *string `json:"storage,omitempty"`
+	// TS fields
+	Interface *bool `json:"interface,omitempty"`
+	Queue     *bool `json:"queue,omitempty"`
+	Resources *bool `json:"resources,omitempty"`
 }
 
 // === DDNS Configuration ===
@@ -118,9 +157,14 @@ type DDNSEntry struct {
 	Interface *string `json:"interface,omitempty"`
 	Service   *string `json:"service,omitempty"`
 	Username  *string `json:"username,omitempty"`
-	Password  *string `json:"password,omitempty"`
+	Password  *string `json:"password,omitempty"` //nolint:gosec // G101: credential field required for authentication
 	Domain    *string `json:"domain,omitempty"`
 	Interval  *int    `json:"interval,omitempty"`
+	// TS fields
+	Provider        *string `json:"provider,omitempty"`
+	Hostname        *string `json:"hostname,omitempty"`
+	UpdateInterval  *string `json:"updateInterval,omitempty"`
+	CustomServerURL *string `json:"customServerURL,omitempty"`
 }
 
 // CloudDDNSConfig defines cloud DDNS configuration.
@@ -138,15 +182,18 @@ type UPNPConfig struct {
 	ExternalIPAddress  *string `json:"externalIpAddress,omitempty"`
 	AllowedPorts       []int   `json:"allowedPorts,omitempty"`
 	LeaseTime          *int    `json:"leaseTime,omitempty"`
+	LinkType           *string `json:"linkType,omitempty"`
 }
 
 // === NAT-PMP Configuration ===
 
 // NATPMPConfig defines NAT-PMP configuration.
 type NATPMPConfig struct {
-	Enabled    *bool   `json:"enabled,omitempty"`
-	ExternalIP *string `json:"externalIp,omitempty"`
-	Lifetime   *int    `json:"lifetime,omitempty"`
+	Enabled       *bool   `json:"enabled,omitempty"`
+	ExternalIP    *string `json:"externalIp,omitempty"`
+	Lifetime      *int    `json:"lifetime,omitempty"`
+	LinkType      *string `json:"linkType,omitempty"`
+	InterfaceName *string `json:"interfaceName,omitempty"`
 }
 
 // === Useful Services ===
@@ -190,6 +237,9 @@ type BaseTunnelConfig struct {
 	Enabled       *bool   `json:"enabled,omitempty"`
 	MTU           *int    `json:"mtu,omitempty"`
 	Comment       *string `json:"comment,omitempty"`
+	// TS fields
+	Type        *string `json:"type,omitempty"`        // TunnelType
+	NetworkType *string `json:"networkType,omitempty"` // Network type for routing
 }
 
 // === IPIP Tunnel ===

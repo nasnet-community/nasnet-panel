@@ -63,26 +63,26 @@ export interface CardLayoutProps {
 
 const gapClasses = {
   none: 'gap-0',
-  sm: 'gap-2',
-  md: 'gap-3 md:gap-4',
-  lg: 'gap-4 md:gap-6',
+  sm: 'gap-component-sm',
+  md: 'gap-component-md lg:gap-component-lg',
+  lg: 'gap-component-lg',
 };
 
 const columnClasses = {
   1: 'grid-cols-1',
-  2: 'grid-cols-1 md:grid-cols-2',
-  3: 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3',
-  4: 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4',
-  auto: 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3',
+  2: 'grid-cols-1 sm:grid-cols-2',
+  3: 'grid-cols-1 sm:grid-cols-2 xl:grid-cols-3',
+  4: 'grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4',
+  auto: 'grid-cols-1 sm:grid-cols-2 xl:grid-cols-3',
 };
 
 const getVariantClasses = (prefersReducedMotion: boolean) => ({
-  elevated: 'bg-card rounded-lg shadow-sm',
+  elevated: 'bg-card rounded-[var(--semantic-radius-card)] shadow-[var(--semantic-shadow-card)]',
   interactive: cn(
-    'bg-background border border-border rounded-lg',
-    !prefersReducedMotion && 'hover:shadow-md transition-shadow duration-200'
+    'bg-card border border-border rounded-[var(--semantic-radius-card)]',
+    !prefersReducedMotion && 'hover:shadow-[var(--semantic-shadow-card)] transition-shadow duration-150'
   ),
-  flat: 'bg-card rounded-lg',
+  flat: 'bg-card border border-border rounded-[var(--semantic-radius-card)]',
 });
 
 /**

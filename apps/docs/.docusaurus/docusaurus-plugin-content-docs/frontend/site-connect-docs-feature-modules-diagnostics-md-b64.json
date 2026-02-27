@@ -1,0 +1,24 @@
+{
+  "id": "feature-modules/diagnostics",
+  "title": "Diagnostics Feature Module",
+  "description": "Source: libs/features/diagnostics/src/",
+  "source": "@site/../connect/docs/feature-modules/diagnostics.md",
+  "sourceDirName": "feature-modules",
+  "slug": "/feature-modules/diagnostics",
+  "permalink": "/docs/frontend/feature-modules/diagnostics",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../connect/docs/feature-modules/diagnostics.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Dashboard Feature",
+    "permalink": "/docs/frontend/feature-modules/dashboard"
+  },
+  "next": {
+    "title": "Firewall Feature",
+    "permalink": "/docs/frontend/feature-modules/firewall"
+  }
+}

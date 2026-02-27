@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/default-notification-channel-config",
+  "title": "defaultNotificationChannelConfig",
+  "description": "Get the default configuration for a specific channel type",
+  "source": "@site/docs/api/operations/queries/default-notification-channel-config.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/default-notification-channel-config",
+  "permalink": "/api/operations/queries/default-notification-channel-config",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "default-notification-channel-config",
+    "title": "defaultNotificationChannelConfig"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "connectionStats",
+    "permalink": "/api/operations/queries/connection-stats"
+  },
+  "next": {
+    "title": "dependencyGraph",
+    "permalink": "/api/operations/queries/dependency-graph"
+  }
+}

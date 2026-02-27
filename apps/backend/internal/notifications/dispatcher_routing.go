@@ -170,15 +170,22 @@ func (d *Dispatcher) deliverWithRetries(ctx context.Context, channel Channel, no
 			"error", err)
 	}
 
+	var errorMsg string
+	if lastErr != nil {
+		errorMsg = lastErr.Error()
+	} else {
+		errorMsg = "unknown delivery error"
+	}
+
 	result := DeliveryResult{
 		Channel:   channelName,
 		Success:   false,
-		Error:     lastErr.Error(),
+		Error:     errorMsg,
 		Retryable: d.isRetryable(lastErr),
 	}
 
 	// Enqueue to dead letter queue for later investigation/retry
-	if d.deadLetterQueue != nil {
+	if d.deadLetterQueue != nil && lastErr != nil {
 		if err := d.deadLetterQueue.Enqueue(ctx, notification, channelName, lastErr.Error(), d.maxRetries+1); err != nil {
 			d.log.Sugar().Warnw("failed to enqueue message to dead letter queue",
 				"channel", channelName,

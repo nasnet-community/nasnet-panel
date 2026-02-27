@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/update-stage",
+  "title": "UpdateStage",
+  "description": "Update stage during atomic update process.",
+  "source": "@site/docs/api/types/enums/update-stage.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/update-stage",
+  "permalink": "/api/types/enums/update-stage",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "update-stage",
+    "title": "UpdateStage"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "UpdateSeverity",
+    "permalink": "/api/types/enums/update-severity"
+  },
+  "next": {
+    "title": "UpgradePriority",
+    "permalink": "/api/types/enums/upgrade-priority"
+  }
+}

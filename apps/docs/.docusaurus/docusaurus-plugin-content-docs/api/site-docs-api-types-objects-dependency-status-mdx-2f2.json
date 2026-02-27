@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/dependency-status",
+  "title": "DependencyStatus",
+  "description": "Status of a required dependency",
+  "source": "@site/docs/api/types/objects/dependency-status.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/dependency-status",
+  "permalink": "/api/types/objects/dependency-status",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "dependency-status",
+    "title": "DependencyStatus"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "DependencyGraph",
+    "permalink": "/api/types/objects/dependency-graph"
+  },
+  "next": {
+    "title": "DeploymentState",
+    "permalink": "/api/types/objects/deployment-state"
+  }
+}

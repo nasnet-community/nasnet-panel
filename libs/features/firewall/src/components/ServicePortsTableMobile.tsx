@@ -96,9 +96,9 @@ TypeBadge.displayName = 'TypeBadge';
 
 const LoadingState = React.memo(function LoadingState() {
   return (
-    <div className="space-y-component-md">
+    <div className="space-y-component-sm">
       {[...Array(5)].map((_, i) => (
-        <Skeleton key={i} className="h-32 w-full" />
+        <Skeleton key={i} className="h-32 w-full rounded-md" />
       ))}
     </div>
   );
@@ -118,7 +118,7 @@ const EmptyState = React.memo(function EmptyState({ message, description }: Empt
   return (
     <div className="flex flex-col items-center justify-center py-12 text-center">
       <p className="text-lg font-medium text-muted-foreground">{message}</p>
-      {description && <p className="mt-2 text-sm text-muted-foreground">{description}</p>}
+      {description && <p className="mt-component-sm text-sm text-muted-foreground">{description}</p>}
     </div>
   );
 });
@@ -147,15 +147,15 @@ const ServiceCard = React.memo(function ServiceCard({ service, onEdit, onDelete 
 
   return (
     <Card>
-      <CardHeader className="pb-3">
+      <CardHeader className="pb-component-sm">
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-component-sm">
               <h3 className="text-base font-semibold">{service.service}</h3>
               <ProtocolBadge protocol={service.protocol} />
             </div>
             {service.description && (
-              <p className="mt-1 text-sm text-muted-foreground">{service.description}</p>
+              <p className="mt-component-sm text-sm text-muted-foreground">{service.description}</p>
             )}
           </div>
           <DropdownMenu>
@@ -163,7 +163,7 @@ const ServiceCard = React.memo(function ServiceCard({ service, onEdit, onDelete 
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-11 w-11"
+                className="h-[44px] w-[44px]"
                 disabled={service.isBuiltIn}
                 aria-label={t('servicePorts.actions', 'Actions')}
               >
@@ -172,7 +172,7 @@ const ServiceCard = React.memo(function ServiceCard({ service, onEdit, onDelete 
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={handleEditClick} disabled={service.isBuiltIn}>
-                <Pencil className="mr-2 h-4 w-4" />
+                <Pencil className="mr-component-sm h-4 w-4" />
                 {t('servicePorts.editService')}
               </DropdownMenuItem>
               <DropdownMenuItem
@@ -180,14 +180,14 @@ const ServiceCard = React.memo(function ServiceCard({ service, onEdit, onDelete 
                 disabled={service.isBuiltIn}
                 className="text-error"
               >
-                <Trash2 className="mr-2 h-4 w-4" />
+                <Trash2 className="mr-component-sm h-4 w-4" />
                 {t('servicePorts.deleteService')}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
       </CardHeader>
-      <CardContent className="pb-4">
+      <CardContent className="pb-component-sm">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xs text-muted-foreground">{t('servicePorts.fields.port')}</p>
@@ -196,7 +196,7 @@ const ServiceCard = React.memo(function ServiceCard({ service, onEdit, onDelete 
           <TypeBadge isBuiltIn={service.isBuiltIn} />
         </div>
         {service.isBuiltIn && (
-          <p className="mt-3 text-xs text-muted-foreground">
+          <p className="mt-component-md text-xs text-muted-foreground">
             {t('servicePorts.tooltips.builtInReadOnly')}
           </p>
         )}
@@ -302,7 +302,7 @@ export const ServicePortsTableMobile = React.memo(function ServicePortsTableMobi
       {/* Search and Filters */}
       <div className="space-y-component-sm">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder={t('servicePorts.placeholders.searchServices')}
             value={searchQuery}
@@ -313,7 +313,7 @@ export const ServicePortsTableMobile = React.memo(function ServicePortsTableMobi
 
         <div className="flex gap-component-sm">
           <Select value={protocolFilter} onValueChange={setProtocolFilter}>
-            <SelectTrigger className="flex-1">
+            <SelectTrigger className="flex-1 min-h-[44px]">
               <SelectValue placeholder={t('servicePorts.fields.protocol')} />
             </SelectTrigger>
             <SelectContent>
@@ -325,7 +325,7 @@ export const ServicePortsTableMobile = React.memo(function ServicePortsTableMobi
           </Select>
 
           <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-            <SelectTrigger className="flex-1">
+            <SelectTrigger className="flex-1 min-h-[44px]">
               <SelectValue placeholder={t('servicePorts.fields.category')} />
             </SelectTrigger>
             <SelectContent>
@@ -377,7 +377,7 @@ export const ServicePortsTableMobile = React.memo(function ServicePortsTableMobi
             <DialogDescription>
               {t('servicePorts.confirmations.deleteServiceDescription')}
               {serviceToDelete && (
-                <div className="mt-4 rounded-md bg-muted p-3">
+                <div className="mt-component-md rounded-md bg-muted p-component-sm">
                   <p className="font-medium">
                     {serviceToDelete.service} (Port {serviceToDelete.port})
                   </p>

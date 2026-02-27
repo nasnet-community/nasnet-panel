@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/restart-instance",
+  "title": "restartInstance",
+  "description": "Restart a service instance.",
+  "source": "@site/docs/api/operations/mutations/restart-instance.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/restart-instance",
+  "permalink": "/api/operations/mutations/restart-instance",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "restart-instance",
+    "title": "restartInstance"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "resetTrafficQuota",
+    "permalink": "/api/operations/mutations/reset-traffic-quota"
+  },
+  "next": {
+    "title": "reverifyInstance",
+    "permalink": "/api/operations/mutations/reverify-instance"
+  }
+}

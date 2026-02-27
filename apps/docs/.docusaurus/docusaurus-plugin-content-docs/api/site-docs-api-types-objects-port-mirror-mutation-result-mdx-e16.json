@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/port-mirror-mutation-result",
+  "title": "PortMirrorMutationResult",
+  "description": "Result of a port mirror mutation (create, update)",
+  "source": "@site/docs/api/types/objects/port-mirror-mutation-result.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/port-mirror-mutation-result",
+  "permalink": "/api/types/objects/port-mirror-mutation-result",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "port-mirror-mutation-result",
+    "title": "PortMirrorMutationResult"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "PortMapping",
+    "permalink": "/api/types/objects/port-mapping"
+  },
+  "next": {
+    "title": "PortMirrorStats",
+    "permalink": "/api/types/objects/port-mirror-stats"
+  }
+}

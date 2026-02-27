@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/remove-ingress-from-bridge",
+  "title": "removeIngressFromBridge",
+  "description": "Remove an ingress VLAN from its router bridge.",
+  "source": "@site/docs/api/operations/mutations/remove-ingress-from-bridge.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/remove-ingress-from-bridge",
+  "permalink": "/api/operations/mutations/remove-ingress-from-bridge",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "remove-ingress-from-bridge",
+    "title": "removeIngressFromBridge"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "removeEgressVLAN",
+    "permalink": "/api/operations/mutations/remove-egress-vlan"
+  },
+  "next": {
+    "title": "removeProvisioningResource",
+    "permalink": "/api/operations/mutations/remove-provisioning-resource"
+  }
+}

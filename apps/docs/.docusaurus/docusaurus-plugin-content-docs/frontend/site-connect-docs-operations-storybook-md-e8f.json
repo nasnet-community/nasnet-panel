@@ -1,0 +1,24 @@
+{
+  "id": "operations/storybook",
+  "title": "Storybook Guide",
+  "description": "NasNetConnect runs three independent Storybook instances, one per library tier. All use Storybook 10.2.7 (ESM-only) with the @storybook/react-vite framework.",
+  "source": "@site/../connect/docs/operations/storybook.md",
+  "sourceDirName": "operations",
+  "slug": "/operations/storybook",
+  "permalink": "/docs/frontend/operations/storybook",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../connect/docs/operations/storybook.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Performance Guide",
+    "permalink": "/docs/frontend/operations/performance"
+  },
+  "next": {
+    "title": "Apollo Client Configuration",
+    "permalink": "/docs/frontend/state-management/apollo-client"
+  }
+}

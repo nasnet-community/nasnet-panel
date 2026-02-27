@@ -36,7 +36,6 @@ import {
   SelectItem,
   Badge,
   Separator,
-  Label,
 } from '@nasnet/ui/primitives';
 
 import { useRateLimitEditor } from '../rate-limit-editor/use-rate-limit-editor';
@@ -59,7 +58,6 @@ const FormField = RHFFormField as React.FC<FormFieldProps>;
  * - Connection limit presets
  */
 export const RateLimitRuleEditorDesktop = memo(function RateLimitRuleEditorDesktop({
-  routerId,
   initialRule,
   open,
   onClose,
@@ -105,12 +103,12 @@ export const RateLimitRuleEditorDesktop = memo(function RateLimitRuleEditorDeskt
 
           <form onSubmit={editor.handleSubmit} className="space-y-6">
             {/* Live Preview */}
-            <Card className="p-4 bg-info/10 border-info/20">
+            <Card className="p-component-md bg-info-light border border-info/20 rounded-[var(--semantic-radius-card)] border-t-2 border-t-category-firewall">
               <div className="flex items-start gap-3">
                 <Info className="h-5 w-5 text-info mt-0.5" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-info mb-1">Rule Preview</p>
-                  <p className="text-sm text-muted-foreground font-mono break-words">
+                  <p className="text-xs font-semibold text-info-dark mb-1">Rule Preview</p>
+                  <p className="text-xs text-muted-foreground font-mono break-words">
                     {preview}
                   </p>
                 </div>
@@ -121,13 +119,13 @@ export const RateLimitRuleEditorDesktop = memo(function RateLimitRuleEditorDeskt
             </Card>
 
             {/* Rate Limit Configuration */}
-            <div className="space-y-4">
-              <h3 className="text-sm font-semibold flex items-center gap-2">
+            <div className="space-y-component-md">
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
                 <Clock className="h-4 w-4" />
                 Rate Limit Configuration
               </h3>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-component-md">
                 <FormField
                   name="connectionLimit"
                   label="Connection Limit"
@@ -204,8 +202,8 @@ export const RateLimitRuleEditorDesktop = memo(function RateLimitRuleEditorDeskt
             <Separator />
 
             {/* Action Configuration */}
-            <div className="space-y-4">
-              <h3 className="text-sm font-semibold flex items-center gap-2">
+            <div className="space-y-component-md">
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
                 <AlertCircle className="h-4 w-4" />
                 Action Configuration
               </h3>
@@ -316,8 +314,8 @@ export const RateLimitRuleEditorDesktop = memo(function RateLimitRuleEditorDeskt
             <Separator />
 
             {/* Source Matching */}
-            <div className="space-y-4">
-              <h3 className="text-sm font-semibold flex items-center gap-2">
+            <div className="space-y-component-md">
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
                 <Network className="h-4 w-4" />
                 Source Matching (optional)
               </h3>

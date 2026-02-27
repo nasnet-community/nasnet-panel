@@ -2,6 +2,7 @@ package bootstrap
 
 import (
 	"context"
+	"fmt"
 
 	"go.uber.org/zap"
 
@@ -63,7 +64,7 @@ func InitializeStorage(
 		Logger:       storageLogger.Desugar(),
 	})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("init storage: %w", err)
 	}
 
 	// Run boot validation BEFORE starting any instances

@@ -7,7 +7,7 @@ package resolver
 
 import (
 	"backend/graph/model"
-	"backend/internal/errors"
+	"backend/internal/apperrors"
 	"context"
 )
 
@@ -15,316 +15,316 @@ import (
 func (r *mutationResolver) CreateBridge(ctx context.Context, routerID string, input model.CreateBridgeInput) (*model.BridgeMutationResult, error) {
 	// Authorization check
 	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
-		return nil, errors.NewAuthError(errors.CodeAccessDenied, "unauthorized: authentication required")
+		return nil, apperrors.NewAuthError(apperrors.CodeAccessDenied, "unauthorized: authentication required")
 	}
 
 	// Input validation
 	if routerID == "" {
-		return nil, errors.NewValidationError("routerID", routerID, "required")
+		return nil, apperrors.NewValidationError("routerID", routerID, "required")
 	}
 	if input.Name == "" {
-		return nil, errors.NewValidationError("name", input.Name, "required")
+		return nil, apperrors.NewValidationError("name", input.Name, "required")
 	}
 
 	// Service availability check
-	if r.Resolver.BridgeService == nil {
-		return nil, errors.NewInternalError("bridge service not configured", nil)
+	if r.BridgeService == nil {
+		return nil, apperrors.NewInternalError("bridge service not configured", nil)
 	}
 
-	// TODO: Call r.Resolver.BridgeService with validated input
-	panic(errors.NewInternalError("not implemented: CreateBridge - createBridge", nil))
+	// TODO: Call r.BridgeService with validated input
+	panic(apperrors.NewInternalError("not implemented: CreateBridge - createBridge", nil))
 }
 
 // UpdateBridge is the resolver for the updateBridge field.
 func (r *mutationResolver) UpdateBridge(ctx context.Context, uuid string, input model.UpdateBridgeInput) (*model.BridgeMutationResult, error) {
 	// Authorization check
 	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
-		return nil, errors.NewAuthError(errors.CodeAccessDenied, "unauthorized: authentication required")
+		return nil, apperrors.NewAuthError(apperrors.CodeAccessDenied, "unauthorized: authentication required")
 	}
 
 	// Input validation
 	if uuid == "" {
-		return nil, errors.NewValidationError("uuid", uuid, "required")
+		return nil, apperrors.NewValidationError("uuid", uuid, "required")
 	}
 
 	// Service availability check
-	if r.Resolver.BridgeService == nil {
-		return nil, errors.NewInternalError("bridge service not configured", nil)
+	if r.BridgeService == nil {
+		return nil, apperrors.NewInternalError("bridge service not configured", nil)
 	}
 
-	// TODO: Call r.Resolver.BridgeService with validated input
-	panic(errors.NewInternalError("not implemented: UpdateBridge - updateBridge", nil))
+	// TODO: Call r.BridgeService with validated input
+	panic(apperrors.NewInternalError("not implemented: UpdateBridge - updateBridge", nil))
 }
 
 // DeleteBridge is the resolver for the deleteBridge field.
 func (r *mutationResolver) DeleteBridge(ctx context.Context, uuid string) (*model.DeleteResult, error) {
 	// Authorization check
 	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
-		return nil, errors.NewAuthError(errors.CodeAccessDenied, "unauthorized: authentication required")
+		return nil, apperrors.NewAuthError(apperrors.CodeAccessDenied, "unauthorized: authentication required")
 	}
 
 	// Input validation
 	if uuid == "" {
-		return nil, errors.NewValidationError("uuid", uuid, "required")
+		return nil, apperrors.NewValidationError("uuid", uuid, "required")
 	}
 
 	// Service availability check
-	if r.Resolver.BridgeService == nil {
-		return nil, errors.NewInternalError("bridge service not configured", nil)
+	if r.BridgeService == nil {
+		return nil, apperrors.NewInternalError("bridge service not configured", nil)
 	}
 
-	// TODO: Call r.Resolver.BridgeService with validated input
-	panic(errors.NewInternalError("not implemented: DeleteBridge - deleteBridge", nil))
+	// TODO: Call r.BridgeService with validated input
+	panic(apperrors.NewInternalError("not implemented: DeleteBridge - deleteBridge", nil))
 }
 
 // UndoBridgeOperation is the resolver for the undoBridgeOperation field.
 func (r *mutationResolver) UndoBridgeOperation(ctx context.Context, operationID string) (*model.BridgeMutationResult, error) {
 	// Authorization check
 	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
-		return nil, errors.NewAuthError(errors.CodeAccessDenied, "unauthorized: authentication required")
+		return nil, apperrors.NewAuthError(apperrors.CodeAccessDenied, "unauthorized: authentication required")
 	}
 
 	// Input validation
 	if operationID == "" {
-		return nil, errors.NewValidationError("operationID", operationID, "required")
+		return nil, apperrors.NewValidationError("operationID", operationID, "required")
 	}
 
 	// Service availability check
-	if r.Resolver.BridgeService == nil {
-		return nil, errors.NewInternalError("bridge service not configured", nil)
+	if r.BridgeService == nil {
+		return nil, apperrors.NewInternalError("bridge service not configured", nil)
 	}
 
-	// TODO: Call r.Resolver.BridgeService with validated input
-	panic(errors.NewInternalError("not implemented: UndoBridgeOperation - undoBridgeOperation", nil))
+	// TODO: Call r.BridgeService with validated input
+	panic(apperrors.NewInternalError("not implemented: UndoBridgeOperation - undoBridgeOperation", nil))
 }
 
 // AddBridgePort is the resolver for the addBridgePort field.
 func (r *mutationResolver) AddBridgePort(ctx context.Context, bridgeID string, input model.AddBridgePortInput) (*model.BridgePortMutationResult, error) {
 	// Authorization check
 	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
-		return nil, errors.NewAuthError(errors.CodeAccessDenied, "unauthorized: authentication required")
+		return nil, apperrors.NewAuthError(apperrors.CodeAccessDenied, "unauthorized: authentication required")
 	}
 
 	// Input validation
 	if bridgeID == "" {
-		return nil, errors.NewValidationError("bridgeID", bridgeID, "required")
+		return nil, apperrors.NewValidationError("bridgeID", bridgeID, "required")
 	}
 	if input.InterfaceID == "" {
-		return nil, errors.NewValidationError("interfaceID", input.InterfaceID, "required")
+		return nil, apperrors.NewValidationError("interfaceID", input.InterfaceID, "required")
 	}
 
 	// Service availability check
-	if r.Resolver.BridgeService == nil {
-		return nil, errors.NewInternalError("bridge service not configured", nil)
+	if r.BridgeService == nil {
+		return nil, apperrors.NewInternalError("bridge service not configured", nil)
 	}
 
-	// TODO: Call r.Resolver.BridgeService with validated input
+	// TODO: Call r.BridgeService with validated input
 	// TODO: Verify interface exists before attaching to bridge
-	panic(errors.NewInternalError("not implemented: AddBridgePort - addBridgePort", nil))
+	panic(apperrors.NewInternalError("not implemented: AddBridgePort - addBridgePort", nil))
 }
 
 // UpdateBridgePort is the resolver for the updateBridgePort field.
 func (r *mutationResolver) UpdateBridgePort(ctx context.Context, portID string, input model.UpdateBridgePortInput) (*model.BridgePortMutationResult, error) {
 	// Authorization check
 	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
-		return nil, errors.NewAuthError(errors.CodeAccessDenied, "unauthorized: authentication required")
+		return nil, apperrors.NewAuthError(apperrors.CodeAccessDenied, "unauthorized: authentication required")
 	}
 
 	// Input validation
 	if portID == "" {
-		return nil, errors.NewValidationError("portID", portID, "required")
+		return nil, apperrors.NewValidationError("portID", portID, "required")
 	}
 
 	// Service availability check
-	if r.Resolver.BridgeService == nil {
-		return nil, errors.NewInternalError("bridge service not configured", nil)
+	if r.BridgeService == nil {
+		return nil, apperrors.NewInternalError("bridge service not configured", nil)
 	}
 
-	// TODO: Call r.Resolver.BridgeService with validated input
-	panic(errors.NewInternalError("not implemented: UpdateBridgePort - updateBridgePort", nil))
+	// TODO: Call r.BridgeService with validated input
+	panic(apperrors.NewInternalError("not implemented: UpdateBridgePort - updateBridgePort", nil))
 }
 
 // RemoveBridgePort is the resolver for the removeBridgePort field.
 func (r *mutationResolver) RemoveBridgePort(ctx context.Context, portID string) (*model.DeleteResult, error) {
 	// Authorization check
 	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
-		return nil, errors.NewAuthError(errors.CodeAccessDenied, "unauthorized: authentication required")
+		return nil, apperrors.NewAuthError(apperrors.CodeAccessDenied, "unauthorized: authentication required")
 	}
 
 	// Input validation
 	if portID == "" {
-		return nil, errors.NewValidationError("portID", portID, "required")
+		return nil, apperrors.NewValidationError("portID", portID, "required")
 	}
 
 	// Service availability check
-	if r.Resolver.BridgeService == nil {
-		return nil, errors.NewInternalError("bridge service not configured", nil)
+	if r.BridgeService == nil {
+		return nil, apperrors.NewInternalError("bridge service not configured", nil)
 	}
 
-	// TODO: Call r.Resolver.BridgeService with validated input
-	panic(errors.NewInternalError("not implemented: RemoveBridgePort - removeBridgePort", nil))
+	// TODO: Call r.BridgeService with validated input
+	panic(apperrors.NewInternalError("not implemented: RemoveBridgePort - removeBridgePort", nil))
 }
 
 // CreateBridgeVlan is the resolver for the createBridgeVlan field.
 func (r *mutationResolver) CreateBridgeVlan(ctx context.Context, bridgeID string, input model.CreateBridgeVlanInput) (*model.BridgeVlanMutationResult, error) {
 	// Authorization check
 	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
-		return nil, errors.NewAuthError(errors.CodeAccessDenied, "unauthorized: authentication required")
+		return nil, apperrors.NewAuthError(apperrors.CodeAccessDenied, "unauthorized: authentication required")
 	}
 
 	// Input validation
 	if bridgeID == "" {
-		return nil, errors.NewValidationError("bridgeID", bridgeID, "required")
+		return nil, apperrors.NewValidationError("bridgeID", bridgeID, "required")
 	}
 	if input.VlanID < 1 || input.VlanID > 4094 {
-		return nil, errors.NewValidationError("vlanID", input.VlanID, "must be between 1 and 4094")
+		return nil, apperrors.NewValidationError("vlanID", input.VlanID, "must be between 1 and 4094")
 	}
 
 	// Service availability check
-	if r.Resolver.BridgeService == nil {
-		return nil, errors.NewInternalError("bridge service not configured", nil)
+	if r.BridgeService == nil {
+		return nil, apperrors.NewInternalError("bridge service not configured", nil)
 	}
 
-	// TODO: Call r.Resolver.BridgeService with validated input
-	panic(errors.NewInternalError("not implemented: CreateBridgeVlan - createBridgeVlan", nil))
+	// TODO: Call r.BridgeService with validated input
+	panic(apperrors.NewInternalError("not implemented: CreateBridgeVlan - createBridgeVlan", nil))
 }
 
 // DeleteBridgeVlan is the resolver for the deleteBridgeVlan field.
 func (r *mutationResolver) DeleteBridgeVlan(ctx context.Context, uuid string) (*model.DeleteResult, error) {
 	// Authorization check
 	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
-		return nil, errors.NewAuthError(errors.CodeAccessDenied, "unauthorized: authentication required")
+		return nil, apperrors.NewAuthError(apperrors.CodeAccessDenied, "unauthorized: authentication required")
 	}
 
 	// Input validation
 	if uuid == "" {
-		return nil, errors.NewValidationError("uuid", uuid, "required")
+		return nil, apperrors.NewValidationError("uuid", uuid, "required")
 	}
 
 	// Service availability check
-	if r.Resolver.BridgeService == nil {
-		return nil, errors.NewInternalError("bridge service not configured", nil)
+	if r.BridgeService == nil {
+		return nil, apperrors.NewInternalError("bridge service not configured", nil)
 	}
 
-	// TODO: Call r.Resolver.BridgeService with validated input
-	panic(errors.NewInternalError("not implemented: DeleteBridgeVlan - deleteBridgeVlan", nil))
+	// TODO: Call r.BridgeService with validated input
+	panic(apperrors.NewInternalError("not implemented: DeleteBridgeVlan - deleteBridgeVlan", nil))
 }
 
 // Bridges is the resolver for the bridges field.
 func (r *queryResolver) Bridges(ctx context.Context, routerID string) ([]*model.Bridge, error) {
 	// Authorization check
 	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
-		return nil, errors.NewAuthError(errors.CodeAccessDenied, "unauthorized: authentication required")
+		return nil, apperrors.NewAuthError(apperrors.CodeAccessDenied, "unauthorized: authentication required")
 	}
 
 	// Input validation
 	if routerID == "" {
-		return nil, errors.NewValidationError("routerID", routerID, "required")
+		return nil, apperrors.NewValidationError("routerID", routerID, "required")
 	}
 
 	// Service availability check
-	if r.Resolver.BridgeService == nil {
-		return nil, errors.NewInternalError("bridge service not configured", nil)
+	if r.BridgeService == nil {
+		return nil, apperrors.NewInternalError("bridge service not configured", nil)
 	}
 
-	// TODO: Call r.Resolver.BridgeService to fetch bridges
-	panic(errors.NewInternalError("not implemented: Bridges - bridges", nil))
+	// TODO: Call r.BridgeService to fetch bridges
+	panic(apperrors.NewInternalError("not implemented: Bridges - bridges", nil))
 }
 
 // Bridge is the resolver for the bridge field.
 func (r *queryResolver) Bridge(ctx context.Context, uuid string) (*model.Bridge, error) {
 	// Authorization check
 	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
-		return nil, errors.NewAuthError(errors.CodeAccessDenied, "unauthorized: authentication required")
+		return nil, apperrors.NewAuthError(apperrors.CodeAccessDenied, "unauthorized: authentication required")
 	}
 
 	// Input validation
 	if uuid == "" {
-		return nil, errors.NewValidationError("uuid", uuid, "required")
+		return nil, apperrors.NewValidationError("uuid", uuid, "required")
 	}
 
 	// Service availability check
-	if r.Resolver.BridgeService == nil {
-		return nil, errors.NewInternalError("bridge service not configured", nil)
+	if r.BridgeService == nil {
+		return nil, apperrors.NewInternalError("bridge service not configured", nil)
 	}
 
-	// TODO: Call r.Resolver.BridgeService to fetch bridge by UUID
-	panic(errors.NewInternalError("not implemented: Bridge - bridge", nil))
+	// TODO: Call r.BridgeService to fetch bridge by UUID
+	panic(apperrors.NewInternalError("not implemented: Bridge - bridge", nil))
 }
 
 // BridgePorts is the resolver for the bridgePorts field.
 func (r *queryResolver) BridgePorts(ctx context.Context, bridgeID string) ([]*model.BridgePort, error) {
 	// Authorization check
 	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
-		return nil, errors.NewAuthError(errors.CodeAccessDenied, "unauthorized: authentication required")
+		return nil, apperrors.NewAuthError(apperrors.CodeAccessDenied, "unauthorized: authentication required")
 	}
 
 	// Input validation
 	if bridgeID == "" {
-		return nil, errors.NewValidationError("bridgeID", bridgeID, "required")
+		return nil, apperrors.NewValidationError("bridgeID", bridgeID, "required")
 	}
 
 	// Service availability check
-	if r.Resolver.BridgeService == nil {
-		return nil, errors.NewInternalError("bridge service not configured", nil)
+	if r.BridgeService == nil {
+		return nil, apperrors.NewInternalError("bridge service not configured", nil)
 	}
 
-	// TODO: Call r.Resolver.BridgeService to fetch bridge ports
-	panic(errors.NewInternalError("not implemented: BridgePorts - bridgePorts", nil))
+	// TODO: Call r.BridgeService to fetch bridge ports
+	panic(apperrors.NewInternalError("not implemented: BridgePorts - bridgePorts", nil))
 }
 
 // BridgeVlans is the resolver for the bridgeVlans field.
 func (r *queryResolver) BridgeVlans(ctx context.Context, bridgeID string) ([]*model.BridgeVlan, error) {
 	// Authorization check
 	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
-		return nil, errors.NewAuthError(errors.CodeAccessDenied, "unauthorized: authentication required")
+		return nil, apperrors.NewAuthError(apperrors.CodeAccessDenied, "unauthorized: authentication required")
 	}
 
 	// Input validation
 	if bridgeID == "" {
-		return nil, errors.NewValidationError("bridgeID", bridgeID, "required")
+		return nil, apperrors.NewValidationError("bridgeID", bridgeID, "required")
 	}
 
 	// Service availability check
-	if r.Resolver.BridgeService == nil {
-		return nil, errors.NewInternalError("bridge service not configured", nil)
+	if r.BridgeService == nil {
+		return nil, apperrors.NewInternalError("bridge service not configured", nil)
 	}
 
-	// TODO: Call r.Resolver.BridgeService to fetch bridge VLANs
-	panic(errors.NewInternalError("not implemented: BridgeVlans - bridgeVlans", nil))
+	// TODO: Call r.BridgeService to fetch bridge VLANs
+	panic(apperrors.NewInternalError("not implemented: BridgeVlans - bridgeVlans", nil))
 }
 
 // AvailableInterfacesForBridge is the resolver for the availableInterfacesForBridge field.
 func (r *queryResolver) AvailableInterfacesForBridge(ctx context.Context, routerID string) ([]*model.Interface, error) {
 	// Authorization check
 	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
-		return nil, errors.NewAuthError(errors.CodeAccessDenied, "unauthorized: authentication required")
+		return nil, apperrors.NewAuthError(apperrors.CodeAccessDenied, "unauthorized: authentication required")
 	}
 
 	// Input validation
 	if routerID == "" {
-		return nil, errors.NewValidationError("routerID", routerID, "required")
+		return nil, apperrors.NewValidationError("routerID", routerID, "required")
 	}
 
 	// Service availability check
-	if r.Resolver.BridgeService == nil {
-		return nil, errors.NewInternalError("bridge service not configured", nil)
+	if r.BridgeService == nil {
+		return nil, apperrors.NewInternalError("bridge service not configured", nil)
 	}
 
-	// TODO: Call r.Resolver.BridgeService to fetch available interfaces
-	panic(errors.NewInternalError("not implemented: AvailableInterfacesForBridge - availableInterfacesForBridge", nil))
+	// TODO: Call r.BridgeService to fetch available interfaces
+	panic(apperrors.NewInternalError("not implemented: AvailableInterfacesForBridge - availableInterfacesForBridge", nil))
 }
 
 // BridgeStpStatusChanged is the resolver for the bridgeStpStatusChanged field.
 func (r *subscriptionResolver) BridgeStpStatusChanged(ctx context.Context, bridgeID string) (<-chan *model.BridgeStpStatus, error) {
 	// Authorization check
 	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
-		return nil, errors.NewAuthError(errors.CodeAccessDenied, "unauthorized: authentication required")
+		return nil, apperrors.NewAuthError(apperrors.CodeAccessDenied, "unauthorized: authentication required")
 	}
 
 	// Input validation
 	if bridgeID == "" {
-		return nil, errors.NewValidationError("bridgeID", bridgeID, "required")
+		return nil, apperrors.NewValidationError("bridgeID", bridgeID, "required")
 	}
 
 	// Create channel for STP status updates
@@ -337,19 +337,19 @@ func (r *subscriptionResolver) BridgeStpStatusChanged(ctx context.Context, bridg
 	}()
 
 	// TODO: Subscribe to bridge STP status changes and send to stpChan
-	panic(errors.NewInternalError("not implemented: BridgeStpStatusChanged - bridgeStpStatusChanged", nil))
+	panic(apperrors.NewInternalError("not implemented: BridgeStpStatusChanged - bridgeStpStatusChanged", nil))
 }
 
 // BridgePortsChanged is the resolver for the bridgePortsChanged field.
 func (r *subscriptionResolver) BridgePortsChanged(ctx context.Context, bridgeID string) (<-chan []*model.BridgePort, error) {
 	// Authorization check
 	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
-		return nil, errors.NewAuthError(errors.CodeAccessDenied, "unauthorized: authentication required")
+		return nil, apperrors.NewAuthError(apperrors.CodeAccessDenied, "unauthorized: authentication required")
 	}
 
 	// Input validation
 	if bridgeID == "" {
-		return nil, errors.NewValidationError("bridgeID", bridgeID, "required")
+		return nil, apperrors.NewValidationError("bridgeID", bridgeID, "required")
 	}
 
 	// Create channel for port change updates
@@ -362,5 +362,5 @@ func (r *subscriptionResolver) BridgePortsChanged(ctx context.Context, bridgeID 
 	}()
 
 	// TODO: Subscribe to bridge port changes and send to portsChan
-	panic(errors.NewInternalError("not implemented: BridgePortsChanged - bridgePortsChanged", nil))
+	panic(apperrors.NewInternalError("not implemented: BridgePortsChanged - bridgePortsChanged", nil))
 }

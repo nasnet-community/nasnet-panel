@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/add-bridge-port-input",
+  "title": "AddBridgePortInput",
+  "description": "No description",
+  "source": "@site/docs/api/types/inputs/add-bridge-port-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/add-bridge-port-input",
+  "permalink": "/api/types/inputs/add-bridge-port-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "add-bridge-port-input",
+    "title": "AddBridgePortInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "Inputs",
+    "permalink": "/category/inputs"
+  },
+  "next": {
+    "title": "AddDependencyInput",
+    "permalink": "/api/types/inputs/add-dependency-input"
+  }
+}

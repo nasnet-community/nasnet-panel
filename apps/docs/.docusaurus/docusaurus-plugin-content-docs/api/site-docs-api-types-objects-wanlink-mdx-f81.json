@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/wanlink",
+  "title": "WANLink",
+  "description": "WAN Link resource for internet connectivity",
+  "source": "@site/docs/api/types/objects/wanlink.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/wanlink",
+  "permalink": "/api/types/objects/wanlink",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "wanlink",
+    "title": "WANLink"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "WANLinkRuntime",
+    "permalink": "/api/types/objects/wanlink-runtime"
+  },
+  "next": {
+    "title": "WANMutationResult",
+    "permalink": "/api/types/objects/wanmutation-result"
+  }
+}

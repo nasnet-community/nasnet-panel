@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/dependency-graph",
+  "title": "DependencyGraph",
+  "description": "DependencyGraph represents the full dependency graph for visualization.",
+  "source": "@site/docs/api/types/objects/dependency-graph.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/dependency-graph",
+  "permalink": "/api/types/objects/dependency-graph",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "dependency-graph",
+    "title": "DependencyGraph"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "DependencyGraphNode",
+    "permalink": "/api/types/objects/dependency-graph-node"
+  },
+  "next": {
+    "title": "DependencyStatus",
+    "permalink": "/api/types/objects/dependency-status"
+  }
+}

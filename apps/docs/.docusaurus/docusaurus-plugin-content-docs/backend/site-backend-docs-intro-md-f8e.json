@@ -1,0 +1,24 @@
+{
+  "id": "intro",
+  "title": "Introduction",
+  "description": "The Backend is a Go service that serves as the core of NasNet. It manages router connections, provides a GraphQL API, and handles service orchestration.",
+  "source": "@site/../backend/docs/intro.md",
+  "sourceDirName": ".",
+  "slug": "/intro",
+  "permalink": "/docs/backend/intro",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../backend/docs/intro.md",
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 1,
+  "frontMatter": {
+    "sidebar_position": 1,
+    "title": "Introduction"
+  },
+  "sidebar": "sidebar",
+  "next": {
+    "title": "Alert System",
+    "permalink": "/docs/backend/alert-system"
+  }
+}

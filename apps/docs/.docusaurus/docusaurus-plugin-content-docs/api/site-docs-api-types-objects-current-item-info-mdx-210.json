@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/current-item-info",
+  "title": "CurrentItemInfo",
+  "description": "Current item information in progress event",
+  "source": "@site/docs/api/types/objects/current-item-info.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/current-item-info",
+  "permalink": "/api/types/objects/current-item-info",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "current-item-info",
+    "title": "CurrentItemInfo"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "CredentialUpdatePayload",
+    "permalink": "/api/types/objects/credential-update-payload"
+  },
+  "next": {
+    "title": "DailyStats",
+    "permalink": "/api/types/objects/daily-stats"
+  }
+}

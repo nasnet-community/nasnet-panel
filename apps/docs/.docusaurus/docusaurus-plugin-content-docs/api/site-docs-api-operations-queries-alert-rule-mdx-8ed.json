@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/alert-rule",
+  "title": "alertRule",
+  "description": "Get a single alert rule by ID",
+  "source": "@site/docs/api/operations/queries/alert-rule.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/alert-rule",
+  "permalink": "/api/operations/queries/alert-rule",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "alert-rule",
+    "title": "alertRule"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "alertRuleThrottleStatus",
+    "permalink": "/api/operations/queries/alert-rule-throttle-status"
+  },
+  "next": {
+    "title": "alertRules",
+    "permalink": "/api/operations/queries/alert-rules"
+  }
+}

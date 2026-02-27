@@ -110,9 +110,13 @@ func (va *VLANAllocator) GetAllocationsByRouter(ctx context.Context, routerID st
 	va.mu.RLock()
 	defer va.mu.RUnlock()
 
-	return va.store.VLANAllocation().Query().
+	allocations, err := va.store.VLANAllocation().Query().
 		Where(vlanallocation.RouterIDEQ(routerID)).
 		All(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("query allocations by router: %w", err)
+	}
+	return allocations, nil
 }
 
 // GetAllocationsByInstance returns all VLAN allocations for a service instance.
@@ -120,9 +124,13 @@ func (va *VLANAllocator) GetAllocationsByInstance(ctx context.Context, instanceI
 	va.mu.RLock()
 	defer va.mu.RUnlock()
 
-	return va.store.VLANAllocation().Query().
+	allocations, err := va.store.VLANAllocation().Query().
 		Where(vlanallocation.InstanceIDEQ(instanceID)).
 		All(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("query allocations by instance: %w", err)
+	}
+	return allocations, nil
 }
 
 // checkAndEmitPoolWarningUnsafe checks pool utilization and emits warning events if thresholds are exceeded.

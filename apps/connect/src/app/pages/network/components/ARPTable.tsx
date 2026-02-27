@@ -79,12 +79,12 @@ export const ARPTable = React.memo(function ARPTable({ entries, defaultCollapsed
 
   const SortIcon = ({ column }: { column: SortColumn }) => {
     if (sortColumn !== column) {
-      return <ChevronsUpDown className="ml-1 h-3 w-3 text-muted-foreground" aria-hidden="true" />;
+      return <ChevronsUpDown className="ml-1 h-3 w-3 text-muted-foreground" aria-hidden={true} />;
     }
     return sortDirection === 'asc' ? (
-      <ChevronUp className="ml-1 h-3 w-3 text-primary" aria-hidden="true" />
+      <ChevronUp className="ml-1 h-3 w-3 text-primary" aria-hidden={true} />
     ) : (
-      <ChevronDown className="ml-1 h-3 w-3 text-primary" aria-hidden="true" />
+      <ChevronDown className="ml-1 h-3 w-3 text-primary" aria-hidden={true} />
     );
   };
 
@@ -123,9 +123,9 @@ export const ARPTable = React.memo(function ARPTable({ entries, defaultCollapsed
           onToggle={() => setIsCollapsed(!isCollapsed)}
         />
         {!isCollapsed && (
-          <div className="text-center py-8 bg-card rounded-xl border border-border">
+          <div className="text-center py-8 bg-card rounded-xl border border-border shadow-sm">
             <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center mx-auto mb-3">
-              <Network className="w-6 h-6 text-muted-foreground" aria-hidden="true" />
+              <Network className="w-6 h-6 text-muted-foreground" aria-hidden={true} />
             </div>
             <p className="text-muted-foreground text-sm">
               {t('arp.noEntries')}
@@ -147,7 +147,7 @@ export const ARPTable = React.memo(function ARPTable({ entries, defaultCollapsed
       />
 
       {!isCollapsed && (
-        <div className="bg-card rounded-xl border border-border overflow-hidden">
+        <div className="bg-card rounded-xl border border-border overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full" aria-label={t('arp.title')}>
               <thead>
@@ -155,7 +155,7 @@ export const ARPTable = React.memo(function ARPTable({ entries, defaultCollapsed
                   <th className="text-left px-4 py-3">
                     <button
                       onClick={() => handleSort('ip')}
-                      className="flex items-center text-xs font-semibold text-muted-foreground uppercase tracking-wide hover:text-foreground min-h-[44px] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded"
+                      className="flex items-center text-xs font-semibold text-muted-foreground uppercase tracking-wide hover:text-foreground min-h-[44px] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded font-display"
                       aria-label={`${t('arp.ipAddress')}${sortColumn === 'ip' ? (sortDirection === 'asc' ? ', sorted ascending' : ', sorted descending') : ''}`}
                     >
                       {t('arp.ipAddress')}
@@ -165,7 +165,7 @@ export const ARPTable = React.memo(function ARPTable({ entries, defaultCollapsed
                   <th className="text-left px-4 py-3">
                     <button
                       onClick={() => handleSort('mac')}
-                      className="flex items-center text-xs font-semibold text-muted-foreground uppercase tracking-wide hover:text-foreground min-h-[44px] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded"
+                      className="flex items-center text-xs font-semibold text-muted-foreground uppercase tracking-wide hover:text-foreground min-h-[44px] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded font-display"
                       aria-label={`${t('arp.macAddress')}${sortColumn === 'mac' ? (sortDirection === 'asc' ? ', sorted ascending' : ', sorted descending') : ''}`}
                     >
                       {t('arp.macAddress')}
@@ -175,7 +175,7 @@ export const ARPTable = React.memo(function ARPTable({ entries, defaultCollapsed
                   <th className="text-left px-4 py-3 hidden sm:table-cell">
                     <button
                       onClick={() => handleSort('interface')}
-                      className="flex items-center text-xs font-semibold text-muted-foreground uppercase tracking-wide hover:text-foreground min-h-[44px] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded"
+                      className="flex items-center text-xs font-semibold text-muted-foreground uppercase tracking-wide hover:text-foreground min-h-[44px] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded font-display"
                       aria-label={`${t('arp.interface')}${sortColumn === 'interface' ? (sortDirection === 'asc' ? ', sorted ascending' : ', sorted descending') : ''}`}
                     >
                       {t('arp.interface')}
@@ -185,7 +185,7 @@ export const ARPTable = React.memo(function ARPTable({ entries, defaultCollapsed
                   <th className="text-left px-4 py-3">
                     <button
                       onClick={() => handleSort('status')}
-                      className="flex items-center text-xs font-semibold text-muted-foreground uppercase tracking-wide hover:text-foreground min-h-[44px] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded"
+                      className="flex items-center text-xs font-semibold text-muted-foreground uppercase tracking-wide hover:text-foreground min-h-[44px] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded font-display"
                       aria-label={`${t('arp.status')}${sortColumn === 'status' ? (sortDirection === 'asc' ? ', sorted ascending' : ', sorted descending') : ''}`}
                     >
                       {t('arp.status')}
@@ -201,13 +201,13 @@ export const ARPTable = React.memo(function ARPTable({ entries, defaultCollapsed
                     className="hover:bg-muted transition-colors"
                   >
                     <td className="px-4 py-3 font-mono text-sm text-foreground">
-                      {entry.ipAddress}
+                      <code>{entry.ipAddress}</code>
                     </td>
                     <td className="px-4 py-3 font-mono text-sm text-muted-foreground">
-                      {formatMACAddress(entry.macAddress)}
+                      <code>{formatMACAddress(entry.macAddress)}</code>
                     </td>
-                    <td className="px-4 py-3 text-sm text-muted-foreground hidden sm:table-cell">
-                      {entry.interface}
+                    <td className="px-4 py-3 text-sm text-muted-foreground hidden sm:table-cell font-mono">
+                      <code>{entry.interface}</code>
                     </td>
                     <td className="px-4 py-3">
                       {getStatusBadge(entry.status)}

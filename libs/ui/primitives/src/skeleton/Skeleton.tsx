@@ -148,7 +148,7 @@ const Skeleton = React.memo(
         <div
           ref={ref}
           className={cn(
-            'rounded-md bg-muted',
+            'rounded-[var(--semantic-radius-input)] bg-muted',
             shouldAnimate && 'animate-pulse',
             className
           )}
@@ -225,7 +225,7 @@ const SkeletonText = React.memo(
             <div
               key={index}
               className={cn(
-                'rounded-md bg-muted',
+                'rounded-[var(--semantic-radius-input)] bg-muted',
                 shouldAnimate && 'animate-pulse'
               )}
               style={{
@@ -297,13 +297,13 @@ const SkeletonCard = React.memo(
     ) => {
       const prefersReducedMotion = useReducedMotion();
       const shouldAnimate = animate && !prefersReducedMotion;
-      const baseClass = cn('rounded-md bg-muted', shouldAnimate && 'animate-pulse');
+      const baseClass = cn('rounded-[var(--semantic-radius-input)] bg-muted', shouldAnimate && 'animate-pulse');
 
       return (
         <div
           ref={ref}
           className={cn(
-            'rounded-lg border bg-card p-4 space-y-4',
+            'rounded-[var(--semantic-radius-card)] border border-border bg-card p-4 space-y-4',
             className
           )}
           role="presentation"
@@ -389,7 +389,7 @@ const SkeletonTable = React.memo(
     ) => {
       const prefersReducedMotion = useReducedMotion();
       const shouldAnimate = animate && !prefersReducedMotion;
-      const baseClass = cn('rounded bg-muted', shouldAnimate && 'animate-pulse');
+      const baseClass = cn('rounded-[var(--semantic-radius-input)] bg-muted', shouldAnimate && 'animate-pulse');
 
       return (
         <div
@@ -401,7 +401,7 @@ const SkeletonTable = React.memo(
         >
           {/* Header */}
           {showHeader && (
-            <div className="flex gap-4 pb-3 border-b">
+            <div className="flex gap-4 pb-3 border-b border-border">
               {Array.from({ length: columns }).map((_, i) => (
                 <div key={i} className={cn(baseClass, 'h-4 flex-1')} />
               ))}
@@ -409,7 +409,7 @@ const SkeletonTable = React.memo(
           )}
 
           {/* Rows */}
-          <div className="divide-y">
+          <div className="divide-y divide-border">
             {Array.from({ length: rows }).map((_, rowIndex) => (
               <div key={rowIndex} className="flex gap-4 py-3">
                 {Array.from({ length: columns }).map((_, colIndex) => (
@@ -487,7 +487,7 @@ const SkeletonChart = React.memo(
     ) => {
       const prefersReducedMotion = useReducedMotion();
       const shouldAnimate = animate && !prefersReducedMotion;
-      const baseClass = cn('rounded-md bg-muted', shouldAnimate && 'animate-pulse');
+      const baseClass = cn('rounded-[var(--semantic-radius-card)] bg-muted', shouldAnimate && 'animate-pulse');
 
       return (
         <div
@@ -595,7 +595,7 @@ const SkeletonAvatar = React.memo(
           className={cn(
             'bg-muted',
             avatarSizes[size],
-            shape === 'circle' ? 'rounded-full' : 'rounded-md',
+            shape === 'circle' ? 'rounded-full' : 'rounded-[var(--semantic-radius-input)]',
             shouldAnimate && 'animate-pulse',
             className
           )}

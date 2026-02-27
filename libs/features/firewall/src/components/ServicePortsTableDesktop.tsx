@@ -97,9 +97,9 @@ TypeBadge.displayName = 'TypeBadge';
 
 const LoadingState = React.memo(function LoadingState() {
   return (
-    <div className="space-y-2">
+    <div className="space-y-component-sm">
       {[...Array(5)].map((_, i) => (
-        <div key={i} className="flex items-center space-x-4">
+        <div key={i} className="flex items-center space-x-component-md">
           <Skeleton className="h-12 flex-1" />
         </div>
       ))}
@@ -121,7 +121,7 @@ const EmptyState = React.memo(function EmptyState({ message, description }: Empt
   return (
     <div className="flex flex-col items-center justify-center py-12 text-center">
       <p className="text-lg font-medium text-muted-foreground">{message}</p>
-      {description && <p className="mt-2 text-sm text-muted-foreground">{description}</p>}
+      {description && <p className="mt-component-sm text-sm text-muted-foreground">{description}</p>}
     </div>
   );
 });
@@ -249,11 +249,11 @@ export const ServicePortsTableDesktop = React.memo(function ServicePortsTableDes
   );
 
   return (
-    <div className={cn('space-y-4', className)}>
+    <div className={cn('space-y-component-md', className)}>
       {/* Search and Filters */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-component-md">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
+          <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
           <Input
             placeholder={t('servicePorts.placeholders.searchServices')}
             value={searchQuery}
@@ -264,7 +264,7 @@ export const ServicePortsTableDesktop = React.memo(function ServicePortsTableDes
         </div>
 
         <Select value={protocolFilter} onValueChange={setProtocolFilter}>
-          <SelectTrigger className="w-[150px]">
+          <SelectTrigger className="w-[150px] min-h-[44px]">
             <SelectValue placeholder={t('servicePorts.fields.protocol')} />
           </SelectTrigger>
           <SelectContent>
@@ -276,7 +276,7 @@ export const ServicePortsTableDesktop = React.memo(function ServicePortsTableDes
         </Select>
 
         <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-          <SelectTrigger className="w-[150px]">
+          <SelectTrigger className="w-[150px] min-h-[44px]">
             <SelectValue placeholder={t('servicePorts.fields.category')} />
           </SelectTrigger>
           <SelectContent>
@@ -359,17 +359,17 @@ export const ServicePortsTableDesktop = React.memo(function ServicePortsTableDes
                     <ProtocolBadge protocol={service.protocol} />
                   </TableCell>
                   <TableCell>
-                    <span className="font-mono text-sm tabular-nums text-foreground">{service.port}</span>
+                    <span className="font-mono text-sm tabular-nums">{service.port}</span>
                   </TableCell>
                   <TableCell>
                     <TypeBadge isBuiltIn={service.isBuiltIn} />
                   </TableCell>
                   <TableCell className="text-right">
-                    <div className="flex items-center justify-end gap-2">
+                    <div className="flex items-center justify-end gap-component-sm">
                       {service.isBuiltIn ? (
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <div className="flex items-center justify-end gap-2">
+                            <div className="flex items-center justify-end gap-component-sm">
                               <Button
                                 variant="ghost"
                                 size="icon"
@@ -399,6 +399,7 @@ export const ServicePortsTableDesktop = React.memo(function ServicePortsTableDes
                           <Button
                             variant="ghost"
                             size="icon"
+                            className="min-h-[44px] w-[44px]"
                             onClick={() => handleEditClick(service)}
                             aria-label={t('servicePorts.editService')}
                           >
@@ -407,6 +408,7 @@ export const ServicePortsTableDesktop = React.memo(function ServicePortsTableDes
                           <Button
                             variant="ghost"
                             size="icon"
+                            className="min-h-[44px] w-[44px]"
                             onClick={() => handleDeleteClick(service)}
                             aria-label={t('servicePorts.deleteService')}
                           >
@@ -431,7 +433,7 @@ export const ServicePortsTableDesktop = React.memo(function ServicePortsTableDes
             <DialogDescription>
               {t('servicePorts.confirmations.deleteServiceDescription')}
               {serviceToDelete && (
-                <div className="mt-4 rounded-md bg-muted p-3">
+                <div className="mt-component-md rounded-md bg-muted p-component-sm">
                   <p className="font-medium">
                     {serviceToDelete.service} (Port {serviceToDelete.port})
                   </p>
@@ -440,10 +442,10 @@ export const ServicePortsTableDesktop = React.memo(function ServicePortsTableDes
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
+            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)} className="min-h-[44px]">
               {t('servicePorts.buttons.cancel', 'Cancel')}
             </Button>
-            <Button variant="destructive" onClick={handleDeleteConfirm}>
+            <Button variant="destructive" onClick={handleDeleteConfirm} className="min-h-[44px]">
               {t('servicePorts.deleteService')}
             </Button>
           </DialogFooter>

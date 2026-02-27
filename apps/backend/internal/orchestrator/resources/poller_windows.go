@@ -12,8 +12,9 @@ import (
 
 // ResourcePollerConfig configures the ResourcePoller
 type ResourcePollerConfig struct {
-	EventBus events.EventBus
-	Logger   *zap.Logger
+	ResourceLimiter *ResourceLimiter
+	EventBus        events.EventBus
+	Logger          *zap.Logger
 }
 
 // ResourcePoller monitors resource usage and emits warnings (stub for Windows)

@@ -233,153 +233,72 @@ export const FirewallLogViewerDesktop = memo(
             </div>
           )}
 
-          {/* Log Table */}
-          <div className="flex-1 overflow-auto">
+          {/* Log Display Area */}
+          <div className="flex-1 overflow-auto bg-slate-950 dark:bg-slate-900">
             {viewer.error ? (
-              <div className="flex items-center justify-center h-full">
-                <Card className="p-6 bg-error/10 border-error/20">
-                  <p className="text-error">
-                    Error loading logs: {viewer.error.message}
-                  </p>
-                </Card>
+              <div className="flex items-center justify-center h-full p-4">
+                <div className="bg-card border border-error/20 rounded-[var(--semantic-radius-card)] p-6 text-error">
+                  <p>Error loading logs: {viewer.error.message}</p>
+                </div>
               </div>
             ) : viewer.logs.length === 0 ? (
-              <div className="flex items-center justify-center h-full">
-                <Card className="p-6">
-                  <p className="text-muted-foreground">
+              <div className="flex items-center justify-center h-full p-4">
+                <div className="bg-card border border-border rounded-[var(--semantic-radius-card)] p-6 text-muted-foreground text-center">
+                  <p>
                     {viewer.isLoading
                       ? 'Loading logs...'
                       : 'No logs found. Try adjusting your filters.'}
                   </p>
-                </Card>
+                </div>
               </div>
             ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead
-                      className="cursor-pointer hover:bg-accent/50"
-                      onClick={() => handleSort('timestamp')}
-                    >
-                      Time {renderSortIcon('timestamp')}
-                    </TableHead>
-                    <TableHead
-                      className="cursor-pointer hover:bg-accent/50"
-                      onClick={() => handleSort('action')}
-                    >
-                      Action {renderSortIcon('action')}
-                    </TableHead>
-                    <TableHead>Chain</TableHead>
-                    <TableHead
-                      className="cursor-pointer hover:bg-accent/50"
-                      onClick={() => handleSort('srcIp')}
-                    >
-                      Source {renderSortIcon('srcIp')}
-                    </TableHead>
-                    <TableHead
-                      className="cursor-pointer hover:bg-accent/50"
-                      onClick={() => handleSort('dstIp')}
-                    >
-                      Destination {renderSortIcon('dstIp')}
-                    </TableHead>
-                    <TableHead
-                      className="cursor-pointer hover:bg-accent/50"
-                      onClick={() => handleSort('protocol')}
-                    >
-                      Protocol {renderSortIcon('protocol')}
-                    </TableHead>
-                    <TableHead>Prefix</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {viewer.logs.map((log) => {
-                    const colors = getActionColorClasses(
-                      log.parsed.action || 'unknown'
-                    );
-                    const isSelected = viewer.selectedLog?.id === log.id;
+              <div className="font-mono text-xs leading-relaxed p-4 text-slate-50">
+                {viewer.logs.map((log) => {
+                  const isSelected = viewer.selectedLog?.id === log.id;
+                  const actionColor = log.parsed.action === 'accept' ? 'text-green-400' : 'text-red-400';
 
-                    return (
-                      <TableRow
-                        key={log.id}
-                        className={`cursor-pointer hover:bg-accent/50 transition-colors ${
-                          isSelected ? 'bg-accent' : ''
-                        }`}
-                        onClick={() => handleRowClick(log)}
-                      >
-                        <TableCell className="font-mono text-xs">
-                          {formatTime(log.timestamp)}
-                        </TableCell>
-                        <TableCell>
-                          <Badge
-                            className={`${colors.bg} ${colors.text} ${colors.border} border`}
+                  return (
+                    <div
+                      key={log.id}
+                      className={`cursor-pointer hover:bg-slate-800/50 transition-colors px-3 py-2 rounded ${
+                        isSelected ? 'bg-slate-800' : ''
+                      }`}
+                      onClick={() => handleRowClick(log)}
+                    >
+                      <div className="flex items-center gap-3 flex-wrap">
+                        <span className="text-slate-500">{formatTime(log.timestamp)}</span>
+                        <span className={actionColor}>{log.parsed.action || 'unknown'}</span>
+                        {log.parsed.srcIp && (
+                          <>
+                            <span className="text-sky-400">{log.parsed.srcIp}</span>
+                            {log.parsed.srcPort && <span className="text-purple-400">:{log.parsed.srcPort}</span>}
+                          </>
+                        )}
+                        {log.parsed.dstIp && (
+                          <>
+                            <span className="text-amber-400">{log.parsed.dstIp}</span>
+                            {log.parsed.dstPort && <span className="text-purple-400">:{log.parsed.dstPort}</span>}
+                          </>
+                        )}
+                        {log.parsed.protocol && <span className="text-slate-400">{log.parsed.protocol}</span>}
+                        {log.parsed.prefix && onPrefixClick ? (
+                          <Button
+                            variant="link"
+                            size="sm"
+                            className="h-auto p-0 text-primary ml-2"
+                            onClick={(e) => handlePrefixClick(e, log.parsed.prefix!)}
                           >
-                            {log.parsed.action || 'unknown'}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <span className="text-muted-foreground">
-                            {log.parsed.chain || '-'}
-                          </span>
-                        </TableCell>
-                        <TableCell className="font-mono text-xs">
-                          {log.parsed.srcIp ? (
-                            <div>
-                              <div>{log.parsed.srcIp}</div>
-                              {log.parsed.srcPort && (
-                                <div className="text-muted-foreground">
-                                  :{log.parsed.srcPort}
-                                </div>
-                              )}
-                            </div>
-                          ) : (
-                            '-'
-                          )}
-                        </TableCell>
-                        <TableCell className="font-mono text-xs">
-                          {log.parsed.dstIp ? (
-                            <div>
-                              <div>{log.parsed.dstIp}</div>
-                              {log.parsed.dstPort && (
-                                <div className="text-muted-foreground">
-                                  :{log.parsed.dstPort}
-                                </div>
-                              )}
-                            </div>
-                          ) : (
-                            '-'
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <span className="text-muted-foreground">
-                            {log.parsed.protocol || '-'}
-                          </span>
-                        </TableCell>
-                        <TableCell>
-                          {log.parsed.prefix && onPrefixClick ? (
-                            <Button
-                              variant="link"
-                              size="sm"
-                              className="h-auto p-0 text-primary"
-                              onClick={(e) =>
-                                handlePrefixClick(e, log.parsed.prefix!)
-                              }
-                            >
-                              {log.parsed.prefix}
-                              <ExternalLink className="h-3 w-3 ml-1" />
-                            </Button>
-                          ) : log.parsed.prefix ? (
-                            <span className="text-muted-foreground">
-                              {log.parsed.prefix}
-                            </span>
-                          ) : (
-                            '-'
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
+                            {log.parsed.prefix}
+                            <ExternalLink className="h-3 w-3 ml-1" />
+                          </Button>
+                        ) : log.parsed.prefix ? (
+                          <span className="text-slate-400">{log.parsed.prefix}</span>
+                        ) : null}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             )}
           </div>
 

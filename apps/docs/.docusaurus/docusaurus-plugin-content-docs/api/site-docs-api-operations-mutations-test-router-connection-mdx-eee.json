@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/test-router-connection",
+  "title": "testRouterConnection",
+  "description": "Test connection to a router",
+  "source": "@site/docs/api/operations/mutations/test-router-connection.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/test-router-connection",
+  "permalink": "/api/operations/mutations/test-router-connection",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "test-router-connection",
+    "title": "testRouterConnection"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "testPortKnockSequence",
+    "permalink": "/api/operations/mutations/test-port-knock-sequence"
+  },
+  "next": {
+    "title": "testRouterCredentials",
+    "permalink": "/api/operations/mutations/test-router-credentials"
+  }
+}

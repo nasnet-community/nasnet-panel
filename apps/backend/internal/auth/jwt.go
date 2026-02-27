@@ -357,7 +357,7 @@ func loadPrivateKeyFromEnv() (*rsa.PrivateKey, error) {
 
 	// Try key file path
 	if keyPath := os.Getenv("JWT_PRIVATE_KEY_PATH"); keyPath != "" {
-		keyPEM, err := os.ReadFile(keyPath)
+		keyPEM, err := os.ReadFile(keyPath) //nolint:gosec // G304: path from internal config
 		if err != nil {
 			return nil, fmt.Errorf("failed to read private key file: %w", err)
 		}
@@ -376,7 +376,7 @@ func loadPublicKeyFromEnv() (*rsa.PublicKey, error) {
 
 	// Try key file path
 	if keyPath := os.Getenv("JWT_PUBLIC_KEY_PATH"); keyPath != "" {
-		keyPEM, err := os.ReadFile(keyPath)
+		keyPEM, err := os.ReadFile(keyPath) //nolint:gosec // G304: path from internal config
 		if err != nil {
 			return nil, fmt.Errorf("failed to read public key file: %w", err)
 		}

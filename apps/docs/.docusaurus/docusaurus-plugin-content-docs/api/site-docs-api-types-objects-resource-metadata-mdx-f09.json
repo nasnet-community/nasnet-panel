@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/resource-metadata",
+  "title": "ResourceMetadata",
+  "description": "Layer 6: Resource lifecycle info, tags, ownership.",
+  "source": "@site/docs/api/types/objects/resource-metadata.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/resource-metadata",
+  "permalink": "/api/types/objects/resource-metadata",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "resource-metadata",
+    "title": "ResourceMetadata"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ResourceLimits",
+    "permalink": "/api/types/objects/resource-limits"
+  },
+  "next": {
+    "title": "ResourceMetrics",
+    "permalink": "/api/types/objects/resource-metrics"
+  }
+}

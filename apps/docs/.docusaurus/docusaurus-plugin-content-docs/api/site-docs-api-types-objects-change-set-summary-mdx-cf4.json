@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/change-set-summary",
+  "title": "ChangeSetSummary",
+  "description": "Summary of a change set for list displays",
+  "source": "@site/docs/api/types/objects/change-set-summary.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/change-set-summary",
+  "permalink": "/api/types/objects/change-set-summary",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "change-set-summary",
+    "title": "ChangeSetSummary"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ChangeSetStatusEvent",
+    "permalink": "/api/types/objects/change-set-status-event"
+  },
+  "next": {
+    "title": "ChangeSetValidationError",
+    "permalink": "/api/types/objects/change-set-validation-error"
+  }
+}

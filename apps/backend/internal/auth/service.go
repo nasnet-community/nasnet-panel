@@ -3,6 +3,7 @@ package auth
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/oklog/ulid/v2"
@@ -159,7 +160,7 @@ func NewService(config Config) (*Service, error) {
 // LoginInput contains the information needed to login
 type LoginInput struct {
 	Username  string
-	Password  string
+	Password  string //nolint:gosec // G101: credential field required for authentication
 	IP        string
 	UserAgent string
 }
@@ -223,7 +224,7 @@ func (s *Service) Login(ctx context.Context, input LoginInput) (*LoginResult, er
 	}
 
 	if authErr := s.sessions.Create(ctx, session); authErr != nil {
-		return nil, authErr
+		return nil, fmt.Errorf("create session: %w", authErr)
 	}
 
 	// Generate JWT token
@@ -234,7 +235,7 @@ func (s *Service) Login(ctx context.Context, input LoginInput) (*LoginResult, er
 		SessionID: sessionID,
 	})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("generate JWT token: %w", err)
 	}
 
 	// Update last login (ignore errors, this is best-effort)
@@ -263,7 +264,7 @@ func (s *Service) Logout(ctx context.Context, sessionID, ip, userAgent string) e
 	}
 
 	if err := s.sessions.Revoke(ctx, sessionID, "logout"); err != nil {
-		return err
+		return fmt.Errorf("revoke session: %w", err)
 	}
 
 	// Log logout
@@ -333,12 +334,12 @@ func (s *Service) ChangePassword(ctx context.Context, input ChangePasswordInput)
 	// Validate and hash new password
 	newHash, err := s.password.HashPassword(input.NewPassword)
 	if err != nil {
-		return err
+		return fmt.Errorf("hash password: %w", err)
 	}
 
 	// Update password
 	if err := s.users.UpdatePassword(ctx, user.ID, newHash); err != nil {
-		return err
+		return fmt.Errorf("update password: %w", err)
 	}
 
 	// Revoke all other sessions (security measure)
@@ -368,7 +369,7 @@ func (s *Service) RevokeAllSessions(ctx context.Context, targetUserID, adminID, 
 
 	// Revoke all sessions
 	if err := s.sessions.RevokeAllForUser(ctx, targetUserID, "admin_revocation"); err != nil {
-		return err
+		return fmt.Errorf("revoke all sessions: %w", err)
 	}
 
 	// Log the revocation with admin context
@@ -382,12 +383,20 @@ func (s *Service) RevokeAllSessions(ctx context.Context, targetUserID, adminID, 
 
 // GetCurrentUser retrieves the current user by ID
 func (s *Service) GetCurrentUser(ctx context.Context, userID string) (*User, error) {
-	return s.users.GetByID(ctx, userID)
+	user, err := s.users.GetByID(ctx, userID)
+	if err != nil {
+		return nil, fmt.Errorf("get current user: %w", err)
+	}
+	return user, nil
 }
 
 // GetUserSessions retrieves all active sessions for a user
 func (s *Service) GetUserSessions(ctx context.Context, userID string) ([]*Session, error) {
-	return s.sessions.GetActiveForUser(ctx, userID)
+	sessions, err := s.sessions.GetActiveForUser(ctx, userID)
+	if err != nil {
+		return nil, fmt.Errorf("get user sessions: %w", err)
+	}
+	return sessions, nil
 }
 
 // ValidatePassword validates a password against the policy

@@ -65,16 +65,16 @@ interface SequenceCardProps {
 const SequenceCard = memo(function SequenceCard({ sequence, onEdit, onToggle, onDelete }: SequenceCardProps) {
   return (
     <Card className={sequence.isEnabled ? '' : 'opacity-50'}>
-      <CardHeader className="pb-3">
+      <CardHeader className="pb-component-sm">
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <div className="flex items-center gap-component-sm mb-1">
+            <div className="flex items-center gap-component-md mb-component-sm">
               <h3 className="font-semibold text-base">{sequence.name}</h3>
               {sequence.protectedPort === 22 && (
                 <ShieldAlert className="h-4 w-4 text-warning" aria-label="SSH protected service" />
               )}
             </div>
-            <div className="flex items-center gap-component-sm">
+            <div className="flex items-center gap-component-md">
               <Badge variant={sequence.isEnabled ? 'success' : 'secondary'} className="text-xs">
                 {sequence.isEnabled ? 'Active' : 'Disabled'}
               </Badge>
@@ -95,8 +95,8 @@ const SequenceCard = memo(function SequenceCard({ sequence, onEdit, onToggle, on
       <CardContent className="pt-0 space-y-component-md">
         {/* Knock Sequence */}
         <div>
-          <div className="text-xs font-medium text-muted-foreground mb-1">Knock Sequence</div>
-          <div className="flex flex-wrap gap-component-sm">
+          <div className="text-xs font-medium text-muted-foreground mb-component-sm">Knock Sequence</div>
+          <div className="flex flex-wrap gap-component-md">
             {sequence.knockPorts.map((port, index) => (
               <Badge key={index} variant="outline" className="font-mono text-xs">
                 {port.port} <span className="text-muted-foreground ml-1">{port.protocol.toUpperCase()}</span>
@@ -106,23 +106,23 @@ const SequenceCard = memo(function SequenceCard({ sequence, onEdit, onToggle, on
         </div>
 
         {/* Stats */}
-        <div className="flex items-center gap-component-lg text-xs text-muted-foreground">
-          <div className="flex items-center gap-component-sm">
+        <div className="flex items-center gap-component-xl text-xs text-muted-foreground">
+          <div className="flex items-center gap-component-md">
             <Activity className="h-3 w-3" aria-hidden="true" />
             <span>Recent: <strong className="font-mono">{sequence.recentAccessCount || 0}</strong></span>
           </div>
-          <div className="flex items-center gap-component-sm">
+          <div className="flex items-center gap-component-md">
             <Clock className="h-3 w-3" aria-hidden="true" />
             <span>Knock: {sequence.knockTimeout}</span>
           </div>
-          <div className="flex items-center gap-component-sm">
+          <div className="flex items-center gap-component-md">
             <Clock className="h-3 w-3" aria-hidden="true" />
             <span>Access: {sequence.accessTimeout}</span>
           </div>
         </div>
 
         {/* Actions */}
-        <div className="flex gap-component-sm pt-2">
+        <div className="flex gap-component-md pt-component-sm">
           <Button
             variant="outline"
             size="sm"
@@ -228,8 +228,8 @@ export const PortKnockSequenceManagerMobile = memo(function PortKnockSequenceMan
       <div className="flex flex-col items-center justify-center py-12 space-y-component-md">
         <ShieldAlert className="h-12 w-12 text-muted-foreground" />
         <div className="text-center px-4">
-          <h3 className="text-lg font-semibold mb-1 font-display">No Port Knock Sequences</h3>
-          <p className="text-sm text-muted-foreground mb-4">
+          <h3 className="text-lg font-semibold mb-component-sm font-display">No Port Knock Sequences</h3>
+          <p className="text-sm text-muted-foreground mb-component-md">
             Create a knock sequence to protect sensitive services.
           </p>
           {onCreate && (
@@ -242,7 +242,7 @@ export const PortKnockSequenceManagerMobile = memo(function PortKnockSequenceMan
 
   return (
     <>
-      <div className={cn('space-y-component-sm', className)}>
+      <div className={cn('space-y-component-md', className)}>
         {sequences.map((sequence) => (
           <SequenceCard
             key={sequence.id}
@@ -263,14 +263,14 @@ export const PortKnockSequenceManagerMobile = memo(function PortKnockSequenceMan
               Are you sure you want to delete the sequence "{sequenceToDelete?.name}"?
               This will remove all associated firewall rules.
               {sequenceToDelete?.protectedPort === 22 && (
-                <div className="mt-2 p-component-sm bg-warning/10 border border-warning rounded-[var(--semantic-radius-button)] text-sm">
+                <div className="mt-component-sm p-component-sm bg-warning/10 border border-warning rounded-lg text-sm">
                   <strong>Warning:</strong> This sequence protects SSH. Ensure you have alternative
                   access before deleting.
                 </div>
               )}
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="flex-col gap-component-sm">
+          <DialogFooter className="flex-col gap-component-md">
             <Button variant="destructive" onClick={handleDeleteConfirm} className="min-h-[44px] w-full">
               Delete
             </Button>

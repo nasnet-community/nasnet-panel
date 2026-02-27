@@ -134,7 +134,7 @@ export const HorizontalLayout: Story = {
 export const AllSizes: Story = {
   render: () => (
     <div className="flex items-end gap-8">
-      {(['xs', 'sm', 'md', 'lg', 'xl'] as const).map((size) => (
+      {(['sm', 'md', 'lg', 'xl'] as const).map((size) => (
         <div key={size} className="flex flex-col items-center gap-2">
           <LoadingSpinner size={size} label={`${size} spinner`} />
           <span className="text-xs text-muted-foreground font-mono">{size}</span>
@@ -145,7 +145,7 @@ export const AllSizes: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'All five size variants: xs (12px), sm (16px), md (20px), lg (24px), xl (32px).',
+        story: 'All four size variants: sm (16px), md (24px), lg (32px), xl (48px).',
       },
     },
   },

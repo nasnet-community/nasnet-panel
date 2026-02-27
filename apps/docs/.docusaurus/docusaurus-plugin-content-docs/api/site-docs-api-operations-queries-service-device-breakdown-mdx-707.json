@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/service-device-breakdown",
+  "title": "serviceDeviceBreakdown",
+  "description": "Get per-device traffic breakdown for a service instance.",
+  "source": "@site/docs/api/operations/queries/service-device-breakdown.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/service-device-breakdown",
+  "permalink": "/api/operations/queries/service-device-breakdown",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "service-device-breakdown",
+    "title": "serviceDeviceBreakdown"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "serviceDependents",
+    "permalink": "/api/operations/queries/service-dependents"
+  },
+  "next": {
+    "title": "serviceInstance",
+    "permalink": "/api/operations/queries/service-instance"
+  }
+}

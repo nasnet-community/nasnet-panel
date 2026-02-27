@@ -72,7 +72,7 @@ function ExpandableDetails({ details, id }: { details: string; id: string }) {
         onClick={() => setIsExpanded(!isExpanded)}
         aria-expanded={isExpanded}
         aria-controls={detailsId}
-        className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1 rounded"
+        className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded"
       >
         {isExpanded ? (
           <>
@@ -89,7 +89,7 @@ function ExpandableDetails({ details, id }: { details: string; id: string }) {
       {isExpanded && (
         <pre
           id={detailsId}
-          className="mt-2 text-xs bg-muted/50 p-2 rounded-md overflow-x-auto max-h-24 font-mono"
+          className="mt-2 text-xs bg-muted p-2 rounded-[var(--semantic-radius-input)] overflow-x-auto max-h-24 font-mono text-muted-foreground"
           tabIndex={0}
         >
           {details}
@@ -106,12 +106,12 @@ function ProgressBar({ progress }: { progress: number }) {
   const clampedProgress = Math.max(0, Math.min(100, progress));
 
   return (
-    <div className="mt-2 w-full">
-      <div className="flex justify-between text-xs text-muted-foreground mb-1">
+    <div className="mt-3 w-full">
+      <div className="flex justify-between text-xs text-muted-foreground mb-2">
         <span>Progress</span>
         <span>{Math.round(clampedProgress)}%</span>
       </div>
-      <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+      <div className="h-2 bg-muted rounded-full overflow-hidden">
         <div
           className="h-full bg-primary transition-all duration-300 ease-out rounded-full"
           style={{ width: `${clampedProgress}%` }}
@@ -164,7 +164,7 @@ function ToastContent({
               action.onClick();
               onDismiss();
             }}
-            className="px-3 py-1.5 text-xs font-medium bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+            className="px-3 py-1.5 text-xs font-medium bg-primary text-primary-foreground rounded-[var(--semantic-radius-button)] hover:bg-primary-hover transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
           >
             {action.label}
           </button>

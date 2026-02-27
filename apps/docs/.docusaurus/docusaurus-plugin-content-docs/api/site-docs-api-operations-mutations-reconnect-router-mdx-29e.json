@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/reconnect-router",
+  "title": "reconnectRouter",
+  "description": "Manually trigger reconnection to a router",
+  "source": "@site/docs/api/operations/mutations/reconnect-router.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/reconnect-router",
+  "permalink": "/api/operations/mutations/reconnect-router",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "reconnect-router",
+    "title": "reconnectRouter"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "previewNotificationTemplate",
+    "permalink": "/api/operations/mutations/preview-notification-template"
+  },
+  "next": {
+    "title": "refreshCapabilities",
+    "permalink": "/api/operations/mutations/refresh-capabilities"
+  }
+}

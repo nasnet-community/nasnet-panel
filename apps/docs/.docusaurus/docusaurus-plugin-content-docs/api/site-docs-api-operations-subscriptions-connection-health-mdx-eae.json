@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/subscriptions/connection-health",
+  "title": "connectionHealth",
+  "description": "Subscribe to connection health updates",
+  "source": "@site/docs/api/operations/subscriptions/connection-health.mdx",
+  "sourceDirName": "api/operations/subscriptions",
+  "slug": "/api/operations/subscriptions/connection-health",
+  "permalink": "/api/operations/subscriptions/connection-health",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "connection-health",
+    "title": "connectionHealth"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "configApplyProgress",
+    "permalink": "/api/operations/subscriptions/config-apply-progress"
+  },
+  "next": {
+    "title": "deviceRoutingChanged",
+    "permalink": "/api/operations/subscriptions/device-routing-changed"
+  }
+}

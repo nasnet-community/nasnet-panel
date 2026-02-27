@@ -141,9 +141,9 @@ export const InterfaceSelectorDesktop = memo(function InterfaceSelectorDesktop(
             aria-invalid={!!displayError}
             disabled={disabled}
             className={cn(
-              'w-full justify-between font-normal',
+              'w-full h-10 justify-between font-normal font-mono',
               !displayValue && 'text-muted-foreground',
-              displayError && 'border-destructive'
+              displayError && 'border-error'
             )}
           >
             <span className="truncate">
@@ -154,13 +154,13 @@ export const InterfaceSelectorDesktop = memo(function InterfaceSelectorDesktop(
         </PopoverTrigger>
 
         <PopoverContent
-          className="w-[320px] p-0"
+          className="w-[320px] p-0 shadow-[var(--semantic-shadow-dropdown)]"
           align="start"
           onKeyDown={handleKeyDown}
         >
           {/* Search and filter header */}
           <div className="p-3 border-b border-border space-y-3">
-            {/* Search input */}
+            {/* Search input - monospace for network data */}
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
@@ -168,7 +168,7 @@ export const InterfaceSelectorDesktop = memo(function InterfaceSelectorDesktop(
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search interfaces..."
-                className="pl-9 h-9"
+                className="pl-9 h-9 font-mono text-sm"
                 aria-label="Search interfaces"
               />
               {searchQuery && (
@@ -194,7 +194,7 @@ export const InterfaceSelectorDesktop = memo(function InterfaceSelectorDesktop(
             )}
           </div>
 
-          {/* Interface list */}
+          {/* Interface list - grouped by type */}
           <ScrollArea className="max-h-[300px]">
             <div
               ref={listRef}
@@ -202,7 +202,7 @@ export const InterfaceSelectorDesktop = memo(function InterfaceSelectorDesktop(
               role="listbox"
               aria-label="Interface list"
               aria-multiselectable={multiple}
-              className="p-2"
+              className="p-2 space-y-1"
             >
               {/* Loading state */}
               {isLoading && (

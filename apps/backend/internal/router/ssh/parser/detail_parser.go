@@ -2,6 +2,7 @@ package parser
 
 import (
 	"context"
+	"fmt"
 	"regexp"
 	"strings"
 )
@@ -97,7 +98,7 @@ func (p *detailParser) Parse(ctx context.Context, raw string, hints ParseHints) 
 		// Check context cancellation
 		select {
 		case <-ctx.Done():
-			return nil, ctx.Err()
+			return nil, fmt.Errorf("parse detail: %w", ctx.Err())
 		default:
 		}
 
@@ -189,10 +190,10 @@ func (p *detailParser) parseRowStart(line string) (rowNum string, flags TableFla
 	// Count leading spaces (indentation)
 	leadingSpaces := 0
 	for _, ch := range line {
-		switch {
-		case ch == ' ':
+		switch ch {
+		case ' ':
 			leadingSpaces++
-		case ch == '\t':
+		case '\t':
 			leadingSpaces += 4
 		default:
 			break
@@ -373,10 +374,10 @@ func isContinuationLine(line string) bool {
 	// Count leading spaces
 	leadingSpaces := 0
 	for _, ch := range line {
-		switch {
-		case ch == ' ':
+		switch ch {
+		case ' ':
 			leadingSpaces++
-		case ch == '\t':
+		case '\t':
 			leadingSpaces += 4
 		default:
 			break

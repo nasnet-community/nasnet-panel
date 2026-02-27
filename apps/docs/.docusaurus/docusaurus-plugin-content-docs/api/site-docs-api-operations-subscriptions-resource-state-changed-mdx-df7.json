@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/subscriptions/resource-state-changed",
+  "title": "resourceStateChanged",
+  "description": "Subscribe to resource lifecycle state changes",
+  "source": "@site/docs/api/operations/subscriptions/resource-state-changed.mdx",
+  "sourceDirName": "api/operations/subscriptions",
+  "slug": "/api/operations/subscriptions/resource-state-changed",
+  "permalink": "/api/operations/subscriptions/resource-state-changed",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "resource-state-changed",
+    "title": "resourceStateChanged"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "resourceRuntime",
+    "permalink": "/api/operations/subscriptions/resource-runtime"
+  },
+  "next": {
+    "title": "resourceUpdated",
+    "permalink": "/api/operations/subscriptions/resource-updated"
+  }
+}

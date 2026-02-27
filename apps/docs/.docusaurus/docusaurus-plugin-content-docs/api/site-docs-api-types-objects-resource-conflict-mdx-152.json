@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/resource-conflict",
+  "title": "ResourceConflict",
+  "description": "Conflict with another resource",
+  "source": "@site/docs/api/types/objects/resource-conflict.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/resource-conflict",
+  "permalink": "/api/types/objects/resource-conflict",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "resource-conflict",
+    "title": "ResourceConflict"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ResetExternalStoragePayload",
+    "permalink": "/api/types/objects/reset-external-storage-payload"
+  },
+  "next": {
+    "title": "ResourceConnection",
+    "permalink": "/api/types/objects/resource-connection"
+  }
+}

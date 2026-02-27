@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/bandwidth-data-point",
+  "title": "BandwidthDataPoint",
+  "description": "A bandwidth data point",
+  "source": "@site/docs/api/types/objects/bandwidth-data-point.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/bandwidth-data-point",
+  "permalink": "/api/types/objects/bandwidth-data-point",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "bandwidth-data-point",
+    "title": "BandwidthDataPoint"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "AvailableService",
+    "permalink": "/api/types/objects/available-service"
+  },
+  "next": {
+    "title": "BatchInterfacePayload",
+    "permalink": "/api/types/objects/batch-interface-payload"
+  }
+}

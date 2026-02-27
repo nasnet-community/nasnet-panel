@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/test-port-knock-sequence",
+  "title": "testPortKnockSequence",
+  "description": "Test port knock sequence.",
+  "source": "@site/docs/api/operations/mutations/test-port-knock-sequence.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/test-port-knock-sequence",
+  "permalink": "/api/operations/mutations/test-port-knock-sequence",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "test-port-knock-sequence",
+    "title": "testPortKnockSequence"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "testNotificationChannel",
+    "permalink": "/api/operations/mutations/test-notification-channel"
+  },
+  "next": {
+    "title": "testRouterConnection",
+    "permalink": "/api/operations/mutations/test-router-connection"
+  }
+}

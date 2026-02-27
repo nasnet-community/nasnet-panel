@@ -58,11 +58,7 @@ const BreadcrumbTablet = React.memo(function BreadcrumbTablet({
   if (shouldCollapse) {
     // Show first, last, and one before last
     const lastIdx = segments.length - 1;
-    visibleSegments = [
-      segments[0],
-      segments[lastIdx - 1],
-      segments[lastIdx],
-    ];
+    visibleSegments = [segments[0], segments[lastIdx - 1], segments[lastIdx]];
     hiddenCount = segments.length - 3;
   }
 
@@ -70,25 +66,28 @@ const BreadcrumbTablet = React.memo(function BreadcrumbTablet({
     <nav
       aria-label="Breadcrumb"
       dir={dir}
-      className={cn('flex items-center', className)}
+      className={cn('text-muted-foreground flex items-center gap-1.5 text-sm', className)}
     >
-      <ol className="flex items-center gap-inlineGap text-sm">
+      <ol className="flex items-center gap-1.5">
         {visibleSegments.map((segment, index) => (
           <React.Fragment key={segment.key}>
             {/* Ellipsis for collapsed items */}
             {index === 1 && shouldCollapse && hiddenCount > 0 && (
               <>
                 <Separator
-                  className="mx-1 h-4 w-4 text-muted-foreground"
+                  className="text-muted-foreground/50 h-4 w-4"
                   aria-hidden="true"
                 />
                 <li>
                   <button
                     onClick={() => setExpanded(true)}
-                    className="flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                    className="text-muted-foreground hover:bg-muted focus-visible:ring-ring flex h-9 w-9 items-center justify-center rounded-md transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2"
                     aria-label={`Show ${hiddenCount} more items`}
                   >
-                    <MoreHorizontal className="h-4 w-4" aria-hidden="true" />
+                    <MoreHorizontal
+                      className="h-4 w-4"
+                      aria-hidden="true"
+                    />
                   </button>
                 </li>
               </>
@@ -97,44 +96,47 @@ const BreadcrumbTablet = React.memo(function BreadcrumbTablet({
             {/* Separator */}
             {index > 0 && !(index === 1 && shouldCollapse) && (
               <Separator
-                className="mx-1 h-4 w-4 text-muted-foreground"
+                className="text-muted-foreground/50 h-4 w-4"
                 aria-hidden="true"
               />
             )}
 
             {/* Segment */}
-            <li className="flex items-center">
-              {segment.isCurrent ? (
-                // Current page (not clickable)
-                <span
-                  aria-current="page"
-                  className="truncate font-medium text-foreground"
-                >
-                  {showHomeIcon && index === 0 ? (
-                    <span className="flex items-center gap-1.5">
-                      <Home className="h-4 w-4" aria-hidden="true" />
-                      <span className="sr-only">{segment.label}</span>
-                    </span>
-                  ) : (
-                    segment.label
-                  )}
-                </span>
-              ) : (
-                // Clickable link with touch target
-                <Link
-                  to={segment.path}
-                  className="flex h-9 items-center rounded-md px-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                >
-                  {showHomeIcon && index === 0 ? (
-                    <span className="flex items-center gap-1.5">
-                      <Home className="h-4 w-4" aria-hidden="true" />
-                      <span className="sr-only">{segment.label}</span>
-                    </span>
-                  ) : (
-                    <span className="truncate">{segment.label}</span>
-                  )}
-                </Link>
-              )}
+            <li className="flex min-h-[44px] items-center">
+              {
+                segment.isCurrent ?
+                  // Current page (not clickable)
+                  <span
+                    aria-current="page"
+                    className="text-foreground max-w-[120px] truncate font-medium"
+                  >
+                    {showHomeIcon && index === 0 ?
+                      <span className="flex items-center gap-1.5">
+                        <Home
+                          className="h-4 w-4"
+                          aria-hidden="true"
+                        />
+                        <span className="sr-only">{segment.label}</span>
+                      </span>
+                    : segment.label}
+                  </span>
+                  // Clickable link with touch target
+                : <Link
+                    to={segment.path}
+                    className="text-muted-foreground hover:text-foreground focus-visible:ring-ring flex h-9 cursor-pointer items-center rounded-md px-2 transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2"
+                  >
+                    {showHomeIcon && index === 0 ?
+                      <span className="flex items-center gap-1.5">
+                        <Home
+                          className="h-4 w-4"
+                          aria-hidden="true"
+                        />
+                        <span className="sr-only">{segment.label}</span>
+                      </span>
+                    : <span className="max-w-[120px] truncate">{segment.label}</span>}
+                  </Link>
+
+              }
             </li>
           </React.Fragment>
         ))}
@@ -154,44 +156,42 @@ const BreadcrumbTablet = React.memo(function BreadcrumbTablet({
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
-              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-96 max-h-96 rounded-lg bg-card p-4 shadow-lg"
+              className="bg-card absolute left-1/2 top-1/2 max-h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-lg p-4 shadow-lg"
               onClick={(e) => e.stopPropagation()}
             >
-              <h3 className="mb-3 text-sm font-medium text-muted-foreground">
-                Navigation Path
-              </h3>
-              <ol className="space-y-1 overflow-y-auto max-h-80">
+              <h3 className="text-muted-foreground mb-3 text-sm font-semibold">Navigation Path</h3>
+              <ol className="max-h-80 space-y-0 overflow-y-auto">
                 {segments.map((segment, index) => (
                   <li key={segment.key}>
-                    {segment.isCurrent ? (
+                    {segment.isCurrent ?
                       <span
                         aria-current="page"
-                        className="flex h-10 items-center rounded-md bg-accent px-3 font-medium"
+                        className="bg-accent text-accent-foreground flex h-10 items-center rounded-md px-3 font-medium"
                       >
                         {segment.label}
                       </span>
-                    ) : (
-                      <Link
+                    : <Link
                         to={segment.path}
                         onClick={() => setExpanded(false)}
-                        className="flex h-10 items-center rounded-md px-3 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                        className="text-muted-foreground hover:bg-accent hover:text-accent-foreground focus-visible:ring-ring flex h-10 cursor-pointer items-center rounded-md px-3 transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2"
                       >
-                        {showHomeIcon && index === 0 ? (
+                        {showHomeIcon && index === 0 ?
                           <span className="flex items-center gap-2">
-                            <Home className="h-4 w-4" aria-hidden="true" />
+                            <Home
+                              className="h-4 w-4"
+                              aria-hidden="true"
+                            />
                             {segment.label}
                           </span>
-                        ) : (
-                          segment.label
-                        )}
+                        : segment.label}
                       </Link>
-                    )}
+                    }
                   </li>
                 ))}
               </ol>
               <button
                 onClick={() => setExpanded(false)}
-                className="mt-4 w-full rounded-md bg-muted py-2.5 font-medium transition-colors hover:bg-muted/80"
+                className="bg-muted hover:bg-muted/80 focus-visible:ring-ring mt-4 w-full rounded-md py-2.5 font-medium transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2"
               >
                 Close
               </button>

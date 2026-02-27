@@ -117,14 +117,14 @@ function TemplateFiltersComponent({
             placeholder="Search by name, description, or tags..."
             value={filters.searchQuery}
             onChange={handleSearchChange}
-            className="pl-9 min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className="pl-9 min-h-[44px]"
             aria-describedby="search-help"
           />
           {filters.searchQuery && (
             <button
               type="button"
               onClick={handleClearSearch}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground rounded-sm"
               aria-label="Clear search"
             >
               <X className="h-4 w-4" aria-hidden="true" />
@@ -156,7 +156,7 @@ function TemplateFiltersComponent({
       <div className="space-y-component-sm">
         <Label htmlFor="template-scope">Scope</Label>
         <Select value={filters.scope || 'all'} onValueChange={handleScopeChange}>
-          <SelectTrigger id="template-scope" className="min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+          <SelectTrigger id="template-scope" className="min-h-[44px]">
             <SelectValue placeholder="All scopes" />
           </SelectTrigger>
           <SelectContent>
@@ -172,7 +172,7 @@ function TemplateFiltersComponent({
       <div className="space-y-component-sm">
         <Label htmlFor="template-sort">Sort By</Label>
         <Select value={filters.sortBy} onValueChange={handleSortChange}>
-          <SelectTrigger id="template-sort" className="min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+          <SelectTrigger id="template-sort" className="min-h-[44px]">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -194,7 +194,6 @@ function TemplateFiltersComponent({
             id="show-builtin"
             checked={filters.showBuiltIn}
             onCheckedChange={handleBuiltInChange}
-            className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             aria-label="Show built-in templates"
           />
         </div>
@@ -206,7 +205,6 @@ function TemplateFiltersComponent({
             id="show-custom"
             checked={filters.showCustom}
             onCheckedChange={handleCustomChange}
-            className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             aria-label="Show custom templates"
           />
         </div>
@@ -218,7 +216,7 @@ function TemplateFiltersComponent({
           variant="outline"
           size="sm"
           onClick={onReset}
-          className="w-full min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          className="w-full min-h-[44px]"
           aria-label="Reset all filters to defaults"
         >
           <Filter className="mr-2 h-4 w-4" aria-hidden="true" />

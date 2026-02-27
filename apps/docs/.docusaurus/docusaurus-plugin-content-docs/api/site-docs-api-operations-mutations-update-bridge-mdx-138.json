@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/update-bridge",
+  "title": "updateBridge",
+  "description": "Update an existing bridge",
+  "source": "@site/docs/api/operations/mutations/update-bridge.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/update-bridge",
+  "permalink": "/api/operations/mutations/update-bridge",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "update-bridge",
+    "title": "updateBridge"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "updateBridgePort",
+    "permalink": "/api/operations/mutations/update-bridge-port"
+  },
+  "next": {
+    "title": "updateChangeSetItem",
+    "permalink": "/api/operations/mutations/update-change-set-item"
+  }
+}

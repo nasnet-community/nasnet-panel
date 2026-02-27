@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/route-mutation-result",
+  "title": "RouteMutationResult",
+  "description": "Result of a route mutation (create, update)",
+  "source": "@site/docs/api/types/objects/route-mutation-result.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/route-mutation-result",
+  "permalink": "/api/types/objects/route-mutation-result",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "route-mutation-result",
+    "title": "RouteMutationResult"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "RouteLookupResult",
+    "permalink": "/api/types/objects/route-lookup-result"
+  },
+  "next": {
+    "title": "RouteResource",
+    "permalink": "/api/types/objects/route-resource"
+  }
+}

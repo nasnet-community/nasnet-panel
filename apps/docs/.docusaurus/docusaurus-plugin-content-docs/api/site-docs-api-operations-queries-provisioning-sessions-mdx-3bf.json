@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/provisioning-sessions",
+  "title": "provisioningSessions",
+  "description": "List all provisioning sessions for a router",
+  "source": "@site/docs/api/operations/queries/provisioning-sessions.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/provisioning-sessions",
+  "permalink": "/api/operations/queries/provisioning-sessions",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "provisioning-sessions",
+    "title": "provisioningSessions"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "provisioningSession",
+    "permalink": "/api/operations/queries/provisioning-session"
+  },
+  "next": {
+    "title": "pushoverUsage",
+    "permalink": "/api/operations/queries/pushover-usage"
+  }
+}

@@ -43,7 +43,7 @@ const WirelessInterfaceSkeleton = React.memo(function WirelessInterfaceSkeletonC
  */
 const WirelessInterfacesEmpty = React.memo(function WirelessInterfacesEmptyComponent() {
   return (
-    <div className="flex flex-col items-center justify-center py-16 px-4 text-center" role="status">
+    <div className="flex flex-col items-center justify-center py-16 px-component-md text-center" role="status">
       <div className="p-component-lg rounded-full bg-muted mb-component-md">
         <Icon icon={Wifi} size="lg" className="text-muted-foreground" aria-hidden="true" />
       </div>
@@ -67,14 +67,14 @@ const WirelessInterfacesError = React.memo(function WirelessInterfacesErrorCompo
   }, []);
 
   return (
-    <div className="flex flex-col items-center justify-center py-16 px-4 text-center" role="alert">
-      <div className="p-component-lg rounded-full bg-error/10 mb-4">
+    <div className="flex flex-col items-center justify-center py-16 px-component-md text-center" role="alert">
+      <div className="p-component-lg rounded-full bg-error/10 mb-component-md">
         <Icon icon={Wifi} size="lg" className="text-error" aria-hidden="true" />
       </div>
-      <h3 className="text-lg font-semibold font-display text-foreground mb-2">
+      <h3 className="text-lg font-semibold font-display text-foreground mb-component-sm">
         Failed to load wireless interfaces
       </h3>
-      <p className="text-sm text-muted-foreground max-w-md mb-4">
+      <p className="text-sm text-muted-foreground max-w-md mb-component-md">
         {error.message || 'An error occurred while loading wireless interfaces'}
       </p>
       <button

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/flush-dns-cache-result",
+  "title": "FlushDnsCacheResult",
+  "description": "Result of flushing the DNS cache",
+  "source": "@site/docs/api/types/objects/flush-dns-cache-result.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/flush-dns-cache-result",
+  "permalink": "/api/types/objects/flush-dns-cache-result",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "flush-dns-cache-result",
+    "title": "FlushDnsCacheResult"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "FirewallTemplate",
+    "permalink": "/api/types/objects/firewall-template"
+  },
+  "next": {
+    "title": "GatewayInfo",
+    "permalink": "/api/types/objects/gateway-info"
+  }
+}

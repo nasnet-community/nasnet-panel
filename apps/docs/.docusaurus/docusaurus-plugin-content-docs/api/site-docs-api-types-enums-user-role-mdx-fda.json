@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/user-role",
+  "title": "UserRole",
+  "description": "User roles for authorization",
+  "source": "@site/docs/api/types/enums/user-role.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/user-role",
+  "permalink": "/api/types/enums/user-role",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "user-role",
+    "title": "UserRole"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "UpgradePriority",
+    "permalink": "/api/types/enums/upgrade-priority"
+  },
+  "next": {
+    "title": "ValidateFormat",
+    "permalink": "/api/types/enums/validate-format"
+  }
+}

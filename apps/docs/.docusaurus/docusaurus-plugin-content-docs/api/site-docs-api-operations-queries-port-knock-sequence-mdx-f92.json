@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/port-knock-sequence",
+  "title": "portKnockSequence",
+  "description": "Get single port knock sequence by ID.",
+  "source": "@site/docs/api/operations/queries/port-knock-sequence.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/port-knock-sequence",
+  "permalink": "/api/operations/queries/port-knock-sequence",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "port-knock-sequence",
+    "title": "portKnockSequence"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "portKnockLog",
+    "permalink": "/api/operations/queries/port-knock-log"
+  },
+  "next": {
+    "title": "portKnockSequences",
+    "permalink": "/api/operations/queries/port-knock-sequences"
+  }
+}

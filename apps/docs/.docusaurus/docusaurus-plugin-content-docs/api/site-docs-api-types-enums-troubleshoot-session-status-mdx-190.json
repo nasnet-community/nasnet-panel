@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/troubleshoot-session-status",
+  "title": "TroubleshootSessionStatus",
+  "description": "Overall status of a troubleshooting session",
+  "source": "@site/docs/api/types/enums/troubleshoot-session-status.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/troubleshoot-session-status",
+  "permalink": "/api/types/enums/troubleshoot-session-status",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "troubleshoot-session-status",
+    "title": "TroubleshootSessionStatus"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "TransportProtocol",
+    "permalink": "/api/types/enums/transport-protocol"
+  },
+  "next": {
+    "title": "TroubleshootStepStatus",
+    "permalink": "/api/types/enums/troubleshoot-step-status"
+  }
+}

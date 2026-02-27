@@ -124,7 +124,7 @@ function DataTableInner<T extends Record<string, unknown>>({
   );
 
   return (
-    <div className={cn('rounded-md border border-border overflow-hidden', className)}>
+    <div className={cn('bg-card border border-border rounded-[var(--semantic-radius-card)] overflow-hidden', className)}>
       <Table aria-label="Data table">
         <TableHeader>
           <TableRow className="bg-muted border-b border-border hover:bg-muted">
@@ -132,7 +132,10 @@ function DataTableInner<T extends Record<string, unknown>>({
               <TableHead
                 key={String(column.key) + index}
                 scope="col"
-                className={cn('text-muted-foreground font-semibold', column.headerClassName)}
+                className={cn(
+                  'px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground',
+                  column.headerClassName
+                )}
               >
                 {column.header}
               </TableHead>
@@ -144,7 +147,7 @@ function DataTableInner<T extends Record<string, unknown>>({
             <TableRow>
               <TableCell
                 colSpan={columns.length}
-                className="h-24 text-center text-muted-foreground"
+                className="h-24 text-center text-muted-foreground py-12"
               >
                 Loading...
               </TableCell>
@@ -153,7 +156,7 @@ function DataTableInner<T extends Record<string, unknown>>({
             <TableRow>
               <TableCell
                 colSpan={columns.length}
-                className="h-24 text-center text-muted-foreground"
+                className="text-center text-muted-foreground py-12"
               >
                 {emptyMessage}
               </TableCell>
@@ -163,12 +166,16 @@ function DataTableInner<T extends Record<string, unknown>>({
               <TableRow
                 key={getRowKey(item, rowIndex)}
                 onClick={() => handleRowClick(item, rowIndex)}
-                className={onRowClick ? 'cursor-pointer hover:bg-accent transition-colors' : undefined}
+                className={cn(
+                  'h-10 border-b border-border hover:bg-muted/50 transition-colors duration-150',
+                  onRowClick && 'cursor-pointer',
+                  'data-[selected]:bg-primary/5'
+                )}
               >
                 {columns.map((column, colIndex) => (
                   <TableCell
                     key={String(column.key) + colIndex}
-                    className={column.className}
+                    className={cn('px-4 py-2 text-sm text-foreground', column.className)}
                   >
                     {getCellValue(item, column, rowIndex)}
                   </TableCell>

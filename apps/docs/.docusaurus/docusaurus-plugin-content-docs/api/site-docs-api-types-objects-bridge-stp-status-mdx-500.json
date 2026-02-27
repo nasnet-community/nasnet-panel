@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/bridge-stp-status",
+  "title": "BridgeStpStatus",
+  "description": "No description",
+  "source": "@site/docs/api/types/objects/bridge-stp-status.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/bridge-stp-status",
+  "permalink": "/api/types/objects/bridge-stp-status",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "bridge-stp-status",
+    "title": "BridgeStpStatus"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "BridgeStatus",
+    "permalink": "/api/types/objects/bridge-status"
+  },
+  "next": {
+    "title": "BridgeVlanMutationResult",
+    "permalink": "/api/types/objects/bridge-vlan-mutation-result"
+  }
+}

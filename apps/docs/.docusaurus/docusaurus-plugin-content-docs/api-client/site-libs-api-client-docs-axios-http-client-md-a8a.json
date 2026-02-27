@@ -1,0 +1,28 @@
+{
+  "id": "axios-http-client",
+  "title": "Axios HTTP Client",
+  "description": "This document covers the Axios-based HTTP client infrastructure in libs/api-client/core/src/. The Axios layer serves two purposes: a general-purpose REST API client for the NasNet backend (/api/v1), and a router proxy client that tunnels RouterOS REST API calls through the Go backend to avoid browser CORS restrictions.",
+  "source": "@site/../../libs/api-client/docs/axios-http-client.md",
+  "sourceDirName": ".",
+  "slug": "/axios-http-client",
+  "permalink": "/docs/api-client/axios-http-client",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/api-client/docs/axios-http-client.md",
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 3,
+  "frontMatter": {
+    "sidebar_position": 3,
+    "title": "Axios HTTP Client"
+  },
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Apollo Client",
+    "permalink": "/docs/api-client/apollo-client"
+  },
+  "next": {
+    "title": "Authentication",
+    "permalink": "/docs/api-client/authentication"
+  }
+}

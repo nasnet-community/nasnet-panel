@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/remove-change-set-item",
+  "title": "removeChangeSetItem",
+  "description": "Remove an item from a change set",
+  "source": "@site/docs/api/operations/mutations/remove-change-set-item.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/remove-change-set-item",
+  "permalink": "/api/operations/mutations/remove-change-set-item",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "remove-change-set-item",
+    "title": "removeChangeSetItem"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "removeBridgePort",
+    "permalink": "/api/operations/mutations/remove-bridge-port"
+  },
+  "next": {
+    "title": "removeDependency",
+    "permalink": "/api/operations/mutations/remove-dependency"
+  }
+}

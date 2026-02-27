@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/flush-dns-cache",
+  "title": "flushDnsCache",
+  "description": "Flush the DNS cache on the router.",
+  "source": "@site/docs/api/operations/mutations/flush-dns-cache.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/flush-dns-cache",
+  "permalink": "/api/operations/mutations/flush-dns-cache",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "flush-dns-cache",
+    "title": "flushDnsCache"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "exportServiceConfig",
+    "permalink": "/api/operations/mutations/export-service-config"
+  },
+  "next": {
+    "title": "generateConfigQR",
+    "permalink": "/api/operations/mutations/generate-config-qr"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/dependency-graph-node",
+  "title": "DependencyGraphNode",
+  "description": "DependencyGraphNode represents a service instance node in the graph.",
+  "source": "@site/docs/api/types/objects/dependency-graph-node.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/dependency-graph-node",
+  "permalink": "/api/types/objects/dependency-graph-node",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "dependency-graph-node",
+    "title": "DependencyGraphNode"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "DependencyGraphEdge",
+    "permalink": "/api/types/objects/dependency-graph-edge"
+  },
+  "next": {
+    "title": "DependencyGraph",
+    "permalink": "/api/types/objects/dependency-graph"
+  }
+}

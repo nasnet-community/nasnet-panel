@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/binary-verification",
+  "title": "BinaryVerification",
+  "description": "Binary verification information for a service instance.",
+  "source": "@site/docs/api/types/objects/binary-verification.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/binary-verification",
+  "permalink": "/api/types/objects/binary-verification",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "binary-verification",
+    "title": "BinaryVerification"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "BatchInterfacePayload",
+    "permalink": "/api/types/objects/batch-interface-payload"
+  },
+  "next": {
+    "title": "BondingConfig",
+    "permalink": "/api/types/objects/bonding-config"
+  }
+}

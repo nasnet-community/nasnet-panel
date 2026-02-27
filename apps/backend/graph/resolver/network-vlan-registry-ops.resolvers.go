@@ -7,41 +7,60 @@ package resolver
 
 import (
 	"backend/graph/model"
-	"backend/internal/errors"
+	"backend/internal/apperrors"
 	"context"
 )
 
 // CleanupOrphanedVLANs is the resolver for the cleanupOrphanedVLANs field.
 func (r *mutationResolver) CleanupOrphanedVLANs(ctx context.Context, routerID string) (int, error) {
-	panic(errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: CleanupOrphanedVLANs - cleanupOrphanedVLANs", "graphql"))
+	panic(apperrors.NewProtocolError(apperrors.CodeCommandFailed, "not implemented: CleanupOrphanedVLANs - cleanupOrphanedVLANs", "graphql"))
 }
 
 // UpdateVLANPoolConfig is the resolver for the updateVLANPoolConfig field.
 func (r *mutationResolver) UpdateVLANPoolConfig(ctx context.Context, poolStart int, poolEnd int) (*model.VLANPoolStatus, error) {
 	// Validate VLAN ID range (IEEE 802.1Q: 1-4094)
 	if poolStart < 1 || poolStart > 4094 {
-		panic(errors.Wrap(errors.NewValidationError("input", nil, "invalid poolStart: must be 1-4094"), errors.CodeValidationFailed, errors.CategoryValidation, "UpdateVLANPoolConfig"))
+		panic(apperrors.Wrap(
+			apperrors.NewValidationError("input", nil, "invalid poolStart: must be 1-4094"),
+			apperrors.CodeValidationFailed,
+			apperrors.CategoryValidation,
+			"UpdateVLANPoolConfig",
+		))
 	}
 	if poolEnd < 1 || poolEnd > 4094 {
-		panic(errors.Wrap(errors.NewValidationError("input", nil, "invalid poolEnd: must be 1-4094"), errors.CodeValidationFailed, errors.CategoryValidation, "UpdateVLANPoolConfig"))
+		panic(apperrors.Wrap(
+			apperrors.NewValidationError("input", nil, "invalid poolEnd: must be 1-4094"),
+			apperrors.CodeValidationFailed,
+			apperrors.CategoryValidation,
+			"UpdateVLANPoolConfig",
+		))
 	}
 	if poolStart >= poolEnd {
-		panic(errors.Wrap(errors.NewValidationError("input", nil, "invalid pool range: poolStart must be less than poolEnd"), errors.CodeValidationFailed, errors.CategoryValidation, "UpdateVLANPoolConfig"))
+		panic(apperrors.Wrap(
+			apperrors.NewValidationError(
+				"input",
+				nil,
+				"invalid pool range: poolStart must be less than poolEnd",
+			),
+			apperrors.CodeValidationFailed,
+			apperrors.CategoryValidation,
+			"UpdateVLANPoolConfig",
+		))
 	}
-	panic(errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: UpdateVLANPoolConfig - updateVLANPoolConfig", "graphql"))
+	panic(apperrors.NewProtocolError(apperrors.CodeCommandFailed, "not implemented: UpdateVLANPoolConfig - updateVLANPoolConfig", "graphql"))
 }
 
 // VlanAllocations is the resolver for the vlanAllocations field.
 func (r *queryResolver) VlanAllocations(ctx context.Context, routerID *string, status *model.VLANAllocationStatus) ([]*model.VLANAllocation, error) {
-	panic(errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: VlanAllocations - vlanAllocations", "graphql"))
+	panic(apperrors.NewProtocolError(apperrors.CodeCommandFailed, "not implemented: VlanAllocations - vlanAllocations", "graphql"))
 }
 
 // VlanPoolStatus is the resolver for the vlanPoolStatus field.
 func (r *queryResolver) VlanPoolStatus(ctx context.Context, routerID string) (*model.VLANPoolStatus, error) {
-	panic(errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: VlanPoolStatus - vlanPoolStatus", "graphql"))
+	panic(apperrors.NewProtocolError(apperrors.CodeCommandFailed, "not implemented: VlanPoolStatus - vlanPoolStatus", "graphql"))
 }
 
 // DetectOrphanedVLANs is the resolver for the detectOrphanedVLANs field.
 func (r *queryResolver) DetectOrphanedVLANs(ctx context.Context, routerID string) ([]*model.VLANAllocation, error) {
-	panic(errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: DetectOrphanedVLANs - detectOrphanedVLANs", "graphql"))
+	panic(apperrors.NewProtocolError(apperrors.CodeCommandFailed, "not implemented: DetectOrphanedVLANs - detectOrphanedVLANs", "graphql"))
 }

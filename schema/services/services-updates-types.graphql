@@ -113,6 +113,23 @@ type UpdateProgress {
 }
 
 """
+Input for configuring update check schedule for an instance.
+"""
+input UpdateCheckScheduleInput {
+  """Router ID"""
+  routerID: ID!
+
+  """Instance ID"""
+  instanceID: ID!
+
+  """Update check schedule (e.g., '6h', '12h', '24h', 'manual')"""
+  checkSchedule: String!
+
+  """Minimum severity to auto-apply (CRITICAL, MAJOR, MINOR, PATCH, MANUAL)"""
+  autoApplyThreshold: String!
+}
+
+"""
 Update result after completion or failure.
 """
 type UpdateResult {

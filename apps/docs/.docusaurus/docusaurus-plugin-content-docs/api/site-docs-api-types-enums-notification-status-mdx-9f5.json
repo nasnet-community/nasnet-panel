@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/notification-status",
+  "title": "NotificationStatus",
+  "description": "Notification delivery status",
+  "source": "@site/docs/api/types/enums/notification-status.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/notification-status",
+  "permalink": "/api/types/enums/notification-status",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "notification-status",
+    "title": "NotificationStatus"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "NotificationChannel",
+    "permalink": "/api/types/enums/notification-channel"
+  },
+  "next": {
+    "title": "PortForwardStatus",
+    "permalink": "/api/types/enums/port-forward-status"
+  }
+}

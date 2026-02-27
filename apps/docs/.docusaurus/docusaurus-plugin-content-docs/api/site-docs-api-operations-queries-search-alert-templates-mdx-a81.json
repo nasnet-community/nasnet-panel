@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/search-alert-templates",
+  "title": "searchAlertTemplates",
+  "description": "Search alert templates",
+  "source": "@site/docs/api/operations/queries/search-alert-templates.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/search-alert-templates",
+  "permalink": "/api/operations/queries/search-alert-templates",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "search-alert-templates",
+    "title": "searchAlertTemplates"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "scanStatus",
+    "permalink": "/api/operations/queries/scan-status"
+  },
+  "next": {
+    "title": "serviceAlerts",
+    "permalink": "/api/operations/queries/service-alerts"
+  }
+}

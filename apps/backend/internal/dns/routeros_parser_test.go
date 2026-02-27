@@ -60,8 +60,8 @@ cache-used: 128KiB`,
 			expectEntries:   true,
 		},
 		{
-			name: "Missing cache-used field",
-			input: `cache-size: 2048KiB`,
+			name:            "Missing cache-used field",
+			input:           `cache-size: 2048KiB`,
 			expectedMax:     2048 * 1024,
 			expectedUsed:    0,
 			expectedPercent: 0.0,
@@ -99,10 +99,10 @@ cache-used: 128KiB`,
 
 func TestSortBenchmarkResults(t *testing.T) {
 	tests := []struct {
-		name              string
-		input             []BenchmarkServerResult
-		expected          []string // Expected server order
-		expectReachable   int       // Expected count of reachable servers before unreachable
+		name            string
+		input           []BenchmarkServerResult
+		expected        []string // Expected server order
+		expectReachable int      // Expected count of reachable servers before unreachable
 	}{
 		{
 			name: "All reachable, sorted by response time",

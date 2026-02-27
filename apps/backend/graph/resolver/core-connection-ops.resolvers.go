@@ -7,46 +7,46 @@ package resolver
 
 import (
 	"backend/graph/model"
-	"backend/internal/errors"
+	"backend/internal/apperrors"
 	"context"
 )
 
 // SetPreferredProtocol is the resolver for the setPreferredProtocol field.
 func (r *mutationResolver) SetPreferredProtocol(ctx context.Context, routerID string, protocol model.Protocol) (*model.SetPreferredProtocolPayload, error) {
-	panic(errors.NewInternalError("not implemented: SetPreferredProtocol - setPreferredProtocol", nil))
+	panic(apperrors.NewInternalError("not implemented: SetPreferredProtocol - setPreferredProtocol", nil))
 }
 
 // ReconnectRouter is the resolver for the reconnectRouter field.
 func (r *mutationResolver) ReconnectRouter(ctx context.Context, routerID string) (*model.ReconnectRouterPayload, error) {
-	panic(errors.NewInternalError("not implemented: ReconnectRouter - reconnectRouter", nil))
+	panic(apperrors.NewInternalError("not implemented: ReconnectRouter - reconnectRouter", nil))
 }
 
 // CheckRouterHealth is the resolver for the checkRouterHealth field.
 func (r *mutationResolver) CheckRouterHealth(ctx context.Context, routerID string) (*model.HealthCheckResult, error) {
-	panic(errors.NewInternalError("not implemented: CheckRouterHealth - checkRouterHealth", nil))
+	panic(apperrors.NewInternalError("not implemented: CheckRouterHealth - checkRouterHealth", nil))
 }
 
 // ConnectionDetails is the resolver for the connectionDetails field.
 func (r *queryResolver) ConnectionDetails(ctx context.Context, routerID string) (*model.ConnectionDetails, error) {
-	panic(errors.NewInternalError("not implemented: ConnectionDetails - connectionDetails", nil))
+	panic(apperrors.NewInternalError("not implemented: ConnectionDetails - connectionDetails", nil))
 }
 
 // RouterHealth is the resolver for the routerHealth field.
 func (r *queryResolver) RouterHealth(ctx context.Context, routerID string) (*model.HealthCheckResult, error) {
-	panic(errors.NewInternalError("not implemented: RouterHealth - routerHealth", nil))
+	panic(apperrors.NewInternalError("not implemented: RouterHealth - routerHealth", nil))
 }
 
 // ConnectionStats is the resolver for the connectionStats field.
 func (r *queryResolver) ConnectionStats(ctx context.Context) (*model.ConnectionStats, error) {
-	panic(errors.NewInternalError("not implemented: ConnectionStats - connectionStats", nil))
+	panic(apperrors.NewInternalError("not implemented: ConnectionStats - connectionStats", nil))
 }
 
 // ConnectionHealth is the resolver for the connectionHealth field.
 func (r *subscriptionResolver) ConnectionHealth(ctx context.Context, routerID *string) (<-chan *model.HealthCheckResult, error) {
-	panic(errors.NewInternalError("not implemented: ConnectionHealth - connectionHealth", nil))
+	panic(apperrors.NewInternalError("not implemented: ConnectionHealth - connectionHealth", nil))
 }
 
 // CircuitBreakerChanged is the resolver for the circuitBreakerChanged field.
 func (r *subscriptionResolver) CircuitBreakerChanged(ctx context.Context, routerID string) (<-chan *model.CircuitBreakerEvent, error) {
-	panic(errors.NewInternalError("not implemented: CircuitBreakerChanged - circuitBreakerChanged", nil))
+	panic(apperrors.NewInternalError("not implemented: CircuitBreakerChanged - circuitBreakerChanged", nil))
 }

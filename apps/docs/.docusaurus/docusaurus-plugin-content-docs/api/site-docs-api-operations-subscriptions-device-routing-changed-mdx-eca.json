@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/subscriptions/device-routing-changed",
+  "title": "deviceRoutingChanged",
+  "description": "Subscribe to device routing changes for a router.",
+  "source": "@site/docs/api/operations/subscriptions/device-routing-changed.mdx",
+  "sourceDirName": "api/operations/subscriptions",
+  "slug": "/api/operations/subscriptions/device-routing-changed",
+  "permalink": "/api/operations/subscriptions/device-routing-changed",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "device-routing-changed",
+    "title": "deviceRoutingChanged"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "connectionHealth",
+    "permalink": "/api/operations/subscriptions/connection-health"
+  },
+  "next": {
+    "title": "diagnosticsProgress",
+    "permalink": "/api/operations/subscriptions/diagnostics-progress"
+  }
+}

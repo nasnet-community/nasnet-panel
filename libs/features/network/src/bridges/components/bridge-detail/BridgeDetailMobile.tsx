@@ -48,7 +48,7 @@ export const BridgeDetailMobile = memo(function BridgeDetailMobile({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="mt-4">
+        <div className="mt-component-md">
           {/* Loading State */}
           {loading && !isCreating && (
             <div className="space-y-component-md">

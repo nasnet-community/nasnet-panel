@@ -48,7 +48,7 @@ export const FormSubmitButton = React.forwardRef<HTMLButtonElement, FormSubmitBu
     className,
     ...props
   }, ref) => {
-    const { formState: { isSubmitting, isValid, isDirty } } = useFormContext();
+    const { formState: { isSubmitting, isValid } } = useFormContext();
 
     // Button is disabled if:
     // - Explicitly disabled
@@ -61,8 +61,10 @@ export const FormSubmitButton = React.forwardRef<HTMLButtonElement, FormSubmitBu
         ref={ref}
         type="submit"
         disabled={isDisabled}
+        variant="default"
         className={cn(
-          'relative',
+          'relative w-full sm:w-auto h-10',
+          isDisabled && 'opacity-50',
           isSubmitting && 'cursor-wait',
           className
         )}

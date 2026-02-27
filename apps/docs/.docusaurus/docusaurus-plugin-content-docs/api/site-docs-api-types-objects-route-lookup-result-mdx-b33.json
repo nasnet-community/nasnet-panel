@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/route-lookup-result",
+  "title": "RouteLookupResult",
+  "description": "Result of a route lookup operation",
+  "source": "@site/docs/api/types/objects/route-lookup-result.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/route-lookup-result",
+  "permalink": "/api/types/objects/route-lookup-result",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "route-lookup-result",
+    "title": "RouteLookupResult"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "RouteLookupCandidate",
+    "permalink": "/api/types/objects/route-lookup-candidate"
+  },
+  "next": {
+    "title": "RouteMutationResult",
+    "permalink": "/api/types/objects/route-mutation-result"
+  }
+}

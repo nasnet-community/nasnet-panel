@@ -151,7 +151,7 @@ function FilterSheet({ browser }: FilterSheetProps) {
                 )}
                 aria-label="Show all categories"
               >
-                <div className="flex flex-col items-start gap-1">
+                <div className="flex flex-col items-start gap-component-xs">
                   <span className="text-xs font-medium">All</span>
                   <Badge variant="outline" className="text-xs">
                     {browser.totalCount}
@@ -175,7 +175,7 @@ function FilterSheet({ browser }: FilterSheetProps) {
                     )}
                     aria-label={`Filter by ${cat.label} category`}
                   >
-                    <div className="flex flex-col items-start gap-1">
+                    <div className="flex flex-col items-start gap-component-xs">
                       <span className="text-xs font-medium">{cat.label}</span>
                       <Badge variant="outline" className="text-xs">
                         {count}
@@ -202,7 +202,7 @@ function FilterSheet({ browser }: FilterSheetProps) {
                 )}
                 aria-label="Show all severities"
               >
-                <div className="flex flex-col items-start gap-1">
+                <div className="flex flex-col items-start gap-component-xs">
                   <span className="text-xs font-medium">All</span>
                   <Badge variant="outline" className="text-xs">
                     {browser.totalCount}
@@ -226,7 +226,7 @@ function FilterSheet({ browser }: FilterSheetProps) {
                     )}
                     aria-label={`Filter by ${severityLabels[sev]} severity`}
                   >
-                    <div className="flex flex-col items-start gap-1">
+                    <div className="flex flex-col items-start gap-component-xs">
                       <span className="text-xs font-medium">{severityLabels[sev]}</span>
                       <Badge variant="outline" className="text-xs">
                         {count}
@@ -440,7 +440,7 @@ export const AlertTemplateBrowserMobile = React.memo(function AlertTemplateBrows
       aria-label="Alert template browser"
     >
       {/* Header */}
-      <div className="border-b border-border p-component-md space-y-component-sm bg-background">
+      <div className="border-b border-border p-component-md space-y-component-sm bg-card">
         <div>
           <h1 className="text-lg font-semibold">Alert Rule Templates</h1>
           <p className="text-sm text-muted-foreground" aria-live="polite">
@@ -486,8 +486,8 @@ export const AlertTemplateBrowserMobile = React.memo(function AlertTemplateBrows
             <div className="text-muted-foreground">Loading templates...</div>
           </div>
         ) : filteredTemplates.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full space-y-4" role="status">
-            <div className="text-center space-y-2">
+          <div className="flex flex-col items-center justify-center h-full space-y-component-md" role="status">
+            <div className="text-center space-y-component-sm">
               <h3 className="text-base font-semibold">No templates found</h3>
               <p className="text-sm text-muted-foreground">
                 Try adjusting your filters or search criteria.

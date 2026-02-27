@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/subscriptions/vlan-changed",
+  "title": "vlanChanged",
+  "description": "Subscribe to VLAN interface changes (create, update, delete)",
+  "source": "@site/docs/api/operations/subscriptions/vlan-changed.mdx",
+  "sourceDirName": "api/operations/subscriptions",
+  "slug": "/api/operations/subscriptions/vlan-changed",
+  "permalink": "/api/operations/subscriptions/vlan-changed",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "vlan-changed",
+    "title": "vlanChanged"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "verificationEvents",
+    "permalink": "/api/operations/subscriptions/verification-events"
+  },
+  "next": {
+    "title": "wanHealthChanged",
+    "permalink": "/api/operations/subscriptions/wan-health-changed"
+  }
+}

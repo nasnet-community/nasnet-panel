@@ -2,6 +2,7 @@ package adapters
 
 import (
 	"context"
+	"fmt"
 
 	"backend/internal/network"
 	"backend/internal/repository"
@@ -68,7 +69,7 @@ func (q *entVLANAllocationQuery) Where(predicates ...interface{}) network.VLANAl
 func (q *entVLANAllocationQuery) All(ctx context.Context) ([]network.VLANAllocationEntity, error) {
 	allocations, err := q.query.All(ctx)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("query vlan allocations: %w", err)
 	}
 
 	result := make([]network.VLANAllocationEntity, 0, len(allocations))
@@ -84,17 +85,25 @@ func (q *entVLANAllocationQuery) All(ctx context.Context) ([]network.VLANAllocat
 func (q *entVLANAllocationQuery) Only(ctx context.Context) (network.VLANAllocationEntity, error) {
 	alloc, err := q.query.Only(ctx)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("query vlan allocation: %w", err)
 	}
 	return &entVLANAllocationEntity{allocation: alloc}, nil
 }
 
 func (q *entVLANAllocationQuery) Exist(ctx context.Context) (bool, error) {
-	return q.query.Exist(ctx)
+	exists, err := q.query.Exist(ctx)
+	if err != nil {
+		return false, fmt.Errorf("check vlan allocation existence: %w", err)
+	}
+	return exists, nil
 }
 
 func (q *entVLANAllocationQuery) Count(ctx context.Context) (int, error) {
-	return q.query.Count(ctx)
+	count, err := q.query.Count(ctx)
+	if err != nil {
+		return 0, fmt.Errorf("count vlan allocations: %w", err)
+	}
+	return count, nil
 }
 
 // entVLANAllocationCreate wraps ent.VLANAllocationCreate.
@@ -141,12 +150,12 @@ func (c *entVLANAllocationCreate) Save(ctx context.Context) (network.VLANAllocat
 	// VLAN ID range validation (valid VLAN IDs: 1-4094)
 	vlanID, ok := c.create.Mutation().VlanID()
 	if ok && (vlanID < 1 || vlanID > 4094) {
-		return nil, repository.InvalidInputWithValue("VLANAllocation", "vlanID", vlanID, "must be between 1 and 4094")
+		return nil, fmt.Errorf("validate vlan id: %w", repository.InvalidInputWithValue("VLANAllocation", "vlanID", vlanID, "must be between 1 and 4094"))
 	}
 
 	alloc, err := c.create.Save(ctx)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("save vlan allocation: %w", err)
 	}
 	return &entVLANAllocationEntity{allocation: alloc}, nil
 }
@@ -196,7 +205,11 @@ func (u *entVLANAllocationUpdate) SetValue(values map[string]interface{}) networ
 }
 
 func (u *entVLANAllocationUpdate) Save(ctx context.Context) (int, error) {
-	return u.update.Save(ctx)
+	count, err := u.update.Save(ctx)
+	if err != nil {
+		return 0, fmt.Errorf("save vlan allocation: %w", err)
+	}
+	return count, nil
 }
 
 // entVLANAllocationDelete wraps ent.VLANAllocationDelete.
@@ -216,7 +229,11 @@ func (d *entVLANAllocationDelete) Where(predicates ...interface{}) network.VLANA
 }
 
 func (d *entVLANAllocationDelete) Exec(ctx context.Context) (int, error) {
-	return d.delete.Exec(ctx)
+	count, err := d.delete.Exec(ctx)
+	if err != nil {
+		return 0, fmt.Errorf("delete vlan allocations: %w", err)
+	}
+	return count, nil
 }
 
 // entVLANAllocationDeleteOne wraps ent.VLANAllocationDeleteOne.
@@ -232,7 +249,7 @@ func (d *entVLANAllocationDeleteOne) Where(predicates ...interface{}) network.VL
 func (d *entVLANAllocationDeleteOne) Exec(ctx context.Context) (int, error) {
 	err := d.deleteOne.Exec(ctx)
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("delete vlan allocation: %w", err)
 	}
 	return 1, nil
 }
@@ -289,7 +306,7 @@ func (u *entVLANAllocationUpdateOne) SetStatus(status string) network.VLANAlloca
 func (u *entVLANAllocationUpdateOne) Save(ctx context.Context) (network.VLANAllocationEntity, error) {
 	alloc, err := u.update.Save(ctx)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("save vlan allocation: %w", err)
 	}
 	return &entVLANAllocationEntity{allocation: alloc}, nil
 }

@@ -33,33 +33,33 @@ export const InterfaceGridCard = React.memo(function InterfaceGridCard({ interfa
 
   return (
     <div className={cn(
-      'bg-card border rounded-card-sm transition-all duration-200',
+      'bg-card border rounded-card-sm shadow-sm transition-all duration-200',
       isRunning && isLinkUp ? 'border-border hover:border-success/50' :
       isRunning ? 'border-warning/30' : 'border-border opacity-60'
     )}>
-      <button onClick={() => setIsExpanded(!isExpanded)} className="w-full text-left p-component-md min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-card-sm">
+      <button onClick={() => setIsExpanded(!isExpanded)} className="w-full text-left p-component-md min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-card-sm hover:bg-muted/25 transition-colors" aria-expanded={isExpanded}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-component-sm">
             <div className="relative">
               <span className={cn('block w-2 h-2 rounded-full',
                 isRunning && isLinkUp ? 'bg-success' : isRunning ? 'bg-warning' : 'bg-muted-foreground'
-              )} />
+              )} aria-hidden="true" />
               {isRunning && isLinkUp && (
-                <span className="absolute inset-0 w-2 h-2 rounded-full bg-success animate-ping opacity-75" />
+                <span className="absolute inset-0 w-2 h-2 rounded-full bg-success animate-ping opacity-75" aria-hidden="true" />
               )}
             </div>
             <InterfaceTypeIcon type={iface.type} className="w-4 h-4 text-muted-foreground" />
-            <span className="font-medium text-foreground text-sm">{iface.name}</span>
+            <span className="font-display font-semibold text-foreground text-sm">{iface.name}</span>
           </div>
           {isExpanded ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
         </div>
         {trafficStats && !isExpanded && (
           <div className="flex items-center gap-component-md mt-component-sm text-xs font-mono text-muted-foreground">
             <span className="flex items-center gap-component-xs">
-              <ArrowDown className="w-3 h-3 text-info" />{formatBytes(trafficStats.rxBytes)}
+              <ArrowDown className="w-3 h-3 text-success" aria-hidden="true" />{formatBytes(trafficStats.rxBytes)}
             </span>
             <span className="flex items-center gap-component-xs">
-              <ArrowUp className="w-3 h-3 text-category-monitoring" />{formatBytes(trafficStats.txBytes)}
+              <ArrowUp className="w-3 h-3 text-category-monitoring" aria-hidden="true" />{formatBytes(trafficStats.txBytes)}
             </span>
           </div>
         )}
@@ -73,7 +73,7 @@ export const InterfaceGridCard = React.memo(function InterfaceGridCard({ interfa
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">{t('interfaces.mac')}</span>
-              <span className="text-foreground font-mono">{iface.macAddress || t('common.notAvailable', { ns: 'common' })}</span>
+              <span className="text-foreground font-mono break-all">{iface.macAddress || t('common.notAvailable', { ns: 'common' })}</span>
             </div>
             {iface.mtu && (
               <div className="flex justify-between">

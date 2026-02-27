@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/feature-compatibility-info",
+  "title": "FeatureCompatibilityInfo",
+  "description": "Information about a feature in the compatibility matrix",
+  "source": "@site/docs/api/types/objects/feature-compatibility-info.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/feature-compatibility-info",
+  "permalink": "/api/types/objects/feature-compatibility-info",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "feature-compatibility-info",
+    "title": "FeatureCompatibilityInfo"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "FailoverConfig",
+    "permalink": "/api/types/objects/failover-config"
+  },
+  "next": {
+    "title": "FeatureDeployment",
+    "permalink": "/api/types/objects/feature-deployment"
+  }
+}

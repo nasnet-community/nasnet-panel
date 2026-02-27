@@ -64,7 +64,7 @@ func (e *ParseError) Error() string {
 	sb.WriteString(e.Message)
 
 	if e.LineNumber > 0 {
-		sb.WriteString(fmt.Sprintf(" (line %d)", e.LineNumber))
+		fmt.Fprintf(&sb, " (line %d)", e.LineNumber)
 	}
 
 	if e.Cause != nil {
@@ -102,15 +102,15 @@ func (e *ParseError) DiagnosticString() string {
 
 	sb.WriteString("Parse Error Diagnostic\n")
 	sb.WriteString("======================\n")
-	sb.WriteString(fmt.Sprintf("Code:    %s\n", e.Code))
-	sb.WriteString(fmt.Sprintf("Message: %s\n", e.Message))
+	fmt.Fprintf(&sb, "Code:    %s\n", e.Code)
+	fmt.Fprintf(&sb, "Message: %s\n", e.Message)
 
 	if e.Command != "" {
-		sb.WriteString(fmt.Sprintf("Command: %s\n", e.Command))
+		fmt.Fprintf(&sb, "Command: %s\n", e.Command)
 	}
 
 	if e.LineNumber > 0 {
-		sb.WriteString(fmt.Sprintf("Line:    %d\n", e.LineNumber))
+		fmt.Fprintf(&sb, "Line:    %d\n", e.LineNumber)
 	}
 
 	if e.RawSnippet != "" {
@@ -123,12 +123,12 @@ func (e *ParseError) DiagnosticString() string {
 	if len(e.Suggestions) > 0 {
 		sb.WriteString("Troubleshooting Suggestions:\n")
 		for i, s := range e.Suggestions {
-			sb.WriteString(fmt.Sprintf("  %d. %s\n", i+1, s))
+			fmt.Fprintf(&sb, "  %d. %s\n", i+1, s)
 		}
 	}
 
 	if e.Cause != nil {
-		sb.WriteString(fmt.Sprintf("Cause: %v\n", e.Cause))
+		fmt.Fprintf(&sb, "Cause: %v\n", e.Cause)
 	}
 
 	return sb.String()

@@ -1,0 +1,28 @@
+{
+  "id": "getting-started/key-commands",
+  "title": "Key Commands",
+  "description": "All commands are run from the monorepo root (NasNet/) unless noted otherwise.",
+  "source": "@site/../connect/docs/getting-started/key-commands.md",
+  "sourceDirName": "getting-started",
+  "slug": "/getting-started/key-commands",
+  "permalink": "/docs/frontend/getting-started/key-commands",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../connect/docs/getting-started/key-commands.md",
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 4,
+  "frontMatter": {
+    "sidebar_position": 4,
+    "title": "Key Commands"
+  },
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Project Structure",
+    "permalink": "/docs/frontend/getting-started/project-structure"
+  },
+  "next": {
+    "title": "Accessibility",
+    "permalink": "/docs/frontend/i18n-accessibility/accessibility"
+  }
+}

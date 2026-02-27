@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/bridge-mutation-result",
+  "title": "BridgeMutationResult",
+  "description": "No description",
+  "source": "@site/docs/api/types/objects/bridge-mutation-result.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/bridge-mutation-result",
+  "permalink": "/api/types/objects/bridge-mutation-result",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "bridge-mutation-result",
+    "title": "BridgeMutationResult"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "BootSequenceProgress",
+    "permalink": "/api/types/objects/boot-sequence-progress"
+  },
+  "next": {
+    "title": "BridgePortMutationResult",
+    "permalink": "/api/types/objects/bridge-port-mutation-result"
+  }
+}

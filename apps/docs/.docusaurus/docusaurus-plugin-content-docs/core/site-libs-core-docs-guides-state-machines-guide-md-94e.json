@@ -1,0 +1,28 @@
+{
+  "id": "guides/state-machines-guide",
+  "title": "State Machines Guide",
+  "description": "This guide documents the XState machines used in NasNetConnect for managing complex, multi-step workflows.",
+  "source": "@site/../../libs/core/docs/guides/state-machines-guide.md",
+  "sourceDirName": "guides",
+  "slug": "/guides/state-machines-guide",
+  "permalink": "/docs/core/guides/state-machines-guide",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/core/docs/guides/state-machines-guide.md",
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 11,
+  "frontMatter": {
+    "sidebar_position": 11,
+    "title": "State Machines Guide"
+  },
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Testing Patterns",
+    "permalink": "/docs/core/guides/testing-patterns"
+  },
+  "next": {
+    "title": "Accessibility Patterns",
+    "permalink": "/docs/core/guides/accessibility-patterns"
+  }
+}

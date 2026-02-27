@@ -146,10 +146,10 @@ func (e *PartialBatchError) Error() string {
 }
 
 // NewPartialBatchError creates a new PartialBatchError.
-func NewPartialBatchError(successCount, failureCount int, errors map[interface{}]error) *PartialBatchError {
+func NewPartialBatchError(successCount, failureCount int, errs map[interface{}]error) *PartialBatchError {
 	return &PartialBatchError{
 		SuccessCount: successCount,
 		FailureCount: failureCount,
-		Errors:       errors,
+		Errors:       errs,
 	}
 }

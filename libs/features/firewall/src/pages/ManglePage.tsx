@@ -58,7 +58,7 @@ const EmptyState = memo(function EmptyState({ chain, onAddRule }: EmptyStateProp
       </CardHeader>
       <CardContent className="flex justify-center">
         <Button onClick={onAddRule} aria-label={chain ? t('mangle.emptyStates.noRulesInChain.action', { chain }) : t('mangle.emptyStates.noRules.actions.create')}>
-          <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
+          <Plus className="h-4 w-4 mr-component-sm" aria-hidden="true" />
           {chain
             ? t('mangle.emptyStates.noRulesInChain.action', { chain })
             : t('mangle.emptyStates.noRules.actions.create')}
@@ -124,11 +124,11 @@ export const ManglePage = memo(function ManglePage() {
           </div>
           <div className="flex gap-component-sm">
             <Button variant="outline" onClick={handleViewFlow} aria-label={t('mangle.buttons.viewFlow')}>
-              <Workflow className="h-4 w-4 mr-2" aria-hidden="true" />
+              <Workflow className="h-4 w-4 mr-component-sm" aria-hidden="true" />
               {t('mangle.buttons.viewFlow')}
             </Button>
             <Button onClick={handleAddRule} aria-label={t('mangle.buttons.addRule')}>
-              <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
+              <Plus className="h-4 w-4 mr-component-sm" aria-hidden="true" />
               {t('mangle.buttons.addRule')}
             </Button>
           </div>
@@ -159,8 +159,8 @@ export const ManglePage = memo(function ManglePage() {
             {/* All Chains Tab */}
             <TabsContent value="all" className="p-component-md m-0">
               {isLoading ? (
-                <div className="space-y-4" role="status" aria-label={t('common:loading', { defaultValue: 'Loading' })}>
-                  <div className="animate-pulse space-y-4">
+                <div className="space-y-component-md" role="status" aria-label={t('common:loading', { defaultValue: 'Loading' })}>
+                  <div className="animate-pulse space-y-component-md">
                     <div className="h-16 bg-muted rounded" />
                     <div className="h-16 bg-muted rounded" />
                     <div className="h-16 bg-muted rounded" />
@@ -179,8 +179,8 @@ export const ManglePage = memo(function ManglePage() {
             {chains.map((chain) => (
               <TabsContent key={chain} value={chain} className="p-component-md m-0">
                 {isLoading ? (
-                  <div className="space-y-4" role="status" aria-label={t('common:loading', { defaultValue: 'Loading' })}>
-                    <div className="animate-pulse space-y-4">
+                  <div className="space-y-component-md" role="status" aria-label={t('common:loading', { defaultValue: 'Loading' })}>
+                    <div className="animate-pulse space-y-component-md">
                       <div className="h-16 bg-muted rounded" />
                       <div className="h-16 bg-muted rounded" />
                     </div>
@@ -231,7 +231,7 @@ export const ManglePage = memo(function ManglePage() {
               {t('mangle.dialogs.flowDiagram.description')}
             </DialogDescription>
           </DialogHeader>
-          <div className="mt-4">
+          <div className="mt-component-md">
             <MangleFlowDiagram />
           </div>
         </DialogContent>

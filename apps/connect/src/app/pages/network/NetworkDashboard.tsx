@@ -77,7 +77,7 @@ export const NetworkDashboard = React.memo(function NetworkDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background animate-fade-in-up">
       <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-4 space-y-4 max-w-7xl mx-auto">
 
         {/* Section 1: DHCP Pool Status */}
@@ -94,7 +94,7 @@ export const NetworkDashboard = React.memo(function NetworkDashboard() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Network className="w-4 h-4 text-muted-foreground" aria-hidden="true" />
-              <h2 className="text-sm font-semibold text-foreground">{t('network.interfaces')}</h2>
+              <h2 className="text-sm font-semibold text-foreground font-display">{t('network.interfaces')}</h2>
               <span className="px-2 py-0.5 text-xs bg-muted text-muted-foreground rounded-full">
                 {linkUpInterfaces.length}/{interfaces?.length || 0}
               </span>

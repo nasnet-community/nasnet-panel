@@ -12,9 +12,9 @@ import { LogViewer } from '@nasnet/features/dashboard';
 export function LogsTab() {
   const { t } = useTranslation('dashboard');
   return (
-    <div className="flex flex-col h-full p-component-md md:p-component-lg">
+    <div className="flex flex-col h-full p-component-md md:p-component-lg animate-fade-in-up">
       <div className="mb-component-md px-component-sm">
-        <h2 className="text-lg md:text-xl font-semibold">{t('recentLogs.title')}</h2>
+        <h2 className="text-lg md:text-xl font-semibold font-display">{t('recentLogs.title')}</h2>
         <p className="text-sm text-muted-foreground">
           {t('recentLogs.description')}
         </p>

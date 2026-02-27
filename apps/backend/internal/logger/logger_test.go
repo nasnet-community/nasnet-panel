@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
 
-	internalerrors "backend/internal/errors"
+	internalerrors "backend/internal/apperrors"
 )
 
 // =============================================================================

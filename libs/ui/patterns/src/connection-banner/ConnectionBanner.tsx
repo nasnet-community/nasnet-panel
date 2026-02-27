@@ -52,25 +52,27 @@ export const ConnectionBanner = memo(function ConnectionBanner({ className }: Co
   return (
     <div
       className={cn(
-        'flex items-center gap-3 px-6 py-4 border-b transition-colors',
-        'bg-warning/10 border-warning/30 backdrop-blur-sm',
-        'shadow-sm',
+        'w-full py-component-sm px-component-md text-center',
+        isReconnecting ? 'bg-warning text-warning-foreground animate-pulse' : 'bg-error text-white',
+        'transition-colors duration-150',
         className
       )}
       role="alert"
       aria-live="assertive"
       aria-atomic="true"
     >
-      {isReconnecting ? (
-        <Wifi className="h-5 w-5 text-warning animate-pulse" aria-hidden="true" />
-      ) : (
-        <AlertTriangle className="h-5 w-5 text-warning" aria-hidden="true" />
-      )}
-      <p className="text-sm font-semibold text-warning">
-        {isReconnecting
-          ? 'Reconnecting to router...'
-          : 'Connection lost. Attempting to reconnect...'}
-      </p>
+      <div className="flex items-center justify-center gap-component-sm">
+        {isReconnecting ? (
+          <Wifi className="h-4 w-4 animate-pulse flex-shrink-0" aria-hidden="true" />
+        ) : (
+          <AlertTriangle className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
+        )}
+        <p className="text-sm font-medium">
+          {isReconnecting
+            ? 'Reconnecting to router...'
+            : 'Connection lost. Attempting to reconnect...'}
+        </p>
+      </div>
     </div>
   );
 });

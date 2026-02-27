@@ -62,14 +62,17 @@ function ServiceTemplateCardDesktopComponent(props: ServiceTemplateCardProps) {
   return (
     <Card
       className={`
-        transition-all hover:shadow-md cursor-pointer
+        bg-card border border-border rounded-[var(--semantic-radius-card)]
+        shadow-[var(--semantic-shadow-card)]
+        hover:shadow-lg cursor-pointer
+        transition-shadow duration-200
         ${className || ''}
       `.trim()}
       onClick={handleClick}
       role="article"
       aria-label={`${name} template - ${scopeColors.label}`}
     >
-      <CardContent className="p-4">
+      <CardContent className="p-6">
         <div className="flex items-center gap-4">
           {/* Template icon */}
           {icon && (
@@ -85,10 +88,10 @@ function ServiceTemplateCardDesktopComponent(props: ServiceTemplateCardProps) {
           )}
 
           {/* Template info */}
-          <div className="flex-1 min-w-0 space-y-1.5">
+          <div className="flex-1 min-w-0 space-y-2">
             {/* Header row */}
             <div className="flex items-center gap-2">
-              <h3 className="font-semibold truncate">
+              <h3 className="text-lg font-semibold text-foreground truncate">
                 {name}
                 {verified && (
                   <span
@@ -102,7 +105,7 @@ function ServiceTemplateCardDesktopComponent(props: ServiceTemplateCardProps) {
               </h3>
 
               {version && (
-                <span className="text-xs text-muted-foreground shrink-0">
+                <span className="text-xs font-mono text-muted-foreground shrink-0">
                   v{version}
                 </span>
               )}
@@ -110,7 +113,7 @@ function ServiceTemplateCardDesktopComponent(props: ServiceTemplateCardProps) {
               {/* Scope badge */}
               <Badge
                 variant="outline"
-                className={`${scopeColors.bg} ${scopeColors.text} border-0 shrink-0`}
+                className={`${scopeColors.bg} ${scopeColors.text} border-0 shrink-0 rounded-[var(--semantic-radius-badge)]`}
               >
                 {scopeColors.label}
               </Badge>
@@ -127,7 +130,7 @@ function ServiceTemplateCardDesktopComponent(props: ServiceTemplateCardProps) {
                 <>
                   <span className="text-xs text-muted-foreground">•</span>
                   <span
-                    className="text-xs text-muted-foreground truncate"
+                    className="text-sm text-muted-foreground line-clamp-2"
                     title={description.length > 60 ? description : undefined}
                   >
                     {description}

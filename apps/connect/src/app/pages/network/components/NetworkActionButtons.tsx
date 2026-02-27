@@ -63,15 +63,15 @@ export const NetworkActionButtons = React.memo(function NetworkActionButtons({
           onClick={action.onClick}
           aria-label={action.label}
           className={cn(
-            'inline-flex items-center gap-1.5 rounded-card-sm border px-3 py-1.5 text-sm font-medium',
+            'inline-flex items-center justify-center gap-1.5 rounded-card-sm border px-3 py-1.5 text-sm font-medium',
             'transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
             'disabled:pointer-events-none disabled:opacity-50',
-            'min-h-[44px]',
+            'min-h-[44px] min-w-[44px]',
             action.variant === 'destructive'
               ? 'border-error bg-error/10 text-error hover:bg-error/15'
               : action.variant === 'outline'
                 ? 'border-border bg-transparent text-foreground hover:bg-muted'
-                : 'border-border bg-muted text-foreground hover:bg-muted',
+                : 'border-primary bg-primary text-primary-foreground hover:bg-primary/90',
           )}
         >
           <span

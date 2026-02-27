@@ -70,11 +70,11 @@ function VlanFormMobileContent({
         </SheetHeader>
 
         <form onSubmit={onSubmit} className="mt-component-lg">
-          <div className="space-y-component-lg pb-20">
+          <div className="space-y-component-md pb-20">
             {/* Name Field */}
             <div className="space-y-component-sm">
               <Label htmlFor="name-mobile">
-                Name <span className="text-destructive">*</span>
+                Name <span className="text-error">*</span>
               </Label>
               <Input
                 id="name-mobile"
@@ -85,7 +85,7 @@ function VlanFormMobileContent({
                 aria-describedby={errors.name ? 'name-error-mobile' : undefined}
               />
               {errors.name && (
-                <p id="name-error-mobile" className="text-sm text-destructive">
+                <p id="name-error-mobile" className="text-sm text-error">
                   {errors.name.message}
                 </p>
               )}
@@ -97,7 +97,7 @@ function VlanFormMobileContent({
             {/* VLAN ID Field */}
             <div className="space-y-component-sm">
               <Label htmlFor="vlanId-mobile">
-                VLAN ID <span className="text-destructive">*</span>
+                VLAN ID <span className="text-error">*</span>
               </Label>
               <div className="relative">
                 <Input
@@ -121,12 +121,12 @@ function VlanFormMobileContent({
                 )}
               </div>
               {errors.vlanId && (
-                <p id="vlanId-error-mobile" className="text-sm text-destructive">
+                <p id="vlanId-error-mobile" className="text-sm text-error">
                   {errors.vlanId.message}
                 </p>
               )}
               {!errors.vlanId && isDuplicateVlanId && (
-                <p className="text-sm text-destructive">
+                <p className="text-sm text-error">
                   This VLAN ID is already in use on the selected interface
                 </p>
               )}
@@ -138,7 +138,7 @@ function VlanFormMobileContent({
             {/* Parent Interface Field */}
             <div className="space-y-component-sm">
               <Label htmlFor="interface-mobile">
-                Parent Interface <span className="text-destructive">*</span>
+                Parent Interface <span className="text-error">*</span>
               </Label>
               <InterfaceSelector
                 routerId={routerId}
@@ -152,7 +152,7 @@ function VlanFormMobileContent({
                 }
               />
               {errors.interface && (
-                <p id="interface-error-mobile" className="text-sm text-destructive">
+                <p id="interface-error-mobile" className="text-sm text-error">
                   {errors.interface.message}
                 </p>
               )}
@@ -180,7 +180,7 @@ function VlanFormMobileContent({
                 aria-describedby={errors.mtu ? 'mtu-error-mobile' : undefined}
               />
               {errors.mtu && (
-                <p id="mtu-error-mobile" className="text-sm text-destructive">
+                <p id="mtu-error-mobile" className="text-sm text-error">
                   {errors.mtu.message}
                 </p>
               )}
@@ -206,7 +206,7 @@ function VlanFormMobileContent({
                 }
               />
               {errors.comment && (
-                <p id="comment-error-mobile" className="text-sm text-destructive">
+                <p id="comment-error-mobile" className="text-sm text-error">
                   {errors.comment.message}
                 </p>
               )}

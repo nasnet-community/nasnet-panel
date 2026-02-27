@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/unavailable-features",
+  "title": "unavailableFeatures",
+  "description": "Get list of features affected by storage disconnection.",
+  "source": "@site/docs/api/operations/queries/unavailable-features.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/unavailable-features",
+  "permalink": "/api/operations/queries/unavailable-features",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "unavailable-features",
+    "title": "unavailableFeatures"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "tunnels",
+    "permalink": "/api/operations/queries/tunnels"
+  },
+  "next": {
+    "title": "unsupportedFeatures",
+    "permalink": "/api/operations/queries/unsupported-features"
+  }
+}

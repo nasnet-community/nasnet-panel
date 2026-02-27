@@ -142,14 +142,18 @@ func (g *PsiphonGenerator) Generate(instanceID string, config map[string]interfa
 	}
 
 	// Render as JSON
-	return g.RenderJSON(psiphonConfig)
+	rendered, err := g.RenderJSON(psiphonConfig)
+	if err != nil {
+		return nil, fmt.Errorf("render psiphon json: %w", err)
+	}
+	return rendered, nil
 }
 
 // Validate performs Psiphon-specific validation.
 func (g *PsiphonGenerator) Validate(config map[string]interface{}, bindIP string) error {
 	// Base validation (schema + bind IP)
 	if configErr := g.ValidateConfig(config, bindIP); configErr != nil {
-		return configErr
+		return fmt.Errorf("validate psiphon config: %w", configErr)
 	}
 
 	// Validate sponsor_id format (32-character hex string if provided)
@@ -169,7 +173,7 @@ func (g *PsiphonGenerator) Validate(config map[string]interface{}, bindIP string
 	// Validate upstream_proxy_url format if provided
 	if upstreamProxy, ok := config["upstream_proxy_url"].(string); ok && upstreamProxy != "" {
 		if urlErr := cfglib.ValidateURL(upstreamProxy); urlErr != nil {
-			return fmt.Errorf("upstream_proxy_url validation failed: %w", urlErr)
+			return fmt.Errorf("validate upstream proxy url: %w", urlErr)
 		}
 	}
 

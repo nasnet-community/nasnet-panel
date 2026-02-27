@@ -124,8 +124,8 @@ function Section({ title, count, defaultExpanded = false, children }: SectionPro
  */
 function RouterCard({ router }: { router: RouterInfo }) {
   return (
-    <Card className="mb-4">
-      <CardHeader className="flex flex-row items-center gap-4 pb-2">
+    <Card className="mb-4 bg-card border border-border rounded-[var(--semantic-radius-card)] shadow-[var(--semantic-shadow-card)]">
+      <CardHeader className="flex flex-row items-center gap-4 pb-2 p-component-md">
         <RouterIcon size={48} status={router.status} />
         <div className="flex-1">
           <CardTitle className="text-lg">{router.name}</CardTitle>
@@ -144,7 +144,7 @@ function RouterCard({ router }: { router: RouterInfo }) {
  */
 function WanItem({ wan }: { wan: WanInterface }) {
   return (
-    <div className="flex items-center gap-3 rounded-lg border p-3 mb-2 last:mb-0">
+    <div className="flex items-center gap-3 rounded-[var(--semantic-radius-input)] border border-border p-component-sm mb-2 last:mb-0 bg-background/50">
       <WanIcon size={32} status={wan.status} />
       <div className="flex-1 min-w-0">
         <p className="font-medium truncate">{wan.name}</p>
@@ -165,7 +165,7 @@ function WanItem({ wan }: { wan: WanInterface }) {
  */
 function LanItem({ lan }: { lan: LanNetwork }) {
   return (
-    <div className="flex items-center gap-3 rounded-lg border p-3 mb-2 last:mb-0">
+    <div className="flex items-center gap-3 rounded-[var(--semantic-radius-input)] border border-border p-component-sm mb-2 last:mb-0 bg-background/50">
       <LanIcon size={32} status="connected" deviceCount={lan.deviceCount} />
       <div className="flex-1 min-w-0">
         <p className="font-medium truncate">{lan.name}</p>
@@ -186,7 +186,7 @@ function LanItem({ lan }: { lan: LanNetwork }) {
  */
 function DeviceItem({ device }: { device: Device }) {
   return (
-    <div className="flex items-center gap-3 rounded-lg border p-3 mb-2 last:mb-0">
+    <div className="flex items-center gap-3 rounded-[var(--semantic-radius-input)] border border-border p-component-sm mb-2 last:mb-0 bg-background/50 min-h-[44px]">
       <DeviceIcon size={28} type={device.type} status={device.status} />
       <div className="flex-1 min-w-0">
         <p className="font-medium truncate">{device.name}</p>
@@ -230,7 +230,7 @@ export const NetworkTopologyMobile = memo(function NetworkTopologyMobile({
       <RouterCard router={router} />
 
       {/* Collapsible sections */}
-      <Card>
+      <Card className="bg-card border border-border rounded-[var(--semantic-radius-card)] shadow-[var(--semantic-shadow-card)]">
         <CardContent className="p-0">
           {/* WAN Interfaces Section */}
           <Section
@@ -280,13 +280,13 @@ export const NetworkTopologyMobile = memo(function NetworkTopologyMobile({
       {/* Connection summary */}
       <div className="mt-4 flex justify-center gap-4 text-xs text-muted-foreground">
         <div className="flex items-center gap-1.5">
-          <span className="h-2 w-2 rounded-full bg-green-500" />
+          <span className="h-2 w-2 rounded-full bg-success" />
           <span>
             {wanInterfaces.filter((w) => w.status === 'connected').length} Connected
           </span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="h-2 w-2 rounded-full bg-gray-400" />
+          <span className="h-2 w-2 rounded-full bg-muted-foreground" />
           <span>
             {wanInterfaces.filter((w) => w.status === 'disconnected').length} Disconnected
           </span>

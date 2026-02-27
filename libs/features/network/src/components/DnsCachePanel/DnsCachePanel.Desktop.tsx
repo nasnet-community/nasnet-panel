@@ -80,7 +80,7 @@ function DnsCachePanelDesktopComponent({
   if (isError) {
     return (
       <Card className={cn('', className)}>
-        <CardContent className="pt-6">
+        <CardContent className="pt-component-lg">
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" aria-hidden />
             <AlertDescription>
@@ -94,7 +94,7 @@ function DnsCachePanelDesktopComponent({
 
   return (
     <>
-      <Card className={cn('', className)}>
+      <Card className={cn('category-networking', className)}>
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
@@ -107,7 +107,7 @@ function DnsCachePanelDesktopComponent({
               disabled={
                 isLoading || !cacheStats || cacheStats.totalEntries === 0
               }
-              className="gap-2"
+              className="gap-component-sm"
             >
               <Trash2 className="h-4 w-4" aria-hidden />
               Flush Cache

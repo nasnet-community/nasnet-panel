@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/delete-result",
+  "title": "DeleteResult",
+  "description": "Result of a delete operation",
+  "source": "@site/docs/api/types/objects/delete-result.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/delete-result",
+  "permalink": "/api/types/objects/delete-result",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "delete-result",
+    "title": "DeleteResult"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "DeleteResourcePayload",
+    "permalink": "/api/types/objects/delete-resource-payload"
+  },
+  "next": {
+    "title": "DeleteRouterPayload",
+    "permalink": "/api/types/objects/delete-router-payload"
+  }
+}

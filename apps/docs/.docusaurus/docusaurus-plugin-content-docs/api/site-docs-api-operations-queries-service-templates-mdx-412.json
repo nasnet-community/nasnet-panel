@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/service-templates",
+  "title": "serviceTemplates",
+  "description": "List all service templates (built-in + user-created).",
+  "source": "@site/docs/api/operations/queries/service-templates.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/service-templates",
+  "permalink": "/api/operations/queries/service-templates",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "service-templates",
+    "title": "serviceTemplates"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "serviceTemplate",
+    "permalink": "/api/operations/queries/service-template"
+  },
+  "next": {
+    "title": "serviceTrafficStats",
+    "permalink": "/api/operations/queries/service-traffic-stats"
+  }
+}

@@ -2,10 +2,11 @@ package types
 
 // StarState is the top-level provisioning state aggregating all wizard sections.
 type StarState struct {
-	Choose ChooseState       `json:"choose"`
-	WAN    WANState          `json:"wan"`
-	LAN    *LANState         `json:"lan,omitempty"`
-	Extra  *ExtraConfigState `json:"extra,omitempty"`
+	Choose     ChooseState            `json:"choose"`
+	WAN        WANState               `json:"wan"`
+	LAN        *LANState              `json:"lan,omitempty"`
+	Extra      *ExtraConfigState      `json:"extra,omitempty"`
+	ShowConfig map[string]interface{} `json:"showConfig,omitempty"`
 }
 
 // Mode represents the wizard complexity mode.

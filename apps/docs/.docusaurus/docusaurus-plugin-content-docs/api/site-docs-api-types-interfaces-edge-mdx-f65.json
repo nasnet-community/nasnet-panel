@@ -1,0 +1,26 @@
+{
+  "id": "api/types/interfaces/edge",
+  "title": "Edge",
+  "description": "Edge interface for connection edges",
+  "source": "@site/docs/api/types/interfaces/edge.mdx",
+  "sourceDirName": "api/types/interfaces",
+  "slug": "/api/types/interfaces/edge",
+  "permalink": "/api/types/interfaces/edge",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "edge",
+    "title": "Edge"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "Connection",
+    "permalink": "/api/types/interfaces/connection"
+  },
+  "next": {
+    "title": "Node",
+    "permalink": "/api/types/interfaces/node"
+  }
+}

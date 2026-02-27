@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/apply-service-import-payload",
+  "title": "ApplyServiceImportPayload",
+  "description": "Payload for apply service import mutation.",
+  "source": "@site/docs/api/types/objects/apply-service-import-payload.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/apply-service-import-payload",
+  "permalink": "/api/types/objects/apply-service-import-payload",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "apply-service-import-payload",
+    "title": "ApplyServiceImportPayload"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ApplyResourcePayload",
+    "permalink": "/api/types/objects/apply-resource-payload"
+  },
+  "next": {
+    "title": "ArchiveResourcePayload",
+    "permalink": "/api/types/objects/archive-resource-payload"
+  }
+}

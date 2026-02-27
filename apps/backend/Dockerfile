@@ -70,8 +70,11 @@ RUN set -eux; \
       -o app ./cmd/nnc/; \
     upx --best --lzma app || true
 
-# Stage 4: Production runtime (scratch - minimal)
-FROM scratch AS production
+# Stage 4: Production runtime (Alpine - iptables + BusyBox udhcpd/udhcpc/ip)
+FROM alpine:3.21 AS production
+
+# iptables for NAT/firewall rules; BusyBox already provides udhcpd, udhcpc, ip
+RUN apk add --no-cache iptables
 
 # CA certs for HTTPS
 COPY --from=gobuilder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/

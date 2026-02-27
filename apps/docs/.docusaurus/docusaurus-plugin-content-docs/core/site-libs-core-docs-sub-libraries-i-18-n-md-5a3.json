@@ -1,0 +1,24 @@
+{
+  "id": "sub-libraries/i18n",
+  "title": "Internationalization (i18n) Library Reference",
+  "description": "Comprehensive guide to @nasnet/core/i18n — the i18next-powered internationalization system for NasNetConnect",
+  "source": "@site/../../libs/core/docs/sub-libraries/i18n.md",
+  "sourceDirName": "sub-libraries",
+  "slug": "/sub-libraries/i18n",
+  "permalink": "/docs/core/sub-libraries/i18n",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/core/docs/sub-libraries/i18n.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Forms & Validation Library Reference",
+    "permalink": "/docs/core/sub-libraries/forms"
+  },
+  "next": {
+    "title": "Core Types Reference",
+    "permalink": "/docs/core/sub-libraries/types"
+  }
+}

@@ -25,7 +25,7 @@ const (
 // WirelessConfig defines a WiFi network.
 type WirelessConfig struct {
 	SSID        string     `json:"ssid"`
-	Password    string     `json:"password"`
+	Password    string     `json:"password"` //nolint:gosec // G101: credential field required for authentication
 	IsHide      bool       `json:"isHide"`
 	IsDisabled  bool       `json:"isDisabled"`
 	SplitBand   bool       `json:"splitBand"`

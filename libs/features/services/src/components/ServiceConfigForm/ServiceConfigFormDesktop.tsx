@@ -113,7 +113,7 @@ export const ServiceConfigFormDesktop = React.memo(
           <CardContent className="flex items-center justify-center p-component-lg">
             <Icon
               icon={Loader2}
-              className="h-8 w-8 animate-spin text-muted-foreground"
+              className="h-8 w-8 animate-spin text-primary"
               aria-hidden="true"
             />
             <span className="sr-only">Loading configuration...</span>

@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/instance-isolation",
+  "title": "instanceIsolation",
+  "description": "Get isolation status for a specific service instance.",
+  "source": "@site/docs/api/operations/queries/instance-isolation.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/instance-isolation",
+  "permalink": "/api/operations/queries/instance-isolation",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "instance-isolation",
+    "title": "instanceIsolation"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "instanceHealth",
+    "permalink": "/api/operations/queries/instance-health"
+  },
+  "next": {
+    "title": "instanceUpdateInfo",
+    "permalink": "/api/operations/queries/instance-update-info"
+  }
+}

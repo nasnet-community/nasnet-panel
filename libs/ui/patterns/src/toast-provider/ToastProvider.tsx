@@ -69,24 +69,24 @@ export interface ToastProviderProps {
  * - All interactive elements have visible focus indicators
  */
 const TOAST_CLASS_NAMES = {
-  toast: 'rounded-2xl shadow-xl border font-sans',
+  toast: 'rounded-[var(--semantic-radius-card)] shadow-[var(--semantic-shadow-modal)] border font-sans',
   title: 'font-semibold text-sm',
   description: 'text-sm opacity-90',
   actionButton:
-    'bg-primary text-primary-foreground hover:bg-primary/90 font-medium focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2',
+    'bg-primary text-primary-foreground hover:bg-primary-hover font-medium focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2',
   cancelButton:
-    'bg-muted text-muted-foreground hover:bg-muted/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
+    'bg-secondary text-secondary-foreground hover:bg-secondary-hover focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
   closeButton:
     'bg-background text-foreground border border-border hover:bg-accent transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
   success:
-    'border-success/50 bg-success-light text-success-dark dark:bg-success/10 dark:text-success-light',
+    'border-success/50 bg-success-light text-success-dark',
   error:
-    'border-error/50 bg-error-light text-error-dark dark:bg-error/10 dark:text-error-light',
+    'border-error/50 bg-error-light text-error-dark',
   warning:
-    'border-warning/50 bg-warning-light text-warning-dark dark:bg-warning/10 dark:text-warning-light',
-  info: 'border-info/50 bg-info-light text-info-dark dark:bg-info/10 dark:text-info-light',
+    'border-warning/50 bg-warning-light text-warning-dark',
+  info: 'border-info/50 bg-info-light text-info-dark',
   loading:
-    'border-muted bg-muted/50 text-muted-foreground dark:bg-muted/10 dark:text-muted-foreground',
+    'border-muted bg-muted text-muted-foreground',
 } as const;
 
 /**

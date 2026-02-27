@@ -45,7 +45,7 @@ export const LogEntryItem = memo(function LogEntryItem({ entry, isNew, compact }
       role="listitem"
       aria-label={`${severityConfig.label} log: ${entry.message}`}
       className={cn(
-        'flex items-start gap-3 p-3 rounded-lg transition-colors',
+        'flex items-start gap-component-md p-component-md rounded-lg transition-colors',
         'hover:bg-muted/50',
         isNew && 'animate-highlight bg-primary/5'
       )}
@@ -57,7 +57,7 @@ export const LogEntryItem = memo(function LogEntryItem({ entry, isNew, compact }
 
       {/* Content */}
       <div className="flex-1 min-w-0 space-y-1">
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-center gap-component-sm flex-wrap">
           {/* Topic Badge */}
           <Badge variant="secondary" className="text-xs">
             {TOPIC_LABELS[entry.topic] || entry.topic}

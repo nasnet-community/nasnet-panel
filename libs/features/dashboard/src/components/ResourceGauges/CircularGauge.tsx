@@ -146,7 +146,7 @@ export const CircularGauge = memo(function CircularGauge({
       <div className="text-center">
         <p className="font-medium">{label}</p>
         {sublabel && (
-          <p className="text-sm text-muted-foreground font-mono">{sublabel}</p>
+          <p className="text-sm text-muted-foreground font-mono space-y-component-xs">{sublabel}</p>
         )}
       </div>
     </>
@@ -159,7 +159,7 @@ export const CircularGauge = memo(function CircularGauge({
         type="button"
         onClick={handleClick}
         className={cn(
-          'flex flex-col items-center gap-2',
+          'flex flex-col items-center gap-component-sm',
           'cursor-pointer hover:opacity-80',
           'min-h-[44px] min-w-[44px]', // WCAG AAA touch target
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
@@ -175,7 +175,7 @@ export const CircularGauge = memo(function CircularGauge({
 
   return (
     <div
-      className={cn('flex flex-col items-center gap-2', className)}
+      className={cn('flex flex-col items-center gap-component-sm', className)}
       {...elementProps}
     >
       {content}

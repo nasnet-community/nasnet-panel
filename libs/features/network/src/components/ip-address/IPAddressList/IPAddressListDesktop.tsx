@@ -134,7 +134,7 @@ function IPAddressListDesktopComponent({
         key: 'network',
         header: 'Network',
         cell: (ip) => (
-          <code className="text-sm font-mono text-muted-foreground">
+          <code className="text-sm font-mono text-foreground">
             {ip.network || '-'}
           </code>
         ),
@@ -143,7 +143,7 @@ function IPAddressListDesktopComponent({
         key: 'broadcast',
         header: 'Broadcast',
         cell: (ip) => (
-          <code className="text-sm font-mono text-muted-foreground">
+          <code className="text-sm font-mono text-foreground">
             {ip.broadcast || '-'}
           </code>
         ),
@@ -190,7 +190,7 @@ function IPAddressListDesktopComponent({
               <DropdownMenuItem
                 onClick={() => onDelete?.(ip)}
                 disabled={ip.dynamic}
-                className="text-destructive"
+                className="text-error"
               >
                 <Trash className="mr-2 h-4 w-4" />
                 Delete
@@ -236,7 +236,7 @@ function IPAddressListDesktopComponent({
 
         {/* Error message */}
         {error && (
-          <div className="mb-component-md flex items-center gap-component-sm rounded-md border border-destructive/50 bg-error/10 p-component-sm text-sm text-error">
+          <div className="mb-component-md flex items-center gap-component-sm rounded-md border border-error bg-error/10 p-component-sm text-sm text-error">
             <AlertCircle className="h-4 w-4" />
             <p>{error}</p>
           </div>

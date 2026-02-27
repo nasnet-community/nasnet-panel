@@ -16,7 +16,7 @@ import * as React from 'react';
 
 import { Copy, Check, Download, ChevronDown, ChevronUp } from 'lucide-react';
 
-import { cn, Button, Card, CardHeader, CardTitle, CardContent } from '@nasnet/ui/primitives';
+import { cn, Button } from '@nasnet/ui/primitives';
 
 import { ConfigSection } from './config-section';
 import { DiffView } from './diff-view';
@@ -69,15 +69,19 @@ export function ConfigPreviewDesktop({
     typeof maxHeight === 'number' ? { maxHeight: `${maxHeight}px` } : { maxHeight };
 
   return (
-    <Card
-      className={cn('overflow-hidden', className)}
+    <div
+      className={cn(
+        'bg-card border border-border rounded-[var(--semantic-radius-card)]',
+        'shadow-[var(--semantic-shadow-card)] overflow-hidden',
+        className
+      )}
       role="region"
       aria-label={title}
     >
       {/* Header with toolbar */}
-      <CardHeader className="flex flex-row items-center justify-between py-3 px-4 bg-muted/50 border-b border-border">
+      <div className="flex flex-row items-center justify-between bg-muted px-4 py-3 border-b border-border">
         <div className="flex items-center gap-3">
-          <CardTitle className="text-sm font-medium">{title}</CardTitle>
+          <h3 className="text-sm font-semibold text-foreground">{title}</h3>
 
           {/* Diff stats */}
           {showDiff && state.hasDiff && (
@@ -153,38 +157,36 @@ export function ConfigPreviewDesktop({
             Download
           </Button>
         </div>
-      </CardHeader>
+      </div>
 
-      {/* Content area */}
-      <CardContent className="p-0">
-        <div className="overflow-auto bg-muted" style={maxHeightStyle}>
-          {showDiff ? (
-            // Diff view
-            <DiffView
-              lines={state.diffLines}
-              showLineNumbers={showLineNumbers}
-            />
-          ) : collapsible && state.sections.length > 1 ? (
-            // Sectioned view with collapsible sections
-            <div role="list" aria-label="Configuration sections">
-              {state.sections.map((section) => (
-                <ConfigSection
-                  key={section.id}
-                  section={section}
-                  onToggle={() => state.toggleSection(section.id)}
-                  showLineNumbers={showLineNumbers}
-                />
-              ))}
-            </div>
-          ) : (
-            // Simple syntax highlighted view
-            <SyntaxHighlight
-              code={script}
-              showLineNumbers={showLineNumbers}
-            />
-          )}
-        </div>
-      </CardContent>
+      {/* Content area - dark background for code */}
+      <div className="overflow-auto bg-slate-950 dark:bg-slate-900" style={maxHeightStyle}>
+        {showDiff ? (
+          // Diff view
+          <DiffView
+            lines={state.diffLines}
+            showLineNumbers={showLineNumbers}
+          />
+        ) : collapsible && state.sections.length > 1 ? (
+          // Sectioned view with collapsible sections
+          <div role="list" aria-label="Configuration sections">
+            {state.sections.map((section) => (
+              <ConfigSection
+                key={section.id}
+                section={section}
+                onToggle={() => state.toggleSection(section.id)}
+                showLineNumbers={showLineNumbers}
+              />
+            ))}
+          </div>
+        ) : (
+          // Simple syntax highlighted view
+          <SyntaxHighlight
+            code={script}
+            showLineNumbers={showLineNumbers}
+          />
+        )}
+      </div>
 
       {/* Screen reader live region for copy/download feedback */}
       <div
@@ -195,7 +197,7 @@ export function ConfigPreviewDesktop({
       >
         {state.isCopied && 'Configuration copied to clipboard'}
       </div>
-    </Card>
+    </div>
   );
 }
 

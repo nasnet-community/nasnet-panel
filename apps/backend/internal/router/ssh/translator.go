@@ -3,6 +3,7 @@ package ssh
 
 import (
 	"context"
+	"fmt"
 
 	"backend/internal/router"
 	"backend/internal/router/ssh/parser"
@@ -54,7 +55,7 @@ func (t *Translator) ParseResponse(ctx context.Context, raw string, hints parser
 			Success:   false,
 			Error:     err,
 			RawOutput: raw,
-		}, err
+		}, fmt.Errorf("parse SSH response: %w", err)
 	}
 
 	// Convert parser.Resource to []map[string]string for router.CommandResult

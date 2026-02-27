@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/uptime-data-point",
+  "title": "UptimeDataPoint",
+  "description": "An uptime data point",
+  "source": "@site/docs/api/types/objects/uptime-data-point.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/uptime-data-point",
+  "permalink": "/api/types/objects/uptime-data-point",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "uptime-data-point",
+    "title": "UptimeDataPoint"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "UpgradeStep",
+    "permalink": "/api/types/objects/upgrade-step"
+  },
+  "next": {
+    "title": "User",
+    "permalink": "/api/types/objects/user"
+  }
+}

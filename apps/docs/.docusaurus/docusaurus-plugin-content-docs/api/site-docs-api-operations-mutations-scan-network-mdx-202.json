@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/scan-network",
+  "title": "scanNetwork",
+  "description": "Start a network scan for MikroTik routers.",
+  "source": "@site/docs/api/operations/mutations/scan-network.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/scan-network",
+  "permalink": "/api/operations/mutations/scan-network",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "scan-network",
+    "title": "scanNetwork"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "saveFirewallTemplate",
+    "permalink": "/api/operations/mutations/save-firewall-template"
+  },
+  "next": {
+    "title": "scanStorage",
+    "permalink": "/api/operations/mutations/scan-storage"
+  }
+}

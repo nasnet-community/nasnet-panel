@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/create-resource-input",
+  "title": "CreateResourceInput",
+  "description": "Input for creating a new resource",
+  "source": "@site/docs/api/types/inputs/create-resource-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/create-resource-input",
+  "permalink": "/api/types/inputs/create-resource-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "create-resource-input",
+    "title": "CreateResourceInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "CreatePortMirrorInput",
+    "permalink": "/api/types/inputs/create-port-mirror-input"
+  },
+  "next": {
+    "title": "CreateRouterInput",
+    "permalink": "/api/types/inputs/create-router-input"
+  }
+}

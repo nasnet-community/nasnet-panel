@@ -1,0 +1,26 @@
+{
+  "id": "api/types/directives/sensitive",
+  "title": "sensitive",
+  "description": "Marks field as containing sensitive data (passwords, tokens, keys).",
+  "source": "@site/docs/api/types/directives/sensitive.mdx",
+  "sourceDirName": "api/types/directives",
+  "slug": "/api/types/directives/sensitive",
+  "permalink": "/api/types/directives/sensitive",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "sensitive",
+    "title": "sensitive"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "realtime",
+    "permalink": "/api/types/directives/realtime"
+  },
+  "next": {
+    "title": "specifiedBy",
+    "permalink": "/api/types/directives/specified-by"
+  }
+}

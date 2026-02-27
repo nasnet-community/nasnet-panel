@@ -4,11 +4,13 @@ package resolver
 
 import (
 	"backend/generated/ent"
+	"backend/generated/ent/routingchain"
 	"backend/generated/ent/serviceinstance"
 	"backend/generated/ent/virtualinterface"
 	graphql1 "backend/graph/model"
 	"backend/internal/features"
 	"backend/internal/orchestrator/lifecycle"
+	"backend/internal/vif/routing"
 	"encoding/json"
 )
 
@@ -334,5 +336,175 @@ func convertEntVIFStatusToGraphQL(s virtualinterface.Status) graphql1.VirtualInt
 		return graphql1.VirtualInterfaceStatusRemoving
 	default:
 		return graphql1.VirtualInterfaceStatusCreating
+	}
+}
+
+// convertCreateRoutingChainInput converts graphql CreateRoutingChainInput to routing domain input.
+//
+//nolint:gocyclo // complex input conversion with multiple switch cases
+func convertCreateRoutingChainInput(input graphql1.CreateRoutingChainInput) routing.CreateRoutingChainInput {
+	var routingMode routingchain.RoutingMode
+	switch input.RoutingMode {
+	case graphql1.RoutingModeIP:
+		routingMode = routingchain.RoutingModeIP
+	case graphql1.RoutingModeMac:
+		routingMode = routingchain.RoutingModeMAC
+	default:
+		routingMode = routingchain.RoutingModeMAC
+	}
+
+	var killSwitchEnabled bool
+	if input.KillSwitchEnabled.IsSet() {
+		if v := input.KillSwitchEnabled.Value(); v != nil {
+			killSwitchEnabled = *v
+		}
+	}
+
+	killSwitchMode := routingchain.KillSwitchModeBLOCK_ALL
+	if input.KillSwitchMode.IsSet() {
+		if v := input.KillSwitchMode.Value(); v != nil {
+			switch *v {
+			case graphql1.KillSwitchModeFallbackService:
+				killSwitchMode = routingchain.KillSwitchModeFALLBACK_SERVICE
+			case graphql1.KillSwitchModeAllowDirect:
+				killSwitchMode = routingchain.KillSwitchModeALLOW_DIRECT
+			case graphql1.KillSwitchModeBlockAll:
+				killSwitchMode = routingchain.KillSwitchModeBLOCK_ALL
+			default:
+				killSwitchMode = routingchain.KillSwitchModeBLOCK_ALL
+			}
+		}
+	}
+
+	var deviceMAC, deviceIP, deviceName string
+	if input.DeviceMac.IsSet() {
+		if v := input.DeviceMac.Value(); v != nil {
+			deviceMAC = *v
+		}
+	}
+	if input.DeviceIP.IsSet() {
+		if v := input.DeviceIP.Value(); v != nil {
+			deviceIP = *v
+		}
+	}
+	if input.DeviceName.IsSet() {
+		if v := input.DeviceName.Value(); v != nil {
+			deviceName = *v
+		}
+	}
+
+	hops := make([]routing.ChainHopInput, len(input.Hops))
+	for i, h := range input.Hops {
+		hops[i] = routing.ChainHopInput{
+			InterfaceID: h.InterfaceID,
+			Order:       h.Order,
+		}
+	}
+
+	return routing.CreateRoutingChainInput{
+		DeviceID:          input.DeviceID,
+		DeviceMAC:         deviceMAC,
+		DeviceIP:          deviceIP,
+		DeviceName:        deviceName,
+		RoutingMode:       routingMode,
+		KillSwitchEnabled: killSwitchEnabled,
+		KillSwitchMode:    killSwitchMode,
+		Hops:              hops,
+	}
+}
+
+// convertEntRoutingChainToGraphQL converts an ent RoutingChain to graphql1.RoutingChain.
+func convertEntRoutingChainToGraphQL(chain *ent.RoutingChain) *graphql1.RoutingChain {
+	if chain == nil {
+		return nil
+	}
+
+	var routingMode graphql1.RoutingMode
+	switch chain.RoutingMode {
+	case routingchain.RoutingModeIP:
+		routingMode = graphql1.RoutingModeIP
+	case routingchain.RoutingModeMAC:
+		routingMode = graphql1.RoutingModeMac
+	default:
+		routingMode = graphql1.RoutingModeMac
+	}
+
+	var killSwitchMode graphql1.KillSwitchMode
+	switch chain.KillSwitchMode {
+	case routingchain.KillSwitchModeFALLBACK_SERVICE:
+		killSwitchMode = graphql1.KillSwitchModeFallbackService
+	case routingchain.KillSwitchModeALLOW_DIRECT:
+		killSwitchMode = graphql1.KillSwitchModeAllowDirect
+	case routingchain.KillSwitchModeBLOCK_ALL:
+		killSwitchMode = graphql1.KillSwitchModeBlockAll
+	default:
+		killSwitchMode = graphql1.KillSwitchModeBlockAll
+	}
+
+	gqlChain := &graphql1.RoutingChain{
+		ID:                    chain.ID,
+		DeviceID:              chain.DeviceID,
+		Active:                chain.Active,
+		RoutingMode:           routingMode,
+		KillSwitchEnabled:     chain.KillSwitchEnabled,
+		KillSwitchMode:        killSwitchMode,
+		KillSwitchActive:      chain.KillSwitchActive,
+		KillSwitchActivatedAt: chain.KillSwitchActivatedAt,
+		CreatedAt:             chain.CreatedAt,
+		UpdatedAt:             chain.UpdatedAt,
+	}
+
+	if chain.DeviceMAC != "" {
+		mac := chain.DeviceMAC
+		gqlChain.DeviceMac = &mac
+	}
+	if chain.DeviceIP != "" {
+		ip := chain.DeviceIP
+		gqlChain.DeviceIP = &ip
+	}
+	if chain.DeviceName != "" {
+		name := chain.DeviceName
+		gqlChain.DeviceName = &name
+	}
+
+	hops := chain.Edges.Hops
+	if len(hops) > 0 {
+		gqlHops := make([]*graphql1.ChainHop, 0, len(hops))
+		for _, hop := range hops {
+			gqlHop := &graphql1.ChainHop{
+				ID:               hop.ID,
+				Order:            hop.HopOrder,
+				RoutingMark:      hop.RoutingMark,
+				KillSwitchActive: hop.KillSwitchActive,
+				Healthy:          true, // default; latency checker can update this
+			}
+			if hop.Edges.Interface != nil {
+				gqlHop.Interface = convertEntVIFToGraphQL(hop.Edges.Interface)
+			}
+			gqlHops = append(gqlHops, gqlHop)
+		}
+		gqlChain.Hops = gqlHops
+	}
+
+	return gqlChain
+}
+
+// mapConfigFieldType maps a string field type to a graphql ConfigFieldType.
+func mapConfigFieldType(fieldType string) graphql1.ConfigFieldType {
+	switch fieldType {
+	case "string":
+		return graphql1.ConfigFieldTypeText
+	case "int":
+		return graphql1.ConfigFieldTypeNumber
+	case "bool":
+		return graphql1.ConfigFieldTypeToggle
+	case "ip":
+		return graphql1.ConfigFieldTypeIP
+	case "port":
+		return graphql1.ConfigFieldTypePort
+	case "enum":
+		return graphql1.ConfigFieldTypeSelect
+	default:
+		return graphql1.ConfigFieldTypeText
 	}
 }

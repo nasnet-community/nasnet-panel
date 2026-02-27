@@ -1,7 +1,6 @@
 import React, { useEffect, useState, type ReactNode } from 'react';
 
 import { useNavigate } from '@tanstack/react-router';
-import { useTranslation } from 'react-i18next';
 
 import { storeCredentials, clearCredentials } from '@nasnet/api-client/core';
 import { ROUTES } from '@nasnet/core/constants';
@@ -179,9 +178,9 @@ export const RouterPanel = React.memo(function RouterPanel({ routerId, children 
   }, [navigate]);
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full animate-fade-in-up">
       {/* Router Header with status and info */}
-      <div className="px-4 pt-4 md:px-6 md:pt-6">
+      <div className="px-4 pt-4 md:px-6 md:pt-6 brand-gradient-subtle">
         <div className="max-w-7xl mx-auto">
           <RouterHeader routerId={id || ''} />
         </div>

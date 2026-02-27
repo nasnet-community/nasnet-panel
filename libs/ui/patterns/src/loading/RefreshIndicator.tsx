@@ -94,7 +94,8 @@ export const RefreshIndicator = React.memo(function RefreshIndicator({
         aria-label="Refreshing data"
         className={cn(
           positionClasses,
-          'flex items-center justify-center py-1 gap-1',
+          'flex items-center justify-center gap-component-sm py-2 px-3',
+          'rounded-full bg-muted/80 backdrop-blur-sm',
           className
         )}
       >
@@ -104,7 +105,7 @@ export const RefreshIndicator = React.memo(function RefreshIndicator({
             className={cn(
               'h-1.5 w-1.5 rounded-full',
               colorConfig[color],
-              'animate-pulse'
+              'motion-safe:animate-pulse'
             )}
             style={{
               animationDelay: `${i * 150}ms`,
@@ -122,20 +123,25 @@ export const RefreshIndicator = React.memo(function RefreshIndicator({
       role="status"
       aria-live="polite"
       aria-label="Refreshing data"
-      className={cn(positionClasses, 'h-0.5 overflow-hidden', className)}
+      className={cn(
+        positionClasses,
+        'h-1 overflow-hidden',
+        'transition-opacity duration-300',
+        'motion-safe:animate-progress',
+        className
+      )}
     >
       <div
         className={cn(
           'h-full w-1/3',
-          colorConfig[color],
-          'animate-[slide-right_1s_ease-in-out_infinite]'
+          colorConfig[color]
         )}
         style={{
-          animation: 'slide-right 1s ease-in-out infinite',
+          animation: 'slideProgress 1s ease-in-out infinite',
         }}
       />
       <style>{`
-        @keyframes slide-right {
+        @keyframes slideProgress {
           0% { transform: translateX(-100%); }
           100% { transform: translateX(400%); }
         }

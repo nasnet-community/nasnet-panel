@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/subscriptions/wan-status-changed",
+  "title": "wanStatusChanged",
+  "description": "Subscribe to WAN status changes",
+  "source": "@site/docs/api/operations/subscriptions/wan-status-changed.mdx",
+  "sourceDirName": "api/operations/subscriptions",
+  "slug": "/api/operations/subscriptions/wan-status-changed",
+  "permalink": "/api/operations/subscriptions/wan-status-changed",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "wan-status-changed",
+    "title": "wanStatusChanged"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "wanHealthChanged",
+    "permalink": "/api/operations/subscriptions/wan-health-changed"
+  },
+  "next": {
+    "title": "Types",
+    "permalink": "/category/types"
+  }
+}

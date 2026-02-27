@@ -1,0 +1,24 @@
+{
+  "id": "index",
+  "title": "Feature Library Documentation",
+  "description": "This directory contains the technical reference documentation for libs/features/, the Layer 3 domain layer in NasNetConnect's three-tier component architecture.",
+  "source": "@site/../../libs/features/docs/index.md",
+  "sourceDirName": ".",
+  "slug": "/",
+  "permalink": "/docs/features/",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/features/docs/index.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "VPN Feature Module Documentation",
+    "permalink": "/docs/features/feature-vpn"
+  },
+  "next": {
+    "title": "Routing and Navigation Architecture",
+    "permalink": "/docs/features/routing-and-navigation"
+  }
+}

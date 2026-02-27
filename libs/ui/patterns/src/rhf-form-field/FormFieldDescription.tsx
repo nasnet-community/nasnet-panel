@@ -34,12 +34,12 @@ export const FormFieldDescription = React.forwardRef<HTMLParagraphElement, FormF
         ref={ref}
         id={id}
         className={cn(
-          'flex items-start gap-1.5 text-sm text-muted-foreground',
+          'flex items-start gap-1.5 text-xs text-muted-foreground mt-1',
           className
         )}
       >
         {showIcon && (
-          <HelpCircle className="h-3.5 w-3.5 mt-0.5 flex-shrink-0 text-muted-foreground/60" aria-hidden="true" />
+          <HelpCircle className="h-3 w-3 mt-0.5 flex-shrink-0 text-muted-foreground/60" aria-hidden="true" />
         )}
         <span>{children}</span>
       </p>

@@ -40,7 +40,7 @@ function ResourceCardMobileComponent<T extends BaseResource>(
 
   return (
     <Card
-      className={cn('p-4 touch-manipulation', className)}
+      className={cn('p-component-md rounded-[var(--semantic-radius-cardMobile)] touch-manipulation', className)}
       onClick={handleClick}
       role="article"
       aria-label={`${resource.name} - ${statusLabel}`}

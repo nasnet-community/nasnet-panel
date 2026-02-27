@@ -2,6 +2,7 @@ package bootstrap
 
 import (
 	"context"
+	"fmt"
 	"path/filepath"
 	"time"
 
@@ -37,7 +38,11 @@ func (a *instanceHealthAdapter) GetStatus(instanceID string) (string, error) {
 	if a.manager == nil {
 		return "UNKNOWN", nil
 	}
-	return a.manager.GetInstanceHealthStatus(instanceID)
+	status, err := a.manager.GetInstanceHealthStatus(instanceID)
+	if err != nil {
+		return "", fmt.Errorf("get instance health status: %w", err)
+	}
+	return status, nil
 }
 
 // instanceStopperAdapter adapts InstanceManager to updates.InstanceStopper interface.
@@ -49,7 +54,10 @@ func (a *instanceStopperAdapter) Stop(ctx context.Context, instanceID string) er
 	if a.manager == nil {
 		return nil
 	}
-	return a.manager.StopInstance(ctx, instanceID)
+	if err := a.manager.StopInstance(ctx, instanceID); err != nil {
+		return fmt.Errorf("stop instance: %w", err)
+	}
+	return nil
 }
 
 // instanceStarterAdapter adapts InstanceManager to updates.InstanceStarter interface.
@@ -61,7 +69,10 @@ func (a *instanceStarterAdapter) Start(ctx context.Context, instanceID string) e
 	if a.manager == nil {
 		return nil
 	}
-	return a.manager.StartInstance(ctx, instanceID)
+	if err := a.manager.StartInstance(ctx, instanceID); err != nil {
+		return fmt.Errorf("start instance: %w", err)
+	}
+	return nil
 }
 
 // InitializeUpdateManager creates and initializes the service update manager.
@@ -95,7 +106,7 @@ func InitializeUpdateManager(
 		GitHubClient: githubClient,
 	})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("new update service: %w", err)
 	}
 	logger.Info("Update service initialized")
 
@@ -105,9 +116,9 @@ func InitializeUpdateManager(
 
 	// 4. Update Journal - power-safe journaling for atomic updates
 	journalPath := filepath.Join(dataDir, "update-journal.db")
-	updateJournal, err := updates.NewUpdateJournal(journalPath)
+	updateJournal, err := updates.NewUpdateJournal(journalPath) //nolint:contextcheck // journal initialization does not need context
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("new update journal: %w", err)
 	}
 	logger.Info("Update journal initialized", zap.String("path", journalPath))
 
@@ -138,7 +149,7 @@ func InitializeUpdateManager(
 		InstanceStarter:  &instanceStarterAdapter{manager: instanceManager},
 	})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("new update engine: %w", err)
 	}
 	logger.Info("Update engine initialized", zap.String("type", "6-phase atomic updates with rollback"))
 
@@ -160,17 +171,16 @@ func InitializeUpdateManager(
 		Timezone:        "UTC",
 	})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("new update scheduler: %w", err)
 	}
 	logger.Info("Update scheduler initialized")
 
 	// Start update scheduler (begins periodic update checks)
 	//nolint:contextcheck // scheduler.Start() creates its own context
 	if err := updateScheduler.Start(); err != nil {
-		logger.Warn("Failed to start update scheduler", zap.Error(err))
-	} else {
-		logger.Info("Update scheduler started", zap.String("schedule", "checks every 6h, quiet hours 02:00-06:00 UTC"))
+		return nil, fmt.Errorf("update scheduler start: %w", err)
 	}
+	logger.Info("Update scheduler started", zap.String("schedule", "checks every 6h, quiet hours 02:00-06:00 UTC"))
 
 	return &UpdateComponents{
 		GitHubClient:     githubClient,

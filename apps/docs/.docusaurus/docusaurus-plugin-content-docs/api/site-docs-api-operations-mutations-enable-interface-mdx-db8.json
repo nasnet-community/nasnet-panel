@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/enable-interface",
+  "title": "enableInterface",
+  "description": "Enable an interface",
+  "source": "@site/docs/api/operations/mutations/enable-interface.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/enable-interface",
+  "permalink": "/api/operations/mutations/enable-interface",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "enable-interface",
+    "title": "enableInterface"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "disconnectRouter",
+    "permalink": "/api/operations/mutations/disconnect-router"
+  },
+  "next": {
+    "title": "enablePortMirror",
+    "permalink": "/api/operations/mutations/enable-port-mirror"
+  }
+}

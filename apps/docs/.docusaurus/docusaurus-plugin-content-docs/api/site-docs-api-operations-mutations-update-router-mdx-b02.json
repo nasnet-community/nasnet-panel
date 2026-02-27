@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/update-router",
+  "title": "updateRouter",
+  "description": "Update router settings",
+  "source": "@site/docs/api/operations/mutations/update-router.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/update-router",
+  "permalink": "/api/operations/mutations/update-router",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "update-router",
+    "title": "updateRouter"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "updateRouterCredentials",
+    "permalink": "/api/operations/mutations/update-router-credentials"
+  },
+  "next": {
+    "title": "updateRoutingChain",
+    "permalink": "/api/operations/mutations/update-routing-chain"
+  }
+}

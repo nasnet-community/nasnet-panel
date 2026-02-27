@@ -1,0 +1,28 @@
+{
+  "id": "intro",
+  "title": "Introduction",
+  "description": "The Connect app is the main React frontend for NasNet. It provides an adaptive, responsive UI for managing MikroTik routers across mobile, tablet, and desktop platforms.",
+  "source": "@site/../connect/docs/intro.md",
+  "sourceDirName": ".",
+  "slug": "/intro",
+  "permalink": "/docs/frontend/intro",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../connect/docs/intro.md",
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 1,
+  "frontMatter": {
+    "sidebar_position": 1,
+    "title": "Introduction"
+  },
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Documentation Index",
+    "permalink": "/docs/frontend/"
+  },
+  "next": {
+    "title": "Build System",
+    "permalink": "/docs/frontend/architecture/build-system"
+  }
+}

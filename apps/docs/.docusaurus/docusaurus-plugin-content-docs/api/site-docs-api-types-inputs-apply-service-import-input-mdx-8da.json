@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/apply-service-import-input",
+  "title": "ApplyServiceImportInput",
+  "description": "Input for applying a validated service import.",
+  "source": "@site/docs/api/types/inputs/apply-service-import-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/apply-service-import-input",
+  "permalink": "/api/types/inputs/apply-service-import-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "apply-service-import-input",
+    "title": "ApplyServiceImportInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ApplyServiceConfigInput",
+    "permalink": "/api/types/inputs/apply-service-config-input"
+  },
+  "next": {
+    "title": "AssignDeviceRoutingInput",
+    "permalink": "/api/types/inputs/assign-device-routing-input"
+  }
+}

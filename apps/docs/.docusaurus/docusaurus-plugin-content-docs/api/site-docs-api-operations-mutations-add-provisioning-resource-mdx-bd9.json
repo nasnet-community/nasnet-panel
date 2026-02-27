@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/add-provisioning-resource",
+  "title": "addProvisioningResource",
+  "description": "Add a resource to the provisioning session.",
+  "source": "@site/docs/api/operations/mutations/add-provisioning-resource.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/add-provisioning-resource",
+  "permalink": "/api/operations/mutations/add-provisioning-resource",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "add-provisioning-resource",
+    "title": "addProvisioningResource"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "addIngressToBridge",
+    "permalink": "/api/operations/mutations/add-ingress-to-bridge"
+  },
+  "next": {
+    "title": "addRouter",
+    "permalink": "/api/operations/mutations/add-router"
+  }
+}

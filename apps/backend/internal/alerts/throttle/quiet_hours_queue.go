@@ -220,7 +220,11 @@ func (qm *QuietHoursQueueManager) processQueues() {
 // FlushAll immediately delivers all queued notifications regardless of quiet hours.
 func (qm *QuietHoursQueueManager) FlushAll(ctx context.Context) error {
 	qm.mu.Lock()
-	allNotifications := make([]QueuedNotification, 0)
+	totalCount := 0
+	for _, queue := range qm.queues {
+		totalCount += len(queue.notifications)
+	}
+	allNotifications := make([]QueuedNotification, 0, totalCount)
 	for _, queue := range qm.queues {
 		allNotifications = append(allNotifications, queue.notifications...)
 	}

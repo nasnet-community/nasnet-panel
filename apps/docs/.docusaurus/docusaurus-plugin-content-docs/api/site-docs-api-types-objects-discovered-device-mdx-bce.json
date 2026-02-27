@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/discovered-device",
+  "title": "DiscoveredDevice",
+  "description": "A device discovered during a network scan.",
+  "source": "@site/docs/api/types/objects/discovered-device.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/discovered-device",
+  "permalink": "/api/types/objects/discovered-device",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "discovered-device",
+    "title": "DiscoveredDevice"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "DisconnectRouterPayload",
+    "permalink": "/api/types/objects/disconnect-router-payload"
+  },
+  "next": {
+    "title": "DiscoveredWAN",
+    "permalink": "/api/types/objects/discovered-wan"
+  }
+}

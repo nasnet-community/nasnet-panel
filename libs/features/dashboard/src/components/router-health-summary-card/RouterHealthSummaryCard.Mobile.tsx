@@ -62,7 +62,7 @@ export const RouterHealthSummaryCardMobile = React.memo(function RouterHealthSum
       role="region"
       aria-label={`Router health summary for ${router.name}`}
     >
-      <CardHeader className="pb-3">
+      <CardHeader className="pb-component-sm">
         <div className="flex items-center justify-between">
           <div className="flex-1 min-w-0">
             <h3 className="text-base font-semibold text-foreground truncate">{router.name}</h3>
@@ -76,7 +76,7 @@ export const RouterHealthSummaryCardMobile = React.memo(function RouterHealthSum
               size="icon"
               onClick={handleRefresh}
               aria-label="Refresh router data"
-              className="h-11 w-11 ml-2 flex-shrink-0"
+              className="h-11 w-11 ml-component-sm flex-shrink-0"
             >
               <RefreshCw className="h-4 w-4" aria-hidden="true" />
             </Button>
@@ -84,9 +84,9 @@ export const RouterHealthSummaryCardMobile = React.memo(function RouterHealthSum
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-3">
+      <CardContent className="space-y-component-md">
         {/* Status and Health Row */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-component-sm">
           <Badge
             variant={isOnline ? 'connected' : 'offline'}
             pulse={isOnline}
@@ -98,7 +98,7 @@ export const RouterHealthSummaryCardMobile = React.memo(function RouterHealthSum
 
           <div
             className={cn(
-              'flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium',
+              'flex items-center gap-component-xs px-component-sm py-component-xs rounded-full text-xs font-medium',
               getHealthBgClass(healthStatus),
               healthStatus === 'warning' ? 'text-warning-foreground' : 'text-primary-foreground'
             )}
@@ -120,7 +120,7 @@ export const RouterHealthSummaryCardMobile = React.memo(function RouterHealthSum
         </div>
 
         {/* Metrics Grid */}
-        <div className="grid grid-cols-2 gap-3 text-sm">
+        <div className="grid grid-cols-2 gap-component-md text-sm">
           <div>
             <dt className="text-xs text-muted-foreground">Version</dt>
             <dd className="font-mono text-sm font-medium text-foreground">{router.version}</dd>
@@ -162,23 +162,23 @@ RouterHealthSummaryCardMobile.displayName = 'RouterHealthSummaryCardMobile';
 export const RouterHealthSummaryCardMobileSkeleton = React.memo(function RouterHealthSummaryCardMobileSkeleton({ className }: { className?: string }) {
   return (
     <Card className={cn('animate-pulse', className)}>
-      <CardHeader className="pb-3">
+      <CardHeader className="pb-component-sm">
         <div className="flex items-center justify-between">
-          <div className="flex-1 space-y-2">
+          <div className="flex-1 space-y-component-sm">
             <div className="h-4 bg-muted rounded w-32" />
             <div className="h-3 bg-muted rounded w-24" />
           </div>
           <div className="h-11 w-11 bg-muted rounded-md" />
         </div>
       </CardHeader>
-      <CardContent className="space-y-3">
-        <div className="flex gap-2">
+      <CardContent className="space-y-component-md">
+        <div className="flex gap-component-sm">
           <div className="h-6 bg-muted rounded-full w-20" />
           <div className="h-6 bg-muted rounded-full w-20" />
         </div>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-component-md">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="space-y-1">
+            <div key={i} className="space-y-component-xs">
               <div className="h-3 bg-muted rounded w-16" />
               <div className="h-4 bg-muted rounded w-12" />
             </div>

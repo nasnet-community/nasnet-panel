@@ -81,7 +81,7 @@ const PortCard = memo(function PortCard({ allocation }: PortCardProps) {
         <div className="flex items-center gap-component-sm flex-1 min-w-0">
           <Badge
             variant="outline"
-            className="font-mono font-bold text-base px-3 py-1"
+            className="font-mono font-bold text-base px-3 py-1 text-category-vpn"
           >
             {allocation.port}
           </Badge>

@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/instance-update-info",
+  "title": "instanceUpdateInfo",
+  "description": "Get update information for a specific instance.",
+  "source": "@site/docs/api/operations/queries/instance-update-info.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/instance-update-info",
+  "permalink": "/api/operations/queries/instance-update-info",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "instance-update-info",
+    "title": "instanceUpdateInfo"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "instanceIsolation",
+    "permalink": "/api/operations/queries/instance-isolation"
+  },
+  "next": {
+    "title": "instanceVerificationStatus",
+    "permalink": "/api/operations/queries/instance-verification-status"
+  }
+}

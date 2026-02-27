@@ -1,0 +1,24 @@
+{
+  "id": "forms-validation/network-validators",
+  "title": "Network Validators",
+  "description": "File: libs/core/forms/src/network-validators.ts",
+  "source": "@site/../connect/docs/forms-validation/network-validators.md",
+  "sourceDirName": "forms-validation",
+  "slug": "/forms-validation/network-validators",
+  "permalink": "/docs/frontend/forms-validation/network-validators",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../connect/docs/forms-validation/network-validators.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Form Utilities",
+    "permalink": "/docs/frontend/forms-validation/form-utilities"
+  },
+  "next": {
+    "title": "Forms and Validation Overview",
+    "permalink": "/docs/frontend/forms-validation/overview"
+  }
+}

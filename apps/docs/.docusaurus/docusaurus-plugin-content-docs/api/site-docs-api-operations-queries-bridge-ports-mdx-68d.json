@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/bridge-ports",
+  "title": "bridgePorts",
+  "description": "Get bridge ports",
+  "source": "@site/docs/api/operations/queries/bridge-ports.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/bridge-ports",
+  "permalink": "/api/operations/queries/bridge-ports",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "bridge-ports",
+    "title": "bridgePorts"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "bootSequenceProgress",
+    "permalink": "/api/operations/queries/boot-sequence-progress"
+  },
+  "next": {
+    "title": "bridgeStatus",
+    "permalink": "/api/operations/queries/bridge-status"
+  }
+}

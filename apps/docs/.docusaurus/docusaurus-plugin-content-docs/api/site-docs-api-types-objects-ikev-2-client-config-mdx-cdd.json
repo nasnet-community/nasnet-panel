@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/ikev-2-client-config",
+  "title": "IKEv2ClientConfig",
+  "description": "IKEv2 client configuration",
+  "source": "@site/docs/api/types/objects/ikev-2-client-config.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/ikev-2-client-config",
+  "permalink": "/api/types/objects/ikev-2-client-config",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "ikev-2-client-config",
+    "title": "IKEv2ClientConfig"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "HourlyStats",
+    "permalink": "/api/types/objects/hourly-stats"
+  },
+  "next": {
+    "title": "IKEv2Client",
+    "permalink": "/api/types/objects/ikev-2-client"
+  }
+}

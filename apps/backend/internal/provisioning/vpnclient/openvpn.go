@@ -4,10 +4,24 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"backend/internal/provisioning/types"
 	"backend/internal/router"
 )
+
+// buildAuthMethodString builds a comma-separated auth method string.
+// Prefers the AuthMethods slice (multiple values) over the single AuthMethod field.
+func buildAuthMethodString(methods []types.AuthMethod, single types.AuthMethod) string {
+	if len(methods) > 0 {
+		parts := make([]string, len(methods))
+		for i, m := range methods {
+			parts[i] = string(m)
+		}
+		return strings.Join(parts, ",")
+	}
+	return string(single)
+}
 
 // boolToYesNo converts a boolean to RouterOS "yes"/"no" string.
 func boolToYesNo(b bool) string {
@@ -87,6 +101,8 @@ func (s *Service) ProvisionOpenVPN( //nolint:dupl // each VPN protocol has disti
 }
 
 // createOpenVPNInterface creates the OpenVPN interface on the router.
+//
+//nolint:gocyclo // extensive OpenVPN interface configuration conditionals
 func (s *Service) createOpenVPNInterface(
 	ctx context.Context,
 	ifName string,
@@ -132,6 +148,13 @@ func (s *Service) createOpenVPNInterface(
 	// Set verify server certificate if provided
 	if cfg.VerifyServerCertificate != nil {
 		args["verify-server-certificate"] = boolToYesNo(*cfg.VerifyServerCertificate)
+	}
+
+	// Set certificate: use Certificates.Cert if it contains a certificate name (not file content),
+	// matching TS behavior where ClientCertificateName is set from Certificates struct.
+	if cfg.Certificates.Cert != "" && !strings.Contains(cfg.Certificates.Cert, "\n") {
+		// Treat non-multiline value as a certificate name reference (not PEM content)
+		args["certificate"] = cfg.Certificates.Cert
 	}
 
 	// Set add-default-route based on RouteNoPull (inverse logic)

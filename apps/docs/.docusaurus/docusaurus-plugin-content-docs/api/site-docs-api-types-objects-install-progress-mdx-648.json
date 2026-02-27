@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/install-progress",
+  "title": "InstallProgress",
+  "description": "Installation progress event.",
+  "source": "@site/docs/api/types/objects/install-progress.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/install-progress",
+  "permalink": "/api/types/objects/install-progress",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "install-progress",
+    "title": "InstallProgress"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "IngressVLAN",
+    "permalink": "/api/types/objects/ingress-vlan"
+  },
+  "next": {
+    "title": "InstanceResourceUsage",
+    "permalink": "/api/types/objects/instance-resource-usage"
+  }
+}

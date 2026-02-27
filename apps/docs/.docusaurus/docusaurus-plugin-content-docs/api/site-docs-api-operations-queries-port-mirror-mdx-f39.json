@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/port-mirror",
+  "title": "portMirror",
+  "description": "Get a specific port mirror by ID",
+  "source": "@site/docs/api/operations/queries/port-mirror.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/port-mirror",
+  "permalink": "/api/operations/queries/port-mirror",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "port-mirror",
+    "title": "portMirror"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "portKnockSequences",
+    "permalink": "/api/operations/queries/port-knock-sequences"
+  },
+  "next": {
+    "title": "portMirrors",
+    "permalink": "/api/operations/queries/port-mirrors"
+  }
+}

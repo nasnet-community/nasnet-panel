@@ -70,6 +70,14 @@ type VLANPoolStatus struct {
 	ShouldWarn     bool // True if utilization > 80%
 }
 
+// Pool boundary constants for ingress/egress VLAN partitioning.
+const (
+	DefaultIngressPoolStart = 100
+	DefaultIngressPoolEnd   = 149
+	DefaultEgressPoolStart  = 150
+	DefaultEgressPoolEnd    = 199
+)
+
 // Constants for GlobalSettings namespace and keys.
 const (
 	SettingsNamespace = "network"

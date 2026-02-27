@@ -45,9 +45,9 @@ type Story = StoryObj<typeof InterfaceListFilters>;
 function StatefulFilters({ initialFilters }: { initialFilters: InterfaceFilters }) {
   const [filters, setFilters] = useState<InterfaceFilters>(initialFilters);
   return (
-    <div className="p-4 bg-background">
+    <div className="p-component-sm bg-background">
       <InterfaceListFilters filters={filters} onChange={setFilters} />
-      <pre className="mt-4 text-xs text-muted-foreground bg-muted p-2 rounded">
+      <pre className="mt-component-md text-xs text-muted-foreground bg-muted p-component-xs rounded">
         {JSON.stringify(filters, null, 2)}
       </pre>
     </div>

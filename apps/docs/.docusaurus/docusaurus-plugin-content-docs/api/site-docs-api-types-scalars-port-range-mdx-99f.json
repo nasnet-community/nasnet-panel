@@ -1,0 +1,26 @@
+{
+  "id": "api/types/scalars/port-range",
+  "title": "PortRange",
+  "description": "Port range string (e.g., \"80\", \"80-443\", \"80,443,8080\")",
+  "source": "@site/docs/api/types/scalars/port-range.mdx",
+  "sourceDirName": "api/types/scalars",
+  "slug": "/api/types/scalars/port-range",
+  "permalink": "/api/types/scalars/port-range",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "port-range",
+    "title": "PortRange"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "MAC",
+    "permalink": "/api/types/scalars/mac"
+  },
+  "next": {
+    "title": "Port",
+    "permalink": "/api/types/scalars/port"
+  }
+}

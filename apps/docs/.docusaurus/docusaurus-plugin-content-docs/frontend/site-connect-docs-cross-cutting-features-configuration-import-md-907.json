@@ -1,0 +1,24 @@
+{
+  "id": "cross-cutting-features/configuration-import",
+  "title": "Configuration Import",
+  "description": "The configuration import feature lets users apply RouterOS script commands (.rsc files) to a router through a guided wizard. It also handles service configuration sharing — exporting a service instance's config as JSON and importing it on another router.",
+  "source": "@site/../connect/docs/cross-cutting-features/configuration-import.md",
+  "sourceDirName": "cross-cutting-features",
+  "slug": "/cross-cutting-features/configuration-import",
+  "permalink": "/docs/frontend/cross-cutting-features/configuration-import",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../connect/docs/cross-cutting-features/configuration-import.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Change Set System",
+    "permalink": "/docs/frontend/cross-cutting-features/change-set-system"
+  },
+  "next": {
+    "title": "Drift Detection Feature",
+    "permalink": "/docs/frontend/cross-cutting-features/drift-detection-feature"
+  }
+}

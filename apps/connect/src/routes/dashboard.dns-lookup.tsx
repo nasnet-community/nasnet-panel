@@ -10,10 +10,11 @@
  * @see Story NAS-5.9 - Implement DNS Lookup Tool
  */
 
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
 
 import { useTranslation } from '@nasnet/core/i18n';
 import { DnsLookupTool } from '@nasnet/features/diagnostics';
+import { useConnectionStore } from '@nasnet/state/stores';
 
 export const Route = createFileRoute('/dashboard/dns-lookup')({
   component: DnsLookupPage,
@@ -21,9 +22,28 @@ export const Route = createFileRoute('/dashboard/dns-lookup')({
 
 export function DnsLookupPage() {
   const { t } = useTranslation('diagnostics');
-  // TODO: Get actual device ID from router context or state
-  // For now, using placeholder until router context is implemented
-  const deviceId = 'current-router-id';
+  const navigate = useNavigate();
+  const deviceId = useConnectionStore((state) => state.activeRouterId);
+
+  if (!deviceId) {
+    return (
+      <div className="flex items-center justify-center min-h-screen p-4">
+        <div className="max-w-md w-full bg-error/10 border border-error/20 rounded-lg p-6 text-center" role="alert">
+          <h2 className="text-lg font-semibold text-error mb-2">{t('dnsLookup.noRouterSelected')}</h2>
+          <p className="text-sm text-muted-foreground mb-4">
+            {t('dnsLookup.selectRouterMessage')}
+          </p>
+          <button
+            onClick={() => navigate({ to: '/dashboard' })}
+            aria-label={t('dnsLookup.returnToDashboard')}
+            className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+          >
+            {t('dnsLookup.returnToDashboard')}
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container py-6 space-y-6">

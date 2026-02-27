@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/router-capabilities",
+  "title": "RouterCapabilities",
+  "description": "Complete router capabilities detected from system inspection",
+  "source": "@site/docs/api/types/objects/router-capabilities.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/router-capabilities",
+  "permalink": "/api/types/objects/router-capabilities",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "router-capabilities",
+    "title": "RouterCapabilities"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "RouterAddedEvent",
+    "permalink": "/api/types/objects/router-added-event"
+  },
+  "next": {
+    "title": "RouterConnection",
+    "permalink": "/api/types/objects/router-connection"
+  }
+}

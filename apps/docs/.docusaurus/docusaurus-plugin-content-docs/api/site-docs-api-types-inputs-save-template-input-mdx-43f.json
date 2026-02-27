@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/save-template-input",
+  "title": "SaveTemplateInput",
+  "description": "Input for saving a custom template.",
+  "source": "@site/docs/api/types/inputs/save-template-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/save-template-input",
+  "permalink": "/api/types/inputs/save-template-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "save-template-input",
+    "title": "SaveTemplateInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "SaveAlertTemplateInput",
+    "permalink": "/api/types/inputs/save-alert-template-input"
+  },
+  "next": {
+    "title": "ScanNetworkInput",
+    "permalink": "/api/types/inputs/scan-network-input"
+  }
+}

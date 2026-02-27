@@ -1,3 +1,5 @@
+import React from 'react';
+
 import { useTranslation } from 'react-i18next';
 import { useCollapsibleSidebarContext } from '@nasnet/ui/layouts';
 import { Link, useRouterState } from '@tanstack/react-router';
@@ -68,12 +70,12 @@ export function AppSidebar() {
   return (
     <nav
       aria-label={t('sidebar.navigation', { defaultValue: 'Main navigation' })}
-      className="flex flex-col gap-component-sm px-component-sm py-4 h-full overflow-y-auto"
+      className="flex flex-col gap-component-sm px-component-sm py-4 pb-8 h-full overflow-y-auto"
     >
       {NAV_SECTIONS.map((section) => (
         <div key={section.titleKey} className="mb-4">
           {!isCollapsed && (
-            <p className="px-3 mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            <p className="font-display px-3 mb-1 text-xs font-semibold uppercase tracking-wider text-secondary">
               {t(section.titleKey, { defaultValue: section.titleKey })}
             </p>
           )}
@@ -90,12 +92,12 @@ export function AppSidebar() {
                     to={item.href}
                     aria-current={isActive ? 'page' : undefined}
                     className={cn(
-                      'flex items-center gap-3 rounded-md px-3 text-sm font-medium transition-colors',
+                      'flex items-center gap-3 rounded-md px-3 text-sm font-medium transition-all duration-150',
                       'min-h-[44px]',
                       'hover:bg-accent hover:text-accent-foreground',
                       'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                       isActive
-                        ? 'bg-primary/10 text-primary'
+                        ? 'bg-primary/15 text-primary border-l-[3px] border-primary -ml-[3px]'
                         : 'text-foreground',
                       isCollapsed ? 'justify-center px-2' : '',
                     )}

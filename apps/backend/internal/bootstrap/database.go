@@ -3,6 +3,7 @@ package bootstrap
 import (
 	"context"
 	"errors"
+	"fmt"
 	"os"
 	"time"
 
@@ -52,7 +53,7 @@ func InitializeDatabase(ctx context.Context, cfg DatabaseConfig) (*database.Mana
 		database.WithIdleTimeout(cfg.IdleTimeout),
 	)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, fmt.Errorf("create database manager: %w", err)
 	}
 
 	systemDB := dbManager.SystemDB()

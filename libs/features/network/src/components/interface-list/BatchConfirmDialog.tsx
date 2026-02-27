@@ -99,7 +99,7 @@ export function BatchConfirmDialog({
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && handleCancel()}>
-      <DialogContent className={className}>
+      <DialogContent className={cn('category-networking', className)}>
         <DialogHeader>
           <DialogTitle>
             {actionLabel} {interfaces.length} Interface{interfaces.length !== 1 ? 's' : ''}?
@@ -148,7 +148,7 @@ export function BatchConfirmDialog({
                         )}
                       >
                         <div className="flex items-center gap-component-sm">
-                          <span className="font-medium text-sm font-mono">{iface.name}</span>
+                          <span className="font-medium text-sm font-mono category-networking">{iface.name}</span>
                           <Badge variant="outline" className="text-xs">
                             {iface.type}
                           </Badge>
@@ -172,7 +172,7 @@ export function BatchConfirmDialog({
             </div>
           </DialogDescription>
         </DialogHeader>
-        <DialogFooter className="gap-2 sm:gap-0">
+        <DialogFooter className="gap-component-sm sm:gap-0">
           <Button
             variant="outline"
             onClick={handleCancel}

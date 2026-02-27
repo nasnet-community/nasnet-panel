@@ -96,6 +96,16 @@ func RoutingMark(v string) predicate.VirtualInterface {
 	return predicate.VirtualInterface(sql.FieldEQ(FieldRoutingMark, v))
 }
 
+// IngressVlanID applies equality check predicate on the "ingress_vlan_id" field. It's identical to IngressVlanIDEQ.
+func IngressVlanID(v int) predicate.VirtualInterface {
+	return predicate.VirtualInterface(sql.FieldEQ(FieldIngressVlanID, v))
+}
+
+// ContainerIP applies equality check predicate on the "container_ip" field. It's identical to ContainerIPEQ.
+func ContainerIP(v string) predicate.VirtualInterface {
+	return predicate.VirtualInterface(sql.FieldEQ(FieldContainerIP, v))
+}
+
 // CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
 func CreatedAt(v time.Time) predicate.VirtualInterface {
 	return predicate.VirtualInterface(sql.FieldEQ(FieldCreatedAt, v))
@@ -539,6 +549,161 @@ func StatusIn(vs ...Status) predicate.VirtualInterface {
 // StatusNotIn applies the NotIn predicate on the "status" field.
 func StatusNotIn(vs ...Status) predicate.VirtualInterface {
 	return predicate.VirtualInterface(sql.FieldNotIn(FieldStatus, vs...))
+}
+
+// RoutingModeEQ applies the EQ predicate on the "routing_mode" field.
+func RoutingModeEQ(v RoutingMode) predicate.VirtualInterface {
+	return predicate.VirtualInterface(sql.FieldEQ(FieldRoutingMode, v))
+}
+
+// RoutingModeNEQ applies the NEQ predicate on the "routing_mode" field.
+func RoutingModeNEQ(v RoutingMode) predicate.VirtualInterface {
+	return predicate.VirtualInterface(sql.FieldNEQ(FieldRoutingMode, v))
+}
+
+// RoutingModeIn applies the In predicate on the "routing_mode" field.
+func RoutingModeIn(vs ...RoutingMode) predicate.VirtualInterface {
+	return predicate.VirtualInterface(sql.FieldIn(FieldRoutingMode, vs...))
+}
+
+// RoutingModeNotIn applies the NotIn predicate on the "routing_mode" field.
+func RoutingModeNotIn(vs ...RoutingMode) predicate.VirtualInterface {
+	return predicate.VirtualInterface(sql.FieldNotIn(FieldRoutingMode, vs...))
+}
+
+// IngressVlanIDEQ applies the EQ predicate on the "ingress_vlan_id" field.
+func IngressVlanIDEQ(v int) predicate.VirtualInterface {
+	return predicate.VirtualInterface(sql.FieldEQ(FieldIngressVlanID, v))
+}
+
+// IngressVlanIDNEQ applies the NEQ predicate on the "ingress_vlan_id" field.
+func IngressVlanIDNEQ(v int) predicate.VirtualInterface {
+	return predicate.VirtualInterface(sql.FieldNEQ(FieldIngressVlanID, v))
+}
+
+// IngressVlanIDIn applies the In predicate on the "ingress_vlan_id" field.
+func IngressVlanIDIn(vs ...int) predicate.VirtualInterface {
+	return predicate.VirtualInterface(sql.FieldIn(FieldIngressVlanID, vs...))
+}
+
+// IngressVlanIDNotIn applies the NotIn predicate on the "ingress_vlan_id" field.
+func IngressVlanIDNotIn(vs ...int) predicate.VirtualInterface {
+	return predicate.VirtualInterface(sql.FieldNotIn(FieldIngressVlanID, vs...))
+}
+
+// IngressVlanIDGT applies the GT predicate on the "ingress_vlan_id" field.
+func IngressVlanIDGT(v int) predicate.VirtualInterface {
+	return predicate.VirtualInterface(sql.FieldGT(FieldIngressVlanID, v))
+}
+
+// IngressVlanIDGTE applies the GTE predicate on the "ingress_vlan_id" field.
+func IngressVlanIDGTE(v int) predicate.VirtualInterface {
+	return predicate.VirtualInterface(sql.FieldGTE(FieldIngressVlanID, v))
+}
+
+// IngressVlanIDLT applies the LT predicate on the "ingress_vlan_id" field.
+func IngressVlanIDLT(v int) predicate.VirtualInterface {
+	return predicate.VirtualInterface(sql.FieldLT(FieldIngressVlanID, v))
+}
+
+// IngressVlanIDLTE applies the LTE predicate on the "ingress_vlan_id" field.
+func IngressVlanIDLTE(v int) predicate.VirtualInterface {
+	return predicate.VirtualInterface(sql.FieldLTE(FieldIngressVlanID, v))
+}
+
+// IngressVlanIDIsNil applies the IsNil predicate on the "ingress_vlan_id" field.
+func IngressVlanIDIsNil() predicate.VirtualInterface {
+	return predicate.VirtualInterface(sql.FieldIsNull(FieldIngressVlanID))
+}
+
+// IngressVlanIDNotNil applies the NotNil predicate on the "ingress_vlan_id" field.
+func IngressVlanIDNotNil() predicate.VirtualInterface {
+	return predicate.VirtualInterface(sql.FieldNotNull(FieldIngressVlanID))
+}
+
+// EgressVlanIdsIsNil applies the IsNil predicate on the "egress_vlan_ids" field.
+func EgressVlanIdsIsNil() predicate.VirtualInterface {
+	return predicate.VirtualInterface(sql.FieldIsNull(FieldEgressVlanIds))
+}
+
+// EgressVlanIdsNotNil applies the NotNil predicate on the "egress_vlan_ids" field.
+func EgressVlanIdsNotNil() predicate.VirtualInterface {
+	return predicate.VirtualInterface(sql.FieldNotNull(FieldEgressVlanIds))
+}
+
+// ContainerIPEQ applies the EQ predicate on the "container_ip" field.
+func ContainerIPEQ(v string) predicate.VirtualInterface {
+	return predicate.VirtualInterface(sql.FieldEQ(FieldContainerIP, v))
+}
+
+// ContainerIPNEQ applies the NEQ predicate on the "container_ip" field.
+func ContainerIPNEQ(v string) predicate.VirtualInterface {
+	return predicate.VirtualInterface(sql.FieldNEQ(FieldContainerIP, v))
+}
+
+// ContainerIPIn applies the In predicate on the "container_ip" field.
+func ContainerIPIn(vs ...string) predicate.VirtualInterface {
+	return predicate.VirtualInterface(sql.FieldIn(FieldContainerIP, vs...))
+}
+
+// ContainerIPNotIn applies the NotIn predicate on the "container_ip" field.
+func ContainerIPNotIn(vs ...string) predicate.VirtualInterface {
+	return predicate.VirtualInterface(sql.FieldNotIn(FieldContainerIP, vs...))
+}
+
+// ContainerIPGT applies the GT predicate on the "container_ip" field.
+func ContainerIPGT(v string) predicate.VirtualInterface {
+	return predicate.VirtualInterface(sql.FieldGT(FieldContainerIP, v))
+}
+
+// ContainerIPGTE applies the GTE predicate on the "container_ip" field.
+func ContainerIPGTE(v string) predicate.VirtualInterface {
+	return predicate.VirtualInterface(sql.FieldGTE(FieldContainerIP, v))
+}
+
+// ContainerIPLT applies the LT predicate on the "container_ip" field.
+func ContainerIPLT(v string) predicate.VirtualInterface {
+	return predicate.VirtualInterface(sql.FieldLT(FieldContainerIP, v))
+}
+
+// ContainerIPLTE applies the LTE predicate on the "container_ip" field.
+func ContainerIPLTE(v string) predicate.VirtualInterface {
+	return predicate.VirtualInterface(sql.FieldLTE(FieldContainerIP, v))
+}
+
+// ContainerIPContains applies the Contains predicate on the "container_ip" field.
+func ContainerIPContains(v string) predicate.VirtualInterface {
+	return predicate.VirtualInterface(sql.FieldContains(FieldContainerIP, v))
+}
+
+// ContainerIPHasPrefix applies the HasPrefix predicate on the "container_ip" field.
+func ContainerIPHasPrefix(v string) predicate.VirtualInterface {
+	return predicate.VirtualInterface(sql.FieldHasPrefix(FieldContainerIP, v))
+}
+
+// ContainerIPHasSuffix applies the HasSuffix predicate on the "container_ip" field.
+func ContainerIPHasSuffix(v string) predicate.VirtualInterface {
+	return predicate.VirtualInterface(sql.FieldHasSuffix(FieldContainerIP, v))
+}
+
+// ContainerIPIsNil applies the IsNil predicate on the "container_ip" field.
+func ContainerIPIsNil() predicate.VirtualInterface {
+	return predicate.VirtualInterface(sql.FieldIsNull(FieldContainerIP))
+}
+
+// ContainerIPNotNil applies the NotNil predicate on the "container_ip" field.
+func ContainerIPNotNil() predicate.VirtualInterface {
+	return predicate.VirtualInterface(sql.FieldNotNull(FieldContainerIP))
+}
+
+// ContainerIPEqualFold applies the EqualFold predicate on the "container_ip" field.
+func ContainerIPEqualFold(v string) predicate.VirtualInterface {
+	return predicate.VirtualInterface(sql.FieldEqualFold(FieldContainerIP, v))
+}
+
+// ContainerIPContainsFold applies the ContainsFold predicate on the "container_ip" field.
+func ContainerIPContainsFold(v string) predicate.VirtualInterface {
+	return predicate.VirtualInterface(sql.FieldContainsFold(FieldContainerIP, v))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.

@@ -56,7 +56,7 @@ function WizardStepReviewComponent({ stepper, className }: WizardStepReviewProps
   ], [interfaceData, poolData, networkData]);
 
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={cn('space-y-component-lg', className)}>
       <FormSection
         title="Review Configuration"
         description="Review your DHCP server settings before creation"
@@ -71,11 +71,11 @@ function WizardStepReviewComponent({ stepper, className }: WizardStepReviewProps
               <div className="grid grid-cols-2 gap-component-sm text-sm">
                 <div>
                   <span className="text-muted-foreground">Selected Interface:</span>
-                  <span className="ml-2 font-mono">{interfaceData?.interface || 'N/A'}</span>
+                  <span className="ml-component-sm font-mono">{interfaceData?.interface || 'N/A'}</span>
                 </div>
                 <div>
                   <span className="text-muted-foreground">IP Address:</span>
-                  <span className="ml-2 font-mono">{interfaceData?.interfaceIP || 'N/A'}</span>
+                  <span className="ml-component-sm font-mono">{interfaceData?.interfaceIP || 'N/A'}</span>
                 </div>
               </div>
             </CardContent>
@@ -90,15 +90,15 @@ function WizardStepReviewComponent({ stepper, className }: WizardStepReviewProps
               <div className="grid grid-cols-2 gap-component-sm text-sm">
                 <div>
                   <span className="text-muted-foreground">Pool Start:</span>
-                  <span className="ml-2 font-mono">{poolData?.poolStart || 'N/A'}</span>
+                  <span className="ml-component-sm font-mono">{poolData?.poolStart || 'N/A'}</span>
                 </div>
                 <div>
                   <span className="text-muted-foreground">Pool End:</span>
-                  <span className="ml-2 font-mono">{poolData?.poolEnd || 'N/A'}</span>
+                  <span className="ml-component-sm font-mono">{poolData?.poolEnd || 'N/A'}</span>
                 </div>
                 <div className="col-span-2">
                   <span className="text-muted-foreground">Total Addresses:</span>
-                  <span className="ml-2 font-mono">{poolSize}</span>
+                  <span className="ml-component-sm font-mono">{poolSize}</span>
                 </div>
               </div>
             </CardContent>
@@ -113,28 +113,28 @@ function WizardStepReviewComponent({ stepper, className }: WizardStepReviewProps
               <div className="grid grid-cols-2 gap-component-sm text-sm">
                 <div>
                   <span className="text-muted-foreground">Gateway:</span>
-                  <span className="ml-2 font-mono">{networkData?.gateway || 'N/A'}</span>
+                  <span className="ml-component-sm font-mono">{networkData?.gateway || 'N/A'}</span>
                 </div>
                 <div>
                   <span className="text-muted-foreground">Lease Time:</span>
-                  <span className="ml-2 font-mono">{networkData?.leaseTime || 'N/A'}</span>
+                  <span className="ml-component-sm font-mono">{networkData?.leaseTime || 'N/A'}</span>
                 </div>
                 <div className="col-span-2">
                   <span className="text-muted-foreground">DNS Servers:</span>
-                  <span className="ml-2 font-mono">
+                  <span className="ml-component-sm font-mono">
                     {networkData?.dnsServers?.join(', ') || 'N/A'}
                   </span>
                 </div>
                 {networkData?.domain && (
                   <div>
                     <span className="text-muted-foreground">Domain:</span>
-                    <span className="ml-2 font-mono">{networkData.domain}</span>
+                    <span className="ml-component-sm font-mono">{networkData.domain}</span>
                   </div>
                 )}
                 {networkData?.ntpServer && (
                   <div>
                     <span className="text-muted-foreground">NTP Server:</span>
-                    <span className="ml-2 font-mono">{networkData.ntpServer}</span>
+                    <span className="ml-component-sm font-mono">{networkData.ntpServer}</span>
                   </div>
                 )}
               </div>

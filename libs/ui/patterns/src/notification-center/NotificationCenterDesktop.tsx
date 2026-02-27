@@ -59,7 +59,7 @@ function NotificationCenterDesktopComponent({
     filteredCount,
   } = useNotificationCenter();
 
-  const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const itemRefs = useRef<(HTMLLIElement | null)[]>([]);
   const [focusedIndex, setFocusedIndex] = useState<number>(-1);
 
   // Handle keyboard navigation
@@ -127,19 +127,19 @@ function NotificationCenterDesktopComponent({
     <Sheet open={open} onOpenChange={onClose}>
       <SheetContent
         side="right"
-        className={cn('w-[400px] sm:w-[400px] flex flex-col gap-0 p-0', className)}
+        className={cn('w-80 flex flex-col gap-0 p-0 bg-popover border border-border rounded-[var(--semantic-radius-card)] shadow-[var(--semantic-shadow-dropdown)]', className)}
       >
         {/* Header */}
-        <SheetHeader className="px-6 py-4 border-b border-border flex-shrink-0">
+        <div className="px-4 py-3 border-b border-border flex-shrink-0">
           <div className="flex items-center justify-between">
-            <SheetTitle className="text-lg font-semibold">
+            <h3 className="text-sm font-semibold text-foreground">
               Notifications
               {unreadCount > 0 && (
                 <Badge variant="default" className="ml-2">
                   {unreadCount}
                 </Badge>
               )}
-            </SheetTitle>
+            </h3>
 
             <div className="flex items-center gap-2">
               {/* Mark all read button */}
@@ -148,7 +148,7 @@ function NotificationCenterDesktopComponent({
                   variant="ghost"
                   size="sm"
                   onClick={handleMarkAllRead}
-                  className="text-xs"
+                  className="h-auto py-1 text-xs text-primary hover:text-primary"
                 >
                   Mark all read
                 </Button>
@@ -160,7 +160,7 @@ function NotificationCenterDesktopComponent({
                   variant="ghost"
                   size="sm"
                   onClick={handleClearAll}
-                  className="text-xs text-semantic-error hover:text-semantic-error"
+                  className="h-auto py-1 text-xs text-error hover:text-error"
                 >
                   Clear
                 </Button>
@@ -177,55 +177,22 @@ function NotificationCenterDesktopComponent({
               </Button>
             </div>
           </div>
-
-          {/* Severity filter chips */}
-          <div className="flex gap-2 mt-4">
-            {SEVERITY_OPTIONS.map((option) => (
-              <Button
-                key={option.value}
-                variant={severityFilter === option.value ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setSeverityFilter(option.value)}
-                className="text-xs"
-              >
-                {option.label}
-              </Button>
-            ))}
-          </div>
-        </SheetHeader>
+        </div>
 
         {/* Notification list */}
-        <ScrollArea className="flex-1">
-          <div className="p-4 space-y-3">
-            {filteredNotifications.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-12 text-center">
-                <div className="text-content-tertiary mb-2">
-                  <svg
-                    className="w-16 h-16 mx-auto"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={1.5}
-                      d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-                    />
-                  </svg>
-                </div>
-                <p className="text-sm font-medium text-content-secondary">
-                  {severityFilter === 'ALL'
-                    ? 'No notifications'
-                    : `No ${severityFilter.toLowerCase()} notifications`}
-                </p>
-                <p className="text-xs text-content-tertiary mt-1">
-                  You're all caught up!
-                </p>
-              </div>
-            ) : (
-              filteredNotifications.map((notification: InAppNotification, index: number) => (
-                <div
+        <ScrollArea className="flex-1 max-h-[400px] overflow-y-auto">
+          {filteredNotifications.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-8 px-4 text-center">
+              <p className="text-sm text-muted-foreground">
+                {severityFilter === 'ALL'
+                  ? 'No notifications'
+                  : `No ${severityFilter.toLowerCase()} notifications`}
+              </p>
+            </div>
+          ) : (
+            <ul className="py-0">
+              {filteredNotifications.map((notification: InAppNotification, index: number) => (
+                <li
                   key={notification.id}
                   ref={(el) => {
                     itemRefs.current[index] = el;
@@ -235,18 +202,11 @@ function NotificationCenterDesktopComponent({
                     notification={notification}
                     onClick={handleNotificationClick}
                   />
-                </div>
-              ))
-            )}
-          </div>
+                </li>
+              ))}
+            </ul>
+          )}
         </ScrollArea>
-
-        {/* Footer info */}
-        {filteredNotifications.length > 0 && (
-          <div className="px-6 py-3 border-t border-border text-xs text-content-tertiary text-center flex-shrink-0">
-            Showing {filteredCount} of {filteredNotifications.length} notifications
-          </div>
-        )}
       </SheetContent>
     </Sheet>
   );

@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/notification-channel-config",
+  "title": "notificationChannelConfig",
+  "description": "Get a specific notification channel configuration by ID",
+  "source": "@site/docs/api/operations/queries/notification-channel-config.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/notification-channel-config",
+  "permalink": "/api/operations/queries/notification-channel-config",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "notification-channel-config",
+    "title": "notificationChannelConfig"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "node",
+    "permalink": "/api/operations/queries/node"
+  },
+  "next": {
+    "title": "notificationChannelConfigs",
+    "permalink": "/api/operations/queries/notification-channel-configs"
+  }
+}

@@ -273,7 +273,7 @@ func (s *IPAddressService) fetchIPAddresses(ctx context.Context, _routerID strin
 
 	result, err := s.routerPort.ExecuteCommand(ctx, cmd)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to fetch IP addresses from router: %w", err)
 	}
 
 	ipAddresses := make([]*IPAddressData, 0, len(result.Data))
@@ -325,7 +325,7 @@ func isValidCIDR(cidr string) bool {
 func calculateNetworkAddresses(cidr string) (networkAddr, broadcast string, err error) {
 	_, network, err := net.ParseCIDR(cidr)
 	if err != nil {
-		return "", "", err
+		return "", "", fmt.Errorf("failed to parse CIDR: %w", err)
 	}
 	networkAddr = network.IP.String()
 	broadcast = GetBroadcast(network).String()

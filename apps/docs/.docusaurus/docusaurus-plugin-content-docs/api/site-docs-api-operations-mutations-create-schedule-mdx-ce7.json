@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/create-schedule",
+  "title": "createSchedule",
+  "description": "Create a new routing schedule.",
+  "source": "@site/docs/api/operations/mutations/create-schedule.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/create-schedule",
+  "permalink": "/api/operations/mutations/create-schedule",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "create-schedule",
+    "title": "createSchedule"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "createRoutingChain",
+    "permalink": "/api/operations/mutations/create-routing-chain"
+  },
+  "next": {
+    "title": "createTunnel",
+    "permalink": "/api/operations/mutations/create-tunnel"
+  }
+}

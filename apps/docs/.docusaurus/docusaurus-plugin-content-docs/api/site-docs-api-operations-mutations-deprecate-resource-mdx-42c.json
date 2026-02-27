@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/deprecate-resource",
+  "title": "deprecateResource",
+  "description": "Deprecate a resource (transitions -&#x003E; DEPRECATED)",
+  "source": "@site/docs/api/operations/mutations/deprecate-resource.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/deprecate-resource",
+  "permalink": "/api/operations/mutations/deprecate-resource",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "deprecate-resource",
+    "title": "deprecateResource"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "deleteWebhook",
+    "permalink": "/api/operations/mutations/delete-webhook"
+  },
+  "next": {
+    "title": "disableInterface",
+    "permalink": "/api/operations/mutations/disable-interface"
+  }
+}

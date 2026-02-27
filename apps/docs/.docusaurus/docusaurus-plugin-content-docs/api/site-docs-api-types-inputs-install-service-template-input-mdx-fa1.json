@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/install-service-template-input",
+  "title": "InstallServiceTemplateInput",
+  "description": "Input for installing a service template",
+  "source": "@site/docs/api/types/inputs/install-service-template-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/install-service-template-input",
+  "permalink": "/api/types/inputs/install-service-template-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "install-service-template-input",
+    "title": "InstallServiceTemplateInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "InstallServiceInput",
+    "permalink": "/api/types/inputs/install-service-input"
+  },
+  "next": {
+    "title": "IntRange",
+    "permalink": "/api/types/inputs/int-range"
+  }
+}

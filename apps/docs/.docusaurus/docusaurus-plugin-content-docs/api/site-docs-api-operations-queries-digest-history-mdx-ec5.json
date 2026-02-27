@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/digest-history",
+  "title": "digestHistory",
+  "description": "Get digest delivery history for a channel (NAS-18.11)",
+  "source": "@site/docs/api/operations/queries/digest-history.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/digest-history",
+  "permalink": "/api/operations/queries/digest-history",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "digest-history",
+    "title": "digestHistory"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "diagnosticHistory",
+    "permalink": "/api/operations/queries/diagnostic-history"
+  },
+  "next": {
+    "title": "digestQueueCount",
+    "permalink": "/api/operations/queries/digest-queue-count"
+  }
+}

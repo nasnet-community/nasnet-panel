@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/upgrade-recommendations",
+  "title": "upgradeRecommendations",
+  "description": "Get all upgrade recommendations for a router",
+  "source": "@site/docs/api/operations/queries/upgrade-recommendations.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/upgrade-recommendations",
+  "permalink": "/api/operations/queries/upgrade-recommendations",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "upgrade-recommendations",
+    "title": "upgradeRecommendations"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "upgradeRecommendation",
+    "permalink": "/api/operations/queries/upgrade-recommendation"
+  },
+  "next": {
+    "title": "version",
+    "permalink": "/api/operations/queries/version"
+  }
+}

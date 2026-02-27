@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/service-spec",
+  "title": "ServiceSpec",
+  "description": "Service specification within a template",
+  "source": "@site/docs/api/types/objects/service-spec.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/service-spec",
+  "permalink": "/api/types/objects/service-spec",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "service-spec",
+    "title": "ServiceSpec"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ServiceResult",
+    "permalink": "/api/types/objects/service-result"
+  },
+  "next": {
+    "title": "ServiceTemplate",
+    "permalink": "/api/types/objects/service-template"
+  }
+}

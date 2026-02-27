@@ -236,13 +236,13 @@ export const BlockedIPsTableDesktop = memo(function BlockedIPsTableDesktop({
       createTextColumn('address', 'IP Address', {
         size: 140,
         cell: (info) => (
-          <span className="font-mono text-xs">{String(info.getValue())}</span>
+          <span className="font-mono text-sm text-foreground">{String(info.getValue())}</span>
         ),
       }),
       createTextColumn('list', 'List', {
         size: 120,
         cell: (info) => (
-          <span className="text-xs">{String(info.getValue())}</span>
+          <span className="text-sm text-muted-foreground">{String(info.getValue())}</span>
         ),
       }),
       {
@@ -253,7 +253,7 @@ export const BlockedIPsTableDesktop = memo(function BlockedIPsTableDesktop({
         cell: (info) => {
           const count = info.getValue() as number;
           return (
-            <span className="font-mono text-xs">{count.toLocaleString()}</span>
+            <span className="font-mono text-sm text-muted-foreground">{count.toLocaleString()}</span>
           );
         },
       },
@@ -265,7 +265,7 @@ export const BlockedIPsTableDesktop = memo(function BlockedIPsTableDesktop({
         cell: (info) => {
           const date = info.getValue() as Date | undefined;
           return (
-            <span className="text-xs text-muted-foreground">
+            <span className="text-sm text-muted-foreground">
               {formatRelativeTime(date)}
             </span>
           );
@@ -279,7 +279,7 @@ export const BlockedIPsTableDesktop = memo(function BlockedIPsTableDesktop({
         cell: (info) => {
           const date = info.getValue() as Date | undefined;
           return (
-            <span className="text-xs text-muted-foreground">
+            <span className="text-sm text-muted-foreground">
               {formatRelativeTime(date)}
             </span>
           );
@@ -293,7 +293,7 @@ export const BlockedIPsTableDesktop = memo(function BlockedIPsTableDesktop({
         cell: (info) => {
           const timeout = info.getValue() as string | undefined;
           return (
-            <span className="font-mono text-xs">{timeout || 'permanent'}</span>
+            <span className="font-mono text-sm text-muted-foreground">{timeout || 'permanent'}</span>
           );
         },
       },
@@ -305,7 +305,7 @@ export const BlockedIPsTableDesktop = memo(function BlockedIPsTableDesktop({
         cell: (info) => {
           const entry = info.row.original;
           return (
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-component-sm">
               <Button
                 variant="ghost"
                 size="sm"
@@ -314,7 +314,7 @@ export const BlockedIPsTableDesktop = memo(function BlockedIPsTableDesktop({
                   handleWhitelistClick(entry.address);
                 }}
                 disabled={isWhitelisting}
-                className="text-xs"
+                className="text-sm text-foreground hover:bg-muted"
                 aria-label={`Whitelist ${entry.address}`}
               >
                 Whitelist
@@ -327,7 +327,7 @@ export const BlockedIPsTableDesktop = memo(function BlockedIPsTableDesktop({
                   handleRemoveClick(entry.address);
                 }}
                 disabled={isRemoving}
-                className="text-error hover:text-error/90 hover:bg-error/10 text-xs"
+                className="text-sm text-error hover:text-error hover:bg-error-light/30"
                 aria-label={`Remove ${entry.address}`}
               >
                 Remove
@@ -371,10 +371,10 @@ export const BlockedIPsTableDesktop = memo(function BlockedIPsTableDesktop({
   }, [hasActiveFilter, clearFilter]);
 
   return (
-    <div className={cn('flex flex-col gap-4', className)}>
+    <div className={cn('flex flex-col gap-component-md', className)}>
       {/* Header with stats and controls */}
       <div className="flex items-center justify-between">
-        <div className="text-sm text-muted-foreground">
+        <div className="text-xs text-muted-foreground font-medium">
           {hasActiveFilter ? (
             <>
               Showing {filteredCount.toLocaleString()} of{' '}
@@ -385,10 +385,10 @@ export const BlockedIPsTableDesktop = memo(function BlockedIPsTableDesktop({
           )}
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-component-md">
           {hasSelection && (
             <>
-              <span className="text-sm text-muted-foreground">
+              <span className="text-xs text-muted-foreground font-medium">
                 {selectedIPs.length} selected
               </span>
               <Button
@@ -424,42 +424,44 @@ export const BlockedIPsTableDesktop = memo(function BlockedIPsTableDesktop({
       </div>
 
       {/* Filter Controls */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-component-md">
         <Input
           placeholder="Filter by IP address (supports wildcards: 192.168.1.*)"
           value={filter.ipAddress || ''}
           onChange={(e) => setFilter({ ipAddress: e.target.value })}
-          className="flex-1"
+          className="flex-1 h-10 text-sm rounded-[var(--semantic-radius-input)]"
           aria-label="Filter by IP address"
         />
         {hasActiveFilter && (
-          <Button variant="outline" size="sm" onClick={clearFilter}>
+          <Button variant="outline" size="sm" onClick={clearFilter} className="text-xs">
             Clear Filters
           </Button>
         )}
       </div>
 
       {/* Blocked IPs Table */}
-      <VirtualizedTable
-        data={filteredBlockedIPs}
-        columns={columns}
-        enableSorting
-        height="600px"
-        estimateRowHeight={40}
-        loading={loading}
-        emptyContent={emptyContent}
-        className="border rounded-lg"
-        aria-label="Blocked IPs table"
-        initialSorting={[{ id: sort.field, desc: sort.direction === 'desc' }]}
-        onSortingChange={(sorting) => {
-          if (sorting.length > 0) {
-            const newSort = sorting[0];
-            if (newSort) {
-              setSort(newSort.id as any);
+      <div className="bg-card border border-border rounded-[var(--semantic-radius-card)] overflow-hidden">
+        <VirtualizedTable
+          data={filteredBlockedIPs}
+          columns={columns}
+          enableSorting
+          height="600px"
+          estimateRowHeight={40}
+          loading={loading}
+          emptyContent={emptyContent}
+          className="border-none"
+          aria-label="Blocked IPs table"
+          initialSorting={[{ id: sort.field, desc: sort.direction === 'desc' }]}
+          onSortingChange={(sorting) => {
+            if (sorting.length > 0) {
+              const newSort = sorting[0];
+              if (newSort) {
+                setSort(newSort.id as any);
+              }
             }
-          }
-        }}
-      />
+          }}
+        />
+      </div>
 
       {/* Whitelist Dialog */}
       <Dialog open={whitelistDialogOpen} onOpenChange={setWhitelistDialogOpen}>

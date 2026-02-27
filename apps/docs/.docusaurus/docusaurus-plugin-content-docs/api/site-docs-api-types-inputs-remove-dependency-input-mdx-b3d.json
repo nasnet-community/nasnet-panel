@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/remove-dependency-input",
+  "title": "RemoveDependencyInput",
+  "description": "RemoveDependencyInput contains parameters for removing a dependency relationship.",
+  "source": "@site/docs/api/types/inputs/remove-dependency-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/remove-dependency-input",
+  "permalink": "/api/types/inputs/remove-dependency-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "remove-dependency-input",
+    "title": "RemoveDependencyInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "QuietHoursConfigInput",
+    "permalink": "/api/types/inputs/quiet-hours-config-input"
+  },
+  "next": {
+    "title": "ResetExternalStorageInput",
+    "permalink": "/api/types/inputs/reset-external-storage-input"
+  }
+}

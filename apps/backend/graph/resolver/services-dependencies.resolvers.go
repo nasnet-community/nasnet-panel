@@ -9,7 +9,7 @@ import (
 	"backend/generated/ent"
 	"backend/generated/ent/serviceinstance"
 	"backend/graph/model"
-	"backend/internal/errors"
+	"backend/internal/apperrors"
 	"context"
 	"fmt"
 )
@@ -18,23 +18,23 @@ import (
 // Validates input and checks for circular dependencies before applying.
 func (r *mutationResolver) AddDependency(ctx context.Context, input model.AddDependencyInput) (*model.ServiceDependency, error) {
 	if r.DependencyMgr == nil {
-		return nil, errors.NewResourceError(errors.CodeResourceNotFound, "dependency manager is not available", "manager", "dependency")
+		return nil, apperrors.NewResourceError(apperrors.CodeResourceNotFound, "dependency manager is not available", "manager", "dependency")
 	}
 
 	// Validate input
 	if input.FromInstanceID == "" {
-		return nil, errors.NewValidationError("fromInstanceID", input.FromInstanceID, "required")
+		return nil, apperrors.NewValidationError("fromInstanceID", input.FromInstanceID, "required")
 	}
 	if input.ToInstanceID == "" {
-		return nil, errors.NewValidationError("toInstanceID", input.ToInstanceID, "required")
+		return nil, apperrors.NewValidationError("toInstanceID", input.ToInstanceID, "required")
 	}
 	if input.FromInstanceID == input.ToInstanceID {
-		return nil, errors.NewValidationError("dependency", input.FromInstanceID, "cannot create self-dependency").WithCode(errors.CodeCircularDependency)
+		return nil, apperrors.NewValidationError("dependency", input.FromInstanceID, "cannot create self-dependency").WithCode(apperrors.CodeCircularDependency)
 	}
 
 	// Validate health timeout (must be non-negative)
 	if input.HealthTimeoutSeconds < 0 {
-		return nil, errors.NewValidationError("healthTimeoutSeconds", input.HealthTimeoutSeconds, "must be non-negative")
+		return nil, apperrors.NewValidationError("healthTimeoutSeconds", input.HealthTimeoutSeconds, "must be non-negative")
 	}
 
 	// TODO: Add circular dependency detection before applying
@@ -49,13 +49,13 @@ func (r *mutationResolver) AddDependency(ctx context.Context, input model.AddDep
 		input.HealthTimeoutSeconds,
 	)
 	if err != nil {
-		return nil, errors.Wrap(err, errors.CodeCommandFailed, errors.CategoryProtocol, "failed to add dependency")
+		return nil, apperrors.Wrap(err, apperrors.CodeCommandFailed, apperrors.CategoryProtocol, "failed to add dependency")
 	}
 
 	// Fetch the created dependency from DB to return full model
 	dep, err := r.db.ServiceDependency.Get(ctx, depID)
 	if err != nil {
-		return nil, errors.Wrap(err, errors.CodeResourceNotFound, errors.CategoryResource, "failed to fetch created dependency")
+		return nil, apperrors.Wrap(err, apperrors.CodeResourceNotFound, apperrors.CategoryResource, "failed to fetch created dependency")
 	}
 
 	return entDependencyToModel(dep), nil
@@ -64,11 +64,11 @@ func (r *mutationResolver) AddDependency(ctx context.Context, input model.AddDep
 // RemoveDependency is the resolver for the removeDependency field.
 func (r *mutationResolver) RemoveDependency(ctx context.Context, input model.RemoveDependencyInput) (bool, error) {
 	if r.DependencyMgr == nil {
-		return false, errors.NewResourceError(errors.CodeResourceNotFound, "dependency manager is not available", "manager", "dependency")
+		return false, apperrors.NewResourceError(apperrors.CodeResourceNotFound, "dependency manager is not available", "manager", "dependency")
 	}
 
 	if err := r.DependencyMgr.RemoveDependency(ctx, input.DependencyID); err != nil {
-		return false, errors.Wrap(err, errors.CodeCommandFailed, errors.CategoryProtocol, "failed to remove dependency")
+		return false, apperrors.Wrap(err, apperrors.CodeCommandFailed, apperrors.CategoryProtocol, "failed to remove dependency")
 	}
 
 	return true, nil
@@ -77,11 +77,11 @@ func (r *mutationResolver) RemoveDependency(ctx context.Context, input model.Rem
 // TriggerBootSequence is the resolver for the triggerBootSequence field.
 func (r *mutationResolver) TriggerBootSequence(ctx context.Context) (bool, error) {
 	if r.BootSequenceMgr == nil {
-		return false, errors.NewResourceError(errors.CodeResourceNotFound, "boot sequence manager is not available", "manager", "boot_sequence")
+		return false, apperrors.NewResourceError(apperrors.CodeResourceNotFound, "boot sequence manager is not available", "manager", "boot_sequence")
 	}
 
 	if err := r.BootSequenceMgr.ExecuteBootSequence(ctx); err != nil {
-		return false, errors.Wrap(err, errors.CodeCommandFailed, errors.CategoryProtocol, "boot sequence failed")
+		return false, apperrors.Wrap(err, apperrors.CodeCommandFailed, apperrors.CategoryProtocol, "boot sequence failed")
 	}
 
 	return true, nil
@@ -206,12 +206,12 @@ func (r *mutationResolver) SetResourceLimits(ctx context.Context, input model.Se
 // ServiceDependencies is the resolver for the serviceDependencies field.
 func (r *queryResolver) ServiceDependencies(ctx context.Context, instanceID string) ([]*model.ServiceDependency, error) {
 	if r.DependencyMgr == nil {
-		return nil, errors.NewResourceError(errors.CodeResourceNotFound, "dependency manager is not available", "manager", "dependency")
+		return nil, apperrors.NewResourceError(apperrors.CodeResourceNotFound, "dependency manager is not available", "manager", "dependency")
 	}
 
 	deps, err := r.DependencyMgr.GetDependencies(ctx, instanceID)
 	if err != nil {
-		return nil, errors.Wrap(err, errors.CodeCommandFailed, errors.CategoryProtocol, "failed to get dependencies")
+		return nil, apperrors.Wrap(err, apperrors.CodeCommandFailed, apperrors.CategoryProtocol, "failed to get dependencies")
 	}
 
 	result := make([]*model.ServiceDependency, 0, len(deps))
@@ -224,12 +224,12 @@ func (r *queryResolver) ServiceDependencies(ctx context.Context, instanceID stri
 // ServiceDependents is the resolver for the serviceDependents field.
 func (r *queryResolver) ServiceDependents(ctx context.Context, instanceID string) ([]*model.ServiceDependency, error) {
 	if r.DependencyMgr == nil {
-		return nil, errors.NewResourceError(errors.CodeResourceNotFound, "dependency manager is not available", "manager", "dependency")
+		return nil, apperrors.NewResourceError(apperrors.CodeResourceNotFound, "dependency manager is not available", "manager", "dependency")
 	}
 
 	deps, err := r.DependencyMgr.GetDependents(ctx, instanceID)
 	if err != nil {
-		return nil, errors.Wrap(err, errors.CodeCommandFailed, errors.CategoryProtocol, "failed to get dependents")
+		return nil, apperrors.Wrap(err, apperrors.CodeCommandFailed, apperrors.CategoryProtocol, "failed to get dependents")
 	}
 
 	result := make([]*model.ServiceDependency, 0, len(deps))
@@ -242,12 +242,12 @@ func (r *queryResolver) ServiceDependents(ctx context.Context, instanceID string
 // DependencyGraph is the resolver for the dependencyGraph field.
 func (r *queryResolver) DependencyGraph(ctx context.Context, routerID string) (*model.DependencyGraph, error) {
 	if r.DependencyMgr == nil {
-		return nil, errors.NewResourceError(errors.CodeResourceNotFound, "dependency manager is not available", "manager", "dependency")
+		return nil, apperrors.NewResourceError(apperrors.CodeResourceNotFound, "dependency manager is not available", "manager", "dependency")
 	}
 
 	graph, err := r.DependencyMgr.GetFullGraph(ctx, routerID)
 	if err != nil {
-		return nil, errors.Wrap(err, errors.CodeCommandFailed, errors.CategoryProtocol, "failed to get dependency graph")
+		return nil, apperrors.Wrap(err, apperrors.CodeCommandFailed, apperrors.CategoryProtocol, "failed to get dependency graph")
 	}
 
 	nodes := make([]*model.DependencyGraphNode, 0, len(graph.Nodes))
@@ -289,29 +289,4 @@ func (r *queryResolver) BootSequenceProgress(ctx context.Context) (*model.BootSe
 		FailedInstances:    []string{},
 		RemainingInstances: []string{},
 	}, nil
-}
-
-// entDependencyToModel converts an ent ServiceDependency to a GraphQL model.
-func entDependencyToModel(dep *ent.ServiceDependency) *model.ServiceDependency {
-	if dep == nil {
-		return nil
-	}
-	result := &model.ServiceDependency{
-		ID:                   dep.ID,
-		DependencyType:       model.DependencyType(dep.DependencyType),
-		AutoStart:            dep.AutoStart,
-		HealthTimeoutSeconds: dep.HealthTimeoutSeconds,
-		CreatedAt:            dep.CreatedAt,
-		UpdatedAt:            dep.UpdatedAt,
-	}
-
-	// Populate edge instances if they were eager-loaded
-	if dep.Edges.FromInstance != nil {
-		result.FromInstance = convertEntInstanceToModel(dep.Edges.FromInstance)
-	}
-	if dep.Edges.ToInstance != nil {
-		result.ToInstance = convertEntInstanceToModel(dep.Edges.ToInstance)
-	}
-
-	return result
 }

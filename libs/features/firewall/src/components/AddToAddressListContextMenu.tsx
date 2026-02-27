@@ -188,7 +188,7 @@ function AddToAddressListContextMenuInner({
           </DialogHeader>
 
           <div className="space-y-component-md">
-            <div className="space-y-component-sm">
+            <div className="space-y-component-sm gap-component-sm">
               <Label htmlFor="new-list-name">List Name</Label>
               <Input
                 id="new-list-name"

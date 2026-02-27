@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/resource-usage",
+  "title": "ResourceUsage",
+  "description": "Current resource usage for a service instance.",
+  "source": "@site/docs/api/types/objects/resource-usage.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/resource-usage",
+  "permalink": "/api/types/objects/resource-usage",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "resource-usage",
+    "title": "ResourceUsage"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ResourceUpdatedEvent",
+    "permalink": "/api/types/objects/resource-updated-event"
+  },
+  "next": {
+    "title": "ResourceValidationResult",
+    "permalink": "/api/types/objects/resource-validation-result"
+  }
+}

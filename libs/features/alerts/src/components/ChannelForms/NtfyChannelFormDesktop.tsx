@@ -107,8 +107,8 @@ function NtfyChannelFormDesktopComponent({ ntfyForm }: NtfyChannelFormDesktopPro
     <form onSubmit={handleSubmit} className="space-y-component-lg">
       {/* Enable Toggle */}
       <div className="flex items-center justify-between rounded-[var(--semantic-radius-card)] border border-border bg-card p-component-md">
-        <div className="flex items-center gap-3">
-          <Icon icon={Bell} size="md" className="text-muted-foreground" aria-hidden="true" />
+        <div className="flex items-center gap-component-md">
+          <Icon icon={Bell} size="md" className="text-category-monitoring" aria-hidden="true" />
           <div>
             <Label className="text-base font-semibold">Ntfy.sh Notifications</Label>
             <p className="text-sm text-muted-foreground">
@@ -144,11 +144,11 @@ function NtfyChannelFormDesktopComponent({ ntfyForm }: NtfyChannelFormDesktopPro
             <Label htmlFor="serverUrl">
               Server URL <span className="text-error">*</span>
             </Label>
-            <div className="flex gap-component-sm">
+            <div className="flex gap-component-md">
               <Input
                 id="serverUrl"
                 placeholder="https://ntfy.sh"
-                className="flex-1"
+                className="flex-1 font-mono"
                 {...register('serverUrl')}
                 error={!!errors.serverUrl}
               />
@@ -159,7 +159,7 @@ function NtfyChannelFormDesktopComponent({ ntfyForm }: NtfyChannelFormDesktopPro
                   }
                 }}
               >
-                <SelectTrigger className="w-[200px]">
+                <SelectTrigger className="w-[200px] rounded-[var(--semantic-radius-button)]">
                   <SelectValue placeholder="Preset" />
                 </SelectTrigger>
                 <SelectContent>
@@ -187,6 +187,7 @@ function NtfyChannelFormDesktopComponent({ ntfyForm }: NtfyChannelFormDesktopPro
             <Input
               id="topic"
               placeholder="my-alerts"
+              className="font-mono"
               {...register('topic')}
               error={!!errors.topic}
             />
@@ -218,7 +219,7 @@ function NtfyChannelFormDesktopComponent({ ntfyForm }: NtfyChannelFormDesktopPro
                   <SelectContent>
                     {NTFY_PRIORITY_PRESETS.map((preset) => (
                       <SelectItem key={preset.value} value={preset.value.toString()}>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-component-sm">
                           <span>{preset.icon}</span>
                           <span>{preset.label}</span>
                         </div>
@@ -241,8 +242,8 @@ function NtfyChannelFormDesktopComponent({ ntfyForm }: NtfyChannelFormDesktopPro
       {/* Authentication (Optional) */}
       <div className="space-y-component-md">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-component-sm">
-            <Icon icon={Shield} size="md" className="text-muted-foreground" aria-hidden="true" />
+          <div className="flex items-center gap-component-md">
+            <Icon icon={Shield} size="md" className="text-category-monitoring" aria-hidden="true" />
             <h3 className="text-lg font-semibold">Authentication (Optional)</h3>
           </div>
           <Button
@@ -307,13 +308,13 @@ function NtfyChannelFormDesktopComponent({ ntfyForm }: NtfyChannelFormDesktopPro
 
       {/* Tags (Optional) */}
       <div className="space-y-component-md">
-        <div className="flex items-center gap-component-sm">
-          <Icon icon={Tag} size="md" className="text-muted-foreground" aria-hidden="true" />
+        <div className="flex items-center gap-component-md">
+          <Icon icon={Tag} size="md" className="text-category-monitoring" aria-hidden="true" />
           <h3 className="text-lg font-semibold">Tags (Optional)</h3>
         </div>
 
         {/* Tag Input */}
-        <div className="flex gap-component-sm">
+        <div className="flex gap-component-md">
           <Input
             value={tagInput}
             onChange={(e) => setTagInput(e.target.value)}
@@ -335,14 +336,14 @@ function NtfyChannelFormDesktopComponent({ ntfyForm }: NtfyChannelFormDesktopPro
 
         {/* Tag List */}
         {tags.length > 0 && (
-          <div className="flex flex-wrap gap-component-sm">
+          <div className="flex flex-wrap gap-component-md">
             {tags.map((tag, index) => (
-              <Badge key={index} variant="secondary" className="flex items-center gap-component-sm">
+              <Badge key={index} variant="secondary" className="flex items-center gap-component-md font-mono">
                 <span>{tag}</span>
                 <button
                   type="button"
                   onClick={() => removeTag(index)}
-                  className="ml-1 p-0.5 min-h-[44px] min-w-[44px] flex items-center justify-center hover:text-error focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm"
+                  className="ml-component-xs p-0.5 min-h-[44px] min-w-[44px] flex items-center justify-center hover:text-error focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm"
                   aria-label={`Remove ${tag}`}
                 >
                   <Icon icon={X} size="sm" aria-hidden="true" />
@@ -372,16 +373,17 @@ function NtfyChannelFormDesktopComponent({ ntfyForm }: NtfyChannelFormDesktopPro
       )}
 
       {/* Actions */}
-      <div className="flex items-center justify-end gap-component-md">
+      <div className="flex items-center justify-end gap-component-lg">
         <Button
           type="button"
           variant="outline"
           onClick={handleTest}
           disabled={!isValid || isTesting}
+          className="min-h-[44px]"
         >
           {isTesting ? 'Testing...' : 'Test Notification'}
         </Button>
-        <Button type="submit" disabled={!isValid}>
+        <Button type="submit" disabled={!isValid} className="min-h-[44px]">
           Save Configuration
         </Button>
       </div>

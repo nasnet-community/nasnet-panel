@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/troubleshoot-step-result",
+  "title": "TroubleshootStepResult",
+  "description": "Result of a single diagnostic step",
+  "source": "@site/docs/api/types/objects/troubleshoot-step-result.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/troubleshoot-step-result",
+  "permalink": "/api/types/objects/troubleshoot-step-result",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "troubleshoot-step-result",
+    "title": "TroubleshootStepResult"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "TroubleshootSession",
+    "permalink": "/api/types/objects/troubleshoot-session"
+  },
+  "next": {
+    "title": "TroubleshootStep",
+    "permalink": "/api/types/objects/troubleshoot-step"
+  }
+}

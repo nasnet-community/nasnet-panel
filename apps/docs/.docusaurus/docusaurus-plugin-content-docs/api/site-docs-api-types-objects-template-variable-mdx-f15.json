@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/template-variable",
+  "title": "TemplateVariable",
+  "description": "Configuration variable for a template",
+  "source": "@site/docs/api/types/objects/template-variable.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/template-variable",
+  "permalink": "/api/types/objects/template-variable",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "template-variable",
+    "title": "TemplateVariable"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "TemplateValidationInfo",
+    "permalink": "/api/types/objects/template-validation-info"
+  },
+  "next": {
+    "title": "TestAllCredentialsPayload",
+    "permalink": "/api/types/objects/test-all-credentials-payload"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "id": "feature-services",
+  "title": "Feature Services Module (libs/features/services)",
+  "description": "Overview",
+  "source": "@site/../../libs/features/docs/feature-services.md",
+  "sourceDirName": ".",
+  "slug": "/feature-services",
+  "permalink": "/docs/features/feature-services",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/features/docs/feature-services.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Feature: Network (libs/features/network)",
+    "permalink": "/docs/features/feature-network"
+  },
+  "next": {
+    "title": "VPN Feature Module Documentation",
+    "permalink": "/docs/features/feature-vpn"
+  }
+}

@@ -32,10 +32,10 @@ export const RecentFirewallActivity = memo(function RecentFirewallActivity({
 
   return (
     <div
-      className={cn('bg-card rounded-xl border border-border p-4', className)}
+      className={cn('bg-card rounded-xl border border-border p-component-md', className)}
     >
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+      <div className="flex items-center justify-between mb-component-md">
+        <h3 className="text-sm font-semibold text-foreground flex items-center gap-component-sm">
           <Icon
             icon={Activity}
             className="w-4 h-4 text-muted-foreground"
@@ -47,14 +47,14 @@ export const RecentFirewallActivity = memo(function RecentFirewallActivity({
 
       {!hasLogging ? (
         <div className="text-center py-6">
-          <div className="w-10 h-10 bg-muted rounded-full flex items-center justify-center mx-auto mb-3">
+          <div className="w-10 h-10 bg-muted rounded-full flex items-center justify-center mx-auto mb-component-md">
             <Icon
               icon={Info}
               className="w-5 h-5 text-muted-foreground"
               aria-hidden="true"
             />
           </div>
-          <p className="text-sm font-medium text-foreground mb-1">
+          <p className="text-sm font-medium text-foreground mb-component-xs">
             Logging Not Configured
           </p>
           <p className="text-xs text-muted-foreground">
@@ -63,14 +63,14 @@ export const RecentFirewallActivity = memo(function RecentFirewallActivity({
         </div>
       ) : (
         <div className="text-center py-6">
-          <div className="w-10 h-10 bg-success/10 rounded-full flex items-center justify-center mx-auto mb-3">
+          <div className="w-10 h-10 bg-success/10 rounded-full flex items-center justify-center mx-auto mb-component-md">
             <Icon
               icon={CheckCircle}
               className="w-5 h-5 text-success"
               aria-hidden="true"
             />
           </div>
-          <p className="text-sm font-medium text-foreground mb-1">
+          <p className="text-sm font-medium text-foreground mb-component-xs">
             No Recent Activity
           </p>
           <p className="text-xs text-muted-foreground">

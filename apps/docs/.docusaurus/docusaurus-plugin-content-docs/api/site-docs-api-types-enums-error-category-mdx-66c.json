@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/error-category",
+  "title": "ErrorCategory",
+  "description": "Category of connection error for classification",
+  "source": "@site/docs/api/types/enums/error-category.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/error-category",
+  "permalink": "/api/types/enums/error-category",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "error-category",
+    "title": "ErrorCategory"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "EgressVLANStatus",
+    "permalink": "/api/types/enums/egress-vlanstatus"
+  },
+  "next": {
+    "title": "EscalationStatus",
+    "permalink": "/api/types/enums/escalation-status"
+  }
+}

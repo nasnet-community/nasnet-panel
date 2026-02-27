@@ -1,0 +1,28 @@
+{
+  "id": "architecture",
+  "title": "Architecture",
+  "description": "The @nasnet/state library implements a four-layer state model that separates concerns by data origin, update frequency, and complexity.",
+  "source": "@site/../../libs/state/docs/architecture.md",
+  "sourceDirName": ".",
+  "slug": "/architecture",
+  "permalink": "/docs/state/architecture",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/state/docs/architecture.md",
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 2,
+  "frontMatter": {
+    "sidebar_position": 2,
+    "title": "Architecture"
+  },
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Introduction",
+    "permalink": "/docs/state/intro"
+  },
+  "next": {
+    "title": "Persistence",
+    "permalink": "/docs/state/persistence"
+  }
+}

@@ -202,7 +202,7 @@ export function SortableListDesktop<T extends SortableItemData>({
   const renderItem = React.useCallback(
     (item: T, options: SortableItemRenderOptions) => {
       const content = (
-        <div className="flex items-center gap-3 w-full">
+        <div className="flex items-center gap-component-md w-full">
           {/* Row number */}
           {showRowNumbers && (
             <span
@@ -245,7 +245,7 @@ export function SortableListDesktop<T extends SortableItemData>({
       renderItem={renderItem}
       className={cn(
         // Desktop-specific styles
-        'select-none',
+        'select-none space-y-1',
         className
       )}
       // Desktop defaults
@@ -253,9 +253,9 @@ export function SortableListDesktop<T extends SortableItemData>({
       showPositionNumbers={false} // Shown inline
       gap={1}
       itemClassName={cn(
-        'bg-card border border-border rounded-md',
-        'hover:bg-muted/50 transition-colors',
-        'py-2 px-3',
+        'bg-card border border-border rounded-[var(--semantic-radius-card)]',
+        'hover:bg-muted/50 transition-colors duration-150',
+        'p-component-md flex items-center gap-component-md',
       )}
     />
   );

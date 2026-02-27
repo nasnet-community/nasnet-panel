@@ -42,40 +42,40 @@ const STATUS_COLORS: Record<
   { bg: string; fill: string; text: string; border: string }
 > = {
   idle: {
-    bg: 'bg-gray-200 dark:bg-gray-700',
-    fill: 'bg-gray-400 dark:bg-gray-500',
-    text: 'text-gray-600 dark:text-gray-400',
-    border: 'border-gray-300 dark:border-gray-600',
+    bg: 'bg-muted',
+    fill: 'bg-muted-foreground',
+    text: 'text-muted-foreground',
+    border: 'border-border',
   },
   normal: {
-    bg: 'bg-green-100 dark:bg-green-950',
-    fill: 'bg-semantic-success',
-    text: 'text-semantic-success',
-    border: 'border-green-300 dark:border-green-700',
+    bg: 'bg-success-light',
+    fill: 'bg-success',
+    text: 'text-success-dark',
+    border: 'border-success',
   },
   warning: {
-    bg: 'bg-amber-100 dark:bg-amber-950',
-    fill: 'bg-semantic-warning',
-    text: 'text-semantic-warning',
-    border: 'border-amber-300 dark:border-amber-700',
+    bg: 'bg-warning-light',
+    fill: 'bg-warning',
+    text: 'text-warning-dark',
+    border: 'border-warning',
   },
   critical: {
-    bg: 'bg-orange-100 dark:bg-orange-950',
-    fill: 'bg-orange-500 dark:bg-orange-600',
-    text: 'text-orange-600 dark:text-orange-400',
-    border: 'border-orange-300 dark:border-orange-700',
+    bg: 'bg-warning-light',
+    fill: 'bg-warning',
+    text: 'text-warning-dark',
+    border: 'border-warning',
   },
   danger: {
-    bg: 'bg-red-100 dark:bg-red-950',
-    fill: 'bg-semantic-error',
-    text: 'text-semantic-error',
-    border: 'border-red-300 dark:border-red-700',
+    bg: 'bg-error-light',
+    fill: 'bg-error',
+    text: 'text-error-dark',
+    border: 'border-error',
   },
   unknown: {
-    bg: 'bg-gray-200 dark:bg-gray-700',
-    fill: 'bg-gray-400 dark:bg-gray-500',
-    text: 'text-gray-600 dark:text-gray-400',
-    border: 'border-gray-300 dark:border-gray-600',
+    bg: 'bg-muted',
+    fill: 'bg-muted-foreground',
+    text: 'text-muted-foreground',
+    border: 'border-border',
   },
 };
 
@@ -117,13 +117,11 @@ function ResourceUsageBarMobileBase(props: ResourceUsageBarProps) {
         )}
       </div>
 
-      {/* Progress Bar - 44px height for touch target */}
+      {/* Progress Bar - h-2 (8px) rounded-full with larger mobile container */}
       <div
         className={cn(
-          'relative h-[44px] rounded-full overflow-hidden',
-          colors.bg,
-          'border-2',
-          colors.border
+          'flex items-center gap-2 w-full',
+          'transition-all duration-200'
         )}
         role="progressbar"
         aria-label={state.ariaLabel}
@@ -132,32 +130,40 @@ function ResourceUsageBarMobileBase(props: ResourceUsageBarProps) {
         aria-valuemax={state.ariaValueMax}
         aria-valuetext={state.ariaValueText}
       >
-        {/* Fill */}
+        {/* Track */}
         <div
           className={cn(
-            'h-full transition-all duration-500 ease-out',
-            colors.fill,
-            'flex items-center justify-end pr-3'
+            'flex-1 h-2 w-full rounded-full overflow-hidden',
+            colors.bg,
+            'transition-all duration-200'
           )}
-          style={{ width: `${state.percentage}%` }}
         >
-          {/* Percentage inside bar (if enough space) */}
-          {showPercentage && state.percentage > 15 && (
-            <span className="text-sm font-bold text-white drop-shadow-sm">
-              {state.percentageText}
-            </span>
-          )}
+          {/* Fill */}
+          <div
+            className={cn(
+              'h-full rounded-full transition-all duration-500 ease-out',
+              colors.fill
+            )}
+            style={{ width: `${state.percentage}%` }}
+          />
         </div>
+
+        {/* Percentage badge */}
+        {showPercentage && (
+          <span className={cn('text-xs font-medium whitespace-nowrap', colors.text)}>
+            {state.percentageText}
+          </span>
+        )}
       </div>
 
       {/* Values Display */}
       {showValues && (
-        <div className="flex items-center justify-between gap-2">
-          <span className="text-sm font-medium text-muted-foreground">
-            Used: <span className={cn('font-bold', colors.text)}>{state.usedText}</span>
+        <div className="flex items-center justify-between gap-2 text-xs">
+          <span className="text-muted-foreground">
+            Used: <span className={cn('font-medium font-mono', colors.text)}>{state.usedText}</span>
           </span>
-          <span className="text-sm font-medium text-muted-foreground">
-            Total: <span className="font-bold text-foreground">{state.totalText}</span>
+          <span className="text-muted-foreground">
+            Total: <span className="font-medium font-mono text-foreground">{state.totalText}</span>
           </span>
         </div>
       )}

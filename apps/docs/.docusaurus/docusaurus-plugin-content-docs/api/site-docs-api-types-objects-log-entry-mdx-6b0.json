@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/log-entry",
+  "title": "LogEntry",
+  "description": "A single log entry from a service instance.",
+  "source": "@site/docs/api/types/objects/log-entry.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/log-entry",
+  "permalink": "/api/types/objects/log-entry",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "log-entry",
+    "title": "LogEntry"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "LANNetwork",
+    "permalink": "/api/types/objects/lannetwork"
+  },
+  "next": {
+    "title": "LteModem",
+    "permalink": "/api/types/objects/lte-modem"
+  }
+}

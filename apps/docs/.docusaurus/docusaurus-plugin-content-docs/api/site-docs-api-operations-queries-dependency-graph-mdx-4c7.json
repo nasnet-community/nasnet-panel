@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/dependency-graph",
+  "title": "dependencyGraph",
+  "description": "Get the full dependency graph for a router (for visualization).",
+  "source": "@site/docs/api/operations/queries/dependency-graph.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/dependency-graph",
+  "permalink": "/api/operations/queries/dependency-graph",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "dependency-graph",
+    "title": "dependencyGraph"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "defaultNotificationChannelConfig",
+    "permalink": "/api/operations/queries/default-notification-channel-config"
+  },
+  "next": {
+    "title": "detectGateway",
+    "permalink": "/api/operations/queries/detect-gateway"
+  }
+}

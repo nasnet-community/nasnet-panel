@@ -1,0 +1,24 @@
+{
+  "id": "forms-validation/wizard-forms",
+  "title": "Wizard Forms",
+  "description": "Multi-step forms in NasNetConnect use useWizardPersistence to manage step navigation, data collection, and state persistence across page reloads.",
+  "source": "@site/../connect/docs/forms-validation/wizard-forms.md",
+  "sourceDirName": "forms-validation",
+  "slug": "/forms-validation/wizard-forms",
+  "permalink": "/docs/frontend/forms-validation/wizard-forms",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../connect/docs/forms-validation/wizard-forms.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Validation Pipeline",
+    "permalink": "/docs/frontend/forms-validation/validation-pipeline"
+  },
+  "next": {
+    "title": "Overview",
+    "permalink": "/docs/frontend/getting-started/overview"
+  }
+}

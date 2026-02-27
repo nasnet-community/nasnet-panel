@@ -2,7 +2,8 @@
 .devcontainer
 ConnectSetupOldRepo
 Docs
-docs
+**/docs
+!apps/docs
 node_modules
 dist
 .git

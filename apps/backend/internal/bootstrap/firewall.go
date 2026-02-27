@@ -1,6 +1,8 @@
 package bootstrap
 
 import (
+	"fmt"
+
 	"go.uber.org/zap"
 
 	"backend/internal/firewall"
@@ -20,7 +22,7 @@ func InitializeFirewallServices(logger *zap.SugaredLogger) (*FirewallComponents,
 	// 1. Firewall Template Service - address list templates
 	templateService, err := firewall.NewTemplateService()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("init firewall template service: %w", err)
 	}
 	logger.Infow("firewall template service initialized")
 

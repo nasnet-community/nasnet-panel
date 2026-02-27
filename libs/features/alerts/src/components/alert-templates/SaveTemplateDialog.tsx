@@ -196,7 +196,7 @@ function SaveTemplateDialogComponent(props: SaveTemplateDialogProps) {
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-component-lg">
             {/* Template Name */}
             <FormField
               control={form.control}
@@ -253,7 +253,7 @@ function SaveTemplateDialogComponent(props: SaveTemplateDialogProps) {
                     <SelectContent>
                       {categories.map((category) => (
                         <SelectItem key={category.id} value={category.id}>
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-component-sm">
                             <span className={category.color}>{category.label}</span>
                           </div>
                         </SelectItem>
@@ -268,7 +268,7 @@ function SaveTemplateDialogComponent(props: SaveTemplateDialogProps) {
               )}
             />
 
-            <DialogFooter>
+            <DialogFooter className="gap-component-sm">
               <Button
                 type="button"
                 variant="outline"

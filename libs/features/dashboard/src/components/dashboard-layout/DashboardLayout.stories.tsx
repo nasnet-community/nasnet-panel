@@ -75,7 +75,7 @@ type Story = StoryObj<typeof meta>;
  */
 const MockCard = ({ title, height = 'h-64' }: { title: string; height?: string }) => (
   <Card className={`${height} p-6 flex flex-col`}>
-    <h3 className="text-lg font-semibold text-foreground mb-2">{title}</h3>
+    <h3 className="text-lg font-semibold text-foreground mb-component-sm">{title}</h3>
     <div className="flex-1 flex items-center justify-center text-muted-foreground">
       Card content area
     </div>
@@ -303,7 +303,7 @@ export const LoadingSkeleton: Story = {
             <div className="space-y-4">
               <div className="h-6 bg-muted rounded w-3/4" />
               <div className="h-4 bg-muted rounded w-1/2" />
-              <div className="space-y-2 pt-4">
+              <div className="space-y-2 pt-component-md">
                 <div className="h-4 bg-muted rounded" />
                 <div className="h-4 bg-muted rounded w-5/6" />
                 <div className="h-4 bg-muted rounded w-4/6" />

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/resource-state-event",
+  "title": "ResourceStateEvent",
+  "description": "Lifecycle state change event",
+  "source": "@site/docs/api/types/objects/resource-state-event.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/resource-state-event",
+  "permalink": "/api/types/objects/resource-state-event",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "resource-state-event",
+    "title": "ResourceStateEvent"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ResourceRuntimeEvent",
+    "permalink": "/api/types/objects/resource-runtime-event"
+  },
+  "next": {
+    "title": "ResourceUpdatedEvent",
+    "permalink": "/api/types/objects/resource-updated-event"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/node",
+  "title": "node",
+  "description": "Fetch any node by its global ID",
+  "source": "@site/docs/api/operations/queries/node.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/node",
+  "permalink": "/api/operations/queries/node",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "node",
+    "title": "node"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "natRules",
+    "permalink": "/api/operations/queries/nat-rules"
+  },
+  "next": {
+    "title": "notificationChannelConfig",
+    "permalink": "/api/operations/queries/notification-channel-config"
+  }
+}

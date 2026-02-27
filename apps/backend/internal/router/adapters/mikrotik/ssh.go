@@ -16,8 +16,8 @@ import (
 type SSHClientConfig struct {
 	Address    string
 	Username   string
-	Password   string
-	PrivateKey string // Optional: PEM-encoded private key
+	Password   string //nolint:gosec // G101: credential field
+	PrivateKey string //nolint:gosec // G101: credential field // Optional: PEM-encoded private key
 	Timeout    time.Duration
 }
 
@@ -63,7 +63,7 @@ func NewSSHClient(cfg SSHClientConfig, logger *zap.Logger) (*SSHClient, error) {
 			authMethods = append(authMethods, ssh.PublicKeys(signer))
 			logger.Debug("using private key authentication")
 		} else {
-			logger.Warn("failed to parse private key", zap.Error(err))
+			logger.Warn("failed to parse private key", zap.Error(fmt.Errorf("parse private key: %w", err)))
 		}
 	}
 
@@ -95,7 +95,7 @@ func NewSSHClient(cfg SSHClientConfig, logger *zap.Logger) (*SSHClient, error) {
 
 	client, err := ssh.Dial("tcp", address, config)
 	if err != nil {
-		return nil, fmt.Errorf("SSH dial failed: %w", err)
+		return nil, fmt.Errorf("dial SSH: %w", err)
 	}
 
 	logger.Debug("successfully connected to SSH server", zap.String("address", address))
@@ -151,7 +151,7 @@ func (c *SSHClient) RunCommand(ctx context.Context, command string) (string, err
 	select {
 	case <-ctx.Done():
 		_ = session.Signal(ssh.SIGKILL) //nolint:errcheck // best effort signal
-		return "", ctx.Err()
+		return "", fmt.Errorf("context canceled: %w", ctx.Err())
 	case err := <-done:
 		output := stdout.String()
 		errOutput := stderr.String()
@@ -178,7 +178,7 @@ func (c *SSHClient) RunCommands(ctx context.Context, commands []string) ([]SSHCo
 	for i, cmd := range commands {
 		select {
 		case <-ctx.Done():
-			return results, ctx.Err()
+			return results, fmt.Errorf("context canceled: %w", ctx.Err())
 		default:
 		}
 
@@ -213,5 +213,8 @@ func (c *SSHClient) IsConnected() bool {
 // Ping tests the connection by running a simple command.
 func (c *SSHClient) Ping() error {
 	_, err := c.RunCommand(context.Background(), "/system identity print")
-	return err
+	if err != nil {
+		return fmt.Errorf("ping command failed: %w", err)
+	}
+	return nil
 }

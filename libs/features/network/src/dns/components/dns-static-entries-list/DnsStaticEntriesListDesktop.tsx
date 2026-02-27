@@ -68,7 +68,7 @@ export function DnsStaticEntriesListDesktop({
         sortable: true,
         width: '20%',
         render: (entry: DNSStaticEntry) => (
-          <span className="font-mono text-sm">{entry.address}</span>
+          <span className="font-mono text-sm category-networking">{entry.address}</span>
         ),
       },
       {
@@ -140,7 +140,7 @@ export function DnsStaticEntriesListDesktop({
 
   if (entries.length === 0) {
     return (
-      <div className="space-y-component-md">
+      <div className="space-y-component-md category-networking">
         <EmptyState
           icon={FileText}
           title="No Static DNS Entries"
@@ -157,7 +157,7 @@ export function DnsStaticEntriesListDesktop({
 
   return (
     <>
-      <div className="space-y-component-md">
+      <div className="space-y-component-md category-networking">
         {/* Data Table */}
         <DataTable
           columns={columns}

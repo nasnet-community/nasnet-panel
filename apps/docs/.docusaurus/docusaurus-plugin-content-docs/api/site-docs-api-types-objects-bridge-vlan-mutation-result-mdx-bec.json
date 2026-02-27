@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/bridge-vlan-mutation-result",
+  "title": "BridgeVlanMutationResult",
+  "description": "No description",
+  "source": "@site/docs/api/types/objects/bridge-vlan-mutation-result.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/bridge-vlan-mutation-result",
+  "permalink": "/api/types/objects/bridge-vlan-mutation-result",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "bridge-vlan-mutation-result",
+    "title": "BridgeVlanMutationResult"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "BridgeStpStatus",
+    "permalink": "/api/types/objects/bridge-stp-status"
+  },
+  "next": {
+    "title": "BridgeVlan",
+    "permalink": "/api/types/objects/bridge-vlan"
+  }
+}

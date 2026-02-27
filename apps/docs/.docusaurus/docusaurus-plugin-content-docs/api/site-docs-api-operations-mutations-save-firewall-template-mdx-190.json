@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/save-firewall-template",
+  "title": "saveFirewallTemplate",
+  "description": "Save a custom firewall template.",
+  "source": "@site/docs/api/operations/mutations/save-firewall-template.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/save-firewall-template",
+  "permalink": "/api/operations/mutations/save-firewall-template",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "save-firewall-template",
+    "title": "saveFirewallTemplate"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "saveCustomAlertRuleTemplate",
+    "permalink": "/api/operations/mutations/save-custom-alert-rule-template"
+  },
+  "next": {
+    "title": "scanNetwork",
+    "permalink": "/api/operations/mutations/scan-network"
+  }
+}

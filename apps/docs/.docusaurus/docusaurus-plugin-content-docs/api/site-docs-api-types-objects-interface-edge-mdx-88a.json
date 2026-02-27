@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/interface-edge",
+  "title": "InterfaceEdge",
+  "description": "No description",
+  "source": "@site/docs/api/types/objects/interface-edge.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/interface-edge",
+  "permalink": "/api/types/objects/interface-edge",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "interface-edge",
+    "title": "InterfaceEdge"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "InterfaceConnection",
+    "permalink": "/api/types/objects/interface-connection"
+  },
+  "next": {
+    "title": "InterfaceOperationError",
+    "permalink": "/api/types/objects/interface-operation-error"
+  }
+}

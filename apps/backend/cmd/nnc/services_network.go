@@ -4,6 +4,8 @@
 package main
 
 import (
+	"fmt"
+
 	"go.uber.org/zap"
 
 	"backend/internal/bootstrap"
@@ -24,13 +26,13 @@ func initNetworkAndFirewall(
 		sugar,
 	)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, fmt.Errorf("initializing network services: %w", err)
 	}
 
 	// Initialize Firewall Services (templates, address lists)
 	firewall, err := bootstrap.InitializeFirewallServices(sugar)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, fmt.Errorf("initializing firewall services: %w", err)
 	}
 
 	return network, firewall, nil

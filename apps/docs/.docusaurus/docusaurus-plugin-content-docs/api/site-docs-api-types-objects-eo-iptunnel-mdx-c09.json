@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/eo-iptunnel",
+  "title": "EoIPTunnel",
+  "description": "EoIP Tunnel resource implementing 8-layer model",
+  "source": "@site/docs/api/types/objects/eo-iptunnel.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/eo-iptunnel",
+  "permalink": "/api/types/objects/eo-iptunnel",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "eo-iptunnel",
+    "title": "EoIPTunnel"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "EoIPTunnelRuntime",
+    "permalink": "/api/types/objects/eo-iptunnel-runtime"
+  },
+  "next": {
+    "title": "ErrorExtensions",
+    "permalink": "/api/types/objects/error-extensions"
+  }
+}

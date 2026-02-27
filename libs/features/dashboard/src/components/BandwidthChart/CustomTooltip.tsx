@@ -70,7 +70,7 @@ export const CustomTooltip = memo<CustomTooltipProps>(
           {/* TX Rate */}
           <div className="flex items-center gap-component-sm">
             <span
-              className="h-3 w-3 rounded-full bg-secondary"
+              className="h-3 w-3 rounded-full bg-primary"
               aria-hidden="true"
             />
             <span className="font-medium">TX:</span>

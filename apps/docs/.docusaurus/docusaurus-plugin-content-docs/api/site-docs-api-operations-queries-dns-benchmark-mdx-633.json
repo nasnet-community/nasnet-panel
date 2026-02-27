@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/dns-benchmark",
+  "title": "dnsBenchmark",
+  "description": "Run DNS server benchmark against all configured DNS servers.",
+  "source": "@site/docs/api/operations/queries/dns-benchmark.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/dns-benchmark",
+  "permalink": "/api/operations/queries/dns-benchmark",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "dns-benchmark",
+    "title": "dnsBenchmark"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "discoveredWANs",
+    "permalink": "/api/operations/queries/discovered-wans"
+  },
+  "next": {
+    "title": "dnsCacheStats",
+    "permalink": "/api/operations/queries/dns-cache-stats"
+  }
+}

@@ -46,7 +46,7 @@ var (
 // Always clear sensitive fields from memory when done using ZeroCredentials().
 type Credentials struct {
 	Username    string
-	Password    string
+	Password    string //nolint:gosec // G101: credential field required for authentication
 	KeyVersion  int
 	LastUpdated time.Time
 }
@@ -66,7 +66,7 @@ type CredentialInfo struct {
 // UpdateInput contains the credentials to update.
 type UpdateInput struct {
 	Username string
-	Password string
+	Password string //nolint:gosec // G101: credential field required for authentication
 }
 
 // Service manages router credentials with automatic encryption/decryption.

@@ -42,6 +42,18 @@ type VirtualInterface {
 
   """Last update timestamp"""
   updatedAt: DateTime!
+
+  """Ingress VLAN ID (for DHCP bridge mode, 100-149)"""
+  ingressVlanId: Int
+
+  """Egress VLAN IDs for outbound traffic (150-199)"""
+  egressVlanIds: [Int!]
+
+  """Routing mode (bridge or advanced)"""
+  routingMode: RoutingMode
+
+  """Container IP address for DHCP bridge mode"""
+  containerIp: String
 }
 
 """
@@ -53,6 +65,9 @@ enum GatewayType {
 
   """HEV SOCKS5 tunnel gateway"""
   HEV_SOCKS5_TUNNEL
+
+  """DHCP bridge mode - uses ingress/egress VLANs with udhcpd/udhcpc"""
+  DHCP_BRIDGE
 }
 
 """

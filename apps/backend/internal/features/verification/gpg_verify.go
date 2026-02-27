@@ -35,10 +35,10 @@ func tryVerifySignature(keyring openpgp.EntityList, dataFile, sigFile *os.File) 
 
 	// Rewind both files and try binary signature
 	if _, seekErr := dataFile.Seek(0, io.SeekStart); seekErr != nil {
-		return nil, checkErr
+		return nil, fmt.Errorf("seek data file: %w", seekErr)
 	}
 	if _, seekErr := sigFile.Seek(0, io.SeekStart); seekErr != nil {
-		return nil, checkErr
+		return nil, fmt.Errorf("seek signature file: %w", seekErr)
 	}
 
 	signer, checkErr = openpgp.CheckDetachedSignature(keyring, dataFile, sigFile)
@@ -149,7 +149,7 @@ func FetchGPGKey(ctx context.Context, keyID, keyServerURL string) error {
 	}
 
 	client := &http.Client{Timeout: 30 * time.Second}
-	resp, err := client.Do(req)
+	resp, err := client.Do(req) //nolint:gosec // G704: URL is constructed from trusted configuration
 	if err != nil {
 		return fmt.Errorf("failed to fetch GPG key from %s: %w", keyServerURL, err)
 	}
@@ -226,7 +226,7 @@ func buildKeyring(ctx context.Context, spec *GPGSpec) (openpgp.EntityList, error
 	}
 
 	httpClient := &http.Client{Timeout: 30 * time.Second}
-	resp, err := httpClient.Do(req)
+	resp, err := httpClient.Do(req) //nolint:gosec // G704: URL is constructed from trusted configuration
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch key from keyserver: %w", err)
 	}

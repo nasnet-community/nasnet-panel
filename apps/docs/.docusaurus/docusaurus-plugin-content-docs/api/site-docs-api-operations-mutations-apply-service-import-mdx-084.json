@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/apply-service-import",
+  "title": "applyServiceImport",
+  "description": "Apply a validated service import package.",
+  "source": "@site/docs/api/operations/mutations/apply-service-import.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/apply-service-import",
+  "permalink": "/api/operations/mutations/apply-service-import",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "apply-service-import",
+    "title": "applyServiceImport"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "applyServiceConfig",
+    "permalink": "/api/operations/mutations/apply-service-config"
+  },
+  "next": {
+    "title": "applyTroubleshootFix",
+    "permalink": "/api/operations/mutations/apply-troubleshoot-fix"
+  }
+}

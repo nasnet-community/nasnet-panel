@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/scan-storage",
+  "title": "scanStorage",
+  "description": "Manually trigger storage detection scan.",
+  "source": "@site/docs/api/operations/mutations/scan-storage.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/scan-storage",
+  "permalink": "/api/operations/mutations/scan-storage",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "scan-storage",
+    "title": "scanStorage"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "scanNetwork",
+    "permalink": "/api/operations/mutations/scan-network"
+  },
+  "next": {
+    "title": "setKillSwitch",
+    "permalink": "/api/operations/mutations/set-kill-switch"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/update-change-set-item-payload",
+  "title": "UpdateChangeSetItemPayload",
+  "description": "No description",
+  "source": "@site/docs/api/types/objects/update-change-set-item-payload.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/update-change-set-item-payload",
+  "permalink": "/api/types/objects/update-change-set-item-payload",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "update-change-set-item-payload",
+    "title": "UpdateChangeSetItemPayload"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "Tunnel",
+    "permalink": "/api/types/objects/tunnel"
+  },
+  "next": {
+    "title": "UpdateInfo",
+    "permalink": "/api/types/objects/update-info"
+  }
+}

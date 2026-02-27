@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/storage-usage",
+  "title": "storageUsage",
+  "description": "Get comprehensive storage usage breakdown.",
+  "source": "@site/docs/api/operations/queries/storage-usage.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/storage-usage",
+  "permalink": "/api/operations/queries/storage-usage",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "storage-usage",
+    "title": "storageUsage"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "storageInfo",
+    "permalink": "/api/operations/queries/storage-info"
+  },
+  "next": {
+    "title": "supportedFeatures",
+    "permalink": "/api/operations/queries/supported-features"
+  }
+}

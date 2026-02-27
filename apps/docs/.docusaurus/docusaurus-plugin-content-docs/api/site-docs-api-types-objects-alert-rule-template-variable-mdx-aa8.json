@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/alert-rule-template-variable",
+  "title": "AlertRuleTemplateVariable",
+  "description": "Variable definition for alert rule templates",
+  "source": "@site/docs/api/types/objects/alert-rule-template-variable.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/alert-rule-template-variable",
+  "permalink": "/api/types/objects/alert-rule-template-variable",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "alert-rule-template-variable",
+    "title": "AlertRuleTemplateVariable"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "AlertRuleTemplatePreview",
+    "permalink": "/api/types/objects/alert-rule-template-preview"
+  },
+  "next": {
+    "title": "AlertRuleTemplate",
+    "permalink": "/api/types/objects/alert-rule-template"
+  }
+}

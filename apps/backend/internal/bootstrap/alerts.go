@@ -2,6 +2,7 @@ package bootstrap
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"go.uber.org/zap"
@@ -74,7 +75,7 @@ func InitializeAlertSystem(
 
 	// Subscribe dispatcher to alert.created events
 	if err := eventBus.Subscribe(events.EventTypeAlertCreated, dispatcher.HandleAlertCreated); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("subscribe dispatcher to alert.created event: %w", err)
 	}
 	sugar.Infow("notification dispatcher initialized and subscribed")
 
@@ -98,7 +99,7 @@ func InitializeAlertSystem(
 		Logger:     sugar,
 	})
 	if digestErr != nil {
-		return nil, digestErr
+		return nil, fmt.Errorf("new digest service: %w", digestErr)
 	}
 	sugar.Infow("digest service initialized")
 
@@ -110,10 +111,9 @@ func InitializeAlertSystem(
 
 	// Start digest scheduler
 	if schedErr := digestScheduler.Start(ctx); schedErr != nil {
-		sugar.Warnw("failed to start digest scheduler", zap.Error(schedErr))
-	} else {
-		sugar.Infow("digest scheduler started")
+		return nil, fmt.Errorf("digest scheduler start: %w", schedErr)
 	}
+	sugar.Infow("digest scheduler started")
 
 	// Initialize Alert Service
 	alertService := services.NewAlertService(services.AlertServiceConfig{
@@ -128,7 +128,7 @@ func InitializeAlertSystem(
 	// Initialize Alert Rule Template Service
 	alertRuleTemplateService, templateErr := alerts.NewAlertRuleTemplateService(alertService, systemDB)
 	if templateErr != nil {
-		return nil, templateErr
+		return nil, fmt.Errorf("new alert rule template service: %w", templateErr)
 	}
 	sugar.Infow("alert rule template service initialized", zap.Int("templates", 15))
 
@@ -143,7 +143,7 @@ func InitializeAlertSystem(
 	})
 
 	if engineErr := alertEngine.Start(ctx); engineErr != nil {
-		return nil, engineErr
+		return nil, fmt.Errorf("alert engine start: %w", engineErr)
 	}
 	sugar.Infow("alert engine started and monitoring events")
 
@@ -154,7 +154,7 @@ func InitializeAlertSystem(
 		AlertService: alertService,
 	})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("new alert template service: %w", err)
 	}
 	sugar.Infow("alert template service initialized", zap.Int("templates", 6))
 
@@ -178,15 +178,24 @@ type eventBusAdapter struct {
 
 func (a *eventBusAdapter) Publish(ctx context.Context, event interface{}) error {
 	if e, ok := event.(events.Event); ok {
-		return a.bus.Publish(ctx, e)
+		if err := a.bus.Publish(ctx, e); err != nil {
+			return fmt.Errorf("publish event: %w", err)
+		}
+		return nil
 	}
-	return a.bus.Publish(ctx, events.NewGenericEvent("custom.event", events.PriorityNormal, "alert-service", map[string]interface{}{
+	if err := a.bus.Publish(ctx, events.NewGenericEvent("custom.event", events.PriorityNormal, "alert-service", map[string]interface{}{
 		"data": event,
-	}))
+	})); err != nil {
+		return fmt.Errorf("publish generic event: %w", err)
+	}
+	return nil
 }
 
 func (a *eventBusAdapter) Close() error {
-	return a.bus.Close()
+	if err := a.bus.Close(); err != nil {
+		return fmt.Errorf("close event bus: %w", err)
+	}
+	return nil
 }
 
 // digestServiceAdapter adapts alerts.DigestService (digest.Service) to the svcalert.DigestService interface.
@@ -197,7 +206,7 @@ type digestServiceAdapter struct {
 func (a *digestServiceAdapter) CompileDigest(ctx context.Context, channelID string, since time.Time) (*svcalert.DigestPayload, error) {
 	payload, err := a.svc.CompileDigest(ctx, channelID, since)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("compile digest: %w", err)
 	}
 	return &svcalert.DigestPayload{
 		DigestID:       payload.DigestID,
@@ -210,5 +219,8 @@ func (a *digestServiceAdapter) CompileDigest(ctx context.Context, channelID stri
 }
 
 func (a *digestServiceAdapter) DeliverDigest(ctx context.Context, channelID string) error {
-	return a.svc.DeliverDigest(ctx, channelID)
+	if err := a.svc.DeliverDigest(ctx, channelID); err != nil {
+		return fmt.Errorf("deliver digest: %w", err)
+	}
+	return nil
 }

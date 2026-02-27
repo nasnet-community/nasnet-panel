@@ -101,7 +101,7 @@ type Config struct {
 	Username string
 
 	// Password is the authentication password.
-	Password string
+	Password string //nolint:gosec // G101: credential field required for authentication
 
 	// PreferredProtocol is the user's preferred protocol (optional).
 	PreferredProtocol Protocol

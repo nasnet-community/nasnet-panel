@@ -65,9 +65,9 @@ const sizeConfig = {
 
 const variantConfig = {
   default: 'bg-primary',
-  success: 'bg-green-500',
-  warning: 'bg-amber-500',
-  error: 'bg-red-500',
+  success: 'bg-success',
+  warning: 'bg-warning',
+  error: 'bg-error',
 } as const;
 
 // ============================================================================
@@ -118,17 +118,17 @@ export const ProgressBar = React.memo(function ProgressBar({
   const normalizedValue = Math.min(100, Math.max(0, value ?? 0));
 
   return (
-    <div className={cn('w-full', config.spacing, 'flex flex-col', className)}>
+    <div className={cn('w-full flex flex-col', config.spacing, className)}>
       {/* Header row with label and percentage */}
       {(label || showPercentage) && (
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mb-2">
           {label && (
-            <span className={cn('font-medium text-foreground', config.text)}>
+            <span className={cn('text-muted-foreground', config.text)}>
               {label}
             </span>
           )}
           {showPercentage && !isIndeterminate && (
-            <span className={cn('text-muted-foreground', config.text)}>
+            <span className={cn('font-medium text-foreground', config.text)}>
               {Math.round(normalizedValue)}%
             </span>
           )}
@@ -149,9 +149,9 @@ export const ProgressBar = React.memo(function ProgressBar({
       >
         <div
           className={cn(
-            'h-full rounded-full transition-all duration-300',
+            'h-full rounded-full transition-all duration-500 ease-in-out',
             variantConfig[variant],
-            isIndeterminate && 'animate-pulse w-full opacity-50'
+            isIndeterminate && 'motion-safe:animate-progress w-1/3'
           )}
           style={!isIndeterminate ? { width: `${normalizedValue}%` } : undefined}
         />

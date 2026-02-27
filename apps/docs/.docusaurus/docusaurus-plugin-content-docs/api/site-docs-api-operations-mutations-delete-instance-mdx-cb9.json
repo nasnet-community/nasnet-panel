@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/delete-instance",
+  "title": "deleteInstance",
+  "description": "Delete a service instance and clean up resources.",
+  "source": "@site/docs/api/operations/mutations/delete-instance.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/delete-instance",
+  "permalink": "/api/operations/mutations/delete-instance",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "delete-instance",
+    "title": "deleteInstance"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "deleteFirewallTemplate",
+    "permalink": "/api/operations/mutations/delete-firewall-template"
+  },
+  "next": {
+    "title": "deleteIpAddress",
+    "permalink": "/api/operations/mutations/delete-ip-address"
+  }
+}

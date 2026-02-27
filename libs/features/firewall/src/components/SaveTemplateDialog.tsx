@@ -331,7 +331,7 @@ export const SaveTemplateDialog = React.memo(function SaveTemplateDialogComponen
       {trigger}
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+          <DialogTitle className="flex items-center gap-component-sm">
             <FileText className="h-5 w-5" />
             Save as Template
           </DialogTitle>
@@ -342,7 +342,7 @@ export const SaveTemplateDialog = React.memo(function SaveTemplateDialogComponen
         </DialogHeader>
 
         <form onSubmit={handleSubmit(handleSaveTemplate as any)}>
-          <ScrollArea className="max-h-[60vh] pr-component-md">
+          <ScrollArea className="max-h-[60vh] pr-4">
             <div className="space-y-component-md">
               {/* Name */}
               <div className="space-y-component-sm">
@@ -354,10 +354,10 @@ export const SaveTemplateDialog = React.memo(function SaveTemplateDialogComponen
                   aria-invalid={!!errors.name || !!nameError}
                 />
                 {errors.name && (
-                  <p className="text-sm text-destructive">{errors.name.message}</p>
+                  <p className="text-sm text-error">{errors.name.message}</p>
                 )}
                 {nameError && (
-                  <p className="text-sm text-destructive">{nameError.message}</p>
+                  <p className="text-sm text-error">{nameError.message}</p>
                 )}
               </div>
 
@@ -372,7 +372,7 @@ export const SaveTemplateDialog = React.memo(function SaveTemplateDialogComponen
                   aria-invalid={!!errors.description}
                 />
                 {errors.description && (
-                  <p className="text-sm text-destructive">{errors.description.message}</p>
+                  <p className="text-sm text-error">{errors.description.message}</p>
                 )}
               </div>
 
@@ -428,13 +428,13 @@ export const SaveTemplateDialog = React.memo(function SaveTemplateDialogComponen
                   aria-invalid={!!errors.version}
                 />
                 {errors.version && (
-                  <p className="text-sm text-destructive">{errors.version.message}</p>
+                  <p className="text-sm text-error">{errors.version.message}</p>
                 )}
               </div>
 
               {/* Variables */}
               {potentialVariables.length > 0 && (
-                <div className="space-y-3 rounded-[var(--semantic-radius-card)] border border-border bg-card p-component-md">
+                <div className="space-y-3 rounded-md border border-border bg-card p-component-md">
                   <div className="flex items-center justify-between">
                     <Label>Template Variables</Label>
                     <Badge variant="secondary">
@@ -448,7 +448,7 @@ export const SaveTemplateDialog = React.memo(function SaveTemplateDialogComponen
                     {potentialVariables.map((variable) => (
                       <div
                         key={variable.name}
-                        className="flex items-start space-x-3 rounded-[var(--semantic-radius-button)] border border-border bg-card p-component-sm hover:bg-muted/50 transition-colors"
+                        className="flex items-start space-x-component-sm rounded-md border border-border bg-card p-component-sm hover:bg-muted/50 transition-colors"
                       >
                         <Checkbox
                           id={`var-${variable.name}`}
@@ -463,14 +463,14 @@ export const SaveTemplateDialog = React.memo(function SaveTemplateDialogComponen
                           >
                             {variable.label}
                             {variable.isRequired && (
-                              <span className="ml-1 text-destructive">*</span>
+                              <span className="ml-1 text-error">*</span>
                             )}
                           </Label>
                           <p className="text-xs text-muted-foreground">
                             {variable.description}
                           </p>
                           {variable.defaultValue && (
-                            <code className="text-xs bg-muted px-component-sm py-1 rounded-[var(--semantic-radius-button)] font-mono">
+                            <code className="text-xs bg-muted px-component-sm py-1 rounded-md font-mono">
                               Default: {variable.defaultValue}
                             </code>
                           )}

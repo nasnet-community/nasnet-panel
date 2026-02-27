@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/create-notification-channel-config",
+  "title": "createNotificationChannelConfig",
+  "description": "Create a new notification channel configuration (validates before saving)",
+  "source": "@site/docs/api/operations/mutations/create-notification-channel-config.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/create-notification-channel-config",
+  "permalink": "/api/operations/mutations/create-notification-channel-config",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "create-notification-channel-config",
+    "title": "createNotificationChannelConfig"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "createNatRule",
+    "permalink": "/api/operations/mutations/create-nat-rule"
+  },
+  "next": {
+    "title": "createPortForward",
+    "permalink": "/api/operations/mutations/create-port-forward"
+  }
+}

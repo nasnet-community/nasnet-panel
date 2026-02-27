@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/ip-conflict-type",
+  "title": "IpConflictType",
+  "description": "Type of IP address conflict",
+  "source": "@site/docs/api/types/enums/ip-conflict-type.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/ip-conflict-type",
+  "permalink": "/api/types/enums/ip-conflict-type",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "ip-conflict-type",
+    "title": "IpConflictType"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "InterfaceType",
+    "permalink": "/api/types/enums/interface-type"
+  },
+  "next": {
+    "title": "IsolationSeverity",
+    "permalink": "/api/types/enums/isolation-severity"
+  }
+}

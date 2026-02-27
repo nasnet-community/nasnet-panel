@@ -78,6 +78,25 @@ func (VirtualInterface) Fields() []ent.Field {
 			Default("creating").
 			Comment("Virtual interface lifecycle status"),
 
+		field.Enum("routing_mode").
+			Values("bridge", "advanced", "legacy").
+			Default("legacy").
+			Comment("Routing mode: bridge (DHCP), advanced (PBR mangle), legacy (single VLAN)"),
+
+		field.Int("ingress_vlan_id").
+			Optional().
+			Positive().
+			Comment("Ingress VLAN ID (100-149 range, for DHCP bridge mode)"),
+
+		field.JSON("egress_vlan_ids", []int{}).
+			Optional().
+			Comment("Egress VLAN IDs for outbound traffic (150-199 range)"),
+
+		field.String("container_ip").
+			MaxLen(45).
+			Optional().
+			Comment("Container IP for DHCP bridge mode (e.g., 10.99.101.1)"),
+
 		field.Time("created_at").
 			Default(time.Now).
 			Immutable().
@@ -112,5 +131,6 @@ func (VirtualInterface) Indexes() []ent.Index {
 		index.Fields("instance_id").Unique(),
 		index.Fields("vlan_id"),
 		index.Fields("status"),
+		index.Fields("routing_mode"),
 	}
 }

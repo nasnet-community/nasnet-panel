@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/vxlantunnel",
+  "title": "VXLANTunnel",
+  "description": "VXLAN Tunnel resource implementing 8-layer model",
+  "source": "@site/docs/api/types/objects/vxlantunnel.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/vxlantunnel",
+  "permalink": "/api/types/objects/vxlantunnel",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "vxlantunnel",
+    "title": "VXLANTunnel"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "VXLANTunnelRuntime",
+    "permalink": "/api/types/objects/vxlantunnel-runtime"
+  },
+  "next": {
+    "title": "WANConnectionEventConnection",
+    "permalink": "/api/types/objects/wanconnection-event-connection"
+  }
+}

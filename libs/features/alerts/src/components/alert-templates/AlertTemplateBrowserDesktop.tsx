@@ -90,7 +90,7 @@ function FilterPanel({ browser }: FilterPanelProps) {
   };
 
   return (
-    <div className="w-64 border-r border-border bg-muted/30 p-component-md space-y-component-lg overflow-y-auto">
+    <div className="w-64 border-r border-border bg-card p-component-md space-y-component-lg overflow-y-auto">
       {/* Clear filters button */}
       {hasActiveFilter && (
         <Button
@@ -432,7 +432,7 @@ export const AlertTemplateBrowserDesktop = React.memo(function AlertTemplateBrow
       {/* Main content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header with sort controls */}
-        <div className="border-b border-border p-component-md bg-background">
+        <div className="border-b border-border p-component-md bg-card">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-xl font-semibold">Alert Rule Templates</h1>
@@ -476,10 +476,10 @@ export const AlertTemplateBrowserDesktop = React.memo(function AlertTemplateBrow
             </div>
           ) : filteredTemplates.length === 0 ? (
             <div
-              className="flex flex-col items-center justify-center h-full space-y-4"
+              className="flex flex-col items-center justify-center h-full space-y-component-md"
               role="status"
             >
-              <div className="text-center space-y-2">
+              <div className="text-center space-y-component-sm">
                 <h3 className="text-lg font-semibold">No templates found</h3>
                 <p className="text-sm text-muted-foreground">
                   Try adjusting your filters or search criteria.

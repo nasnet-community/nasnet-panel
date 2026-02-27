@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/firewall-template-variable-input",
+  "title": "FirewallTemplateVariableInput",
+  "description": "Input for defining a template variable.",
+  "source": "@site/docs/api/types/inputs/firewall-template-variable-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/firewall-template-variable-input",
+  "permalink": "/api/types/inputs/firewall-template-variable-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "firewall-template-variable-input",
+    "title": "FirewallTemplateVariableInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "FeatureCompatibilityInput",
+    "permalink": "/api/types/inputs/feature-compatibility-input"
+  },
+  "next": {
+    "title": "GenerateConfigQRInput",
+    "permalink": "/api/types/inputs/generate-config-qrinput"
+  }
+}

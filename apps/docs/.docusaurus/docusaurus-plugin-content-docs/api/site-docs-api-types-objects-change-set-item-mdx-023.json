@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/change-set-item",
+  "title": "ChangeSetItem",
+  "description": "Individual item within a change set",
+  "source": "@site/docs/api/types/objects/change-set-item.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/change-set-item",
+  "permalink": "/api/types/objects/change-set-item",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "change-set-item",
+    "title": "ChangeSetItem"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ChangeSetError",
+    "permalink": "/api/types/objects/change-set-error"
+  },
+  "next": {
+    "title": "ChangeSetProgressEvent",
+    "permalink": "/api/types/objects/change-set-progress-event"
+  }
+}

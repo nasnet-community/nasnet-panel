@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/create-bridge",
+  "title": "createBridge",
+  "description": "Create a new bridge",
+  "source": "@site/docs/api/operations/mutations/create-bridge.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/create-bridge",
+  "permalink": "/api/operations/mutations/create-bridge",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "create-bridge",
+    "title": "createBridge"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "createBridgeVlan",
+    "permalink": "/api/operations/mutations/create-bridge-vlan"
+  },
+  "next": {
+    "title": "createChangeSet",
+    "permalink": "/api/operations/mutations/create-change-set"
+  }
+}

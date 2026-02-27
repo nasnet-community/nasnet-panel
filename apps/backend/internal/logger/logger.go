@@ -4,13 +4,14 @@ package logger
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"sync"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
-	internalerrors "backend/internal/errors"
+	internalerrors "backend/internal/apperrors"
 )
 
 var (
@@ -135,7 +136,9 @@ func S() *zap.SugaredLogger {
 // Sync flushes any buffered log entries.
 func Sync() error {
 	if globalLogger != nil {
-		return globalLogger.Sync()
+		if err := globalLogger.Sync(); err != nil {
+			return fmt.Errorf("failed to sync logger: %w", err)
+		}
 	}
 	return nil
 }

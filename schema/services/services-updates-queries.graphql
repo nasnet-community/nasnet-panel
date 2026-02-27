@@ -1,0 +1,26 @@
+# ============================================
+# UPDATE QUERIES
+# ============================================
+
+extend type Query {
+  """
+  Get available updates for all instances on a router.
+  Returns instances that have updates available.
+  """
+  availableUpdates(
+    """Router ID"""
+    routerID: ID!
+  ): [UpdateInfo!]!
+
+  """
+  Get update information for a specific instance.
+  Returns null if no update available.
+  """
+  instanceUpdateInfo(
+    """Router ID"""
+    routerID: ID!
+
+    """Instance ID"""
+    instanceID: ID!
+  ): UpdateInfo
+}

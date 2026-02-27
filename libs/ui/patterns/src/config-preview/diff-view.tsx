@@ -20,12 +20,12 @@ import type { DiffViewProps, DiffLine } from './config-preview.types';
 function getDiffLineClasses(type: DiffLine['type']): string {
   switch (type) {
     case 'added':
-      return 'bg-success/10 text-success-foreground';
+      return 'bg-green-500/10 text-green-400 border-l-2 border-green-500';
     case 'removed':
-      return 'bg-destructive/10 text-destructive-foreground';
+      return 'bg-red-500/10 text-red-400 border-l-2 border-red-500 line-through';
     case 'unchanged':
     default:
-      return '';
+      return 'text-slate-400';
   }
 }
 

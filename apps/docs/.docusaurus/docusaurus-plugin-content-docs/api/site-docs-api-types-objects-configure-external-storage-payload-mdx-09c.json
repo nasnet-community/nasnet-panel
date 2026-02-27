@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/configure-external-storage-payload",
+  "title": "ConfigureExternalStoragePayload",
+  "description": "Payload for configureExternalStorage mutation.",
+  "source": "@site/docs/api/types/objects/configure-external-storage-payload.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/configure-external-storage-payload",
+  "permalink": "/api/types/objects/configure-external-storage-payload",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "configure-external-storage-payload",
+    "title": "ConfigureExternalStoragePayload"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ConfigValidationResult",
+    "permalink": "/api/types/objects/config-validation-result"
+  },
+  "next": {
+    "title": "ConnectRouterPayload",
+    "permalink": "/api/types/objects/connect-router-payload"
+  }
+}

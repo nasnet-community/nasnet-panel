@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/ikev-2-server-runtime",
+  "title": "IKEv2ServerRuntime",
+  "description": "IKEv2 server runtime state",
+  "source": "@site/docs/api/types/objects/ikev-2-server-runtime.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/ikev-2-server-runtime",
+  "permalink": "/api/types/objects/ikev-2-server-runtime",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "ikev-2-server-runtime",
+    "title": "IKEv2ServerRuntime"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "IKEv2ServerDeployment",
+    "permalink": "/api/types/objects/ikev-2-server-deployment"
+  },
+  "next": {
+    "title": "IKEv2Server",
+    "permalink": "/api/types/objects/ikev-2-server"
+  }
+}

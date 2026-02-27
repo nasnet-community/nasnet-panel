@@ -87,6 +87,11 @@ func (s *UpdateService) CheckForUpdate(ctx context.Context, featureID, currentVe
 		return nil, false, nil
 	}
 
+	// Verify release is not nil before accessing fields
+	if release == nil {
+		return nil, false, fmt.Errorf("unexpected nil value for release")
+	}
+
 	// Skip drafts and pre-releases
 	if release.Draft || release.Prerelease {
 		return nil, false, nil

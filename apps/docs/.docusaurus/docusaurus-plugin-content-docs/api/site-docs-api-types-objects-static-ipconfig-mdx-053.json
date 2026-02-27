@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/static-ipconfig",
+  "title": "StaticIPConfig",
+  "description": "Static IP WAN configuration",
+  "source": "@site/docs/api/types/objects/static-ipconfig.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/static-ipconfig",
+  "permalink": "/api/types/objects/static-ipconfig",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "static-ipconfig",
+    "title": "StaticIPConfig"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "StartupDiagnostics",
+    "permalink": "/api/types/objects/startup-diagnostics"
+  },
+  "next": {
+    "title": "StatsDataPoint",
+    "permalink": "/api/types/objects/stats-data-point"
+  }
+}

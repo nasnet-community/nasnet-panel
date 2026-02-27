@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/startup-diagnostics",
+  "title": "StartupDiagnostics",
+  "description": "Startup diagnostic results collected during instance boot.",
+  "source": "@site/docs/api/types/objects/startup-diagnostics.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/startup-diagnostics",
+  "permalink": "/api/types/objects/startup-diagnostics",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "startup-diagnostics",
+    "title": "StartupDiagnostics"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "StartTroubleshootPayload",
+    "permalink": "/api/types/objects/start-troubleshoot-payload"
+  },
+  "next": {
+    "title": "StaticIPConfig",
+    "permalink": "/api/types/objects/static-ipconfig"
+  }
+}

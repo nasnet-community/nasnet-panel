@@ -8,7 +8,7 @@ package resolver
 import (
 	"backend/generated/ent/serviceinstance"
 	graphql1 "backend/graph/model"
-	"backend/internal/errors"
+	"backend/internal/apperrors"
 	"backend/internal/orchestrator/resources"
 	"context"
 
@@ -19,9 +19,11 @@ import (
 // Returns system-wide memory statistics including total RAM, available RAM, allocated RAM,
 // and per-instance resource usage for all running service instances.
 // Actual resource usage is read from cgroups if available (Linux only); otherwise synthesized from limits.
+//
+//nolint:gocyclo // complex logic required for resource resolution
 func (r *queryResolver) SystemResources(ctx context.Context, routerID string) (*graphql1.SystemResources, error) {
 	if r.db == nil {
-		return nil, errors.NewResourceError(errors.CodeResourceNotFound, "database not available", "service", "database")
+		return nil, apperrors.NewResourceError(apperrors.CodeResourceNotFound, "database not available", "service", "database")
 	}
 
 	// Get running service instances from database
@@ -30,7 +32,7 @@ func (r *queryResolver) SystemResources(ctx context.Context, routerID string) (*
 		Where(serviceinstance.StatusEQ(serviceinstance.StatusRunning)).
 		All(ctx)
 	if err != nil {
-		return nil, errors.Wrap(err, errors.CodeCommandFailed, errors.CategoryProtocol, "failed to query running instances")
+		return nil, apperrors.Wrap(err, apperrors.CodeCommandFailed, apperrors.CategoryProtocol, "failed to query running instances")
 	}
 
 	// Build per-instance resource usage list
@@ -49,6 +51,7 @@ func (r *queryResolver) SystemResources(ctx context.Context, routerID string) (*
 
 		// Try to read actual usage via ResourceLimiter (Linux only, may be nil)
 		var usage *graphql1.ResourceUsage
+		//nolint:nestif // nested conditions required for feature logic
 		if limiter != nil {
 			// ResourceLimiter.GetResourceUsage requires a PID which is runtime state.
 			// We attempt to find the process via the supervisor if available.
@@ -134,5 +137,5 @@ func (r *queryResolver) SystemResources(ctx context.Context, routerID string) (*
 // TODO(NAS-8.19): Implement event bus integration for resource usage notifications.
 // Requires: EventBus subscription to resource usage events filtered by routerID and instanceID.
 func (r *subscriptionResolver) ResourceUsageChanged(ctx context.Context, routerID string, instanceID string) (<-chan *graphql1.ResourceUsage, error) {
-	return nil, errors.NewResourceError(errors.CodeInvalidStateTransition, "resource usage subscription not yet implemented", "feature", "subscription")
+	return nil, apperrors.NewResourceError(apperrors.CodeInvalidStateTransition, "resource usage subscription not yet implemented", "feature", "subscription")
 }

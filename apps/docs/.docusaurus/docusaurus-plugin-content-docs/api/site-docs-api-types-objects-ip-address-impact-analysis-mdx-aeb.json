@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/ip-address-impact-analysis",
+  "title": "IpAddressImpactAnalysis",
+  "description": "Analysis of the impact of deleting an IP address",
+  "source": "@site/docs/api/types/objects/ip-address-impact-analysis.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/ip-address-impact-analysis",
+  "permalink": "/api/types/objects/ip-address-impact-analysis",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "ip-address-impact-analysis",
+    "title": "IpAddressImpactAnalysis"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "IpAddressDependencies",
+    "permalink": "/api/types/objects/ip-address-dependencies"
+  },
+  "next": {
+    "title": "IpAddressMutationResult",
+    "permalink": "/api/types/objects/ip-address-mutation-result"
+  }
+}

@@ -30,6 +30,7 @@ const config: StorybookConfig = {
   viteFinal: async (config) => {
     return {
       ...config,
+      base: process.env.STORYBOOK_BASE || '/',
       resolve: {
         ...config.resolve,
         alias: {

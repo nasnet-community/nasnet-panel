@@ -1,7 +1,6 @@
 package isolation
 
 import (
-	"context"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -23,7 +22,6 @@ func TestDirectoryIsolation_InstanceSeparation(t *testing.T) {
 		t.Skip("SQLite with CGO not available on Windows test environment")
 	}
 
-	ctx := context.Background()
 	logger := zap.NewNop()
 
 	client := enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
@@ -72,7 +70,7 @@ func TestDirectoryIsolation_InstanceSeparation(t *testing.T) {
 			BinaryPath: binaryPathA,
 		}
 
-		err := verifier.verifyDirectory(ctx, instanceA)
+		err := verifier.verifyDirectory(instanceA)
 		if err != nil {
 			t.Errorf("expected no error for instance A's own path, got %v", err)
 		}
@@ -85,7 +83,7 @@ func TestDirectoryIsolation_InstanceSeparation(t *testing.T) {
 			BinaryPath: binaryPathB,
 		}
 
-		err := verifier.verifyDirectory(ctx, instanceB)
+		err := verifier.verifyDirectory(instanceB)
 		if err != nil {
 			t.Errorf("expected no error for instance B's own path, got %v", err)
 		}
@@ -323,7 +321,6 @@ func TestDirectoryIsolation_CrossInstanceAccess(t *testing.T) {
 		t.Skip("SQLite with CGO not available on Windows test environment")
 	}
 
-	ctx := context.Background()
 	logger := zap.NewNop()
 
 	client := enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
@@ -364,7 +361,7 @@ func TestDirectoryIsolation_CrossInstanceAccess(t *testing.T) {
 			BinaryPath: sharedBinaryPath,
 		}
 
-		err := verifier.verifyDirectory(ctx, instanceA)
+		err := verifier.verifyDirectory(instanceA)
 		if err != nil {
 			t.Errorf("expected no error for instance A, got %v", err)
 		}
@@ -376,7 +373,7 @@ func TestDirectoryIsolation_CrossInstanceAccess(t *testing.T) {
 			BinaryPath: sharedBinaryPath,
 		}
 
-		err = verifier.verifyDirectory(ctx, instanceB)
+		err = verifier.verifyDirectory(instanceB)
 		if err != nil {
 			t.Errorf("expected no error for instance B, got %v", err)
 		}
@@ -422,7 +419,6 @@ func TestDirectoryIsolation_BaseDirectoryVariations(t *testing.T) {
 		t.Skip("SQLite with CGO not available on Windows test environment")
 	}
 
-	ctx := context.Background()
 	logger := zap.NewNop()
 
 	client := enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
@@ -458,7 +454,7 @@ func TestDirectoryIsolation_BaseDirectoryVariations(t *testing.T) {
 			BinaryPath: binaryPath,
 		}
 
-		err := verifier.verifyDirectory(ctx, instance)
+		err := verifier.verifyDirectory(instance)
 		if err != nil {
 			t.Errorf("expected no error with custom base directory, got %v", err)
 		}
@@ -494,7 +490,7 @@ func TestDirectoryIsolation_BaseDirectoryVariations(t *testing.T) {
 			BinaryPath: binaryPath,
 		}
 
-		err := verifier.verifyDirectory(ctx, instance)
+		err := verifier.verifyDirectory(instance)
 		if err == nil {
 			t.Error("expected error for path outside custom base directory, got nil")
 		}

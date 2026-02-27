@@ -115,20 +115,22 @@ export function TemplateCard({
   return (
     <Card
       className={cn(
-        'transition-all cursor-pointer hover:shadow-md',
-        isSelected && 'ring-2 ring-primary shadow-lg',
-        isCompact ? 'p-3' : 'p-4',
+        'bg-card border border-border rounded-[var(--semantic-radius-card)]',
+        'shadow-[var(--semantic-shadow-card)]',
+        'transition-shadow duration-200 cursor-pointer hover:shadow-lg',
+        isSelected && 'ring-2 ring-primary',
+        isCompact ? 'p-component-sm' : 'p-component-md',
         className
       )}
       onClick={onClick}
     >
       {/* Header */}
-      <div className="flex items-start justify-between gap-2 mb-2">
+      <div className="flex items-start justify-between gap-component-sm mb-component-sm">
         <div className="flex-1 min-w-0">
           <h3
             className={cn(
-              'font-semibold truncate',
-              isCompact ? 'text-sm' : 'text-base'
+              'font-semibold text-foreground truncate',
+              isCompact ? 'text-sm' : 'text-lg font-display'
             )}
           >
             {template.name}
@@ -137,7 +139,13 @@ export function TemplateCard({
 
         {/* Built-in badge */}
         {template.isBuiltIn && (
-          <Badge variant="outline" className={cn(isCompact && 'text-xs px-1')}>
+          <Badge
+            variant="outline"
+            className={cn(
+              'rounded-[var(--semantic-radius-badge)]',
+              isCompact && 'text-xs px-component-sm'
+            )}
+          >
             Built-in
           </Badge>
         )}
@@ -146,37 +154,52 @@ export function TemplateCard({
       {/* Description */}
       <p
         className={cn(
-          'text-muted-foreground mb-3',
-          isCompact ? 'text-xs line-clamp-2' : 'text-sm line-clamp-3'
+          'text-muted-foreground mb-component-md',
+          isCompact ? 'text-xs line-clamp-2' : 'text-sm line-clamp-2'
         )}
       >
         {template.description}
       </p>
 
       {/* Metadata badges */}
-      <div className="flex flex-wrap gap-2 mb-3">
+      <div className="flex flex-wrap gap-component-sm mb-component-md">
         {/* Category */}
-        <Badge variant="secondary" className={cn(isCompact && 'text-xs')}>
+        <Badge
+          variant="secondary"
+          className={cn(
+            'rounded-[var(--semantic-radius-badge)]',
+            isCompact && 'text-xs'
+          )}
+        >
           {getCategoryLabel(template.category)}
         </Badge>
 
         {/* Complexity */}
         <Badge
           variant={getComplexityVariant(template.complexity)}
-          className={cn(isCompact && 'text-xs')}
+          className={cn(
+            'rounded-[var(--semantic-radius-badge)]',
+            isCompact && 'text-xs'
+          )}
         >
           {getComplexityLabel(template.complexity)}
         </Badge>
 
         {/* Rule count */}
-        <Badge variant="outline" className={cn(isCompact && 'text-xs')}>
+        <Badge
+          variant="outline"
+          className={cn(
+            'rounded-[var(--semantic-radius-badge)]',
+            isCompact && 'text-xs'
+          )}
+        >
           {template.ruleCount} {template.ruleCount === 1 ? 'rule' : 'rules'}
         </Badge>
       </div>
 
       {/* Variables count */}
       {template.variables.length > 0 && (
-        <div className={cn('text-xs text-muted-foreground mb-3')}>
+        <div className={cn('text-xs text-muted-foreground mb-component-md')}>
           Requires {template.variables.length}{' '}
           {template.variables.length === 1 ? 'variable' : 'variables'}
         </div>
@@ -186,7 +209,7 @@ export function TemplateCard({
       {onAction && (
         <Button
           size={isCompact ? 'sm' : 'default'}
-          className="w-full"
+          className="w-full min-h-[44px]"
           onClick={(e) => {
             e.stopPropagation();
             onAction();
@@ -198,7 +221,7 @@ export function TemplateCard({
 
       {/* Updated timestamp (custom templates only) */}
       {!template.isBuiltIn && template.updatedAt && (
-        <div className="text-xs text-muted-foreground mt-2">
+        <div className="text-xs text-muted-foreground mt-component-sm">
           Updated {new Date(template.updatedAt).toLocaleDateString()}
         </div>
       )}

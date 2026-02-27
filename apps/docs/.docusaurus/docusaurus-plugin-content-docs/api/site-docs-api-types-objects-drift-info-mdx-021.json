@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/drift-info",
+  "title": "DriftInfo",
+  "description": "Information about configuration drift",
+  "source": "@site/docs/api/types/objects/drift-info.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/drift-info",
+  "permalink": "/api/types/objects/drift-info",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "drift-info",
+    "title": "DriftInfo"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "DriftField",
+    "permalink": "/api/types/objects/drift-field"
+  },
+  "next": {
+    "title": "EgressVLAN",
+    "permalink": "/api/types/objects/egress-vlan"
+  }
+}

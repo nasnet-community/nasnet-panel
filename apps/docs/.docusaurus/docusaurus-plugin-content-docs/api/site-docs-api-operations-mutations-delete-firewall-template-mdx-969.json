@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/delete-firewall-template",
+  "title": "deleteFirewallTemplate",
+  "description": "Delete a custom firewall template.",
+  "source": "@site/docs/api/operations/mutations/delete-firewall-template.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/delete-firewall-template",
+  "permalink": "/api/operations/mutations/delete-firewall-template",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "delete-firewall-template",
+    "title": "deleteFirewallTemplate"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "deleteCustomAlertRuleTemplate",
+    "permalink": "/api/operations/mutations/delete-custom-alert-rule-template"
+  },
+  "next": {
+    "title": "deleteInstance",
+    "permalink": "/api/operations/mutations/delete-instance"
+  }
+}

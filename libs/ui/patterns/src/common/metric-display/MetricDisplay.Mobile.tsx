@@ -64,13 +64,16 @@ function MetricDisplayMobileComponent(props: MetricDisplayProps) {
     return (
       <div
         className={cn(
-          'bg-card dark:bg-slate-800 rounded-2xl border border-border dark:border-slate-700',
+          'bg-card border border-border rounded-[var(--semantic-radius-card)]',
+          'shadow-[var(--semantic-shadow-card)] dark:shadow-none',
           sizeClasses.container,
           className
         )}
       >
-        <Skeleton className="h-4 w-20 mb-2" />
-        <Skeleton className="h-8 w-32" />
+        <div className="flex flex-col items-center text-center gap-2">
+          <Skeleton className="h-4 w-20 mb-2" />
+          <Skeleton className="h-8 w-32" />
+        </div>
       </div>
     );
   }
@@ -83,47 +86,47 @@ function MetricDisplayMobileComponent(props: MetricDisplayProps) {
       onClick={onClick}
       onKeyDown={handleKeyDown}
       className={cn(
-        'w-full text-left bg-card dark:bg-slate-800 rounded-2xl border border-border dark:border-slate-700',
-        'transition-all duration-200',
-        isInteractive && 'min-h-[44px] active:scale-[0.98] active:bg-muted',
+        'w-full text-center bg-card border border-border rounded-[var(--semantic-radius-card)]',
+        'shadow-[var(--semantic-shadow-card)] dark:shadow-none',
+        'transition-all duration-150 flex flex-col items-center gap-2',
+        isInteractive && [
+          'min-h-[44px] cursor-pointer',
+          'active:scale-[0.98] active:bg-muted',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+        ],
         sizeClasses.container,
         className
       )}
     >
-      {/* Header with icon and label */}
-      <div className="flex items-center gap-2 mb-2">
-        {Icon && (
-          <Icon
-            className={cn(
-              'text-muted-foreground flex-shrink-0',
-              sizeClasses.icon
-            )}
-          />
-        )}
-        <span
+      {/* Icon */}
+      {Icon && (
+        <div
           className={cn(
-            'font-medium text-muted-foreground',
-            sizeClasses.label
+            'h-10 w-10 rounded-lg bg-muted flex items-center justify-center',
+            'text-muted-foreground'
           )}
         >
-          {label}
-        </span>
-      </div>
+          <Icon className={cn(sizeClasses.icon)} />
+        </div>
+      )}
 
       {/* Value */}
-      <div className="flex items-baseline gap-2">
-        <span className={cn(sizeClasses.value, valueClasses)}>
-          {formattedValue}
-        </span>
+      <span className={cn('text-xl font-bold font-display', valueClasses)}>
+        {formattedValue}
+      </span>
 
-        {/* Trend indicator */}
-        {TrendIcon && props.trendValue && (
-          <span className={cn('flex items-center gap-0.5', trendClasses, sizeClasses.trend)}>
-            <TrendIcon className="w-3 h-3" />
-            <span>{props.trendValue}</span>
-          </span>
-        )}
-      </div>
+      {/* Label */}
+      <span className="text-sm text-muted-foreground">
+        {label}
+      </span>
+
+      {/* Trend indicator */}
+      {TrendIcon && props.trendValue && (
+        <span className={cn('inline-flex items-center gap-0.5 text-xs font-medium', trendClasses)}>
+          <TrendIcon className="w-3 h-3" />
+          <span>{props.trendValue}</span>
+        </span>
+      )}
 
       {/* Description */}
       {description && (

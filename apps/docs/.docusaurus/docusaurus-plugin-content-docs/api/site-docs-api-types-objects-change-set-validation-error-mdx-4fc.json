@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/change-set-validation-error",
+  "title": "ChangeSetValidationError",
+  "description": "Validation error for a change set item",
+  "source": "@site/docs/api/types/objects/change-set-validation-error.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/change-set-validation-error",
+  "permalink": "/api/types/objects/change-set-validation-error",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "change-set-validation-error",
+    "title": "ChangeSetValidationError"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ChangeSetSummary",
+    "permalink": "/api/types/objects/change-set-summary"
+  },
+  "next": {
+    "title": "ChangeSetValidationResult",
+    "permalink": "/api/types/objects/change-set-validation-result"
+  }
+}

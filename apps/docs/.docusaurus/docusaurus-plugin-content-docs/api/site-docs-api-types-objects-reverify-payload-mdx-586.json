@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/reverify-payload",
+  "title": "ReverifyPayload",
+  "description": "Payload for reverification mutation.",
+  "source": "@site/docs/api/types/objects/reverify-payload.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/reverify-payload",
+  "permalink": "/api/types/objects/reverify-payload",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "reverify-payload",
+    "title": "ReverifyPayload"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ResourceValidationResult",
+    "permalink": "/api/types/objects/resource-validation-result"
+  },
+  "next": {
+    "title": "RollbackChangeSetPayload",
+    "permalink": "/api/types/objects/rollback-change-set-payload"
+  }
+}

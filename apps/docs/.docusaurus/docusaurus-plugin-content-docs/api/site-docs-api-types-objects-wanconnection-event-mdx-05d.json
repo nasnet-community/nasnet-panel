@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/wanconnection-event",
+  "title": "WANConnectionEvent",
+  "description": "WAN connection history entry",
+  "source": "@site/docs/api/types/objects/wanconnection-event.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/wanconnection-event",
+  "permalink": "/api/types/objects/wanconnection-event",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "wanconnection-event",
+    "title": "WANConnectionEvent"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "WANConnectionEventEdge",
+    "permalink": "/api/types/objects/wanconnection-event-edge"
+  },
+  "next": {
+    "title": "WANDNSConfig",
+    "permalink": "/api/types/objects/wandnsconfig"
+  }
+}

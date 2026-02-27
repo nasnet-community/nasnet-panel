@@ -60,10 +60,10 @@ export const HelpSheet = React.memo(function HelpSheet({ content, open, onOpenCh
         className={cn(
           // Auto height with max constraint
           'h-auto max-h-[80vh]',
-          // Mobile-optimized padding
-          'px-6 pb-8 pt-6',
+          // Mobile-optimized padding per spec
+          'p-4',
           // Rounded top corners for bottom sheet aesthetic
-          'rounded-t-2xl'
+          'rounded-t-[var(--semantic-radius-card)]'
         )}
       >
         {/* Drag Handle Indicator */}
@@ -72,26 +72,26 @@ export const HelpSheet = React.memo(function HelpSheet({ content, open, onOpenCh
         </div>
 
         <SheetHeader className="text-left pb-4">
-          {/* Title - larger for mobile */}
+          {/* Title - larger for mobile per spec */}
           {content.title && (
-            <SheetTitle className="text-lg font-semibold">
+            <SheetTitle className="text-base font-semibold text-foreground">
               {content.title}
             </SheetTitle>
           )}
 
-          {/* Description - readable size for mobile */}
+          {/* Description - readable size for mobile per spec */}
           {content.description && (
-            <SheetDescription className="text-base text-muted-foreground leading-relaxed">
+            <SheetDescription className="text-sm text-muted-foreground leading-relaxed">
               {content.description}
             </SheetDescription>
           )}
         </SheetHeader>
 
-        <div className="space-y-6">
+        <div className="space-y-4">
           {/* Examples - full width, larger touch targets */}
           {hasExamples && (
-            <div className="space-y-3">
-              <span className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+            <div className="space-y-2">
+              <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
                 Examples
               </span>
               <ul className="space-y-2">
@@ -99,14 +99,13 @@ export const HelpSheet = React.memo(function HelpSheet({ content, open, onOpenCh
                   <li
                     key={index}
                     className={cn(
-                      'flex items-center gap-3',
-                      'p-3 rounded-lg bg-muted/50',
-                      // Touch-friendly height
+                      'flex items-center gap-2',
+                      'p-3 rounded-[var(--semantic-radius-input)] bg-muted',
+                      // Touch-friendly height per spec (44px minimum)
                       'min-h-[44px]'
                     )}
                   >
-                    <span className="text-muted-foreground select-none">•</span>
-                    <code className="font-mono text-sm break-all">
+                    <code className="font-mono text-sm text-muted-foreground break-all flex-1">
                       {example}
                     </code>
                   </li>
@@ -123,13 +122,14 @@ export const HelpSheet = React.memo(function HelpSheet({ content, open, onOpenCh
               rel="noopener noreferrer"
               className={cn(
                 'flex items-center justify-center gap-2',
-                'w-full py-3 px-4 rounded-lg',
+                'w-full py-3 px-4',
+                'rounded-[var(--semantic-radius-button)]',
                 'bg-primary text-primary-foreground',
-                'text-base font-medium',
+                'text-sm font-medium',
                 'transition-colors duration-150',
-                'hover:bg-primary/90',
+                'hover:bg-primary-hover',
                 'focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-                // Minimum touch target
+                // Minimum touch target per WCAG AAA spec
                 'min-h-[44px]'
               )}
             >

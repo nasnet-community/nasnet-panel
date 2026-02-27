@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/set-resource-limits",
+  "title": "setResourceLimits",
+  "description": "Set resource limits for a service instance.",
+  "source": "@site/docs/api/operations/mutations/set-resource-limits.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/set-resource-limits",
+  "permalink": "/api/operations/mutations/set-resource-limits",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "set-resource-limits",
+    "title": "setResourceLimits"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "setPreferredProtocol",
+    "permalink": "/api/operations/mutations/set-preferred-protocol"
+  },
+  "next": {
+    "title": "setTrafficQuota",
+    "permalink": "/api/operations/mutations/set-traffic-quota"
+  }
+}

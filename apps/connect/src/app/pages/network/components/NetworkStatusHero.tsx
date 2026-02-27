@@ -53,7 +53,7 @@ export const NetworkStatusHero = memo(function NetworkStatusHero({
 
   return (
     <div className="grid grid-cols-3 gap-2 md:gap-3">
-      <div className="bg-card rounded-xl p-3 md:p-4 border border-border">
+      <div className="bg-card rounded-xl p-3 md:p-4 border border-border shadow-md">
         <div className="flex items-center gap-1.5 mb-1">
           <Activity className="w-3.5 h-3.5 text-info" aria-hidden="true" />
           <p className="text-muted-foreground text-xs uppercase tracking-wide">
@@ -74,7 +74,7 @@ export const NetworkStatusHero = memo(function NetworkStatusHero({
         </div>
       </div>
 
-      <div className="bg-card rounded-xl p-3 md:p-4 border border-border">
+      <div className="bg-card rounded-xl p-3 md:p-4 border border-border shadow-md">
         <div className="flex items-center gap-1.5 mb-1">
           <ArrowDown className="w-3.5 h-3.5 text-success" aria-hidden="true" />
           <p className="text-muted-foreground text-xs uppercase tracking-wide">
@@ -91,7 +91,7 @@ export const NetworkStatusHero = memo(function NetworkStatusHero({
         )}
       </div>
 
-      <div className="bg-card rounded-xl p-3 md:p-4 border border-border">
+      <div className="bg-card rounded-xl p-3 md:p-4 border border-border shadow-md">
         <div className="flex items-center gap-1.5 mb-1">
           <ArrowUp className="w-3.5 h-3.5 text-warning" aria-hidden="true" />
           <p className="text-muted-foreground text-xs uppercase tracking-wide">

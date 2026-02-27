@@ -71,7 +71,7 @@ function VPNProtocolStatsCardComponent({
       role={onClick ? 'button' : undefined}
       aria-label={`${getProtocolLabel(stats.protocol)} statistics`}
     >
-      <CardContent className={compact ? 'p-4' : 'p-5'}>
+      <CardContent className={compact ? 'p-component-md' : 'p-component-lg'}>
         {/* Header */}
         <div className="flex items-center gap-3 mb-4">
           <ProtocolIconBadge protocol={stats.protocol} variant={compact ? 'sm' : 'md'} />
@@ -91,7 +91,7 @@ function VPNProtocolStatsCardComponent({
         {/* Stats Grid */}
         <div className={`grid ${compact ? 'grid-cols-2' : 'grid-cols-2 lg:grid-cols-4'} gap-3`}>
           {/* Servers */}
-          <div className="text-center p-2 bg-muted/50 rounded-lg">
+          <div className="text-center p-2 bg-muted/50 rounded-[var(--semantic-radius-input)]">
             <p className="text-lg font-bold text-foreground">
               {stats.serverCount}
             </p>
@@ -101,7 +101,7 @@ function VPNProtocolStatsCardComponent({
           </div>
 
           {/* Clients */}
-          <div className="text-center p-2 bg-muted/50 rounded-lg">
+          <div className="text-center p-2 bg-muted/50 rounded-[var(--semantic-radius-input)]">
             <p className="text-lg font-bold text-foreground">
               {stats.clientCount}
             </p>
@@ -113,7 +113,7 @@ function VPNProtocolStatsCardComponent({
           {!compact && (
             <>
               {/* Active Connections */}
-              <div className="text-center p-2 bg-muted/50 rounded-lg">
+              <div className="text-center p-2 bg-muted/50 rounded-[var(--semantic-radius-input)]">
                 <p className="text-lg font-bold text-foreground">
                   {stats.activeServerConnections + stats.activeClientConnections}
                 </p>
@@ -121,7 +121,7 @@ function VPNProtocolStatsCardComponent({
               </div>
 
               {/* Traffic */}
-              <div className="text-center p-2 bg-muted/50 rounded-lg">
+              <div className="text-center p-2 bg-muted/50 rounded-[var(--semantic-radius-input)]">
                 <p className="text-sm font-bold text-foreground truncate">
                   {formatBytes(stats.totalRx + stats.totalTx)}
                 </p>

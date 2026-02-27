@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/system-resources",
+  "title": "SystemResources",
+  "description": "System-wide resource overview for a router.",
+  "source": "@site/docs/api/types/objects/system-resources.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/system-resources",
+  "permalink": "/api/types/objects/system-resources",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "system-resources",
+    "title": "SystemResources"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "SuggestedRoutingRule",
+    "permalink": "/api/types/objects/suggested-routing-rule"
+  },
+  "next": {
+    "title": "TelemetryData",
+    "permalink": "/api/types/objects/telemetry-data"
+  }
+}

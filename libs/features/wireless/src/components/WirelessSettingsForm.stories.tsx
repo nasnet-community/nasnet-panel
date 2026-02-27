@@ -33,7 +33,7 @@ const meta: Meta<typeof WirelessSettingsForm> = {
   },
   decorators: [
     (Story) => (
-      <div className="w-full max-w-lg p-4">
+      <div className="w-full max-w-lg p-component-md">
         <Story />
       </div>
     ),

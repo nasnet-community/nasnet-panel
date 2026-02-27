@@ -10,7 +10,7 @@ import (
 
 	"github.com/oklog/ulid/v2"
 
-	internalerrors "backend/internal/errors"
+	internalerrors "backend/internal/apperrors"
 )
 
 const (

@@ -228,7 +228,7 @@ export const CPUBreakdownInteractive: Story = {
     const [open, setOpen] = useState(true);
 
     return (
-      <div className="p-8">
+      <div className="p-component-xl">
         <p className="text-sm text-muted-foreground mb-4">
           Click the CPU gauge to see per-core breakdown
         </p>

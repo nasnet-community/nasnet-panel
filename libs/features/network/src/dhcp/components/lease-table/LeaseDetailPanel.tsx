@@ -83,13 +83,13 @@ function LeaseDetailPanelComponent({
       <div className="space-y-component-md">
         {/* Device Information Section */}
         <div>
-          <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-foreground">
+          <div className="mb-component-sm flex items-center gap-component-sm text-sm font-semibold text-foreground">
             <Icon icon={Globe} className="h-4 w-4" aria-hidden="true" />
             Device Information
           </div>
-          <dl className="grid grid-cols-[auto_1fr] gap-x-component-md gap-y-2 text-sm">
+          <dl className="grid grid-cols-[auto_1fr] gap-x-component-md gap-y-component-sm text-sm">
             <dt className="text-muted-foreground">MAC Address:</dt>
-            <dd className="flex items-center gap-2 font-mono" title={formatMACAddress(lease.macAddress)}>
+            <dd className="flex items-center gap-component-sm font-mono" title={formatMACAddress(lease.macAddress)}>
               {formatMACAddress(lease.macAddress)}
               <Button
                 variant="ghost"
@@ -119,11 +119,11 @@ function LeaseDetailPanelComponent({
 
         {/* Assignment Details Section */}
         <div>
-          <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-foreground">
+          <div className="mb-component-sm flex items-center gap-component-sm text-sm font-semibold text-foreground">
             <Icon icon={Info} className="h-4 w-4" aria-hidden="true" />
             Assignment Details
           </div>
-          <dl className="grid grid-cols-[auto_1fr] gap-x-component-md gap-y-2 text-sm">
+          <dl className="grid grid-cols-[auto_1fr] gap-x-component-md gap-y-component-sm text-sm">
             <dt className="text-muted-foreground">IP Address:</dt>
             <dd className="font-mono font-medium" title={lease.address}>{lease.address}</dd>
 
@@ -137,7 +137,7 @@ function LeaseDetailPanelComponent({
 
             <dt className="text-muted-foreground">Status:</dt>
             <dd>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-component-sm">
                 <StatusBadge status={lease.status} />
                 {lease.blocked && <StatusBadge status="stopped" />}
               </div>
@@ -147,11 +147,11 @@ function LeaseDetailPanelComponent({
 
         {/* Timing Information Section */}
         <div>
-          <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-foreground">
+          <div className="mb-component-sm flex items-center gap-component-sm text-sm font-semibold text-foreground">
             <Icon icon={Clock} className="h-4 w-4" aria-hidden="true" />
             Timing Information
           </div>
-          <dl className="grid grid-cols-[auto_1fr] gap-x-component-md gap-y-2 text-sm">
+          <dl className="grid grid-cols-[auto_1fr] gap-x-component-md gap-y-component-sm text-sm">
             <dt className="text-muted-foreground">Expires:</dt>
             <dd>{formatExpirationTime(lease.expiresAfter)}</dd>
 
@@ -173,7 +173,7 @@ function LeaseDetailPanelComponent({
                 variant="outline"
                 size="sm"
                 onClick={() => onMakeStatic(lease.id)}
-                className="gap-2"
+                className="gap-component-sm"
                 aria-label="Make this lease static"
               >
                 <Icon icon={Lock} className="h-3 w-3" aria-hidden="true" />
@@ -185,7 +185,7 @@ function LeaseDetailPanelComponent({
                 variant="destructive"
                 size="sm"
                 onClick={() => onDelete(lease.id)}
-                className="gap-2"
+                className="gap-component-sm"
                 aria-label="Delete this lease"
               >
                 <Icon icon={Trash2} className="h-3 w-3" aria-hidden="true" />

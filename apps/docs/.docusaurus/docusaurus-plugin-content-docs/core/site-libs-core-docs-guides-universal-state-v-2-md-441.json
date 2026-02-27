@@ -1,0 +1,24 @@
+{
+  "id": "guides/universal-state-v2",
+  "title": "Universal State v2: The 8-Layer Resource Model",
+  "description": "Reference: ADR-012 - Universal State v2 | libs/core/types/src/resource/",
+  "source": "@site/../../libs/core/docs/guides/universal-state-v2.md",
+  "sourceDirName": "guides",
+  "slug": "/guides/universal-state-v2",
+  "permalink": "/docs/core/guides/universal-state-v2",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/core/docs/guides/universal-state-v2.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Network Configuration Guide",
+    "permalink": "/docs/core/guides/network-configuration"
+  },
+  "next": {
+    "title": "Validation Pipeline: 7-Stage Risk-Based Validation",
+    "permalink": "/docs/core/guides/validation-pipeline"
+  }
+}

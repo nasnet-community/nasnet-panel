@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/boot-sequence-event",
+  "title": "BootSequenceEvent",
+  "description": "BootSequenceEvent represents a real-time boot sequence event.",
+  "source": "@site/docs/api/types/objects/boot-sequence-event.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/boot-sequence-event",
+  "permalink": "/api/types/objects/boot-sequence-event",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "boot-sequence-event",
+    "title": "BootSequenceEvent"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "BondingConfig",
+    "permalink": "/api/types/objects/bonding-config"
+  },
+  "next": {
+    "title": "BootSequenceProgress",
+    "permalink": "/api/types/objects/boot-sequence-progress"
+  }
+}

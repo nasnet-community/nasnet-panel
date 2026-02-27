@@ -72,12 +72,12 @@ export const VPNDashboard = React.memo(function VPNDashboard() {
   };
 
   return (
-    <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-component-lg">
+    <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-component-lg animate-fade-in-up">
       <div className="max-w-6xl mx-auto space-y-component-lg">
         {/* Page Header */}
         <div className="flex items-start justify-between">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1">
+            <h1 className="text-2xl sm:text-3xl font-display font-bold text-foreground mb-1">
               {t('title')}
             </h1>
             <p className="text-sm text-muted-foreground">
@@ -183,7 +183,7 @@ export const VPNDashboard = React.memo(function VPNDashboard() {
 
             {/* Protocol Stats Grid */}
             <div>
-              <h2 className="text-lg font-semibold text-foreground mb-4">
+              <h2 className="text-lg font-display font-semibold text-foreground mb-4">
                 {t('servers.protocols')}
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-component-md">
@@ -207,7 +207,7 @@ export const VPNDashboard = React.memo(function VPNDashboard() {
             {/* Issues Section */}
             {stats.issues.length > 0 && (
               <div>
-                <h2 className="text-lg font-semibold text-foreground mb-4">
+                <h2 className="text-lg font-display font-semibold text-foreground mb-4">
                   {t('servers.issuesAndAlerts')}
                 </h2>
                 <VPNIssuesList

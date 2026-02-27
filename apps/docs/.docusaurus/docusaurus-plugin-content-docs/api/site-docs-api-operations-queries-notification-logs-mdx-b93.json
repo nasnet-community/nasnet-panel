@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/notification-logs",
+  "title": "notificationLogs",
+  "description": "Get notification delivery logs",
+  "source": "@site/docs/api/operations/queries/notification-logs.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/notification-logs",
+  "permalink": "/api/operations/queries/notification-logs",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "notification-logs",
+    "title": "notificationLogs"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "notificationChannelConfigs",
+    "permalink": "/api/operations/queries/notification-channel-configs"
+  },
+  "next": {
+    "title": "portAllocations",
+    "permalink": "/api/operations/queries/port-allocations"
+  }
+}

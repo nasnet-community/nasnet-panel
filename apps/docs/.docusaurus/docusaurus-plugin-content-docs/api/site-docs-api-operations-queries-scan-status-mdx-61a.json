@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/scan-status",
+  "title": "scanStatus",
+  "description": "Get the status of a scan task by ID",
+  "source": "@site/docs/api/operations/queries/scan-status.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/scan-status",
+  "permalink": "/api/operations/queries/scan-status",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "scan-status",
+    "title": "scanStatus"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "scanHistory",
+    "permalink": "/api/operations/queries/scan-history"
+  },
+  "next": {
+    "title": "searchAlertTemplates",
+    "permalink": "/api/operations/queries/search-alert-templates"
+  }
+}

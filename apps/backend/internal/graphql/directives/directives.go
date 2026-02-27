@@ -11,7 +11,7 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/vektah/gqlparser/v2/gqlerror"
 
-	internalerrors "backend/internal/errors"
+	internalerrors "backend/internal/apperrors"
 )
 
 // Config holds directive handler configuration.

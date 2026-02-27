@@ -103,6 +103,11 @@ func (job *Job) executeViaAPI(ctx context.Context) { //nolint:gocyclo // batch e
 		}
 
 		// Execution path (non-dry-run)
+		if client == nil {
+			job.addError(cmd.LineNumber, cmd.RawCommand, "API client not available")
+			job.updateProgress(i+1, 0, 1, 0)
+			continue
+		}
 		var originalValues map[string]string
 		var targetID string
 		if job.RollbackEnabled && (cmd.Action == "set" || cmd.Action == "remove") {
@@ -211,7 +216,7 @@ func (job *Job) executeViaTelnet(ctx context.Context) {
 		return
 	}
 
-	client, err := mikrotik.NewTelnetClient(mikrotik.TelnetClientConfig{
+	client, err := mikrotik.NewTelnetClient(mikrotik.TelnetClientConfig{ //nolint:contextcheck // telnet client constructor does not need context
 		Address:  job.RouterIP,
 		Username: job.Username,
 		Password: job.Password,

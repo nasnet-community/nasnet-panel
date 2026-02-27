@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/create-router-input",
+  "title": "CreateRouterInput",
+  "description": "Input for creating a new router connection",
+  "source": "@site/docs/api/types/inputs/create-router-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/create-router-input",
+  "permalink": "/api/types/inputs/create-router-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "create-router-input",
+    "title": "CreateRouterInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "CreateResourceInput",
+    "permalink": "/api/types/inputs/create-resource-input"
+  },
+  "next": {
+    "title": "CreateRoutingChainInput",
+    "permalink": "/api/types/inputs/create-routing-chain-input"
+  }
+}

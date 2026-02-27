@@ -8,7 +8,7 @@ package resolver
 import (
 	"backend/graph/model"
 	"backend/internal/alerts"
-	"backend/internal/errors"
+	"backend/internal/apperrors"
 	"backend/internal/services"
 	"context"
 	"fmt"
@@ -72,6 +72,8 @@ func (r *mutationResolver) ApplyAlertRuleTemplate(ctx context.Context, templateI
 }
 
 // SaveCustomAlertRuleTemplate is the resolver for the saveCustomAlertRuleTemplate field.
+//
+//nolint:gocyclo // resolver logic requires branching for multiple input fields
 func (r *mutationResolver) SaveCustomAlertRuleTemplate(ctx context.Context, input model.SaveAlertRuleTemplateInput) (*model.AlertRuleTemplatePayload, error) {
 	// Check authorization: user must be authenticated
 	if r.authService == nil {
@@ -124,6 +126,7 @@ func (r *mutationResolver) SaveCustomAlertRuleTemplate(ctx context.Context, inpu
 	}
 
 	// Convert variables from Omittable
+	//nolint:nestif // nested conditions required for validation logic
 	if input.Variables.IsSet() {
 		vars := input.Variables.Value()
 		tmpl.Variables = make([]alerts.AlertRuleTemplateVariable, len(vars))
@@ -206,16 +209,16 @@ func (r *mutationResolver) SaveCustomAlertRuleTemplate(ctx context.Context, inpu
 func (r *mutationResolver) DeleteCustomAlertRuleTemplate(ctx context.Context, id string) (*model.DeletePayload, error) {
 	// Check authorization: user must be authenticated
 	if r.authService == nil {
-		return nil, errors.NewAuthError(errors.CodeAuthFailed, "authentication service not available")
+		return nil, apperrors.NewAuthError(apperrors.CodeAuthFailed, "authentication service not available")
 	}
 
 	if r.AlertRuleTemplateService == nil {
-		return nil, errors.NewValidationError("alertRuleTemplateService", nil, "service not available")
+		return nil, apperrors.NewValidationError("alertRuleTemplateService", nil, "service not available")
 	}
 
 	// Validate input: id must not be empty
 	if id == "" {
-		return nil, errors.NewValidationError("id", id, "template id cannot be empty")
+		return nil, apperrors.NewValidationError("id", id, "template id cannot be empty")
 	}
 
 	err := r.AlertRuleTemplateService.DeleteCustomTemplate(ctx, id)
@@ -223,7 +226,7 @@ func (r *mutationResolver) DeleteCustomAlertRuleTemplate(ctx context.Context, id
 		if r.log != nil {
 			r.log.Errorw("failed to delete custom alert rule template", "id", id, "error", err)
 		}
-		return nil, errors.NewProtocolError(errors.CodeCommandFailed, "failed to delete template", "graphql").WithCause(err)
+		return nil, apperrors.NewProtocolError(apperrors.CodeCommandFailed, "failed to delete template", "graphql").WithCause(err)
 	}
 
 	if r.log != nil {
@@ -288,16 +291,16 @@ func (r *mutationResolver) ImportAlertRuleTemplate(ctx context.Context, json str
 func (r *mutationResolver) ExportAlertRuleTemplate(ctx context.Context, id string) (string, error) {
 	// Check authorization: user must be authenticated
 	if r.authService == nil {
-		return "", errors.NewAuthError(errors.CodeAuthFailed, "authentication service not available")
+		return "", apperrors.NewAuthError(apperrors.CodeAuthFailed, "authentication service not available")
 	}
 
 	if r.AlertRuleTemplateService == nil {
-		return "", errors.NewValidationError("alertRuleTemplateService", nil, "service not available")
+		return "", apperrors.NewValidationError("alertRuleTemplateService", nil, "service not available")
 	}
 
 	// Validate input: id must not be empty
 	if id == "" {
-		return "", errors.NewValidationError("id", id, "template id cannot be empty")
+		return "", apperrors.NewValidationError("id", id, "template id cannot be empty")
 	}
 
 	jsonStr, err := r.AlertRuleTemplateService.ExportTemplate(ctx, id)
@@ -305,7 +308,7 @@ func (r *mutationResolver) ExportAlertRuleTemplate(ctx context.Context, id strin
 		if r.log != nil {
 			r.log.Errorw("failed to export alert rule template", "id", id, "error", err)
 		}
-		return "", errors.NewProtocolError(errors.CodeCommandFailed, "export failed", "graphql").WithCause(err)
+		return "", apperrors.NewProtocolError(apperrors.CodeCommandFailed, "export failed", "graphql").WithCause(err)
 	}
 
 	if r.log != nil {
@@ -317,45 +320,45 @@ func (r *mutationResolver) ExportAlertRuleTemplate(ctx context.Context, id strin
 
 // ApplyAlertTemplate is the resolver for the applyAlertTemplate field.
 func (r *mutationResolver) ApplyAlertTemplate(ctx context.Context, input model.ApplyAlertTemplateInput) (*model.AlertRulePayload, error) {
-	panic(errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: ApplyAlertTemplate - applyAlertTemplate", "graphql"))
+	panic(apperrors.NewProtocolError(apperrors.CodeCommandFailed, "not implemented: ApplyAlertTemplate - applyAlertTemplate", "graphql"))
 }
 
 // SaveAlertTemplate is the resolver for the saveAlertTemplate field.
 func (r *mutationResolver) SaveAlertTemplate(ctx context.Context, input model.SaveAlertTemplateInput) (*model.AlertTemplatePayload, error) {
-	panic(errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: SaveAlertTemplate - saveAlertTemplate", "graphql"))
+	panic(apperrors.NewProtocolError(apperrors.CodeCommandFailed, "not implemented: SaveAlertTemplate - saveAlertTemplate", "graphql"))
 }
 
 // DeleteAlertTemplate is the resolver for the deleteAlertTemplate field.
 func (r *mutationResolver) DeleteAlertTemplate(ctx context.Context, id string) (*model.DeletePayload, error) {
-	panic(errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: DeleteAlertTemplate - deleteAlertTemplate", "graphql"))
+	panic(apperrors.NewProtocolError(apperrors.CodeCommandFailed, "not implemented: DeleteAlertTemplate - deleteAlertTemplate", "graphql"))
 }
 
 // ResetAlertTemplate is the resolver for the resetAlertTemplate field.
 func (r *mutationResolver) ResetAlertTemplate(ctx context.Context, eventType string, channel model.NotificationChannel) (*model.DeletePayload, error) {
-	panic(errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: ResetAlertTemplate - resetAlertTemplate", "graphql"))
+	panic(apperrors.NewProtocolError(apperrors.CodeCommandFailed, "not implemented: ResetAlertTemplate - resetAlertTemplate", "graphql"))
 }
 
 // PreviewNotificationTemplate is the resolver for the previewNotificationTemplate field.
 func (r *mutationResolver) PreviewNotificationTemplate(ctx context.Context, input model.PreviewNotificationTemplateInput) (*model.NotificationTemplatePreview, error) {
-	panic(errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: PreviewNotificationTemplate - previewNotificationTemplate", "graphql"))
+	panic(apperrors.NewProtocolError(apperrors.CodeCommandFailed, "not implemented: PreviewNotificationTemplate - previewNotificationTemplate", "graphql"))
 }
 
 // CreateAlertRule is the resolver for the createAlertRule field.
 func (r *mutationResolver) CreateAlertRule(ctx context.Context, input model.CreateAlertRuleInput) (*model.AlertRulePayload, error) {
-	panic(errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: CreateAlertRule - createAlertRule", "graphql"))
+	panic(apperrors.NewProtocolError(apperrors.CodeCommandFailed, "not implemented: CreateAlertRule - createAlertRule", "graphql"))
 }
 
 // UpdateAlertRule is the resolver for the updateAlertRule field.
 func (r *mutationResolver) UpdateAlertRule(ctx context.Context, id string, input model.UpdateAlertRuleInput) (*model.AlertRulePayload, error) {
-	panic(errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: UpdateAlertRule - updateAlertRule", "graphql"))
+	panic(apperrors.NewProtocolError(apperrors.CodeCommandFailed, "not implemented: UpdateAlertRule - updateAlertRule", "graphql"))
 }
 
 // ToggleAlertRule is the resolver for the toggleAlertRule field.
 func (r *mutationResolver) ToggleAlertRule(ctx context.Context, id string) (*model.AlertRulePayload, error) {
-	panic(errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: ToggleAlertRule - toggleAlertRule", "graphql"))
+	panic(apperrors.NewProtocolError(apperrors.CodeCommandFailed, "not implemented: ToggleAlertRule - toggleAlertRule", "graphql"))
 }
 
 // DeleteAlertRule is the resolver for the deleteAlertRule field.
 func (r *mutationResolver) DeleteAlertRule(ctx context.Context, id string) (*model.DeletePayload, error) {
-	panic(errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: DeleteAlertRule - deleteAlertRule", "graphql"))
+	panic(apperrors.NewProtocolError(apperrors.CodeCommandFailed, "not implemented: DeleteAlertRule - deleteAlertRule", "graphql"))
 }

@@ -28,12 +28,12 @@ export function DnsServerListMobile({
   isLoading = false,
 }: DnsServerListProps) {
   return (
-    <div className="space-y-component-sm">
+    <div className="space-y-component-sm category-networking">
       {/* DNS Servers List */}
       {servers.length > 0 ? (
         <div className="space-y-component-xs">
           {servers.map((server, index) => (
-            <Card key={server.id} className="overflow-hidden">
+            <Card key={server.id} className="overflow-hidden category-networking">
               <CardContent className="p-component-sm">
                 <div className="flex items-center gap-component-sm">
                   {/* Drag Handle (static servers only) */}

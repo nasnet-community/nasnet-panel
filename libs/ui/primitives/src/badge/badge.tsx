@@ -64,28 +64,28 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../lib/utils';
 
 const badgeVariants = cva(
-  'inline-flex items-center rounded-full px-3 py-1 text-xs font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+  'inline-flex items-center rounded-[var(--semantic-radius-badge)] px-2.5 py-0.5 text-xs font-medium transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
   {
     variants: {
       variant: {
         // Brand colors
         default:
-          'bg-primary text-primary-foreground shadow-sm',
+          'bg-primary text-primary-foreground hover:bg-primary/80',
         secondary:
-          'bg-secondary text-secondary-foreground shadow-sm',
-        // Status colors (semantic - NEVER use for branding)
+          'bg-secondary text-secondary-foreground hover:bg-secondary/80',
+        // Status colors (semantic - light mode backgrounds)
         success:
-          'bg-success/10 text-success border border-success/20',
+          'bg-success-light text-success-dark dark:bg-green-900/20 dark:text-green-400',
         connected:
-          'bg-success/10 text-success border border-success/20',
+          'bg-success-light text-success-dark dark:bg-green-900/20 dark:text-green-400',
         warning:
-          'bg-warning/10 text-warning border border-warning/20',
+          'bg-warning-light text-warning-dark dark:bg-amber-900/20 dark:text-amber-400',
         error:
-          'bg-error/10 text-error border border-error/20',
+          'bg-error-light text-error-dark dark:bg-red-900/20 dark:text-red-400',
         info:
-          'bg-info/10 text-info border border-info/20',
+          'bg-info-light text-info-dark dark:bg-sky-900/20 dark:text-sky-400',
         offline:
-          'bg-muted text-muted-foreground border border-border',
+          'bg-muted text-muted-foreground',
         outline:
           'border border-border bg-transparent text-foreground',
       },

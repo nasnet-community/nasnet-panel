@@ -57,7 +57,6 @@ const FormField = RHFFormField as React.FC<FormFieldProps>;
  * - Bottom action bar
  */
 export const RateLimitRuleEditorMobile = memo(function RateLimitRuleEditorMobile({
-  routerId,
   initialRule,
   open,
   onClose,
@@ -103,12 +102,12 @@ export const RateLimitRuleEditorMobile = memo(function RateLimitRuleEditorMobile
 
         <div className="flex-1 overflow-y-auto space-y-4 pb-20">
           {/* Live Preview */}
-          <Card className="p-4 bg-info/10 border-info/20">
+          <Card className="p-component-md bg-info-light border border-info/20 rounded-[var(--semantic-radius-card)] border-t-2 border-t-category-firewall">
             <div className="flex items-start gap-3">
-              <Info className="h-5 w-5 text-info mt-0.5 flex-shrink-0" />
+              <Info className="h-5 w-5 text-info-dark mt-0.5 flex-shrink-0" />
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-info mb-1">Preview</p>
-                <p className="text-sm text-muted-foreground font-mono break-words">
+                <p className="text-xs font-semibold text-info-dark mb-1">Preview</p>
+                <p className="text-xs text-muted-foreground font-mono break-words">
                   {preview}
                 </p>
               </div>
@@ -119,8 +118,8 @@ export const RateLimitRuleEditorMobile = memo(function RateLimitRuleEditorMobile
           </Card>
 
           {/* Rate Limit Configuration */}
-          <Card className="p-4 space-y-4">
-            <h3 className="text-sm font-semibold flex items-center gap-2">
+          <Card className="p-component-md space-y-component-md border border-border rounded-[var(--semantic-radius-card)]">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
               <Clock className="h-4 w-4" />
               Rate Limit
             </h3>
@@ -199,8 +198,8 @@ export const RateLimitRuleEditorMobile = memo(function RateLimitRuleEditorMobile
           </Card>
 
           {/* Action Configuration */}
-          <Card className="p-4 space-y-4">
-            <h3 className="text-sm font-semibold flex items-center gap-2">
+          <Card className="p-component-md space-y-component-md border border-border rounded-[var(--semantic-radius-card)]">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
               <AlertCircle className="h-4 w-4" />
               Action
             </h3>
@@ -317,8 +316,8 @@ export const RateLimitRuleEditorMobile = memo(function RateLimitRuleEditorMobile
           </Card>
 
           {/* Source Matching */}
-          <Card className="p-4 space-y-4">
-            <h3 className="text-sm font-semibold flex items-center gap-2">
+          <Card className="p-component-md space-y-component-md border border-border rounded-[var(--semantic-radius-card)]">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
               <Network className="h-4 w-4" />
               Source Matching
             </h3>

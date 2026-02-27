@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/create-routing-chain",
+  "title": "createRoutingChain",
+  "description": "Create a multi-hop routing chain for a device.",
+  "source": "@site/docs/api/operations/mutations/create-routing-chain.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/create-routing-chain",
+  "permalink": "/api/operations/mutations/create-routing-chain",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "create-routing-chain",
+    "title": "createRoutingChain"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "createRouter",
+    "permalink": "/api/operations/mutations/create-router"
+  },
+  "next": {
+    "title": "createSchedule",
+    "permalink": "/api/operations/mutations/create-schedule"
+  }
+}

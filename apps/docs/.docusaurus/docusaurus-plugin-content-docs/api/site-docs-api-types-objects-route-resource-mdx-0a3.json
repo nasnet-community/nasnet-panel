@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/route-resource",
+  "title": "RouteResource",
+  "description": "Route resource",
+  "source": "@site/docs/api/types/objects/route-resource.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/route-resource",
+  "permalink": "/api/types/objects/route-resource",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "route-resource",
+    "title": "RouteResource"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "RouteMutationResult",
+    "permalink": "/api/types/objects/route-mutation-result"
+  },
+  "next": {
+    "title": "Route",
+    "permalink": "/api/types/objects/route"
+  }
+}

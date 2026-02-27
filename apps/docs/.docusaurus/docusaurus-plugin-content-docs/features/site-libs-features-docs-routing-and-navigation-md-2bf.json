@@ -1,0 +1,24 @@
+{
+  "id": "routing-and-navigation",
+  "title": "Routing and Navigation Architecture",
+  "description": "Document Status: Comprehensive reference",
+  "source": "@site/../../libs/features/docs/routing-and-navigation.md",
+  "sourceDirName": ".",
+  "slug": "/routing-and-navigation",
+  "permalink": "/docs/features/routing-and-navigation",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/features/docs/routing-and-navigation.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Feature Library Documentation",
+    "permalink": "/docs/features/"
+  },
+  "next": {
+    "title": "State Management Guide",
+    "permalink": "/docs/features/state-management"
+  }
+}

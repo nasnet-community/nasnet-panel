@@ -85,7 +85,7 @@ export const RouterCard = memo(function RouterCard({
       onClick={() => onClick?.(router)}
       onDoubleClick={() => onDoubleClick?.(router)}
       className={cn(
-        'p-4 rounded-lg border-2 transition-all cursor-pointer',
+        'p-component-md rounded-lg border-2 transition-all cursor-pointer',
         isSelected
           ? 'border-primary bg-primary/5'
           : 'border-border bg-card hover:border-primary/50',
@@ -97,14 +97,14 @@ export const RouterCard = memo(function RouterCard({
       <div className="flex items-start justify-between">
         {/* Router Info */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-2">
+          <div className="flex items-center gap-component-sm mb-component-sm">
             <h3 className="text-lg font-semibold text-foreground truncate">
               {router.name || router.ipAddress}
             </h3>
             <ConnectionStatusBadge status={router.connectionStatus} />
           </div>
 
-          <div className="space-y-1 text-sm">
+          <div className="space-y-component-sm text-sm">
             <p className="font-mono text-foreground">
               {router.ipAddress}
             </p>
@@ -130,8 +130,8 @@ export const RouterCard = memo(function RouterCard({
           </div>
 
           {/* Metadata */}
-          <div className="mt-3 flex items-center gap-4 text-xs text-muted-foreground">
-            <span className="flex items-center gap-1">
+          <div className="mt-component-md flex items-center gap-component-lg text-xs text-muted-foreground">
+            <span className="flex items-center gap-component-xs">
               {router.discoveryMethod === 'scan' ? (
                 <>
                   <svg
@@ -178,11 +178,11 @@ export const RouterCard = memo(function RouterCard({
         </div>
 
         {/* Actions */}
-        <div className="flex flex-col gap-2 ml-4">
+        <div className="flex flex-col gap-component-sm ml-component-md">
           {onConnect && router.connectionStatus !== 'online' && (
             <button
               onClick={handleConnect}
-              className={cn('px-3 py-1.5 text-sm rounded-md transition-colors', 'bg-primary text-primary-foreground hover:bg-primary/90')}
+              className={cn('px-component-sm py-component-sm text-sm rounded-md transition-colors', 'bg-primary text-primary-foreground hover:bg-primary/90')}
             >
               Connect
             </button>
@@ -191,7 +191,7 @@ export const RouterCard = memo(function RouterCard({
           {onRemove && (
             <button
               onClick={handleRemove}
-              className={cn('px-3 py-1.5 text-sm rounded-md transition-colors', 'bg-muted text-foreground hover:bg-muted/80')}
+              className={cn('px-component-sm py-component-sm text-sm rounded-md transition-colors', 'bg-muted text-foreground hover:bg-muted/80')}
             >
               Remove
             </button>

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/update-interface-payload",
+  "title": "UpdateInterfacePayload",
+  "description": "Payload returned by updateInterface, enableInterface, and disableInterface mutations",
+  "source": "@site/docs/api/types/objects/update-interface-payload.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/update-interface-payload",
+  "permalink": "/api/types/objects/update-interface-payload",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "update-interface-payload",
+    "title": "UpdateInterfacePayload"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "UpdateInfo",
+    "permalink": "/api/types/objects/update-info"
+  },
+  "next": {
+    "title": "UpdateProgress",
+    "permalink": "/api/types/objects/update-progress"
+  }
+}

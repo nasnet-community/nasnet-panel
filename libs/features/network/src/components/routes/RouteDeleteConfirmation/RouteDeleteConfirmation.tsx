@@ -193,7 +193,7 @@ function RouteDeleteConfirmationComponent({
             <ul className="space-y-component-sm">
               {impact.consequences.map((consequence, index) => (
                 <li key={index} className="text-sm text-muted-foreground flex gap-component-sm">
-                  <span className="text-destructive">•</span>
+                  <span className="text-error">•</span>
                   <span>{consequence}</span>
                 </li>
               ))}
@@ -211,7 +211,7 @@ function RouteDeleteConfirmationComponent({
               onChange={(e) => setConfirmText(e.target.value)}
               placeholder={impact.confirmText}
               disabled={isSubmitting || loading}
-              className="font-mono"
+              className="font-mono text-foreground"
               autoComplete="off"
               aria-label="Confirmation text input"
             />

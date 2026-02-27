@@ -1,0 +1,24 @@
+{
+  "id": "cross-cutting-features/router-connection",
+  "title": "Router Connection",
+  "description": "The router connection system handles discovering routers on the network, validating credentials, establishing connections, and maintaining them over time with heartbeat monitoring and automatic reconnection.",
+  "source": "@site/../connect/docs/cross-cutting-features/router-connection.md",
+  "sourceDirName": "cross-cutting-features",
+  "slug": "/cross-cutting-features/router-connection",
+  "permalink": "/docs/frontend/cross-cutting-features/router-connection",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../connect/docs/cross-cutting-features/router-connection.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Drift Detection Feature",
+    "permalink": "/docs/frontend/cross-cutting-features/drift-detection-feature"
+  },
+  "next": {
+    "title": "Service Marketplace",
+    "permalink": "/docs/frontend/cross-cutting-features/service-marketplace"
+  }
+}

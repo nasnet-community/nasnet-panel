@@ -1,6 +1,8 @@
 package bootstrap
 
 import (
+	"fmt"
+
 	"go.uber.org/zap"
 
 	"backend/generated/ent"
@@ -41,7 +43,7 @@ func InitializeScheduling(
 
 	scheduleEvaluator, err := scheduling.NewScheduleEvaluator(evaluatorConfig)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("init schedule evaluator: %w", err)
 	}
 	logger.Infow("Schedule evaluator initialized", "evaluation_interval", "60s")
 
@@ -53,7 +55,7 @@ func InitializeScheduling(
 		Logger:    logger.Desugar(),
 	})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("init schedule service: %w", err)
 	}
 	logger.Infow("Schedule service initialized")
 

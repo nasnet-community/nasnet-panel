@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/wanmutation-result",
+  "title": "WANMutationResult",
+  "description": "Result of WAN configuration mutation",
+  "source": "@site/docs/api/types/objects/wanmutation-result.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/wanmutation-result",
+  "permalink": "/api/types/objects/wanmutation-result",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "wanmutation-result",
+    "title": "WANMutationResult"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "WANLink",
+    "permalink": "/api/types/objects/wanlink"
+  },
+  "next": {
+    "title": "WebhookDeliveryStats",
+    "permalink": "/api/types/objects/webhook-delivery-stats"
+  }
+}

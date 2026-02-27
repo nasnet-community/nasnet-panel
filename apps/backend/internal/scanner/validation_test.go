@@ -240,11 +240,11 @@ func TestValidateSubnet_CIDRSizeLimits(t *testing.T) {
 
 func TestValidateSubnet_PublicAddresses(t *testing.T) {
 	publicIPs := []string{
-		"8.8.8.8",           // Google DNS
-		"1.1.1.1",           // Cloudflare DNS
-		"200.1.0.0/16",      // Public range
-		"1.0.0.0/8",         // Public range
-		"192.0.2.0/24",      // Public documentation range
+		"8.8.8.8",      // Google DNS
+		"1.1.1.1",      // Cloudflare DNS
+		"200.1.0.0/16", // Public range
+		"1.0.0.0/8",    // Public range
+		"192.0.2.0/24", // Public documentation range
 	}
 
 	for _, ip := range publicIPs {

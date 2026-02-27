@@ -1,0 +1,28 @@
+{
+  "id": "guides/error-handling-patterns",
+  "title": "Error Handling Patterns",
+  "description": "Reference: libs/core/forms/src/ | Universal State v2 Layer 2 (Validation & Error Processing)",
+  "source": "@site/../../libs/core/docs/guides/error-handling-patterns.md",
+  "sourceDirName": "guides",
+  "slug": "/guides/error-handling-patterns",
+  "permalink": "/docs/core/guides/error-handling-patterns",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/core/docs/guides/error-handling-patterns.md",
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 8,
+  "frontMatter": {
+    "sidebar_position": 8,
+    "title": "Error Handling Patterns"
+  },
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Introduction",
+    "permalink": "/docs/core/intro"
+  },
+  "next": {
+    "title": "GraphQL Integration Guide",
+    "permalink": "/docs/core/guides/graphql-integration-guide"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/update-result",
+  "title": "UpdateResult",
+  "description": "Update result after completion or failure.",
+  "source": "@site/docs/api/types/objects/update-result.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/update-result",
+  "permalink": "/api/types/objects/update-result",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "update-result",
+    "title": "UpdateResult"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "UpdateResourcePayload",
+    "permalink": "/api/types/objects/update-resource-payload"
+  },
+  "next": {
+    "title": "UpdateRouterPayload",
+    "permalink": "/api/types/objects/update-router-payload"
+  }
+}

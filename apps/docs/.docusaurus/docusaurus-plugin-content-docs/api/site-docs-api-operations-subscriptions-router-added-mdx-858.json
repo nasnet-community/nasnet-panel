@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/subscriptions/router-added",
+  "title": "routerAdded",
+  "description": "Subscribe to router addition events.",
+  "source": "@site/docs/api/operations/subscriptions/router-added.mdx",
+  "sourceDirName": "api/operations/subscriptions",
+  "slug": "/api/operations/subscriptions/router-added",
+  "permalink": "/api/operations/subscriptions/router-added",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "router-added",
+    "title": "routerAdded"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "resourceUsageChanged",
+    "permalink": "/api/operations/subscriptions/resource-usage-changed"
+  },
+  "next": {
+    "title": "routerStatusChanged",
+    "permalink": "/api/operations/subscriptions/router-status-changed"
+  }
+}

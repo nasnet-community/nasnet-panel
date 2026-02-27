@@ -39,12 +39,12 @@ export const VPNTab = React.memo(function VPNTab() {
   const isFetching = isFetchingWG;
 
   return (
-    <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-6">
+    <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-6 animate-fade-in-up">
       <div className="max-w-6xl mx-auto">
         {/* Page header */}
         <div className="mb-8 flex items-start justify-between">
           <div>
-            <h1 className="text-3xl font-bold mb-2">
+            <h1 className="text-3xl font-bold font-display mb-2 category-header category-header-vpn">
               {t('title')}
             </h1>
             <p className="text-muted-foreground">
@@ -143,7 +143,7 @@ export const VPNTab = React.memo(function VPNTab() {
         {/* Other VPN Types Section (Story 0-4-4) */}
         {!isLoading && !isError && (
           <div className="mt-8 space-y-4">
-            <h2 className="text-2xl font-bold">
+            <h2 className="text-2xl font-bold font-display">
               {t('otherVpnTypes.title')}
             </h2>
             <p className="text-sm text-muted-foreground mb-4">

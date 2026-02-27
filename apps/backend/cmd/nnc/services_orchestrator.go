@@ -4,6 +4,8 @@
 package main
 
 import (
+	"fmt"
+
 	"go.uber.org/zap"
 
 	"backend/generated/ent"
@@ -23,7 +25,7 @@ func initOrchestrator(
 	sugar *zap.SugaredLogger,
 ) (*bootstrap.OrchestratorComponents, error) {
 
-	return bootstrap.InitializeOrchestrator(
+	orch, err := bootstrap.InitializeOrchestrator(
 		systemDB,
 		eventBus,
 		storage.PathResolver,
@@ -33,4 +35,8 @@ func initOrchestrator(
 		routerPort,
 		sugar,
 	)
+	if err != nil {
+		return nil, fmt.Errorf("initializing orchestrator: %w", err)
+	}
+	return orch, nil
 }

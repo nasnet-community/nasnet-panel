@@ -1,0 +1,24 @@
+{
+  "id": "feature-firewall",
+  "title": "Feature Module: Firewall (libs/features/firewall)",
+  "description": "1. Overview",
+  "source": "@site/../../libs/features/docs/feature-firewall.md",
+  "sourceDirName": ".",
+  "slug": "/feature-firewall",
+  "permalink": "/docs/features/feature-firewall",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/features/docs/feature-firewall.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Feature: Diagnostics (libs/features/diagnostics)",
+    "permalink": "/docs/features/feature-diagnostics"
+  },
+  "next": {
+    "title": "Feature: Logs (libs/features/logs)",
+    "permalink": "/docs/features/feature-logs"
+  }
+}

@@ -144,7 +144,7 @@ export const ArrayField = React.memo(function ArrayField({
       {value.length > 0 && (
         <div className="flex flex-wrap gap-component-sm" role="region" aria-label="Array items">
           {value.map((item, index) => (
-            <Badge key={`${item}-${index}`} variant="secondary" className="gap-1 pr-1">
+            <Badge key={`${item}-${index}`} variant="secondary" className="gap-component-xs pr-component-xs bg-category-vpn/10 text-category-vpn">
               <span className="max-w-[200px] truncate font-mono text-xs">{item}</span>
               <button
                 type="button"

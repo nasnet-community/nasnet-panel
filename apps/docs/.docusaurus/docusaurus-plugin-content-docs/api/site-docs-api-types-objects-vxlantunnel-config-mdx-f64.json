@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/vxlantunnel-config",
+  "title": "VXLANTunnelConfig",
+  "description": "VXLAN tunnel configuration",
+  "source": "@site/docs/api/types/objects/vxlantunnel-config.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/vxlantunnel-config",
+  "permalink": "/api/types/objects/vxlantunnel-config",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "vxlantunnel-config",
+    "title": "VXLANTunnelConfig"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "VPNTunnelInfo",
+    "permalink": "/api/types/objects/vpntunnel-info"
+  },
+  "next": {
+    "title": "VXLANTunnelDeployment",
+    "permalink": "/api/types/objects/vxlantunnel-deployment"
+  }
+}

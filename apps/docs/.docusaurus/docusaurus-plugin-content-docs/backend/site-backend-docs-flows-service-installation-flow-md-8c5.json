@@ -1,0 +1,24 @@
+{
+  "id": "flows/service-installation-flow",
+  "title": "Flow: Service Installation",
+  "description": "Traces the full lifecycle of installing a marketplace feature — from the GraphQL mutation to a running, supervised process.",
+  "source": "@site/../backend/docs/flows/service-installation-flow.md",
+  "sourceDirName": "flows",
+  "slug": "/flows/service-installation-flow",
+  "permalink": "/docs/backend/flows/service-installation-flow",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../backend/docs/flows/service-installation-flow.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Flow: Router Connection Establishment",
+    "permalink": "/docs/backend/flows/router-connection-flow"
+  },
+  "next": {
+    "title": "Flow: Service Update",
+    "permalink": "/docs/backend/flows/service-update-flow"
+  }
+}

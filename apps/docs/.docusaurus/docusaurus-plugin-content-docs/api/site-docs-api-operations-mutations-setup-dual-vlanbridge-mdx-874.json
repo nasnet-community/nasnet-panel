@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/setup-dual-vlanbridge",
+  "title": "setupDualVLANBridge",
+  "description": "Set up a dual-VLAN bridge for a service instance.",
+  "source": "@site/docs/api/operations/mutations/setup-dual-vlanbridge.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/setup-dual-vlanbridge",
+  "permalink": "/api/operations/mutations/setup-dual-vlanbridge",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "setup-dual-vlanbridge",
+    "title": "setupDualVLANBridge"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "setTrafficQuota",
+    "permalink": "/api/operations/mutations/set-traffic-quota"
+  },
+  "next": {
+    "title": "startInstance",
+    "permalink": "/api/operations/mutations/start-instance"
+  }
+}

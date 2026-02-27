@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/topology-position",
+  "title": "TopologyPosition",
+  "description": "Position of a node in the topology",
+  "source": "@site/docs/api/types/objects/topology-position.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/topology-position",
+  "permalink": "/api/types/objects/topology-position",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "topology-position",
+    "title": "TopologyPosition"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "TopologyNode",
+    "permalink": "/api/types/objects/topology-node"
+  },
+  "next": {
+    "title": "TracerouteHop",
+    "permalink": "/api/types/objects/traceroute-hop"
+  }
+}

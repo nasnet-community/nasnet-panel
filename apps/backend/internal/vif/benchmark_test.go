@@ -58,9 +58,9 @@ func BenchmarkVLANCreation(b *testing.B) {
 			Path:   "/interface/vlan",
 			Action: "add",
 			Args: map[string]string{
-				"name":        "vlan100",
-				"vlan-id":     "100",
-				"interface":   "ether1",
+				"name":      "vlan100",
+				"vlan-id":   "100",
+				"interface": "ether1",
 			},
 		}
 
@@ -91,10 +91,10 @@ func BenchmarkRoutingRuleApply(b *testing.B) {
 			Path:   "/ip/firewall/filter",
 			Action: "add",
 			Args: map[string]string{
-				"chain":      "forward",
-				"action":     "accept",
-				"protocol":   "tcp",
-				"dst-port":   "80",
+				"chain":    "forward",
+				"action":   "accept",
+				"protocol": "tcp",
+				"dst-port": "80",
 			},
 		}
 
@@ -122,8 +122,8 @@ func BenchmarkKillSwitchLatency(b *testing.B) {
 		Path:   "/ip/firewall/filter",
 		Action: "add",
 		Args: map[string]string{
-			"chain":      "forward",
-			"action":     "drop",
+			"chain":  "forward",
+			"action": "drop",
 		},
 	}
 	result, err := mock.ExecuteCommand(ctx, createCmd)

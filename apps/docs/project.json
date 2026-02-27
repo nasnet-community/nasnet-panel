@@ -1,0 +1,32 @@
+{
+  "name": "docs",
+  "$schema": "https://json.schemastore.org/nx-project.json",
+  "root": "apps/docs",
+  "sourceRoot": "apps/docs/src",
+  "projectType": "application",
+  "tags": ["scope:docs"],
+  "targets": {
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npx docusaurus start",
+        "cwd": "apps/docs"
+      }
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npx docusaurus build",
+        "cwd": "apps/docs"
+      },
+      "outputs": ["{projectRoot}/build"]
+    },
+    "clear": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npx docusaurus clear",
+        "cwd": "apps/docs"
+      }
+    }
+  }
+}

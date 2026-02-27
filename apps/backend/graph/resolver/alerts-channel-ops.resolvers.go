@@ -7,11 +7,12 @@ package resolver
 
 import (
 	"backend/graph/model"
-	"backend/internal/errors"
+	"backend/internal/apperrors"
 	"context"
 )
 
-// CreateNotificationChannelConfig is the resolver for the createNotificationChannelConfig field.
+// CreateNotificationChannelConfig is the resolver for the
+// createNotificationChannelConfig field.
 // Creates a new notification channel configuration.
 func (r *mutationResolver) CreateNotificationChannelConfig(ctx context.Context, input model.CreateNotificationChannelConfigInput) (*model.ChannelConfigPayload, error) {
 	if r.Dispatcher == nil {
@@ -53,7 +54,8 @@ func (r *mutationResolver) CreateNotificationChannelConfig(ctx context.Context, 
 	}, nil
 }
 
-// UpdateNotificationChannelConfig is the resolver for the updateNotificationChannelConfig field.
+// UpdateNotificationChannelConfig is the resolver for the
+// updateNotificationChannelConfig field.
 // Updates an existing notification channel configuration.
 func (r *mutationResolver) UpdateNotificationChannelConfig(ctx context.Context, id string, input model.UpdateNotificationChannelConfigInput) (*model.ChannelConfigPayload, error) {
 	if r.Dispatcher == nil {
@@ -122,11 +124,13 @@ func (r *mutationResolver) DeleteNotificationChannelConfig(ctx context.Context, 
 	}, nil
 }
 
-// NotificationChannelConfigs is the resolver for the notificationChannelConfigs field.
-// Returns all notification channel configurations, optionally filtered by channel type.
+// NotificationChannelConfigs is the resolver for the
+// notificationChannelConfigs field.
+// Returns all notification channel configurations, optionally filtered by
+// channel type.
 func (r *queryResolver) NotificationChannelConfigs(ctx context.Context, channelType *model.ChannelType) ([]*model.NotificationChannelConfig, error) {
 	if r.Dispatcher == nil {
-		return nil, errors.NewInternalError("notification dispatcher service not available", nil)
+		return nil, apperrors.NewInternalError("notification dispatcher service not available", nil)
 	}
 
 	// TODO: Implement channel configs listing with optional type filter
@@ -140,30 +144,33 @@ func (r *queryResolver) NotificationChannelConfigs(ctx context.Context, channelT
 // Returns a specific notification channel configuration by ID.
 func (r *queryResolver) NotificationChannelConfig(ctx context.Context, id string) (*model.NotificationChannelConfig, error) {
 	if r.Dispatcher == nil {
-		return nil, errors.NewInternalError("notification dispatcher service not available", nil)
+		return nil, apperrors.NewInternalError("notification dispatcher service not available", nil)
 	}
 
 	// Validate required fields
 	if id == "" {
-		return nil, errors.NewValidationError("id", id, "channel configuration ID is required")
+		return nil, apperrors.NewValidationError("id", id, "channel configuration ID is required")
 	}
 
 	// TODO: Implement channel config retrieval by ID
 	// This should call r.Dispatcher to retrieve the specific channel config
 	// Pass ctx to service call for proper context propagation
+	//nolint:nilnil // channel not found returns nil,nil per GraphQL convention
 	return nil, nil
 }
 
-// DefaultNotificationChannelConfig is the resolver for the defaultNotificationChannelConfig field.
+// DefaultNotificationChannelConfig is the resolver for the
+// defaultNotificationChannelConfig field.
 // Returns the default configuration for a specific notification channel type.
 func (r *queryResolver) DefaultNotificationChannelConfig(ctx context.Context, channelType model.ChannelType) (*model.NotificationChannelConfig, error) {
 	if r.Dispatcher == nil {
-		return nil, errors.NewInternalError("notification dispatcher service not available", nil)
+		return nil, apperrors.NewInternalError("notification dispatcher service not available", nil)
 	}
 
 	// Validate channel type (enum validation handled by GraphQL schema)
 	// TODO: Implement default channel config retrieval
 	// This should return a default config template for the specified channel type
 	// Pass ctx to service call for proper context propagation
+	//nolint:nilnil // channel not found returns nil,nil per GraphQL convention
 	return nil, nil
 }

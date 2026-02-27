@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/digest-summary",
+  "title": "DigestSummary",
+  "description": "Digest summary (NAS-18.11)",
+  "source": "@site/docs/api/types/objects/digest-summary.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/digest-summary",
+  "permalink": "/api/types/objects/digest-summary",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "digest-summary",
+    "title": "DigestSummary"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "DigestConfig",
+    "permalink": "/api/types/objects/digest-config"
+  },
+  "next": {
+    "title": "DiscardProvisioningSessionPayload",
+    "permalink": "/api/types/objects/discard-provisioning-session-payload"
+  }
+}

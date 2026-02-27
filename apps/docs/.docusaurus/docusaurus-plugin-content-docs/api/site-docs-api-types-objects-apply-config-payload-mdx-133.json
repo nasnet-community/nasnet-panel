@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/apply-config-payload",
+  "title": "ApplyConfigPayload",
+  "description": "Result of applying configuration",
+  "source": "@site/docs/api/types/objects/apply-config-payload.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/apply-config-payload",
+  "permalink": "/api/types/objects/apply-config-payload",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "apply-config-payload",
+    "title": "ApplyConfigPayload"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ApplyChangeSetPayload",
+    "permalink": "/api/types/objects/apply-change-set-payload"
+  },
+  "next": {
+    "title": "ApplyFixPayload",
+    "permalink": "/api/types/objects/apply-fix-payload"
+  }
+}

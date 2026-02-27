@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/import-star-state",
+  "title": "importStarState",
+  "description": "Import a complete router state (STAR format) as provisioning session.",
+  "source": "@site/docs/api/operations/mutations/import-star-state.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/import-star-state",
+  "permalink": "/api/operations/mutations/import-star-state",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "import-star-state",
+    "title": "importStarState"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "importServiceTemplate",
+    "permalink": "/api/operations/mutations/import-service-template"
+  },
+  "next": {
+    "title": "installServiceTemplate",
+    "permalink": "/api/operations/mutations/install-service-template"
+  }
+}

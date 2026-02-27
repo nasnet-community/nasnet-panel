@@ -7,7 +7,7 @@ package resolver
 
 import (
 	"backend/graph/model"
-	"backend/internal/errors"
+	"backend/internal/apperrors"
 	"context"
 	"net"
 )
@@ -16,306 +16,306 @@ import (
 func (r *mutationResolver) CreateIPAddress(ctx context.Context, routerID string, input model.IPAddressInput) (*model.IPAddressMutationResult, error) {
 	// Authorization check
 	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
-		return nil, errors.NewAuthError(errors.CodeAccessDenied, "unauthorized: authentication required")
+		return nil, apperrors.NewAuthError(apperrors.CodeAccessDenied, "unauthorized: authentication required")
 	}
 
 	// Input validation
 	if routerID == "" {
-		return nil, errors.NewValidationError("routerID", routerID, "required")
+		return nil, apperrors.NewValidationError("routerID", routerID, "required")
 	}
 	if input.Address == "" {
-		return nil, errors.NewValidationError("address", input.Address, "required")
+		return nil, apperrors.NewValidationError("address", input.Address, "required")
 	}
 	if input.InterfaceID == "" {
-		return nil, errors.NewValidationError("interfaceID", input.InterfaceID, "required")
+		return nil, apperrors.NewValidationError("interfaceID", input.InterfaceID, "required")
 	}
 
 	// Validate CIDR notation
 	_, _, err := net.ParseCIDR(input.Address)
 	if err != nil {
-		return nil, errors.NewValidationError("address", input.Address, "invalid CIDR notation").WithCause(err)
+		return nil, apperrors.NewValidationError("address", input.Address, "invalid CIDR notation").WithCause(err)
 	}
 
 	// Service availability check
-	if r.Resolver.IPAddressService == nil {
-		return nil, errors.NewInternalError("ip address service not configured", nil)
+	if r.IPAddressService == nil {
+		return nil, apperrors.NewInternalError("ip address service not configured", nil)
 	}
 
-	// TODO: Call r.Resolver.IPAddressService with validated input
-	panic(errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: CreateIPAddress - createIpAddress", "graphql"))
+	// TODO: Call r.IPAddressService with validated input
+	panic(apperrors.NewProtocolError(apperrors.CodeCommandFailed, "not implemented: CreateIPAddress - createIpAddress", "graphql"))
 }
 
 // UpdateIPAddress is the resolver for the updateIpAddress field.
 func (r *mutationResolver) UpdateIPAddress(ctx context.Context, routerID string, id string, input model.IPAddressInput) (*model.IPAddressMutationResult, error) {
 	// Authorization check
 	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
-		return nil, errors.NewAuthError(errors.CodeAccessDenied, "unauthorized: authentication required")
+		return nil, apperrors.NewAuthError(apperrors.CodeAccessDenied, "unauthorized: authentication required")
 	}
 
 	// Input validation
 	if routerID == "" {
-		return nil, errors.NewValidationError("routerID", routerID, "required")
+		return nil, apperrors.NewValidationError("routerID", routerID, "required")
 	}
 	if id == "" {
-		return nil, errors.NewValidationError("id", id, "required")
+		return nil, apperrors.NewValidationError("id", id, "required")
 	}
 	if input.Address == "" {
-		return nil, errors.NewValidationError("address", input.Address, "required")
+		return nil, apperrors.NewValidationError("address", input.Address, "required")
 	}
 	if input.InterfaceID == "" {
-		return nil, errors.NewValidationError("interfaceID", input.InterfaceID, "required")
+		return nil, apperrors.NewValidationError("interfaceID", input.InterfaceID, "required")
 	}
 
 	// Validate CIDR notation
 	_, _, err := net.ParseCIDR(input.Address)
 	if err != nil {
-		return nil, errors.NewValidationError("address", input.Address, "invalid CIDR notation").WithCause(err)
+		return nil, apperrors.NewValidationError("address", input.Address, "invalid CIDR notation").WithCause(err)
 	}
 
 	// Service availability check
-	if r.Resolver.IPAddressService == nil {
-		return nil, errors.NewInternalError("ip address service not configured", nil)
+	if r.IPAddressService == nil {
+		return nil, apperrors.NewInternalError("ip address service not configured", nil)
 	}
 
-	// TODO: Call r.Resolver.IPAddressService with validated input
-	panic(errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: UpdateIPAddress - updateIpAddress", "graphql"))
+	// TODO: Call r.IPAddressService with validated input
+	panic(apperrors.NewProtocolError(apperrors.CodeCommandFailed, "not implemented: UpdateIPAddress - updateIpAddress", "graphql"))
 }
 
 // DeleteIPAddress is the resolver for the deleteIpAddress field.
 func (r *mutationResolver) DeleteIPAddress(ctx context.Context, routerID string, id string) (*model.IPAddressDeleteResult, error) {
 	// Authorization check
 	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
-		return nil, errors.NewAuthError(errors.CodeAccessDenied, "unauthorized: authentication required")
+		return nil, apperrors.NewAuthError(apperrors.CodeAccessDenied, "unauthorized: authentication required")
 	}
 
 	// Input validation
 	if routerID == "" {
-		return nil, errors.NewValidationError("routerID", routerID, "required")
+		return nil, apperrors.NewValidationError("routerID", routerID, "required")
 	}
 	if id == "" {
-		return nil, errors.NewValidationError("id", id, "required")
+		return nil, apperrors.NewValidationError("id", id, "required")
 	}
 
 	// Service availability check
-	if r.Resolver.IPAddressService == nil {
-		return nil, errors.NewInternalError("ip address service not configured", nil)
+	if r.IPAddressService == nil {
+		return nil, apperrors.NewInternalError("ip address service not configured", nil)
 	}
 
-	// TODO: Call r.Resolver.IPAddressService with validated input
-	panic(errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: DeleteIPAddress - deleteIpAddress", "graphql"))
+	// TODO: Call r.IPAddressService with validated input
+	panic(apperrors.NewProtocolError(apperrors.CodeCommandFailed, "not implemented: DeleteIPAddress - deleteIpAddress", "graphql"))
 }
 
 // CreateVlan is the resolver for the createVlan field.
 func (r *mutationResolver) CreateVlan(ctx context.Context, routerID string, input model.VlanInput) (*model.VlanMutationResult, error) {
 	// Authorization check
 	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
-		return nil, errors.NewAuthError(errors.CodeAccessDenied, "unauthorized: authentication required")
+		return nil, apperrors.NewAuthError(apperrors.CodeAccessDenied, "unauthorized: authentication required")
 	}
 
 	// Input validation
 	if routerID == "" {
-		return nil, errors.NewValidationError("routerID", routerID, "required")
+		return nil, apperrors.NewValidationError("routerID", routerID, "required")
 	}
 	if input.VlanID < 1 || input.VlanID > 4094 {
-		return nil, errors.NewValidationError("vlanID", input.VlanID, "must be between 1 and 4094")
+		return nil, apperrors.NewValidationError("vlanID", input.VlanID, "must be between 1 and 4094")
 	}
 	if input.Interface == "" {
-		return nil, errors.NewValidationError("interface", input.Interface, "required")
+		return nil, apperrors.NewValidationError("interface", input.Interface, "required")
 	}
 
 	// Service availability check
-	if r.Resolver.VlanService == nil {
-		return nil, errors.NewInternalError("vlan service not configured", nil)
+	if r.VlanService == nil {
+		return nil, apperrors.NewInternalError("vlan service not configured", nil)
 	}
 
-	// TODO: Call r.Resolver.VlanService with validated input
-	panic(errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: CreateVlan - createVlan", "graphql"))
+	// TODO: Call r.VlanService with validated input
+	panic(apperrors.NewProtocolError(apperrors.CodeCommandFailed, "not implemented: CreateVlan - createVlan", "graphql"))
 }
 
 // UpdateVlan is the resolver for the updateVlan field.
 func (r *mutationResolver) UpdateVlan(ctx context.Context, id string, input model.VlanInput) (*model.VlanMutationResult, error) {
 	// Authorization check
 	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
-		return nil, errors.NewAuthError(errors.CodeAccessDenied, "unauthorized: authentication required")
+		return nil, apperrors.NewAuthError(apperrors.CodeAccessDenied, "unauthorized: authentication required")
 	}
 
 	// Input validation
 	if id == "" {
-		return nil, errors.NewValidationError("id", id, "required")
+		return nil, apperrors.NewValidationError("id", id, "required")
 	}
 	if input.VlanID < 1 || input.VlanID > 4094 {
-		return nil, errors.NewValidationError("vlanID", input.VlanID, "must be between 1 and 4094")
+		return nil, apperrors.NewValidationError("vlanID", input.VlanID, "must be between 1 and 4094")
 	}
 	if input.Interface == "" {
-		return nil, errors.NewValidationError("interface", input.Interface, "required")
+		return nil, apperrors.NewValidationError("interface", input.Interface, "required")
 	}
 
 	// Service availability check
-	if r.Resolver.VlanService == nil {
-		return nil, errors.NewInternalError("vlan service not configured", nil)
+	if r.VlanService == nil {
+		return nil, apperrors.NewInternalError("vlan service not configured", nil)
 	}
 
-	// TODO: Call r.Resolver.VlanService with validated input
-	panic(errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: UpdateVlan - updateVlan", "graphql"))
+	// TODO: Call r.VlanService with validated input
+	panic(apperrors.NewProtocolError(apperrors.CodeCommandFailed, "not implemented: UpdateVlan - updateVlan", "graphql"))
 }
 
 // DeleteVlan is the resolver for the deleteVlan field.
 func (r *mutationResolver) DeleteVlan(ctx context.Context, id string) (*model.DeleteResult, error) {
 	// Authorization check
 	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
-		return nil, errors.NewAuthError(errors.CodeAccessDenied, "unauthorized: authentication required")
+		return nil, apperrors.NewAuthError(apperrors.CodeAccessDenied, "unauthorized: authentication required")
 	}
 
 	// Input validation
 	if id == "" {
-		return nil, errors.NewValidationError("id", id, "required")
+		return nil, apperrors.NewValidationError("id", id, "required")
 	}
 
 	// Service availability check
-	if r.Resolver.VlanService == nil {
-		return nil, errors.NewInternalError("vlan service not configured", nil)
+	if r.VlanService == nil {
+		return nil, apperrors.NewInternalError("vlan service not configured", nil)
 	}
 
-	// TODO: Call r.Resolver.VlanService with validated input
-	panic(errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: DeleteVlan - deleteVlan", "graphql"))
+	// TODO: Call r.VlanService with validated input
+	panic(apperrors.NewProtocolError(apperrors.CodeCommandFailed, "not implemented: DeleteVlan - deleteVlan", "graphql"))
 }
 
 // ConfigureBridgePortVlan is the resolver for the configureBridgePortVlan field.
 func (r *mutationResolver) ConfigureBridgePortVlan(ctx context.Context, routerID string, portID string, input model.BridgePortVlanInput) (*model.VlanMutationResult, error) {
 	// Authorization check
 	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
-		return nil, errors.NewAuthError(errors.CodeAccessDenied, "unauthorized: authentication required")
+		return nil, apperrors.NewAuthError(apperrors.CodeAccessDenied, "unauthorized: authentication required")
 	}
 
 	// Input validation
 	if routerID == "" {
-		return nil, errors.NewValidationError("routerID", routerID, "required")
+		return nil, apperrors.NewValidationError("routerID", routerID, "required")
 	}
 	if portID == "" {
-		return nil, errors.NewValidationError("portID", portID, "required")
+		return nil, apperrors.NewValidationError("portID", portID, "required")
 	}
 	if input.Pvid < 1 || input.Pvid > 4094 {
-		return nil, errors.NewValidationError("pvid", input.Pvid, "must be between 1 and 4094")
+		return nil, apperrors.NewValidationError("pvid", input.Pvid, "must be between 1 and 4094")
 	}
 
 	// Service availability check
-	if r.Resolver.BridgeService == nil {
-		return nil, errors.NewInternalError("bridge service not configured", nil)
+	if r.BridgeService == nil {
+		return nil, apperrors.NewInternalError("bridge service not configured", nil)
 	}
 
-	// TODO: Call r.Resolver.BridgeService with validated input
-	panic(errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: ConfigureBridgePortVlan - configureBridgePortVlan", "graphql"))
+	// TODO: Call r.BridgeService with validated input
+	panic(apperrors.NewProtocolError(apperrors.CodeCommandFailed, "not implemented: ConfigureBridgePortVlan - configureBridgePortVlan", "graphql"))
 }
 
 // CreateRoute is the resolver for the createRoute field.
 func (r *mutationResolver) CreateRoute(ctx context.Context, routerID string, input model.RouteInput) (*model.RouteMutationResult, error) {
 	// Authorization check
 	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
-		return nil, errors.NewAuthError(errors.CodeAccessDenied, "unauthorized: authentication required")
+		return nil, apperrors.NewAuthError(apperrors.CodeAccessDenied, "unauthorized: authentication required")
 	}
 
 	// Input validation
 	if routerID == "" {
-		return nil, errors.NewValidationError("routerID", routerID, "required")
+		return nil, apperrors.NewValidationError("routerID", routerID, "required")
 	}
 	if string(input.Destination) == "" {
-		return nil, errors.NewValidationError("destination", string(input.Destination), "required")
+		return nil, apperrors.NewValidationError("destination", string(input.Destination), "required")
 	}
 
 	// Validate destination CIDR
 	if _, _, err := net.ParseCIDR(string(input.Destination)); err != nil {
-		return nil, errors.NewValidationError("destination", string(input.Destination), "invalid CIDR notation").WithCause(err)
+		return nil, apperrors.NewValidationError("destination", string(input.Destination), "invalid CIDR notation").WithCause(err)
 	}
 
 	// Validate gateway IP if provided
 	if gwPtr, ok := input.Gateway.ValueOK(); ok && gwPtr != nil {
 		if net.ParseIP(string(*gwPtr)) == nil {
-			return nil, errors.NewValidationError("gateway", string(*gwPtr), "invalid IP address")
+			return nil, apperrors.NewValidationError("gateway", string(*gwPtr), "invalid IP address")
 		}
 	}
 
 	// Service availability check
-	if r.Resolver.IPAddressService == nil {
-		return nil, errors.NewInternalError("ip address service not configured", nil)
+	if r.IPAddressService == nil {
+		return nil, apperrors.NewInternalError("ip address service not configured", nil)
 	}
 
-	// TODO: Call r.Resolver.IPAddressService with validated input
-	panic(errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: CreateRoute - createRoute", "graphql"))
+	// TODO: Call r.IPAddressService with validated input
+	panic(apperrors.NewProtocolError(apperrors.CodeCommandFailed, "not implemented: CreateRoute - createRoute", "graphql"))
 }
 
 // UpdateRoute is the resolver for the updateRoute field.
 func (r *mutationResolver) UpdateRoute(ctx context.Context, routerID string, id string, input model.RouteInput) (*model.RouteMutationResult, error) {
 	// Authorization check
 	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
-		return nil, errors.NewAuthError(errors.CodeAccessDenied, "unauthorized: authentication required")
+		return nil, apperrors.NewAuthError(apperrors.CodeAccessDenied, "unauthorized: authentication required")
 	}
 
 	// Input validation
 	if routerID == "" {
-		return nil, errors.NewValidationError("routerID", routerID, "required")
+		return nil, apperrors.NewValidationError("routerID", routerID, "required")
 	}
 	if id == "" {
-		return nil, errors.NewValidationError("id", id, "required")
+		return nil, apperrors.NewValidationError("id", id, "required")
 	}
 	if string(input.Destination) == "" {
-		return nil, errors.NewValidationError("destination", string(input.Destination), "required")
+		return nil, apperrors.NewValidationError("destination", string(input.Destination), "required")
 	}
 
 	// Validate destination CIDR
 	if _, _, err := net.ParseCIDR(string(input.Destination)); err != nil {
-		return nil, errors.NewValidationError("destination", string(input.Destination), "invalid CIDR notation").WithCause(err)
+		return nil, apperrors.NewValidationError("destination", string(input.Destination), "invalid CIDR notation").WithCause(err)
 	}
 
 	// Validate gateway IP if provided
 	if gwPtr, ok := input.Gateway.ValueOK(); ok && gwPtr != nil {
 		if net.ParseIP(string(*gwPtr)) == nil {
-			return nil, errors.NewValidationError("gateway", string(*gwPtr), "invalid IP address")
+			return nil, apperrors.NewValidationError("gateway", string(*gwPtr), "invalid IP address")
 		}
 	}
 
 	// Service availability check
-	if r.Resolver.IPAddressService == nil {
-		return nil, errors.NewInternalError("ip address service not configured", nil)
+	if r.IPAddressService == nil {
+		return nil, apperrors.NewInternalError("ip address service not configured", nil)
 	}
 
-	// TODO: Call r.Resolver.IPAddressService with validated input
-	panic(errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: UpdateRoute - updateRoute", "graphql"))
+	// TODO: Call r.IPAddressService with validated input
+	panic(apperrors.NewProtocolError(apperrors.CodeCommandFailed, "not implemented: UpdateRoute - updateRoute", "graphql"))
 }
 
 // DeleteRoute is the resolver for the deleteRoute field.
 func (r *mutationResolver) DeleteRoute(ctx context.Context, routerID string, id string) (*model.RouteDeleteResult, error) {
 	// Authorization check
 	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
-		return nil, errors.NewAuthError(errors.CodeAccessDenied, "unauthorized: authentication required")
+		return nil, apperrors.NewAuthError(apperrors.CodeAccessDenied, "unauthorized: authentication required")
 	}
 
 	// Input validation
 	if routerID == "" {
-		return nil, errors.NewValidationError("routerID", routerID, "required")
+		return nil, apperrors.NewValidationError("routerID", routerID, "required")
 	}
 	if id == "" {
-		return nil, errors.NewValidationError("id", id, "required")
+		return nil, apperrors.NewValidationError("id", id, "required")
 	}
 
 	// Service availability check
-	if r.Resolver.IPAddressService == nil {
-		return nil, errors.NewInternalError("ip address service not configured", nil)
+	if r.IPAddressService == nil {
+		return nil, apperrors.NewInternalError("ip address service not configured", nil)
 	}
 
-	// TODO: Call r.Resolver.IPAddressService with validated input
-	panic(errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: DeleteRoute - deleteRoute", "graphql"))
+	// TODO: Call r.IPAddressService with validated input
+	panic(apperrors.NewProtocolError(apperrors.CodeCommandFailed, "not implemented: DeleteRoute - deleteRoute", "graphql"))
 }
 
 // IPAddressChanged is the resolver for the ipAddressChanged field.
 func (r *subscriptionResolver) IPAddressChanged(ctx context.Context, routerID string) (<-chan *model.IPAddressChangeEvent, error) {
 	// Authorization check
 	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
-		return nil, errors.NewAuthError(errors.CodeAccessDenied, "unauthorized: authentication required")
+		return nil, apperrors.NewAuthError(apperrors.CodeAccessDenied, "unauthorized: authentication required")
 	}
 
 	// Input validation
 	if routerID == "" {
-		return nil, errors.NewValidationError("routerID", routerID, "required")
+		return nil, apperrors.NewValidationError("routerID", routerID, "required")
 	}
 
 	// Create channel for IP address change events
@@ -328,19 +328,19 @@ func (r *subscriptionResolver) IPAddressChanged(ctx context.Context, routerID st
 	}()
 
 	// TODO: Subscribe to IP address changes and send to ipChan
-	panic(errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: IPAddressChanged - ipAddressChanged", "graphql"))
+	panic(apperrors.NewProtocolError(apperrors.CodeCommandFailed, "not implemented: IPAddressChanged - ipAddressChanged", "graphql"))
 }
 
 // VlanChanged is the resolver for the vlanChanged field.
 func (r *subscriptionResolver) VlanChanged(ctx context.Context, routerID string) (<-chan *model.Vlan, error) {
 	// Authorization check
 	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
-		return nil, errors.NewAuthError(errors.CodeAccessDenied, "unauthorized: authentication required")
+		return nil, apperrors.NewAuthError(apperrors.CodeAccessDenied, "unauthorized: authentication required")
 	}
 
 	// Input validation
 	if routerID == "" {
-		return nil, errors.NewValidationError("routerID", routerID, "required")
+		return nil, apperrors.NewValidationError("routerID", routerID, "required")
 	}
 
 	// Create channel for VLAN change events
@@ -353,22 +353,22 @@ func (r *subscriptionResolver) VlanChanged(ctx context.Context, routerID string)
 	}()
 
 	// TODO: Subscribe to VLAN changes and send to vlanChan
-	panic(errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: VlanChanged - vlanChanged", "graphql"))
+	panic(apperrors.NewProtocolError(apperrors.CodeCommandFailed, "not implemented: VlanChanged - vlanChanged", "graphql"))
 }
 
 // InterfaceStatsUpdated is the resolver for the interfaceStatsUpdated field.
 func (r *subscriptionResolver) InterfaceStatsUpdated(ctx context.Context, routerID string, interfaceID string, interval *model.Duration) (<-chan *model.InterfaceStats, error) {
 	// Authorization check
 	if _, ok := ctx.Value(contextKeyUserID).(string); !ok {
-		return nil, errors.NewAuthError(errors.CodeAccessDenied, "unauthorized: authentication required")
+		return nil, apperrors.NewAuthError(apperrors.CodeAccessDenied, "unauthorized: authentication required")
 	}
 
 	// Input validation
 	if routerID == "" {
-		return nil, errors.NewValidationError("routerID", routerID, "required")
+		return nil, apperrors.NewValidationError("routerID", routerID, "required")
 	}
 	if interfaceID == "" {
-		return nil, errors.NewValidationError("interfaceID", interfaceID, "required")
+		return nil, apperrors.NewValidationError("interfaceID", interfaceID, "required")
 	}
 
 	// Create channel for interface stats updates
@@ -381,5 +381,5 @@ func (r *subscriptionResolver) InterfaceStatsUpdated(ctx context.Context, router
 	}()
 
 	// TODO: Subscribe to interface stats updates and send to statsChan
-	panic(errors.NewProtocolError(errors.CodeCommandFailed, "not implemented: InterfaceStatsUpdated - interfaceStatsUpdated", "graphql"))
+	panic(apperrors.NewProtocolError(apperrors.CodeCommandFailed, "not implemented: InterfaceStatsUpdated - interfaceStatsUpdated", "graphql"))
 }

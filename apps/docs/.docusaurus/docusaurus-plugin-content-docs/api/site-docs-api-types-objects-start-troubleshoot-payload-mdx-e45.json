@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/start-troubleshoot-payload",
+  "title": "StartTroubleshootPayload",
+  "description": "Result of starting a troubleshooting session",
+  "source": "@site/docs/api/types/objects/start-troubleshoot-payload.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/start-troubleshoot-payload",
+  "permalink": "/api/types/objects/start-troubleshoot-payload",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "start-troubleshoot-payload",
+    "title": "StartTroubleshootPayload"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "SSTPRuntime",
+    "permalink": "/api/types/objects/sstpruntime"
+  },
+  "next": {
+    "title": "StartupDiagnostics",
+    "permalink": "/api/types/objects/startup-diagnostics"
+  }
+}

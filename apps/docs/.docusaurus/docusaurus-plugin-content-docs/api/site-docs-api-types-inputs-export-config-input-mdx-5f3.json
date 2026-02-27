@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/export-config-input",
+  "title": "ExportConfigInput",
+  "description": "Options for exporting router configuration.",
+  "source": "@site/docs/api/types/inputs/export-config-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/export-config-input",
+  "permalink": "/api/types/inputs/export-config-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "export-config-input",
+    "title": "ExportConfigInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ExportAsTemplateInput",
+    "permalink": "/api/types/inputs/export-as-template-input"
+  },
+  "next": {
+    "title": "ExportServiceConfigInput",
+    "permalink": "/api/types/inputs/export-service-config-input"
+  }
+}

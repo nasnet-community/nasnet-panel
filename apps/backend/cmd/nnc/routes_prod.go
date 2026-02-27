@@ -6,7 +6,7 @@ package main
 import (
 	"backend/generated/ent"
 	"backend/graph"
-	"backend/graph/resolver"
+	"backend/graph/resolver" //nolint:depguard // resolver needed for route registration in main
 	"backend/internal/alerts"
 	"backend/internal/auth"
 	"backend/internal/capability"
@@ -14,30 +14,31 @@ import (
 	"backend/internal/credentials"
 	"backend/internal/diagnostics"
 	"backend/internal/dns"
+	"backend/internal/events"
 	"backend/internal/features"
 	"backend/internal/features/sharing"
 	"backend/internal/features/updates"
 	"backend/internal/firewall"
 	"backend/internal/graphql/loaders"
+	"backend/internal/network"
 	"backend/internal/notifications"
 	"backend/internal/orchestrator/boot"
 	"backend/internal/orchestrator/dependencies"
 	"backend/internal/orchestrator/lifecycle"
+	"backend/internal/orchestrator/resources"
 	"backend/internal/orchestrator/scheduling"
 	scannerPkg "backend/internal/scanner"
 	"backend/internal/server"
 	"backend/internal/services"
+	"backend/internal/storage"
 	"backend/internal/templates"
 	"backend/internal/traceroute"
 	troubleshootPkg "backend/internal/troubleshoot"
-	"backend/internal/vif/traffic"
-
-	"backend/internal/events"
-	"backend/internal/network"
-	"backend/internal/orchestrator/resources"
-	"backend/internal/storage"
+	"backend/internal/vif"
+	"backend/internal/vif/ingress"
 	"backend/internal/vif/isolation"
 	"backend/internal/vif/routing"
+	"backend/internal/vif/traffic"
 
 	"github.com/labstack/echo/v4"
 )
@@ -101,6 +102,8 @@ type prodRoutesDeps struct {
 	killSwitchManager    *isolation.KillSwitchManager
 	resourceLimiter      *resources.ResourceLimiter
 	chainLatencyMeasurer *routing.ChainLatencyMeasurer
+	bridgeOrchestrator   *vif.BridgeOrchestrator
+	ingressService       *ingress.Service
 	logger               interface {
 		Errorw(msg string, keysAndValues ...interface{})
 		Infow(msg string, keysAndValues ...interface{})
@@ -167,6 +170,8 @@ func setupProdRoutes(e *echo.Echo, deps *prodRoutesDeps) {
 		KillSwitchManager:        deps.killSwitchManager,
 		ResourceLimiter:          deps.resourceLimiter,
 		ChainLatencyMeasurer:     deps.chainLatencyMeasurer,
+		BridgeOrchestrator:       deps.bridgeOrchestrator,
+		IngressService:           deps.ingressService,
 		Logger:                   deps.logger,
 	})
 

@@ -160,7 +160,7 @@ function MasqueradeQuickDialogInner({
                   <SelectContent>
                     {wanInterfaces.map((iface) => (
                       <SelectItem key={iface} value={iface}>
-                        {iface}
+                        <span className="font-mono">{iface}</span>
                       </SelectItem>
                     ))}
                   </SelectContent>

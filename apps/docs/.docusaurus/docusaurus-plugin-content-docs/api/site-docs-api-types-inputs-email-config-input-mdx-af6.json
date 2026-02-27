@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/email-config-input",
+  "title": "EmailConfigInput",
+  "description": "Email notification configuration input",
+  "source": "@site/docs/api/types/inputs/email-config-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/email-config-input",
+  "permalink": "/api/types/inputs/email-config-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "email-config-input",
+    "title": "EmailConfigInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "DnsLookupInput",
+    "permalink": "/api/types/inputs/dns-lookup-input"
+  },
+  "next": {
+    "title": "EscalationConfigInput",
+    "permalink": "/api/types/inputs/escalation-config-input"
+  }
+}

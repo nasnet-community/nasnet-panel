@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/configure-dhcp-wan",
+  "title": "configureDhcpWAN",
+  "description": "Configure DHCP client on a WAN interface",
+  "source": "@site/docs/api/operations/mutations/configure-dhcp-wan.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/configure-dhcp-wan",
+  "permalink": "/api/operations/mutations/configure-dhcp-wan",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "configure-dhcp-wan",
+    "title": "configureDhcpWAN"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "configureBridgePortVlan",
+    "permalink": "/api/operations/mutations/configure-bridge-port-vlan"
+  },
+  "next": {
+    "title": "configureExternalStorage",
+    "permalink": "/api/operations/mutations/configure-external-storage"
+  }
+}

@@ -63,7 +63,7 @@ function EmptyState({ type, onAction }: EmptyStateProps) {
       </CardHeader>
       <CardContent className="flex justify-center">
         <Button onClick={onAction} className="min-h-[44px]">
-          <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
+          <Plus className="h-4 w-4 mr-component-sm" aria-hidden="true" />
           {t('servicePorts.createGroup')}
         </Button>
       </CardContent>
@@ -136,12 +136,12 @@ export function ServicePortsPage() {
           {/* Action Button - changes based on active tab */}
           {activeTab === 'services' ? (
             <Button onClick={handleAddService} className="min-h-[44px]">
-              <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
+              <Plus className="h-4 w-4 mr-component-sm" aria-hidden="true" />
               {t('servicePorts.addService')}
             </Button>
           ) : (
             <Button onClick={handleCreateGroup} className="min-h-[44px]">
-              <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
+              <Plus className="h-4 w-4 mr-component-sm" aria-hidden="true" />
               {t('servicePorts.createGroup')}
             </Button>
           )}

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/vlan-topology",
+  "title": "VlanTopology",
+  "description": "VLAN topology data (nodes and edges)",
+  "source": "@site/docs/api/types/objects/vlan-topology.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/vlan-topology",
+  "permalink": "/api/types/objects/vlan-topology",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "vlan-topology",
+    "title": "VlanTopology"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "VlanMutationResult",
+    "permalink": "/api/types/objects/vlan-mutation-result"
+  },
+  "next": {
+    "title": "Vlan",
+    "permalink": "/api/types/objects/vlan"
+  }
+}

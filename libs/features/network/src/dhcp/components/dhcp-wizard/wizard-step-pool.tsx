@@ -86,7 +86,7 @@ function WizardStepPoolComponent({ stepper, className }: WizardStepPoolProps) {
   }, [form, stepper]);
 
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={cn('space-y-component-lg', className)}>
       <FormSection
         title="Configure Address Pool"
         description="Define the range of IP addresses to assign to DHCP clients"

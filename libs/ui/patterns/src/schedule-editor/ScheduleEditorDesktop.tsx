@@ -85,11 +85,11 @@ export const ScheduleEditorDesktop = memo(function ScheduleEditorDesktop({
 
         <div className="space-y-6">
           {/* Live Preview */}
-          <Card className="p-4 bg-info/10 border-info/20">
+          <Card className="p-4 bg-info-light border border-info rounded-[var(--semantic-radius-card)]">
             <div className="flex items-start gap-3">
-              <Info className="h-5 w-5 text-info mt-0.5 flex-shrink-0" />
+              <Info className="h-5 w-5 text-info-dark mt-0.5 flex-shrink-0" />
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-info mb-1">Preview</p>
+                <p className="text-sm font-medium text-info-dark mb-1">Preview</p>
                 <p className="text-sm text-muted-foreground whitespace-pre-wrap font-mono">
                   {preview}
                 </p>
@@ -188,7 +188,7 @@ export const ScheduleEditorDesktop = memo(function ScheduleEditorDesktop({
                       {...field}
                       type="time"
                       value={field.value || ''}
-                      className="font-mono"
+                      className="font-mono rounded-[var(--semantic-radius-input)]"
                     />
                   )}
                 />
@@ -215,7 +215,7 @@ export const ScheduleEditorDesktop = memo(function ScheduleEditorDesktop({
                       {...field}
                       type="time"
                       value={field.value || ''}
-                      className="font-mono"
+                      className="font-mono rounded-[var(--semantic-radius-input)]"
                     />
                   )}
                 />
@@ -239,7 +239,7 @@ export const ScheduleEditorDesktop = memo(function ScheduleEditorDesktop({
                     {...field}
                     placeholder="America/New_York"
                     value={field.value || ''}
-                    className="font-mono"
+                    className="font-mono rounded-[var(--semantic-radius-input)]"
                   />
                   <p className="text-xs text-muted-foreground">
                     Current timezone: {Intl.DateTimeFormat().resolvedOptions().timeZone}

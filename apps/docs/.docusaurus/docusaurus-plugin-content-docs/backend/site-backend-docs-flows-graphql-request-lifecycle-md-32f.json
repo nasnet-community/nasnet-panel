@@ -1,0 +1,24 @@
+{
+  "id": "flows/graphql-request-lifecycle",
+  "title": "Flow: GraphQL Request Lifecycle",
+  "description": "Traces the complete path of a GraphQL request from TCP arrival at the Echo HTTP server through",
+  "source": "@site/../backend/docs/flows/graphql-request-lifecycle.md",
+  "sourceDirName": "flows",
+  "slug": "/flows/graphql-request-lifecycle",
+  "permalink": "/docs/backend/flows/graphql-request-lifecycle",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../backend/docs/flows/graphql-request-lifecycle.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Flow: Device Routing Chain",
+    "permalink": "/docs/backend/flows/device-routing-chain-flow"
+  },
+  "next": {
+    "title": "Flow: Router Connection Establishment",
+    "permalink": "/docs/backend/flows/router-connection-flow"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "id": "flows/alert-lifecycle-flow",
+  "title": "Flow: Alert Lifecycle",
+  "description": "Traces the complete path of an alert from an event triggering the engine, through throttle and",
+  "source": "@site/../backend/docs/flows/alert-lifecycle-flow.md",
+  "sourceDirName": "flows",
+  "slug": "/flows/alert-lifecycle-flow",
+  "permalink": "/docs/backend/flows/alert-lifecycle-flow",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../backend/docs/flows/alert-lifecycle-flow.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Feature Marketplace",
+    "permalink": "/docs/backend/feature-marketplace"
+  },
+  "next": {
+    "title": "Flow: Config Provisioning",
+    "permalink": "/docs/backend/flows/config-provisioning-flow"
+  }
+}

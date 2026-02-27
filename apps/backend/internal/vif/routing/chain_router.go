@@ -112,10 +112,14 @@ func (cr *ChainRouter) CreateRoutingChain(
 
 	cr.publishChainCreatedEvent(ctx, chain.ID, input.DeviceID, len(input.Hops), routerID)
 
-	chain = cr.reloadChainWithHops(ctx, chain.ID)
+	reloadedChain := cr.reloadChainWithHops(ctx, chain.ID)
+	if reloadedChain == nil {
+		log.Warn().Str("chain_id", chain.ID).Msg("Failed to reload chain with hops, returning original chain")
+		return chain, nil
+	}
 
-	log.Info().Str("chain_id", chain.ID).Msg("Routing chain created successfully")
-	return chain, nil
+	log.Info().Str("chain_id", reloadedChain.ID).Msg("Routing chain created successfully")
+	return reloadedChain, nil
 }
 
 // validateChainInput validates hops and interfaces, returning an interface lookup map.

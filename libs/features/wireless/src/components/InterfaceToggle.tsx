@@ -113,7 +113,7 @@ export const InterfaceToggle = React.memo(function InterfaceToggle({
     <>
       {/* Toggle Switch */}
       <div
-        className={cn('flex items-center gap-2', className)}
+        className={cn('flex items-center gap-component-sm', className)}
         onClick={handleSwitchClick}
       >
         <Switch

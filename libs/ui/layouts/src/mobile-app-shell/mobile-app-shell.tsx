@@ -92,13 +92,13 @@ const MobileAppShell = React.memo(
           <div className="flex flex-1 overflow-hidden">
             {/* Desktop Sidebar */}
             {sidebar && showSidebarOnDesktop && (
-              <aside className="hidden md:block w-64 border-r border-border bg-sidebar overflow-y-auto">
+              <aside className="hidden lg:block w-64 border-r border-border bg-card overflow-y-auto">
                 {sidebar}
               </aside>
             )}
 
             {/* Scrollable Content */}
-            <main id="main-content" className="flex-1 overflow-y-auto pb-20 md:pb-0 bg-background">
+            <main id="main-content" className="flex-1 overflow-y-auto pb-16 sm:pb-0 bg-background">
               {children}
             </main>
           </div>

@@ -57,7 +57,7 @@ export function PppoeConfirmStep({
           className
         )}
       >
-        <div className="rounded-full bg-success/10 p-4">
+        <div className="rounded-full bg-success/10 p-component-sm">
           <CheckCircle2
             className="h-12 w-12 text-success"
             aria-hidden="true"
@@ -70,11 +70,11 @@ export function PppoeConfirmStep({
           connection.
         </p>
         {result.wanInterface && (
-          <div className="rounded-lg border bg-muted/50 p-4 w-full max-w-md">
-            <dl className="space-y-2 text-sm">
+          <div className="rounded-lg border bg-muted/50 p-component-md w-full max-w-md category-networking">
+            <dl className="space-y-component-sm text-sm">
               <div className="flex justify-between">
                 <dt className="text-muted-foreground">Interface:</dt>
-                <dd className="font-mono">{result.wanInterface.interfaceName}</dd>
+                <dd className="font-mono text-xs">{result.wanInterface.interfaceName}</dd>
               </div>
               <div className="flex justify-between">
                 <dt className="text-muted-foreground">Status:</dt>
@@ -93,7 +93,7 @@ export function PppoeConfirmStep({
               {result.wanInterface.publicIP && (
                 <div className="flex justify-between">
                   <dt className="text-muted-foreground">Public IP:</dt>
-                  <dd className="font-mono">{result.wanInterface.publicIP}</dd>
+                  <dd className="font-mono text-xs">{result.wanInterface.publicIP}</dd>
                 </div>
               )}
             </dl>
@@ -112,9 +112,9 @@ export function PppoeConfirmStep({
           className
         )}
       >
-        <div className="rounded-full bg-destructive/10 p-4">
+        <div className="rounded-full bg-error/10 p-component-sm">
           <AlertCircle
-            className="h-12 w-12 text-destructive"
+            className="h-12 w-12 text-error"
             aria-hidden="true"
           />
         </div>
@@ -135,9 +135,9 @@ export function PppoeConfirmStep({
 
   // Confirmation state
   return (
-    <div className={cn('space-y-6', className)}>
-      <div className="text-center py-8">
-        <div className="rounded-full bg-primary/10 p-4 inline-flex mb-4">
+    <div className={cn('space-y-component-lg', className)}>
+      <div className="text-center py-component-xl">
+        <div className="rounded-full bg-primary/10 p-component-sm inline-flex mb-component-md">
           <Zap
             className="h-12 w-12 text-primary"
             aria-hidden="true"
@@ -152,8 +152,8 @@ export function PppoeConfirmStep({
 
       {/* Warning for default route */}
       {optionsData?.addDefaultRoute && (
-        <div className="rounded-lg border border-border bg-card/50 p-4">
-          <div className="flex gap-3">
+        <div className="rounded-lg border border-border bg-card/50 p-component-sm">
+          <div className="flex gap-component-xs">
             <AlertCircle
               className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5"
               aria-hidden="true"
@@ -171,7 +171,7 @@ export function PppoeConfirmStep({
       )}
 
       {/* Apply Button */}
-      <div className="flex justify-center pt-4">
+      <div className="flex justify-center pt-component-md">
         <Button
           size="lg"
           onClick={handleSubmit}
@@ -181,12 +181,12 @@ export function PppoeConfirmStep({
         >
           {isLoading ? (
             <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <Loader2 className="mr-component-sm h-4 w-4 animate-spin" />
               Configuring...
             </>
           ) : (
             <>
-              <Zap className="mr-2 h-4 w-4" />
+              <Zap className="mr-component-sm h-4 w-4" />
               Apply Configuration
             </>
           )}

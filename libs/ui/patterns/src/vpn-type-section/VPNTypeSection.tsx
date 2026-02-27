@@ -59,7 +59,7 @@ function VPNTypeSectionComponent({
   return (
     <div
       className={cn(
-        'border border-border rounded-lg overflow-hidden shadow-sm',
+        'border border-border rounded-[var(--semantic-radius-card)] overflow-hidden shadow-[var(--semantic-shadow-card)]',
         className
       )}
     >
@@ -67,8 +67,8 @@ function VPNTypeSectionComponent({
       <button
         onClick={handleToggle}
         className={cn(
-          'w-full px-5 py-4 flex items-center justify-between',
-          'bg-muted/50 hover:bg-muted transition-all',
+          'w-full px-component-lg py-component-md flex items-center justify-between',
+          'bg-muted hover:bg-muted transition-colors duration-150',
           'text-left'
         )}
         aria-expanded={isExpanded}
@@ -113,11 +113,11 @@ function VPNTypeSectionComponent({
             transition={{ duration: 0.3, ease: 'easeInOut' }}
             className="overflow-hidden"
           >
-            <div className="p-5 space-y-4 bg-background border-t border-border">
+            <div className="p-component-lg space-y-component-md bg-background border-t border-border">
               {/* Read-Only Notice (if shown) */}
               {showReadOnlyNotice && (
-                <div className="mb-4 p-4 bg-info/10 border border-info/30 rounded-md">
-                  <p className="text-sm text-info">
+                <div className="mb-component-md p-component-md bg-info-light/50 dark:bg-info/10 border border-l-4 border-l-info rounded-[var(--semantic-radius-input)]">
+                  <p className="text-sm text-info-dark dark:text-info">
                     <span className="font-semibold">Read-only view.</span> Editing {type} interfaces
                     will be available in a future update.
                   </p>

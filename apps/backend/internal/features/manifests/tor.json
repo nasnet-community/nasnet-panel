@@ -81,5 +81,18 @@
   "health_check_script": "curl -s http://localhost:9030/tor/status || exit 1",
   "readme_url": "https://github.com/nasnetconnect/tor-relay/blob/main/README.md",
   "changelog_url": "https://github.com/nasnetconnect/tor-relay/blob/main/CHANGELOG.md",
-  "support_url": "https://github.com/nasnetconnect/tor-relay/issues"
+  "support_url": "https://github.com/nasnetconnect/tor-relay/issues",
+  "source": {
+    "github_owner": "nasnetconnect",
+    "github_repo": "tor",
+    "binary_name": "tor",
+    "archive_format": "tar.gz",
+    "extract_path": "tor",
+    "asset_arch_map": {
+      "amd64": "linux-amd64",
+      "arm64": "linux-arm64",
+      "arm": "linux-arm"
+    },
+    "checksum_files": ["checksums.txt", "SHA256SUMS"]
+  }
 }

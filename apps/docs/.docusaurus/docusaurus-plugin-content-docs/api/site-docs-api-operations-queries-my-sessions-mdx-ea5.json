@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/my-sessions",
+  "title": "mySessions",
+  "description": "Get all active sessions for the current user",
+  "source": "@site/docs/api/operations/queries/my-sessions.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/my-sessions",
+  "permalink": "/api/operations/queries/my-sessions",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "my-sessions",
+    "title": "mySessions"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "me",
+    "permalink": "/api/operations/queries/me"
+  },
+  "next": {
+    "title": "natRules",
+    "permalink": "/api/operations/queries/nat-rules"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "id": "operations/development-workflow",
+  "title": "Development Workflow",
+  "description": "Day-to-day guide for developing the apps/connect frontend. Covers environment startup, HMR behaviour, debugging, common development tasks, and the PR process.",
+  "source": "@site/../connect/docs/operations/development-workflow.md",
+  "sourceDirName": "operations",
+  "slug": "/operations/development-workflow",
+  "permalink": "/docs/frontend/operations/development-workflow",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../connect/docs/operations/development-workflow.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Internationalization (i18n)",
+    "permalink": "/docs/frontend/i18n-accessibility/i18n"
+  },
+  "next": {
+    "title": "Performance Guide",
+    "permalink": "/docs/frontend/operations/performance"
+  }
+}

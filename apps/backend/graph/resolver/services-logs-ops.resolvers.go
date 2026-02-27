@@ -7,29 +7,32 @@ package resolver
 
 import (
 	graphql1 "backend/graph/model"
+	"backend/internal/apperrors"
 	"backend/internal/common/ulid"
-	"backend/internal/errors"
 	"backend/internal/events"
 	"backend/internal/orchestrator/resources"
-	"bufio"
 	"context"
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 	"time"
 )
 
 // RunServiceDiagnostics is the resolver for the runServiceDiagnostics field.
 func (r *mutationResolver) RunServiceDiagnostics(ctx context.Context, input graphql1.RunDiagnosticsInput) (*graphql1.RunDiagnosticsPayload, error) {
 	if r.InstanceManager == nil {
-		return nil, errors.Wrap(nil, errors.CodeResourceNotFound, errors.CategoryInternal, "instance manager not available")
+		return nil, apperrors.NewResourceError(
+			apperrors.CodeResourceNotFound,
+			"instance manager not available",
+			"service",
+			"instance_manager",
+		)
 	}
 
 	// Verify instance exists in DB
 	instance, err := r.db.ServiceInstance.Get(ctx, input.InstanceID)
 	if err != nil {
-		return nil, errors.Wrap(err, errors.CodeResourceNotFound, errors.CategoryResource, "instance not found")
+		return nil, apperrors.Wrap(err, apperrors.CodeResourceNotFound, apperrors.CategoryResource, "instance not found")
 	}
 
 	// Get health status from instance manager
@@ -74,7 +77,7 @@ func (r *mutationResolver) RunServiceDiagnostics(ctx context.Context, input grap
 	}
 
 	// Emit a diagnostics progress event
-	_ = r.EventBus.Publish(ctx, events.NewGenericEvent(
+	if err := r.EventBus.Publish(ctx, events.NewGenericEvent(
 		"service.diagnostics.completed",
 		events.PriorityNormal,
 		"graphql-resolver",
@@ -83,7 +86,10 @@ func (r *mutationResolver) RunServiceDiagnostics(ctx context.Context, input grap
 			"runGroupId": runGroupID,
 			"status":     string(overallStatus),
 		},
-	))
+	)); err != nil {
+		// Log event publish error but don't fail the operation
+		fmt.Printf("failed to publish diagnostics event: %v\n", err)
+	}
 
 	return &graphql1.RunDiagnosticsPayload{
 		Success:    true,
@@ -95,13 +101,18 @@ func (r *mutationResolver) RunServiceDiagnostics(ctx context.Context, input grap
 // ServiceLogFile is the resolver for the serviceLogFile field.
 func (r *queryResolver) ServiceLogFile(ctx context.Context, routerID string, instanceID string, maxLines *int) (*graphql1.ServiceLogFile, error) {
 	if r.InstanceManager == nil {
-		return nil, errors.Wrap(nil, errors.CodeResourceNotFound, errors.CategoryInternal, "instance manager not available")
+		return nil, apperrors.NewResourceError(
+			apperrors.CodeResourceNotFound,
+			"instance manager not available",
+			"service",
+			"instance_manager",
+		)
 	}
 
 	// Query instance from DB
 	instance, err := r.db.ServiceInstance.Get(ctx, instanceID)
 	if err != nil {
-		return nil, errors.Wrap(err, errors.CodeResourceNotFound, errors.CategoryResource, "instance not found")
+		return nil, apperrors.Wrap(err, apperrors.CodeResourceNotFound, apperrors.CategoryResource, "instance not found")
 	}
 
 	// Resolve log file path using the path resolver
@@ -126,7 +137,7 @@ func (r *queryResolver) ServiceLogFile(ctx context.Context, routerID string, ins
 				LastUpdated: time.Now(),
 			}, nil
 		}
-		return nil, errors.Wrap(err, errors.CodeResourceNotFound, errors.CategoryInternal, "failed to stat log file")
+		return nil, apperrors.Wrap(err, apperrors.CodeResourceNotFound, apperrors.CategoryInternal, "failed to stat log file")
 	}
 
 	// Determine max lines to read
@@ -138,7 +149,12 @@ func (r *queryResolver) ServiceLogFile(ctx context.Context, routerID string, ins
 	// Read last N lines from log file
 	entries, lineCount, err := readLastNLines(logFilePath, instance.FeatureID, limit)
 	if err != nil {
-		return nil, errors.Wrap(err, errors.CodeResourceNotFound, errors.CategoryInternal, "failed to read log file")
+		return nil, apperrors.Wrap(
+			err,
+			apperrors.CodeResourceNotFound,
+			apperrors.CategoryInternal,
+			"failed to read log file",
+		)
 	}
 
 	return &graphql1.ServiceLogFile{
@@ -163,13 +179,19 @@ func (r *queryResolver) DiagnosticHistory(ctx context.Context, routerID string, 
 // AvailableDiagnostics is the resolver for the availableDiagnostics field.
 func (r *queryResolver) AvailableDiagnostics(ctx context.Context, serviceName string) (*graphql1.DiagnosticSuite, error) {
 	if r.FeatureRegistry == nil {
-		return nil, errors.Wrap(nil, errors.CodeResourceNotFound, errors.CategoryInternal, "feature registry not available")
+		return nil, apperrors.NewResourceError(
+			apperrors.CodeResourceNotFound,
+			"feature registry not available",
+			"service",
+			"feature_registry",
+		)
 	}
 
 	// Look up manifest for the service
 	manifest, err := r.FeatureRegistry.GetManifest(serviceName)
 	if err != nil {
 		// Service not found in registry - return empty suite rather than error
+		//nolint:nilerr // intentional: service not found returns empty suite
 		return &graphql1.DiagnosticSuite{
 			ServiceName: serviceName,
 			Tests:       []*graphql1.DiagnosticTest{},
@@ -219,40 +241,43 @@ func (r *subscriptionResolver) ServiceLogs(ctx context.Context, routerID string,
 		// Subscribe to log appended events from the event bus
 		logEntryChan := make(chan *graphql1.LogEntry, 50)
 
-		err := r.EventBus.Subscribe(events.EventTypeLogAppended, func(evtCtx context.Context, event events.Event) error {
-			logEvt, ok := event.(*events.LogAppendedEvent)
-			if !ok {
+		err := r.EventBus.Subscribe(
+			events.EventTypeLogAppended,
+			func(evtCtx context.Context, event events.Event) error {
+				logEvt, ok := event.(*events.LogAppendedEvent)
+				if !ok {
+					return nil
+				}
+
+				// Filter by instance/router: LogAppendedEvent has RouterID, use it for basic filtering
+				if logEvt.RouterID != routerID {
+					return nil
+				}
+
+				// Map event log level to GraphQL model level
+				lvl := mapEventLevelToModel(logEvt.Level)
+
+				// Apply level filter if specified
+				if levelFilter != nil && lvl != *levelFilter {
+					return nil
+				}
+
+				entry := &graphql1.LogEntry{
+					Timestamp: event.GetTimestamp(),
+					Level:     lvl,
+					Message:   logEvt.Message,
+					Source:    logEvt.Topic,
+					RawLine:   logEvt.Message,
+				}
+
+				select {
+				case logEntryChan <- entry:
+				default:
+					// Buffer full, drop entry
+				}
 				return nil
-			}
-
-			// Filter by instance/router: LogAppendedEvent has RouterID, use it for basic filtering
-			if logEvt.RouterID != routerID {
-				return nil
-			}
-
-			// Map event log level to GraphQL model level
-			lvl := mapEventLevelToModel(logEvt.Level)
-
-			// Apply level filter if specified
-			if levelFilter != nil && lvl != *levelFilter {
-				return nil
-			}
-
-			entry := &graphql1.LogEntry{
-				Timestamp: event.GetTimestamp(),
-				Level:     lvl,
-				Message:   logEvt.Message,
-				Source:    logEvt.Topic,
-				RawLine:   logEvt.Message,
-			}
-
-			select {
-			case logEntryChan <- entry:
-			default:
-				// Buffer full, drop entry
-			}
-			return nil
-		})
+			},
+		)
 		if err != nil {
 			// If subscription fails, just close the channel
 			return
@@ -296,33 +321,36 @@ func (r *subscriptionResolver) DiagnosticsProgress(ctx context.Context, routerID
 		diagChan := make(chan *graphql1.DiagnosticsProgress, 10)
 
 		// Subscribe to diagnostic completion events
-		err := r.EventBus.Subscribe("service.diagnostics.completed", func(evtCtx context.Context, event events.Event) error {
-			genEvt, ok := event.(*events.GenericEvent)
-			if !ok {
+		err := r.EventBus.Subscribe(
+			"service.diagnostics.completed",
+			func(evtCtx context.Context, event events.Event) error {
+				genEvt, ok := event.(*events.GenericEvent)
+				if !ok {
+					return nil
+				}
+
+				instID, _ := genEvt.Data["instanceId"].(string) //nolint:errcheck // zero value acceptable on failed type assertion
+				if instID != instanceID {
+					return nil
+				}
+
+				runGroupID, _ := genEvt.Data["runGroupId"].(string) //nolint:errcheck // zero value acceptable on failed type assertion
+				progress := &graphql1.DiagnosticsProgress{
+					InstanceID:     instanceID,
+					RunGroupID:     runGroupID,
+					Progress:       100,
+					CompletedTests: 1,
+					TotalTests:     1,
+					Timestamp:      event.GetTimestamp(),
+				}
+
+				select {
+				case diagChan <- progress:
+				default:
+				}
 				return nil
-			}
-
-			instID, _ := genEvt.Data["instanceId"].(string)
-			if instID != instanceID {
-				return nil
-			}
-
-			runGroupID, _ := genEvt.Data["runGroupId"].(string)
-			progress := &graphql1.DiagnosticsProgress{
-				InstanceID:     instanceID,
-				RunGroupID:     runGroupID,
-				Progress:       100,
-				CompletedTests: 1,
-				TotalTests:     1,
-				Timestamp:      event.GetTimestamp(),
-			}
-
-			select {
-			case diagChan <- progress:
-			default:
-			}
-			return nil
-		})
+			},
+		)
 		if err != nil {
 			return
 		}
@@ -345,77 +373,4 @@ func (r *subscriptionResolver) DiagnosticsProgress(ctx context.Context, routerID
 	}()
 
 	return progressChan, nil
-}
-
-// readLastNLines reads the last N lines from a log file and parses them.
-func readLastNLines(logFilePath, serviceName string, maxLines int) ([]*graphql1.LogEntry, int, error) {
-	file, err := os.Open(logFilePath)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return []*graphql1.LogEntry{}, 0, nil
-		}
-		return nil, 0, errors.Wrap(err, errors.CodeResourceNotFound, errors.CategoryInternal, "failed to open log file")
-	}
-	defer file.Close()
-
-	var lines []string
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		lines = append(lines, scanner.Text())
-	}
-	if err := scanner.Err(); err != nil {
-		return nil, 0, errors.Wrap(err, errors.CodeResourceNotFound, errors.CategoryInternal, "failed to scan log file")
-	}
-
-	totalLines := len(lines)
-
-	// Take last N lines
-	startIdx := 0
-	if totalLines > maxLines {
-		startIdx = totalLines - maxLines
-	}
-	lines = lines[startIdx:]
-
-	entries := make([]*graphql1.LogEntry, 0, len(lines))
-	parser := resources.DefaultLogParser
-	for _, line := range lines {
-		if line == "" {
-			continue
-		}
-		parsed := parser(line, serviceName)
-		entry := &graphql1.LogEntry{
-			Timestamp: parsed.Timestamp,
-			Level:     convertLogLevel(parsed.Level),
-			Message:   parsed.Message,
-			Source:    parsed.Source,
-			RawLine:   parsed.RawLine,
-		}
-		if len(parsed.Metadata) > 0 {
-			meta := make(map[string]any, len(parsed.Metadata))
-			for k, v := range parsed.Metadata {
-				meta[k] = v
-			}
-			entry.Metadata = meta
-		}
-		entries = append(entries, entry)
-	}
-
-	return entries, totalLines, nil
-}
-
-// mapEventLevelToModel converts event log level strings to GraphQL model levels.
-func mapEventLevelToModel(level string) graphql1.LogLevel {
-	levelLower := strings.ToLower(strings.TrimSpace(level))
-	switch levelLower {
-	case "debug":
-		return graphql1.LogLevelDebug
-	case "info":
-		return graphql1.LogLevelInfo
-	case "warn", "warning":
-		return graphql1.LogLevelWarn
-	case "error":
-		return graphql1.LogLevelError
-	default:
-		return graphql1.LogLevelUnknown
-	}
 }

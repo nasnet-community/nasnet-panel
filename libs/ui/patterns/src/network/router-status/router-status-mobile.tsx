@@ -31,14 +31,6 @@ import { STATUS_BG_COLORS, STATUS_TEXT_COLORS, StatusIndicator } from './status-
 
 import type { RouterStatusPresenterProps } from './types';
 
-// ===== Protocol Labels =====
-
-const PROTOCOL_LABELS = {
-  REST_API: 'REST API',
-  SSH: 'SSH',
-  TELNET: 'Telnet',
-};
-
 // ===== Component =====
 
 /**
@@ -70,14 +62,14 @@ export function RouterStatusMobile({ state, className }: RouterStatusPresenterPr
       variant="outline"
       className={cn(
         // Touch target
-        'min-h-[44px] min-w-[44px] px-3 py-2',
+        'min-h-[44px] px-component-md',
         // Layout
-        'flex items-center gap-2',
+        'flex items-center gap-component-sm',
         // Styling based on status
         STATUS_BG_COLORS[data.status],
         'border-transparent',
         // Interactive states
-        'cursor-pointer active:opacity-80 transition-opacity',
+        'cursor-pointer active:opacity-80 transition-opacity duration-150',
         className
       )}
     >
@@ -92,7 +84,7 @@ export function RouterStatusMobile({ state, className }: RouterStatusPresenterPr
       )}
 
       {/* Status Text */}
-      <span className={cn('text-sm font-medium', STATUS_TEXT_COLORS[data.status])}>
+      <span className={cn('text-sm font-semibold', STATUS_TEXT_COLORS[data.status])}>
         {data.status === 'CONNECTING' && data.reconnectAttempt > 0
           ? `${data.reconnectAttempt}/${data.maxReconnectAttempts}`
           : statusLabel}
@@ -112,34 +104,41 @@ export function RouterStatusMobile({ state, className }: RouterStatusPresenterPr
         </button>
       </SheetTrigger>
 
-      <SheetContent side="bottom" className="rounded-t-xl">
+      <SheetContent side="bottom" className="rounded-t-[var(--semantic-radius-card)]">
         <SheetHeader className="text-left">
-          <SheetTitle className="flex items-center gap-2">
-            {/* Status Icon */}
+          <SheetTitle className="flex items-center gap-component-sm">
+            {/* Router Icon Container */}
             <div
               className={cn(
-                'flex items-center justify-center w-8 h-8 rounded-full',
-                STATUS_BG_COLORS[data.status]
+                'flex items-center justify-center h-10 w-10 rounded-lg shrink-0',
+                'bg-primary/10'
               )}
             >
               {data.status === 'CONNECTING' ? (
                 <RefreshCw
-                  className={cn('h-4 w-4 animate-spin', STATUS_TEXT_COLORS[data.status])}
+                  className={cn('h-5 w-5 animate-spin', STATUS_TEXT_COLORS[data.status])}
                 />
               ) : data.status === 'DISCONNECTED' || data.status === 'ERROR' ? (
-                <WifiOff className={cn('h-4 w-4', STATUS_TEXT_COLORS[data.status])} />
+                <WifiOff className={cn('h-5 w-5', STATUS_TEXT_COLORS[data.status])} />
               ) : (
-                <Wifi className={cn('h-4 w-4', STATUS_TEXT_COLORS[data.status])} />
+                <Wifi className={cn('h-5 w-5', STATUS_TEXT_COLORS[data.status])} />
               )}
             </div>
 
-            {/* Status Label */}
-            <span className={STATUS_TEXT_COLORS[data.status]}>{statusLabel}</span>
+            {/* Router Name and Status */}
+            <div className="flex flex-col">
+              <span className="text-base font-semibold text-foreground">
+                Router
+              </span>
+              <span className={cn('text-xs', STATUS_TEXT_COLORS[data.status])}>
+                {statusLabel}
+              </span>
+            </div>
 
             {/* Reconnect Attempts */}
             {data.status === 'CONNECTING' && data.reconnectAttempt > 0 && (
-              <span className="text-sm font-normal text-muted-foreground">
-                (Attempt {data.reconnectAttempt} of {data.maxReconnectAttempts})
+              <span className="text-xs font-normal text-muted-foreground ml-auto">
+                {data.reconnectAttempt}/{data.maxReconnectAttempts}
               </span>
             )}
           </SheetTitle>
@@ -156,61 +155,20 @@ export function RouterStatusMobile({ state, className }: RouterStatusPresenterPr
         </SheetHeader>
 
         {/* Details Section */}
-        <div className="py-6 space-y-4">
-          {/* Protocol & Latency Row */}
-          {isOnline && (data.protocol || data.latencyMs !== null) && (
-            <div className="flex justify-between items-center">
-              {data.protocol && (
-                <div>
-                  <p className="text-xs text-muted-foreground">Protocol</p>
-                  <p className="text-sm font-medium">
-                    {PROTOCOL_LABELS[data.protocol] || data.protocol}
-                  </p>
-                </div>
-              )}
-              {data.latencyMs !== null && (
-                <div className="text-right">
-                  <p className="text-xs text-muted-foreground">Latency</p>
-                  <p
-                    className={cn(
-                      'text-sm font-mono font-medium',
-                      data.latencyMs < 100
-                        ? 'text-semantic-success'
-                        : data.latencyMs < 300
-                          ? 'text-semantic-warning'
-                          : 'text-semantic-error'
-                    )}
-                  >
-                    {data.latencyMs}ms
-                  </p>
-                </div>
-              )}
+        <div className="py-component-lg space-y-component-lg">
+          {/* Model */}
+          {data.model && (
+            <div>
+              <p className="text-xs text-muted-foreground">Model</p>
+              <p className="text-sm text-foreground font-semibold">{data.model}</p>
             </div>
           )}
 
-          {/* Router Info Row */}
-          {isOnline && (data.model || data.version) && (
-            <div className="flex justify-between items-center">
-              {data.model && (
-                <div>
-                  <p className="text-xs text-muted-foreground">Model</p>
-                  <p className="text-sm font-medium">{data.model}</p>
-                </div>
-              )}
-              {data.version && (
-                <div className="text-right">
-                  <p className="text-xs text-muted-foreground">RouterOS</p>
-                  <p className="text-sm font-medium">{data.version}</p>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Uptime Row */}
-          {isOnline && data.uptime && (
+          {/* Uptime */}
+          {data.uptime && (
             <div>
               <p className="text-xs text-muted-foreground">Uptime</p>
-              <p className="text-sm font-medium">{data.uptime}</p>
+              <p className="text-sm font-mono text-foreground">{data.uptime}</p>
             </div>
           )}
         </div>

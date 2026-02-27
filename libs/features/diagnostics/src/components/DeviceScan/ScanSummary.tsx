@@ -196,7 +196,7 @@ export const ScanSummary = memo(function ScanSummary({
 
   return (
     <Card className={cn('p-component-lg', className)}>
-      <h3 className="text-lg font-semibold font-display mb-component-md">Scan Summary</h3>
+      <h3 className="text-lg font-semibold font-display text-category-networking mb-component-md">Scan Summary</h3>
       {/* Note: This component is memoized to prevent unnecessary re-renders */}
 
       {/* Statistics Grid */}

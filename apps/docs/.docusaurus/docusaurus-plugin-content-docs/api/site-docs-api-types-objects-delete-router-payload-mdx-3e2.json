@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/delete-router-payload",
+  "title": "DeleteRouterPayload",
+  "description": "No description",
+  "source": "@site/docs/api/types/objects/delete-router-payload.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/delete-router-payload",
+  "permalink": "/api/types/objects/delete-router-payload",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "delete-router-payload",
+    "title": "DeleteRouterPayload"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "DeleteResult",
+    "permalink": "/api/types/objects/delete-result"
+  },
+  "next": {
+    "title": "DependencyGraphEdge",
+    "permalink": "/api/types/objects/dependency-graph-edge"
+  }
+}

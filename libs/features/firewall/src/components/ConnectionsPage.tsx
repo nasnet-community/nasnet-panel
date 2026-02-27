@@ -134,10 +134,10 @@ export const ConnectionsPage = memo(function ConnectionsPage() {
   // Early return if no router selected
   if (!routerId) {
     return (
-      <div className="flex items-center justify-center h-full p-8" role="status" aria-label="No router selected">
+      <div className="flex items-center justify-center h-full p-component-xl" role="status" aria-label="No router selected">
         <div className="text-center">
-          <Activity className="w-12 h-12 mx-auto mb-4 text-muted-foreground" aria-hidden="true" />
-          <h2 className="text-xl font-semibold mb-2">No Router Selected</h2>
+          <Activity className="w-12 h-12 mx-auto mb-component-md text-muted-foreground" aria-hidden="true" />
+          <h2 className="text-xl font-semibold mb-component-sm">No Router Selected</h2>
           <p className="text-muted-foreground">
             Please select a router to view connection tracking.
           </p>
@@ -147,11 +147,11 @@ export const ConnectionsPage = memo(function ConnectionsPage() {
   }
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-component-xl p-component-xl">
       {/* Page Header */}
       <header>
         <h1 className="text-3xl font-bold tracking-tight">Connection Tracking</h1>
-        <p className="text-muted-foreground mt-2">
+        <p className="text-muted-foreground mt-component-sm">
           Monitor active connections and configure connection tracking settings.
         </p>
       </header>
@@ -161,14 +161,14 @@ export const ConnectionsPage = memo(function ConnectionsPage() {
         <TabsList className="bg-muted">
           <TabsTrigger
             value="list"
-            className="flex items-center gap-2"
+            className="flex items-center gap-component-sm"
           >
             <Activity className="w-4 h-4" aria-hidden="true" />
             <span>Connections</span>
           </TabsTrigger>
           <TabsTrigger
             value="settings"
-            className="flex items-center gap-2"
+            className="flex items-center gap-component-sm"
           >
             <Settings className="w-4 h-4" aria-hidden="true" />
             <span>Settings</span>
@@ -176,7 +176,7 @@ export const ConnectionsPage = memo(function ConnectionsPage() {
         </TabsList>
 
         {/* Connections List Tab */}
-        <TabsContent value="list" className="space-y-4 mt-6">
+        <TabsContent value="list" className="space-y-component-lg mt-component-xl">
           <ConnectionList
             connectionList={connectionListHook}
             onKillConnection={handleKillConnection}
@@ -186,7 +186,7 @@ export const ConnectionsPage = memo(function ConnectionsPage() {
         </TabsContent>
 
         {/* Settings Tab */}
-        <TabsContent value="settings" className="space-y-4 mt-6">
+        <TabsContent value="settings" className="space-y-component-lg mt-component-xl">
           <ConnectionTrackingSettings
             settingsHook={settingsHook}
             loading={isLoadingSettings}

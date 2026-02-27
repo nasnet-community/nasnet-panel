@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/subscriptions/diagnostics-progress",
+  "title": "diagnosticsProgress",
+  "description": "Subscribe to diagnostic progress updates.",
+  "source": "@site/docs/api/operations/subscriptions/diagnostics-progress.mdx",
+  "sourceDirName": "api/operations/subscriptions",
+  "slug": "/api/operations/subscriptions/diagnostics-progress",
+  "permalink": "/api/operations/subscriptions/diagnostics-progress",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "diagnostics-progress",
+    "title": "diagnosticsProgress"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "deviceRoutingChanged",
+    "permalink": "/api/operations/subscriptions/device-routing-changed"
+  },
+  "next": {
+    "title": "installProgress",
+    "permalink": "/api/operations/subscriptions/install-progress"
+  }
+}

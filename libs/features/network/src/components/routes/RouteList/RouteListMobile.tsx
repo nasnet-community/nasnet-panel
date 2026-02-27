@@ -112,7 +112,7 @@ function RouteListMobileComponent({
       </div>
 
       {/* Filters - Vertical Stack */}
-      <div className="space-y-component-sm">
+      <div className="space-y-component-md">
         <Input
           placeholder="Search destination, gateway..."
           value={filters.searchText || ''}
@@ -180,7 +180,7 @@ function RouteListMobileComponent({
 
       {/* Error message */}
       {error && (
-        <div role="alert" className="flex items-center gap-component-sm rounded-lg border border-error/50 bg-error/10 p-component-sm text-sm text-error">
+        <div role="alert" className="flex items-center gap-component-sm rounded-lg border border-error bg-error/10 p-component-sm text-sm text-error">
           <AlertCircle className="h-4 w-4" aria-hidden="true" />
           <p>{error}</p>
         </div>
@@ -188,7 +188,7 @@ function RouteListMobileComponent({
 
       {/* Loading state */}
       {loading && (
-        <div className="text-center py-8 text-muted-foreground">
+        <div className="text-center py-component-lg text-muted-foreground">
           Loading routes...
         </div>
       )}
@@ -196,7 +196,7 @@ function RouteListMobileComponent({
       {/* Empty state */}
       {!loading && filteredRoutes.length === 0 && (
         <Card>
-          <CardContent className="py-8 text-center text-muted-foreground">
+          <CardContent className="py-component-lg text-center text-muted-foreground">
             No routes found. Add a route to get started.
           </CardContent>
         </Card>
@@ -219,7 +219,7 @@ function RouteListMobileComponent({
 
       {/* Footer info */}
       {!loading && filteredRoutes.length > 0 && (
-        <div className="text-sm text-muted-foreground text-center pb-4">
+        <div className="text-sm text-muted-foreground text-center pb-component-sm">
           Showing {filteredRoutes.length} of {routes.length} route
           {routes.length !== 1 ? 's' : ''}
         </div>
@@ -286,7 +286,7 @@ function RouteCard({
         {route.gateway && (
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">Gateway:</span>
-            <code className="text-sm font-mono">{route.gateway}</code>
+            <code className="text-sm font-mono text-foreground">{route.gateway}</code>
           </div>
         )}
 

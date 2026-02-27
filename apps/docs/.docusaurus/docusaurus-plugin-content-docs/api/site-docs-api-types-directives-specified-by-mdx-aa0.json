@@ -1,0 +1,26 @@
+{
+  "id": "api/types/directives/specified-by",
+  "title": "specifiedBy",
+  "description": "Exposes a URL that specifies the behavior of this scalar.",
+  "source": "@site/docs/api/types/directives/specified-by.mdx",
+  "sourceDirName": "api/types/directives",
+  "slug": "/api/types/directives/specified-by",
+  "permalink": "/api/types/directives/specified-by",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "specified-by",
+    "title": "specifiedBy"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "sensitive",
+    "permalink": "/api/types/directives/sensitive"
+  },
+  "next": {
+    "title": "validate",
+    "permalink": "/api/types/directives/validate"
+  }
+}

@@ -57,7 +57,7 @@ function QuietHoursConfigDesktopComponent({
   return (
     <Card className={cn('w-full', className)}>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
+        <CardTitle className="flex items-center gap-component-sm">
           <Moon className="h-5 w-5" aria-hidden="true" />
           {t('quietHours.title')}
         </CardTitle>
@@ -76,7 +76,7 @@ function QuietHoursConfigDesktopComponent({
             />
 
             {/* Duration display */}
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <div className="flex items-center gap-component-sm text-sm text-muted-foreground">
               <Clock className="h-4 w-4" aria-hidden="true" />
               <span>
                 {t('quietHours.duration')}: <strong className="text-foreground">{duration}</strong>
@@ -116,10 +116,10 @@ function QuietHoursConfigDesktopComponent({
         {/* Bypass Critical Alerts */}
         <div className="space-y-component-sm">
           <div className="flex items-center justify-between">
-            <div className="space-y-1">
+            <div className="space-y-component-xs">
               <Label
                 htmlFor="bypass-critical"
-                className="text-base font-medium flex items-center gap-2 cursor-pointer"
+                className="text-base font-medium flex items-center gap-component-sm cursor-pointer"
               >
                 <Shield className="h-4 w-4" aria-hidden="true" />
                 {t('quietHours.bypassCritical')}

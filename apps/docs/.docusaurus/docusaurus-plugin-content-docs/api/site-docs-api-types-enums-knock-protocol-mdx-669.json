@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/knock-protocol",
+  "title": "KnockProtocol",
+  "description": "Protocol for knock port.",
+  "source": "@site/docs/api/types/enums/knock-protocol.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/knock-protocol",
+  "permalink": "/api/types/enums/knock-protocol",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "knock-protocol",
+    "title": "KnockProtocol"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "KillSwitchMode",
+    "permalink": "/api/types/enums/kill-switch-mode"
+  },
+  "next": {
+    "title": "KnockStatus",
+    "permalink": "/api/types/enums/knock-status"
+  }
+}

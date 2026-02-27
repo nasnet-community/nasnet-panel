@@ -1339,6 +1339,25 @@ export type {
 } from './firewall-log-viewer';
 
 // ============================================================================
+// Firewall Log Filters (NAS-5.6)
+// ============================================================================
+
+// FirewallLogFilters - Filter panel for firewall logs
+export {
+  FirewallLogFilters,
+  FirewallLogFiltersDesktop,
+  FirewallLogFiltersMobile,
+  useFirewallLogFilters,
+} from './firewall-log-filters';
+export type {
+  FirewallLogFiltersProps,
+  FirewallLogFilterState,
+  TimeRangePreset,
+  TimeRange as FirewallLogTimeRange,
+  PortRange,
+} from './firewall-log-filters';
+
+// ============================================================================
 // Firewall Log Statistics (NAS-7.14)
 // ============================================================================
 

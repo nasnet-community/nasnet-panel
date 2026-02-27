@@ -1874,6 +1874,10 @@ var (
 		{Name: "tun_name", Type: field.TypeString, Nullable: true, Size: 15},
 		{Name: "routing_mark", Type: field.TypeString, Size: 255},
 		{Name: "status", Type: field.TypeEnum, Enums: []string{"creating", "active", "error", "removing"}, Default: "creating"},
+		{Name: "routing_mode", Type: field.TypeEnum, Enums: []string{"bridge", "advanced", "legacy"}, Default: "legacy"},
+		{Name: "ingress_vlan_id", Type: field.TypeInt, Nullable: true},
+		{Name: "egress_vlan_ids", Type: field.TypeJSON, Nullable: true},
+		{Name: "container_ip", Type: field.TypeString, Nullable: true, Size: 45},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "instance_id", Type: field.TypeString, Unique: true, Size: 26},
@@ -1886,7 +1890,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "virtual_interfaces_service_instances_virtual_interface",
-				Columns:    []*schema.Column{VirtualInterfacesColumns[11]},
+				Columns:    []*schema.Column{VirtualInterfacesColumns[15]},
 				RefColumns: []*schema.Column{ServiceInstancesColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -1895,7 +1899,7 @@ var (
 			{
 				Name:    "virtualinterface_instance_id",
 				Unique:  true,
-				Columns: []*schema.Column{VirtualInterfacesColumns[11]},
+				Columns: []*schema.Column{VirtualInterfacesColumns[15]},
 			},
 			{
 				Name:    "virtualinterface_vlan_id",
@@ -1906,6 +1910,11 @@ var (
 				Name:    "virtualinterface_status",
 				Unique:  false,
 				Columns: []*schema.Column{VirtualInterfacesColumns[8]},
+			},
+			{
+				Name:    "virtualinterface_routing_mode",
+				Unique:  false,
+				Columns: []*schema.Column{VirtualInterfacesColumns[9]},
 			},
 		},
 	}

@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/delete-custom-alert-rule-template",
+  "title": "deleteCustomAlertRuleTemplate",
+  "description": "Delete a custom alert rule template (built-ins cannot be deleted)",
+  "source": "@site/docs/api/operations/mutations/delete-custom-alert-rule-template.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/delete-custom-alert-rule-template",
+  "permalink": "/api/operations/mutations/delete-custom-alert-rule-template",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "delete-custom-alert-rule-template",
+    "title": "deleteCustomAlertRuleTemplate"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "deleteChangeSet",
+    "permalink": "/api/operations/mutations/delete-change-set"
+  },
+  "next": {
+    "title": "deleteFirewallTemplate",
+    "permalink": "/api/operations/mutations/delete-firewall-template"
+  }
+}

@@ -221,7 +221,7 @@ export const WithError: Story = {
     <div className="space-y-2">
       <Label htmlFor="json-field">Service Configuration (JSON)</Label>
       <TextArea {...args} id="json-field" aria-invalid={true} />
-      <p className="text-xs text-destructive">
+      <p className="text-xs text-error">
         Invalid JSON syntax. Please check for missing commas or brackets.
       </p>
     </div>

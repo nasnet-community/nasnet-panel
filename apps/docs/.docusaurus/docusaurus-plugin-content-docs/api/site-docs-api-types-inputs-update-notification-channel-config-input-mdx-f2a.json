@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/update-notification-channel-config-input",
+  "title": "UpdateNotificationChannelConfigInput",
+  "description": "Input for updating an existing notification channel configuration",
+  "source": "@site/docs/api/types/inputs/update-notification-channel-config-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/update-notification-channel-config-input",
+  "permalink": "/api/types/inputs/update-notification-channel-config-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "update-notification-channel-config-input",
+    "title": "UpdateNotificationChannelConfigInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "UpdateInterfaceInput",
+    "permalink": "/api/types/inputs/update-interface-input"
+  },
+  "next": {
+    "title": "UpdatePortMirrorInput",
+    "permalink": "/api/types/inputs/update-port-mirror-input"
+  }
+}

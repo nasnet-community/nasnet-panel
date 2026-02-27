@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/detect-wan-interface",
+  "title": "detectWanInterface",
+  "description": "Detect WAN interface from default route",
+  "source": "@site/docs/api/operations/queries/detect-wan-interface.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/detect-wan-interface",
+  "permalink": "/api/operations/queries/detect-wan-interface",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "detect-wan-interface",
+    "title": "detectWanInterface"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "detectOrphanedVLANs",
+    "permalink": "/api/operations/queries/detect-orphaned-vlans"
+  },
+  "next": {
+    "title": "deviceRoutingMatrix",
+    "permalink": "/api/operations/queries/device-routing-matrix"
+  }
+}

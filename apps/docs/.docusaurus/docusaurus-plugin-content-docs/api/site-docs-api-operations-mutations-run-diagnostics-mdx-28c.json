@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/run-diagnostics",
+  "title": "runDiagnostics",
+  "description": "Run comprehensive diagnostics on a router connection.",
+  "source": "@site/docs/api/operations/mutations/run-diagnostics.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/run-diagnostics",
+  "permalink": "/api/operations/mutations/run-diagnostics",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "run-diagnostics",
+    "title": "runDiagnostics"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "rollbackInstance",
+    "permalink": "/api/operations/mutations/rollback-instance"
+  },
+  "next": {
+    "title": "runDnsLookup",
+    "permalink": "/api/operations/mutations/run-dns-lookup"
+  }
+}

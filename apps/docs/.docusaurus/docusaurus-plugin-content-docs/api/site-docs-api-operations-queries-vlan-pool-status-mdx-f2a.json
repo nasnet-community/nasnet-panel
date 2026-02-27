@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/vlan-pool-status",
+  "title": "vlanPoolStatus",
+  "description": "Get VLAN pool status for a router.",
+  "source": "@site/docs/api/operations/queries/vlan-pool-status.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/vlan-pool-status",
+  "permalink": "/api/operations/queries/vlan-pool-status",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "vlan-pool-status",
+    "title": "vlanPoolStatus"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "vlanDependencies",
+    "permalink": "/api/operations/queries/vlan-dependencies"
+  },
+  "next": {
+    "title": "vlanTopology",
+    "permalink": "/api/operations/queries/vlan-topology"
+  }
+}

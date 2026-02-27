@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/container-info",
+  "title": "ContainerInfo",
+  "description": "Container-specific capability information",
+  "source": "@site/docs/api/types/objects/container-info.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/container-info",
+  "permalink": "/api/types/objects/container-info",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "container-info",
+    "title": "ContainerInfo"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ConnectionTestResult",
+    "permalink": "/api/types/objects/connection-test-result"
+  },
+  "next": {
+    "title": "CPUMetrics",
+    "permalink": "/api/types/objects/cpumetrics"
+  }
+}

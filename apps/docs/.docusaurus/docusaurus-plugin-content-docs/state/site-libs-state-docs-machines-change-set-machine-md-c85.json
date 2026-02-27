@@ -1,0 +1,24 @@
+{
+  "id": "machines/change-set-machine",
+  "title": "Change Set Machine (Atomic Multi-Resource Operations)",
+  "description": "The Change Set Machine orchestrates atomic multi-resource operations with dependency-aware apply ordering and rollback on failure. It ensures that complex configurations involving multiple resources are either fully applied or fully rolled back—no partial states.",
+  "source": "@site/../../libs/state/docs/machines/change-set-machine.md",
+  "sourceDirName": "machines",
+  "slug": "/machines/change-set-machine",
+  "permalink": "/docs/state/machines/change-set-machine",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/state/docs/machines/change-set-machine.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Machine Hooks Reference",
+    "permalink": "/docs/state/machines/hooks-reference"
+  },
+  "next": {
+    "title": "Configuration Pipeline Machine (Safety Flow)",
+    "permalink": "/docs/state/machines/config-pipeline"
+  }
+}

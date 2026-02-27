@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/port-knock-sequence",
+  "title": "PortKnockSequence",
+  "description": "Port knocking sequence configuration.",
+  "source": "@site/docs/api/types/objects/port-knock-sequence.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/port-knock-sequence",
+  "permalink": "/api/types/objects/port-knock-sequence",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "port-knock-sequence",
+    "title": "PortKnockSequence"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "PortKnockAttempt",
+    "permalink": "/api/types/objects/port-knock-attempt"
+  },
+  "next": {
+    "title": "PortMapping",
+    "permalink": "/api/types/objects/port-mapping"
+  }
+}

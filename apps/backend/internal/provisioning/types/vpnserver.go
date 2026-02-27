@@ -20,15 +20,18 @@ type VPNServer struct {
 
 // VSCredentials represents VPN server user credentials.
 type VSCredentials struct {
-	Username string  `json:"username"`
-	Password string  `json:"password"`
-	Network  *string `json:"network,omitempty"`
+	Username string   `json:"username"`
+	Password string   `json:"password"` //nolint:gosec // G101: credential field
+	Network  *string  `json:"network,omitempty"`
+	VPNType  []string `json:"vpnType,omitempty"`
 }
 
 // VSNetwork represents a VPN server network.
+// Type field captures the TS string union: "Domestic" | "Split" | "Foreign" | "VPN"
 type VSNetwork struct {
-	Name   string `json:"name"`
-	Subnet string `json:"subnet"`
+	Name   string  `json:"name"`
+	Subnet string  `json:"subnet"`
+	Type   *string `json:"type,omitempty"`
 }
 
 // BaseVPNServerConfig holds common VPN server configuration.
@@ -39,6 +42,10 @@ type BaseVPNServerConfig struct {
 	Authentication   AuthMethod `json:"authentication,omitempty"`
 	PacketSize       *int       `json:"packetSize,omitempty"`
 	Network          *VSNetwork `json:"network,omitempty"`
+	// TS PacketSize fields (MaxMtu, MaxMru, MRRU)
+	MaxMtu *int    `json:"maxMtu,omitempty"`
+	MaxMru *int    `json:"maxMru,omitempty"`
+	MRRU   *string `json:"mrru,omitempty"`
 }
 
 // === PPTP Server ===
@@ -58,22 +65,28 @@ type PptpServerConfig struct {
 // L2tpServerConfig defines L2TP server configuration.
 type L2tpServerConfig struct {
 	BaseVPNServerConfig
-	ListenAddress *string       `json:"listenAddress,omitempty"`
-	UseIPsec      *bool         `json:"useIpsec,omitempty"`
-	IPsecSecret   *string       `json:"ipsecSecret,omitempty"`
-	L2TPVersion   *string       `json:"l2tpVersion,omitempty"`
-	FastPath      *bool         `json:"fastPath,omitempty"`
-	CookieLength  *int          `json:"cookieLength,omitempty"`
-	DigestHash    *string       `json:"digestHash,omitempty"`
-	CircuitId     *string       `json:"circuitId,omitempty"`
-	L2TPV3Config  *L2TPV3Config `json:"l2tpv3Config,omitempty"`
+	ListenAddress      *string       `json:"listenAddress,omitempty"`
+	UseIPsec           *bool         `json:"useIpsec,omitempty"`
+	IPsecSecret        *string       `json:"ipsecSecret,omitempty"`
+	L2TPVersion        *string       `json:"l2tpVersion,omitempty"`
+	FastPath           *bool         `json:"fastPath,omitempty"`
+	CookieLength       *int          `json:"cookieLength,omitempty"`
+	DigestHash         *string       `json:"digestHash,omitempty"`
+	CircuitId          *string       `json:"circuitId,omitempty"`
+	L2TPV3Config       *L2TPV3Config `json:"l2tpv3Config,omitempty"`
+	AllowFastPath      *bool         `json:"allowFastPath,omitempty"`
+	MaxSessions        *int          `json:"maxSessions,omitempty"`
+	OneSessionPerHost  *bool         `json:"oneSessionPerHost,omitempty"`
+	AcceptProtoVersion *string       `json:"acceptProtoVersion,omitempty"`
+	CallerIdType       *string       `json:"callerIdType,omitempty"`
 }
 
 // L2TPV3Config defines L2TPv3 specific configuration.
 type L2TPV3Config struct {
-	SessionID       *string `json:"sessionId,omitempty"`
-	CookieLength    *int    `json:"cookieLength,omitempty"`
-	L3Encapsulation *string `json:"l3Encapsulation,omitempty"`
+	SessionID          *string `json:"sessionId,omitempty"`
+	CookieLength       *int    `json:"cookieLength,omitempty"`
+	L3Encapsulation    *string `json:"l3Encapsulation,omitempty"`
+	EtherInterfaceList *string `json:"etherInterfaceList,omitempty"`
 }
 
 // === SSTP Server ===
@@ -81,13 +94,17 @@ type L2TPV3Config struct {
 // SstpServerConfig defines SSTP server configuration.
 type SstpServerConfig struct {
 	BaseVPNServerConfig
-	ListenAddress     *string     `json:"listenAddress,omitempty"`
-	ListenPort        *int        `json:"listenPort,omitempty"`
-	Certificate       string      `json:"certificate"`
-	Ciphers           *string     `json:"ciphers,omitempty"`
-	TLSVersion        *TLSVersion `json:"tlsVersion,omitempty"`
-	RequireEncryption *bool       `json:"requireEncryption,omitempty"`
-	CompressData      *bool       `json:"compressData,omitempty"`
+	ListenAddress           *string     `json:"listenAddress,omitempty"`
+	ListenPort              *int        `json:"listenPort,omitempty"`
+	Certificate             string      `json:"certificate"`
+	Ciphers                 *string     `json:"ciphers,omitempty"`
+	TLSVersion              *TLSVersion `json:"tlsVersion,omitempty"`
+	RequireEncryption       *bool       `json:"requireEncryption,omitempty"`
+	CompressData            *bool       `json:"compressData,omitempty"`
+	ForceAes                *bool       `json:"forceAes,omitempty"`
+	Pfs                     *bool       `json:"pfs,omitempty"`
+	VerifyClientCertificate *bool       `json:"verifyClientCertificate,omitempty"`
+	Port                    *int        `json:"port,omitempty"`
 }
 
 // === OpenVPN Server ===
@@ -108,6 +125,16 @@ type OpenVpnServerConfig struct {
 	AllowedSubnets           []string                  `json:"allowedSubnets,omitempty"`
 	IPv6Config               *OpenVpnIPv6Config        `json:"ipv6Config,omitempty"`
 	Encryption               *OpenVpnEncryptionConfig  `json:"encryption,omitempty"`
+	// TS fields
+	Name            *string  `json:"name,omitempty"`
+	Mode            *string  `json:"mode,omitempty"`
+	VRF             *string  `json:"vrf,omitempty"`
+	RedirectGateway *bool    `json:"redirectGateway,omitempty"`
+	PushRoutes      []string `json:"pushRoutes,omitempty"`
+	RenegSec        *int     `json:"renegSec,omitempty"`
+	Netmask         *string  `json:"netmask,omitempty"`
+	MacAddress      *string  `json:"macAddress,omitempty"`
+	AddressPool     *string  `json:"addressPool,omitempty"`
 }
 
 // OpenVpnServerCertificates holds OpenVPN server certificates.
@@ -163,9 +190,18 @@ type Ike2ServerConfig struct {
 
 // IpsecProfileConfig holds IPsec profile configuration.
 type IpsecProfileConfig struct {
-	Name   string  `json:"name"`
-	Phase1 *string `json:"phase1,omitempty"`
-	Phase2 *string `json:"phase2,omitempty"`
+	Name               string  `json:"name"`
+	Phase1             *string `json:"phase1,omitempty"`
+	Phase2             *string `json:"phase2,omitempty"`
+	HashAlgorithm      *string `json:"hashAlgorithm,omitempty"`
+	EncAlgorithm       *string `json:"encAlgorithm,omitempty"`
+	DhGroup            *string `json:"dhGroup,omitempty"`
+	Lifetime           *string `json:"lifetime,omitempty"`
+	NatTraversal       *bool   `json:"natTraversal,omitempty"`
+	DpdInterval        *string `json:"dpdInterval,omitempty"`
+	DpdMaximumFailures *int    `json:"dpdMaximumFailures,omitempty"`
+	Lifebytes          *int    `json:"lifebytes,omitempty"`
+	ProposalCheck      *string `json:"proposalCheck,omitempty"`
 }
 
 // IpsecProposalConfig holds IPsec proposal configuration.
@@ -236,11 +272,14 @@ type WireguardServerConfig struct {
 
 // WireguardInterfaceConfig defines Wireguard interface configuration.
 type WireguardInterfaceConfig struct {
-	PrivateKey string  `json:"privateKey"`
-	Address    string  `json:"address"`
-	ListenPort int     `json:"listenPort"`
-	MTU        *int    `json:"mtu,omitempty"`
-	DNS        *string `json:"dns,omitempty"`
+	PrivateKey string     `json:"privateKey"` //nolint:gosec // G101: credential field
+	Address    string     `json:"address"`
+	ListenPort int        `json:"listenPort"`
+	MTU        *int       `json:"mtu,omitempty"`
+	DNS        *string    `json:"dns,omitempty"`
+	Name       *string    `json:"name,omitempty"`
+	PublicKey  *string    `json:"publicKey,omitempty"`
+	VSNetwork  *VSNetwork `json:"vsNetwork,omitempty"`
 }
 
 // WireguardPeerConfig defines a Wireguard peer configuration.
@@ -251,12 +290,19 @@ type WireguardPeerConfig struct {
 	PresharedKey        *string              `json:"presharedKey,omitempty"`
 	PersistentKeepalive *int                 `json:"persistentKeepalive,omitempty"`
 	Client              *WireguardPeerClient `json:"client,omitempty"`
+	Responder           *bool                `json:"responder,omitempty"`
+	Comment             *string              `json:"comment,omitempty"`
 }
 
 // WireguardPeerClient holds Wireguard peer client information.
 type WireguardPeerClient struct {
-	Name    string `json:"name"`
-	Enabled *bool  `json:"enabled,omitempty"`
+	Name       string  `json:"name"`
+	Enabled    *bool   `json:"enabled,omitempty"`
+	Address    *string `json:"address,omitempty"`
+	DNS        *string `json:"dns,omitempty"`
+	Endpoint   *string `json:"endpoint,omitempty"`
+	Keepalive  *int    `json:"keepalive,omitempty"`
+	ListenPort *int    `json:"listenPort,omitempty"`
 }
 
 // === PPP Profile and Secrets ===
@@ -272,43 +318,106 @@ type PPPProfile struct {
 }
 
 // PPPGeneralConfig holds PPP general configuration.
+// Includes both Go fields and TS sub-struct fields from PPPGeneral.
 type PPPGeneralConfig struct {
+	// Go fields
 	SessionTimeout  *int  `json:"sessionTimeout,omitempty"`
 	IdleTimeout     *int  `json:"idleTimeout,omitempty"`
 	UseIpv6         *bool `json:"useIpv6,omitempty"`
 	ChangeIpAddress *bool `json:"changeIpAddress,omitempty"`
+	// TS sub-struct fields
+	Address *PPPGeneralAddress `json:"address,omitempty"`
+	Bridge  *PPPGeneralBridge  `json:"bridge,omitempty"`
+	Filter  *PPPGeneralFilter  `json:"filter,omitempty"`
+	Options *PPPGeneralOptions `json:"options,omitempty"`
+}
+
+// PPPGeneralAddress holds PPP profile address configuration.
+type PPPGeneralAddress struct {
+	Name             *string `json:"name,omitempty"`
+	LocalAddress     *string `json:"localAddress,omitempty"`
+	RemoteAddress    *string `json:"remoteAddress,omitempty"`
+	RemoteIpv6Prefix *string `json:"remoteIpv6PrefixPool,omitempty"`
+	DHCPv6PDPool     *string `json:"dhcpv6PDPool,omitempty"`
+	DHCPv6LeaseTime  *string `json:"dhcpv6LeaseTime,omitempty"`
+}
+
+// PPPGeneralBridge holds PPP profile bridge configuration.
+type PPPGeneralBridge struct {
+	Bridge             *string `json:"bridge,omitempty"`
+	BridgeHorizon      *int    `json:"bridgeHorizon,omitempty"`
+	BridgeLearning     *string `json:"bridgeLearning,omitempty"`
+	BridgePathCost     *int    `json:"bridgePathCost,omitempty"`
+	BridgePortPriority *int    `json:"bridgePortPriority,omitempty"`
+	BridgePortVid      *int    `json:"bridgePortVid,omitempty"`
+	BridgePortTrusted  *bool   `json:"bridgePortTrusted,omitempty"`
+}
+
+// PPPGeneralFilter holds PPP profile filter configuration.
+type PPPGeneralFilter struct {
+	IncomingFilter *string `json:"incomingFilter,omitempty"`
+	OutgoingFilter *string `json:"outgoingFilter,omitempty"`
+	AddressList    *string `json:"addressList,omitempty"`
+	InterfaceList  *string `json:"interfaceList,omitempty"`
+}
+
+// PPPGeneralOptions holds PPP profile options configuration.
+type PPPGeneralOptions struct {
+	DNSServer  *string `json:"dnsServer,omitempty"`
+	WINSServer *string `json:"winsServer,omitempty"`
+	TCPMSS     *string `json:"tcpmss,omitempty"`
+	UPNP       *string `json:"upnp,omitempty"`
 }
 
 // PPPProtocolConfig holds PPP protocol configuration.
 type PPPProtocolConfig struct {
-	Compression *bool `json:"compression,omitempty"`
-	Encryption  *bool `json:"encryption,omitempty"`
+	Compression *bool   `json:"compression,omitempty"`
+	Encryption  *bool   `json:"encryption,omitempty"`
+	IPv6        *string `json:"ipv6,omitempty"`
+	MPLS        *string `json:"mpls,omitempty"`
 }
 
 // PPPLimitsConfig holds PPP limits configuration.
 type PPPLimitsConfig struct {
-	RateLimit       *int `json:"rateLimit,omitempty"`
-	BurstLimit      *int `json:"burstLimit,omitempty"`
-	ConnectionLimit *int `json:"connectionLimit,omitempty"`
+	RateLimit       *int    `json:"rateLimit,omitempty"`
+	BurstLimit      *int    `json:"burstLimit,omitempty"`
+	ConnectionLimit *int    `json:"connectionLimit,omitempty"`
+	SessionTimeout  *int    `json:"sessionTimeout,omitempty"`
+	IdleTimeout     *int    `json:"idleTimeout,omitempty"`
+	OnlyOne         *string `json:"onlyOne,omitempty"`
 }
 
 // PPPQueueConfig holds PPP queue configuration.
+// Includes both Go fields and TS queue fields.
 type PPPQueueConfig struct {
+	// Go fields
 	Name      string `json:"name"`
 	Direction string `json:"direction"`
 	Priority  int    `json:"priority"`
+	// TS fields
+	InsertionOrder *string       `json:"insertionOrder,omitempty"`
+	ParentQueue    *string       `json:"parentQueue,omitempty"`
+	QueueType      *PPPQueueType `json:"queueType,omitempty"`
+}
+
+// PPPQueueType holds Rx/Tx queue types for PPP.
+type PPPQueueType struct {
+	Rx *string `json:"rx,omitempty"`
+	Tx *string `json:"tx,omitempty"`
 }
 
 // PPPScriptsConfig holds PPP scripts configuration.
 type PPPScriptsConfig struct {
 	OnConnect    *string `json:"onConnect,omitempty"`
 	OnDisconnect *string `json:"onDisconnect,omitempty"`
+	OnUp         *string `json:"onUp,omitempty"`
+	OnDown       *string `json:"onDown,omitempty"`
 }
 
 // PppSecret represents a PPP secret (user).
 type PppSecret struct {
 	Name          string  `json:"name"`
-	Password      string  `json:"password"`
+	Password      string  `json:"password"` //nolint:gosec // G101: credential field
 	Service       string  `json:"service"`
 	CallerID      *string `json:"callerId,omitempty"`
 	Profile       *string `json:"profile,omitempty"`

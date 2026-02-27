@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/bridges",
+  "title": "bridges",
+  "description": "List all bridges on a router",
+  "source": "@site/docs/api/operations/queries/bridges.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/bridges",
+  "permalink": "/api/operations/queries/bridges",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "bridges",
+    "title": "bridges"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "bridge",
+    "permalink": "/api/operations/queries/bridge"
+  },
+  "next": {
+    "title": "changeSet",
+    "permalink": "/api/operations/queries/change-set"
+  }
+}

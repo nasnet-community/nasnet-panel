@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/revoke-session",
+  "title": "revokeSession",
+  "description": "Revoke a specific session",
+  "source": "@site/docs/api/operations/mutations/revoke-session.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/revoke-session",
+  "permalink": "/api/operations/mutations/revoke-session",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "revoke-session",
+    "title": "revokeSession"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "revokeAllSessions",
+    "permalink": "/api/operations/mutations/revoke-all-sessions"
+  },
+  "next": {
+    "title": "rollbackChangeSet",
+    "permalink": "/api/operations/mutations/rollback-change-set"
+  }
+}

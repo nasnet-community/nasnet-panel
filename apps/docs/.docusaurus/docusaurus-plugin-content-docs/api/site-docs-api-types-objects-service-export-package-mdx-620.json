@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/service-export-package",
+  "title": "ServiceExportPackage",
+  "description": "Export package containing service configuration.",
+  "source": "@site/docs/api/types/objects/service-export-package.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/service-export-package",
+  "permalink": "/api/types/objects/service-export-package",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "service-export-package",
+    "title": "ServiceExportPackage"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ServiceDependency",
+    "permalink": "/api/types/objects/service-dependency"
+  },
+  "next": {
+    "title": "ServiceInstanceHealthConfig",
+    "permalink": "/api/types/objects/service-instance-health-config"
+  }
+}

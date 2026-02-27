@@ -38,7 +38,7 @@ func (s *Service) PerformLookup(ctx context.Context, input *LookupInput) (*Looku
 	// Determine which server to use
 	server, err := s.resolveServer(ctx, input)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to resolve DNS server: %w", err)
 	}
 
 	// Route based on record type and server
@@ -99,7 +99,7 @@ func (s *Service) GetConfiguredServers(ctx context.Context, deviceId string) (*S
 
 	result, err := s.routerPort.ExecuteCommand(ctx, cmd)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to execute DNS query command: %w", err)
 	}
 
 	// Parse RouterOS response
@@ -116,7 +116,7 @@ func (s *Service) GetCacheStats(ctx context.Context, deviceId string) (*CacheSta
 
 	result, err := s.routerPort.ExecuteCommand(ctx, cmd)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to execute cache stats command: %w", err)
 	}
 
 	// Parse cache statistics from RouterOS response
@@ -150,7 +150,7 @@ func (s *Service) FlushCache(ctx context.Context, deviceId string) (*FlushCacheR
 			AfterStats:     CacheStats{Timestamp: time.Now().Format(time.RFC3339)},
 			Message:        errMsg,
 			Timestamp:      time.Now().Format(time.RFC3339),
-		}, err
+		}, fmt.Errorf("flush DNS cache: %w", err)
 	}
 
 	// Get cache stats after flushing

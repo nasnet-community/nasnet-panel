@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/service-dependency",
+  "title": "ServiceDependency",
+  "description": "ServiceDependency represents a dependency relationship between two service instances.",
+  "source": "@site/docs/api/types/objects/service-dependency.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/service-dependency",
+  "permalink": "/api/types/objects/service-dependency",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "service-dependency",
+    "title": "ServiceDependency"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ServiceConfigSharedEvent",
+    "permalink": "/api/types/objects/service-config-shared-event"
+  },
+  "next": {
+    "title": "ServiceExportPackage",
+    "permalink": "/api/types/objects/service-export-package"
+  }
+}

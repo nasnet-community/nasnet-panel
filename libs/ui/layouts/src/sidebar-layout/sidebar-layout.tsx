@@ -66,7 +66,10 @@ const SidebarLayoutImpl = React.forwardRef<HTMLDivElement, SidebarLayoutProps>(
   ) => {
     const sidebarElement = (
       <aside
-        className="shrink-0 bg-card border-border transition-all duration-200 ease-in-out"
+        className={cn(
+          'shrink-0 bg-card border-border transition-all duration-300 ease-in-out',
+          'border-r'
+        )}
         style={{ width: sidebarWidth }}
       >
         {sidebar}

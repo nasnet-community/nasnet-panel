@@ -131,9 +131,9 @@ function IPAddressFormDesktopComponent(props: IPAddressFormProps) {
 
             {/* Subnet Calculations */}
             {subnetCalculations && !hasConflict && (
-              <Card className="bg-muted/50" role="complementary" aria-label="Subnet information">
+              <Card className="bg-background border-border" role="complementary" aria-label="Subnet information">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-sm flex items-center gap-2">
+                  <CardTitle className="text-sm flex items-center gap-component-sm">
                     <CheckCircle className="h-4 w-4 text-success flex-shrink-0" aria-hidden="true" />
                     Subnet Information
                   </CardTitle>
@@ -141,23 +141,23 @@ function IPAddressFormDesktopComponent(props: IPAddressFormProps) {
                 <CardContent className="grid grid-cols-2 gap-component-sm text-sm">
                   <div>
                     <div className="text-muted-foreground text-xs">Network:</div>
-                    <code className="text-sm font-mono">{subnetCalculations.networkAddress}</code>
+                    <code className="text-sm font-mono text-foreground">{subnetCalculations.networkAddress}</code>
                   </div>
                   <div>
                     <div className="text-muted-foreground text-xs">Broadcast:</div>
-                    <code className="text-sm font-mono">{subnetCalculations.broadcastAddress}</code>
+                    <code className="text-sm font-mono text-foreground">{subnetCalculations.broadcastAddress}</code>
                   </div>
                   <div>
                     <div className="text-muted-foreground text-xs">Subnet Mask:</div>
-                    <code className="text-sm font-mono">{subnetCalculations.subnetMask}</code>
+                    <code className="text-sm font-mono text-foreground">{subnetCalculations.subnetMask}</code>
                   </div>
                   <div>
                     <div className="text-muted-foreground text-xs">Usable Hosts:</div>
-                    <span className="font-mono">{subnetCalculations.usableHostCount}</span>
+                    <span className="font-mono text-foreground">{subnetCalculations.usableHostCount}</span>
                   </div>
                   <div className="col-span-2">
                     <div className="text-muted-foreground text-xs">Usable Range:</div>
-                    <code className="text-sm font-mono">
+                    <code className="text-sm font-mono text-foreground">
                       {subnetCalculations.firstUsableHost} - {subnetCalculations.lastUsableHost}
                     </code>
                   </div>
@@ -234,7 +234,7 @@ function IPAddressFormDesktopComponent(props: IPAddressFormProps) {
               control={form.control as any}
               name="disabled"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-[var(--semantic-radius-card)] border p-component-sm">
+                <FormItem className="flex flex-row items-center justify-between rounded-[var(--semantic-radius-card)] border border-border bg-card p-component-sm">
                   <div className="space-y-0.5">
                     <FormLabel>Disabled</FormLabel>
                     <FormDescription>
@@ -253,7 +253,7 @@ function IPAddressFormDesktopComponent(props: IPAddressFormProps) {
             />
 
             {/* Form Actions */}
-            <div className="flex gap-3 justify-end">
+            <div className="flex gap-component-xs justify-end">
               <Button
                 type="button"
                 variant="outline"

@@ -44,9 +44,9 @@ export const GatewayStatusCardMobile = memo(function GatewayStatusCardMobile({
 
   return (
     <Card className="w-full">
-      <CardHeader className="pb-3">
+      <CardHeader className="pb-component-sm">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-component-md">
             <Badge className={stateColorMap[gateway.state]} aria-label="Gateway state">
               {stateLabel[gateway.state]}
             </Badge>
@@ -77,12 +77,12 @@ export const GatewayStatusCardMobile = memo(function GatewayStatusCardMobile({
       </CardHeader>
 
       {isExpanded && (
-        <CardContent className="space-y-3 pt-0">
+        <CardContent className="space-y-component-md pt-0">
           {/* TUN interface name */}
           {gateway.tunName && (
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-component-xs">
               <span className="text-xs text-muted-foreground">TUN Interface</span>
-              <code className="rounded bg-muted px-3 py-2 font-mono text-sm text-foreground">
+              <code className="rounded bg-muted px-component-sm py-component-xs font-mono text-sm text-foreground">
                 {gateway.tunName}
               </code>
             </div>
@@ -90,7 +90,7 @@ export const GatewayStatusCardMobile = memo(function GatewayStatusCardMobile({
 
           {/* Process ID - technical data with monospace font */}
           {gateway.pid != null && gateway.pid > 0 && (
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-component-xs">
               <span className="text-xs text-muted-foreground">Process ID</span>
               <code className="font-mono text-sm text-foreground">{gateway.pid}</code>
             </div>
@@ -98,7 +98,7 @@ export const GatewayStatusCardMobile = memo(function GatewayStatusCardMobile({
 
           {/* Uptime */}
           {gateway.uptime != null && gateway.uptime > 0 && (
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-component-xs">
               <span className="text-xs text-muted-foreground">Uptime</span>
               <span className="font-mono text-sm text-foreground">
                 {formatUptime(gateway.uptime)}
@@ -108,7 +108,7 @@ export const GatewayStatusCardMobile = memo(function GatewayStatusCardMobile({
 
           {/* Last health check */}
           {gateway.lastHealthCheck && (
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-component-xs">
               <span className="text-xs text-muted-foreground">Last Health Check</span>
               <span className="text-sm text-foreground">
                 {new Date(gateway.lastHealthCheck).toLocaleString()}
@@ -118,17 +118,17 @@ export const GatewayStatusCardMobile = memo(function GatewayStatusCardMobile({
 
           {/* Error message */}
           {gateway.state === GatewayState.ERROR && gateway.errorMessage && (
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-component-xs">
               <span className="text-xs text-error">Error Message</span>
               <p className="text-sm text-error">{gateway.errorMessage}</p>
             </div>
           )}
 
           {/* Service info */}
-          <div className="mt-4 flex flex-col gap-1 border-t border-border pt-3">
+          <div className="mt-component-lg flex flex-col gap-component-xs border-t border-border pt-component-md">
             <span className="text-xs text-muted-foreground">Service Instance</span>
             <span className="text-sm text-foreground">{serviceName}</span>
-            <code className="mt-1 font-mono text-xs text-muted-foreground">{instanceId}</code>
+            <code className="mt-component-xs font-mono text-xs text-muted-foreground">{instanceId}</code>
           </div>
         </CardContent>
       )}

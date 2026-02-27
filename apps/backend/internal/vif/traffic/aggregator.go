@@ -2,6 +2,7 @@ package traffic
 
 import (
 	"context"
+	"fmt"
 	"sync"
 	"time"
 
@@ -142,7 +143,7 @@ func (a *TrafficAggregator) flush(ctx context.Context) error {
 	// Begin transaction for atomic flush
 	tx, err := a.client.Tx(ctx)
 	if err != nil {
-		return err
+		return fmt.Errorf("begin transaction: %w", err)
 	}
 	defer func() {
 		_ = tx.Rollback() //nolint:errcheck // deferred rollback is a no-op after successful commit
@@ -164,7 +165,7 @@ func (a *TrafficAggregator) flush(ctx context.Context) error {
 				Save(ctx)
 
 			if saveErr != nil {
-				return saveErr
+				return fmt.Errorf("save hourly traffic: %w", saveErr)
 			}
 
 			// Remove from buffer after successful write
@@ -178,7 +179,10 @@ func (a *TrafficAggregator) flush(ctx context.Context) error {
 	}
 
 	// Commit transaction
-	return tx.Commit()
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("flush: commit transaction: %w", err)
+	}
+	return nil
 }
 
 // cleanupLoop periodically removes old traffic data based on retention policy
@@ -220,7 +224,10 @@ func (a *TrafficAggregator) cleanup(ctx context.Context) error {
 		Where(servicetraffichourly.HourStartLT(cutoff)).
 		Exec(ctx)
 
-	return err
+	if err != nil {
+		return fmt.Errorf("cleanup traffic data: %w", err)
+	}
+	return nil
 }
 
 // GetHourlyTraffic retrieves hourly traffic data for a service instance
@@ -231,7 +238,7 @@ func (a *TrafficAggregator) GetHourlyTraffic(
 	startTime, endTime time.Time,
 ) ([]*ent.ServiceTrafficHourly, error) {
 
-	return a.client.ServiceTrafficHourly.Query().
+	results, err := a.client.ServiceTrafficHourly.Query().
 		Where(
 			servicetraffichourly.InstanceIDEQ(instanceID),
 			servicetraffichourly.HourStartGTE(startTime),
@@ -239,6 +246,10 @@ func (a *TrafficAggregator) GetHourlyTraffic(
 		).
 		Order(ent.Asc(servicetraffichourly.FieldHourStart)).
 		All(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("query hourly traffic: %w", err)
+	}
+	return results, nil
 }
 
 // GetTotalTraffic calculates total traffic for a service instance within a time range.
@@ -251,7 +262,7 @@ func (a *TrafficAggregator) GetTotalTraffic(
 
 	records, err := a.GetHourlyTraffic(ctx, instanceID, startTime, endTime)
 	if err != nil {
-		return 0, 0, err
+		return 0, 0, fmt.Errorf("get total traffic: %w", err)
 	}
 
 	for _, record := range records {

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/ip-address-dependencies",
+  "title": "IpAddressDependencies",
+  "description": "Dependencies for an IP address",
+  "source": "@site/docs/api/types/objects/ip-address-dependencies.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/ip-address-dependencies",
+  "permalink": "/api/types/objects/ip-address-dependencies",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "ip-address-dependencies",
+    "title": "IpAddressDependencies"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "IpAddressDeleteResult",
+    "permalink": "/api/types/objects/ip-address-delete-result"
+  },
+  "next": {
+    "title": "IpAddressImpactAnalysis",
+    "permalink": "/api/types/objects/ip-address-impact-analysis"
+  }
+}

@@ -154,6 +154,7 @@ export const ManualRouterEntry = memo(function ManualRouterEntry({ onSubmit, onC
               aria-invalid={!!errors.ipAddress}
               aria-describedby={errors.ipAddress ? 'ipAddress-error' : 'ipAddress-hint'}
               className={cn('w-full min-h-[44px] px-component-sm py-component-sm border rounded-[var(--semantic-radius-button)] shadow-sm bg-card text-foreground font-mono focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2', errors.ipAddress ? 'border-error' : 'border-border')}
+              style={{ fontFamily: 'var(--font-mono)' }}
               autoFocus
             />
             {errors.ipAddress && (

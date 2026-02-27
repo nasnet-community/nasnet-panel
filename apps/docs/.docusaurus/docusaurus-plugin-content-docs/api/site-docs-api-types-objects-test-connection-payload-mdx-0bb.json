@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/test-connection-payload",
+  "title": "TestConnectionPayload",
+  "description": "No description",
+  "source": "@site/docs/api/types/objects/test-connection-payload.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/test-connection-payload",
+  "permalink": "/api/types/objects/test-connection-payload",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "test-connection-payload",
+    "title": "TestConnectionPayload"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "TestAllCredentialsPayload",
+    "permalink": "/api/types/objects/test-all-credentials-payload"
+  },
+  "next": {
+    "title": "TestNotificationPayload",
+    "permalink": "/api/types/objects/test-notification-payload"
+  }
+}

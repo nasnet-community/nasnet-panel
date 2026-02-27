@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/traceroute-result",
+  "title": "TracerouteResult",
+  "description": "Complete traceroute result",
+  "source": "@site/docs/api/types/objects/traceroute-result.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/traceroute-result",
+  "permalink": "/api/types/objects/traceroute-result",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "traceroute-result",
+    "title": "TracerouteResult"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "TracerouteProgressEvent",
+    "permalink": "/api/types/objects/traceroute-progress-event"
+  },
+  "next": {
+    "title": "TrafficDataPoint",
+    "permalink": "/api/types/objects/traffic-data-point"
+  }
+}

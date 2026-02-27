@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/ip-address-input",
+  "title": "IpAddressInput",
+  "description": "Input for creating or updating an IP address",
+  "source": "@site/docs/api/types/inputs/ip-address-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/ip-address-input",
+  "permalink": "/api/types/inputs/ip-address-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "ip-address-input",
+    "title": "IpAddressInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "IntRange",
+    "permalink": "/api/types/inputs/int-range"
+  },
+  "next": {
+    "title": "KnockPortInput",
+    "permalink": "/api/types/inputs/knock-port-input"
+  }
+}

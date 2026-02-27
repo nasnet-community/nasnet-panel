@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/update-resource-input",
+  "title": "UpdateResourceInput",
+  "description": "Input for updating resource configuration",
+  "source": "@site/docs/api/types/inputs/update-resource-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/update-resource-input",
+  "permalink": "/api/types/inputs/update-resource-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "update-resource-input",
+    "title": "UpdateResourceInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "UpdatePortMirrorInput",
+    "permalink": "/api/types/inputs/update-port-mirror-input"
+  },
+  "next": {
+    "title": "UpdateRouterInput",
+    "permalink": "/api/types/inputs/update-router-input"
+  }
+}

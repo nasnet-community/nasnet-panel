@@ -81,9 +81,9 @@ export function VlanListMobile({
   }, [vlanToDelete, handleDelete]);
 
   return (
-    <div className="flex flex-col gap-4 pb-20">
+    <div className="flex flex-col gap-component-md pb-20">
       {/* Mobile Toolbar */}
-      <div className="sticky top-0 z-10 bg-background pb-4 space-y-3">
+      <div className="sticky top-0 z-10 bg-background pb-component-md space-y-component-sm">
         {/* Search Bar */}
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
@@ -91,13 +91,13 @@ export function VlanListMobile({
             placeholder="Search VLANs..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 h-11"
+            className="pl-9 h-11 font-mono"
             aria-label="Search VLANs"
           />
         </div>
 
         {/* Actions Row */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-component-sm">
           <Sheet open={isFilterSheetOpen} onOpenChange={setFilterSheetOpen}>
             <SheetTrigger asChild>
               <Button variant="outline" className="flex-1 h-11" aria-label="Open filters">
@@ -114,11 +114,11 @@ export function VlanListMobile({
               <SheetHeader>
                 <SheetTitle>Filter VLANs</SheetTitle>
               </SheetHeader>
-              <div className="mt-6 space-y-4">
+              <div className="mt-component-lg space-y-component-md">
                 {/* Parent Interface Filter */}
-                <div className="space-y-2">
+                <div className="space-y-component-sm">
                   <p className="text-sm font-medium">Parent Interface</p>
-                  <div className="space-y-2">
+                  <div className="space-y-component-sm">
                     <Button
                       variant={parentInterfaceFilter === null ? 'default' : 'outline'}
                       className="w-full justify-start h-11"
@@ -183,8 +183,8 @@ export function VlanListMobile({
 
       {/* Error State */}
       {error && (
-        <Card className="p-4 border-destructive" role="alert">
-          <p className="text-sm text-destructive">{error.message}</p>
+        <Card className="p-component-sm border-error" role="alert">
+          <p className="text-sm text-error">{error.message}</p>
           <Button variant="outline" size="sm" onClick={() => refetch()} className="mt-2">
             Retry
           </Button>
@@ -193,13 +193,13 @@ export function VlanListMobile({
 
       {/* Empty State */}
       {!loading && !error && vlans.length === 0 && (
-        <Card className="p-8 text-center">
+        <Card className="p-component-xl text-center">
           <p className="text-muted-foreground">No VLANs found</p>
           <Button
             variant="outline"
             size="sm"
             onClick={() => setCreateDialogOpen(true)}
-            className="mt-4"
+            className="mt-component-md"
             aria-label="Create your first VLAN"
           >
             <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
@@ -211,20 +211,20 @@ export function VlanListMobile({
       {!loading && !error && vlans.map((vlan: any) => (
         <Card
           key={vlan.id}
-          className="p-4 space-y-3"
+          className="p-component-md space-y-component-sm"
           onClick={() => setSelectedVlanId(vlan.id)}
         >
           {/* Header Row */}
-          <div className="flex items-start justify-between gap-3">
+          <div className="flex items-start justify-between gap-component-sm">
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-component-sm">
                 <h3 className="font-medium truncate">{vlan.name}</h3>
                 <Badge variant="outline" className="font-mono tabular-nums shrink-0">
                   {vlan.vlanId}
                 </Badge>
               </div>
               {vlan.comment && (
-                <p className="text-sm text-muted-foreground mt-1">
+                <p className="text-sm text-muted-foreground mt-component-sm">
                   {vlan.comment}
                 </p>
               )}
@@ -233,24 +233,24 @@ export function VlanListMobile({
           </div>
 
           {/* Details Grid */}
-          <div className="grid grid-cols-2 gap-3 text-sm">
+          <div className="grid grid-cols-2 gap-component-sm text-sm">
             <div>
               <p className="text-muted-foreground text-xs">Parent Interface</p>
-              <p className="font-medium mt-1">{vlan.interface.name}</p>
+              <p className="font-medium font-mono mt-component-sm">{vlan.interface.name}</p>
               <p className="text-xs text-muted-foreground capitalize">
                 {vlan.interface.type}
               </p>
             </div>
             <div>
               <p className="text-muted-foreground text-xs">MTU</p>
-              <p className="font-mono tabular-nums mt-1">
+              <p className="font-mono tabular-nums mt-component-sm">
                 {vlan.mtu || <span className="text-muted-foreground">default</span>}
               </p>
             </div>
           </div>
 
           {/* Status Badge */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-component-sm">
             {vlan.disabled ? (
               <Badge variant="secondary">Disabled</Badge>
             ) : vlan.running ? (
@@ -261,7 +261,7 @@ export function VlanListMobile({
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center gap-2 pt-2 border-t">
+          <div className="flex items-center gap-component-sm pt-component-md border-t">
             <Button
               variant="outline"
               size="sm"

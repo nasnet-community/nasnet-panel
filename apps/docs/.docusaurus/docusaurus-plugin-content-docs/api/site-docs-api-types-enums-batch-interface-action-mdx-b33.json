@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/batch-interface-action",
+  "title": "BatchInterfaceAction",
+  "description": "Actions available for batch interface operations",
+  "source": "@site/docs/api/types/enums/batch-interface-action.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/batch-interface-action",
+  "permalink": "/api/types/enums/batch-interface-action",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "batch-interface-action",
+    "title": "BatchInterfaceAction"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "AuthErrorCode",
+    "permalink": "/api/types/enums/auth-error-code"
+  },
+  "next": {
+    "title": "BondingMode",
+    "permalink": "/api/types/enums/bonding-mode"
+  }
+}

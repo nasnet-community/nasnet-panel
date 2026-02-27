@@ -1,0 +1,24 @@
+{
+  "id": "intro",
+  "title": "Introduction",
+  "description": "libs/ui/ is the shared component and styling system for NasNetConnect. It is organized as five",
+  "source": "@site/../../libs/ui/docs/intro.md",
+  "sourceDirName": ".",
+  "slug": "/intro",
+  "permalink": "/docs/ui/intro",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/ui/docs/intro.md",
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 1,
+  "frontMatter": {
+    "sidebar_position": 1,
+    "title": "Introduction"
+  },
+  "sidebar": "sidebar",
+  "next": {
+    "title": "Quick Start",
+    "permalink": "/docs/ui/quick-start"
+  }
+}

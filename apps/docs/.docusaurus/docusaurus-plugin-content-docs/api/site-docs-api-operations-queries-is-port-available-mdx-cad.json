@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/is-port-available",
+  "title": "isPortAvailable",
+  "description": "Check if a specific port is available for allocation.",
+  "source": "@site/docs/api/operations/queries/is-port-available.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/is-port-available",
+  "permalink": "/api/operations/queries/is-port-available",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "is-port-available",
+    "title": "isPortAvailable"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "isFeatureSupported",
+    "permalink": "/api/operations/queries/is-feature-supported"
+  },
+  "next": {
+    "title": "killSwitchStatus",
+    "permalink": "/api/operations/queries/kill-switch-status"
+  }
+}

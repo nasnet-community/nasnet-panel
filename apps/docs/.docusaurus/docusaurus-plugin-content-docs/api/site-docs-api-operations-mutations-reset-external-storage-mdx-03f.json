@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/reset-external-storage",
+  "title": "resetExternalStorage",
+  "description": "Reset external storage configuration to use flash only.",
+  "source": "@site/docs/api/operations/mutations/reset-external-storage.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/reset-external-storage",
+  "permalink": "/api/operations/mutations/reset-external-storage",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "reset-external-storage",
+    "title": "resetExternalStorage"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "resetCircuitBreaker",
+    "permalink": "/api/operations/mutations/reset-circuit-breaker"
+  },
+  "next": {
+    "title": "resetTrafficQuota",
+    "permalink": "/api/operations/mutations/reset-traffic-quota"
+  }
+}

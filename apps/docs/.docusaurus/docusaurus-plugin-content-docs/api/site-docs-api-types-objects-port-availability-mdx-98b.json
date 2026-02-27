@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/port-availability",
+  "title": "PortAvailability",
+  "description": "Port availability check result.",
+  "source": "@site/docs/api/types/objects/port-availability.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/port-availability",
+  "permalink": "/api/types/objects/port-availability",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "port-availability",
+    "title": "PortAvailability"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "PortAllocation",
+    "permalink": "/api/types/objects/port-allocation"
+  },
+  "next": {
+    "title": "PortForward",
+    "permalink": "/api/types/objects/port-forward"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "id": "guides/accessibility-patterns",
+  "title": "Accessibility Patterns",
+  "description": "Reference: libs/state/stores/src/a11y/a11y-provider.tsx | libs/core/utils/src/hooks/useReducedMotion.ts | WCAG 2.1 AAA Compliance",
+  "source": "@site/../../libs/core/docs/guides/accessibility-patterns.md",
+  "sourceDirName": "guides",
+  "slug": "/guides/accessibility-patterns",
+  "permalink": "/docs/core/guides/accessibility-patterns",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/core/docs/guides/accessibility-patterns.md",
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 12,
+  "frontMatter": {
+    "sidebar_position": 12,
+    "title": "Accessibility Patterns"
+  },
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "State Machines Guide",
+    "permalink": "/docs/core/guides/state-machines-guide"
+  },
+  "next": {
+    "title": "Performance Patterns",
+    "permalink": "/docs/core/guides/performance-patterns"
+  }
+}

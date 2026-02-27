@@ -45,7 +45,7 @@ export const RouterListPage = React.memo(function RouterListPage() {
   };
 
   return (
-    <div className="min-h-screen bg-muted p-4 md:p-6">
+    <div className="min-h-screen bg-muted p-4 md:p-6 animate-fade-in-up">
       <div className="max-w-7xl mx-auto">
         <div className="mb-6 flex items-center justify-between px-2">
           <div>
@@ -62,12 +62,12 @@ export const RouterListPage = React.memo(function RouterListPage() {
 
         {routers.length === 0 ? (
           // Empty state
-          <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+          <div className="flex flex-col items-center justify-center py-16 px-4 text-center brand-gradient-subtle rounded-card-lg border border-border/30">
             <img
               src="/favicon.png"
               alt=""
               aria-hidden="true"
-              className="w-20 h-20 rounded-2xl shadow-md mb-6"
+              className="w-20 h-20 rounded-2xl shadow-md mb-6 ring-4 ring-primary/20"
             />
             <h2 className="text-xl md:text-2xl font-semibold font-display mb-2">{t('list.noRoutersYet')}</h2>
             <p className="text-sm text-muted-foreground mb-6 max-w-md">

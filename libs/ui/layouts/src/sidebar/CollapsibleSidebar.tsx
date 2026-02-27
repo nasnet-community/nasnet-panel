@@ -176,11 +176,11 @@ export const CollapsibleSidebar = React.memo(
           ref={ref}
           className={cn(
             'relative flex flex-col h-full',
-            'bg-sidebar',
+            'bg-card',
             'border-border',
             position === 'left' ? 'border-r' : 'border-l',
             // Transition - use inline style for dynamic duration
-            !prefersReducedMotion && 'transition-all ease-out',
+            !prefersReducedMotion && 'transition-all ease-in-out',
             className
           )}
           style={{

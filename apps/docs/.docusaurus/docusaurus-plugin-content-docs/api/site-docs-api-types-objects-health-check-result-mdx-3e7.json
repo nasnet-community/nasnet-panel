@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/health-check-result",
+  "title": "HealthCheckResult",
+  "description": "Health check result for a router",
+  "source": "@site/docs/api/types/objects/health-check-result.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/health-check-result",
+  "permalink": "/api/types/objects/health-check-result",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "health-check-result",
+    "title": "HealthCheckResult"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "HardwareInfo",
+    "permalink": "/api/types/objects/hardware-info"
+  },
+  "next": {
+    "title": "HealthStatus",
+    "permalink": "/api/types/objects/health-status"
+  }
+}

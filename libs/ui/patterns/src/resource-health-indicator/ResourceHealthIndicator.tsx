@@ -4,6 +4,14 @@
  * Displays the runtime health status of a resource.
  * Part of Universal State v2 Resource Model.
  *
+ * Visual Spec:
+ * - Compact: inline-flex items-center gap-1.5
+ * - Dot: h-2.5 w-2.5 rounded-full (status color)
+ * - Text: text-xs font-medium
+ * - Healthy: text-success
+ * - Warning: text-warning
+ * - Critical: text-error
+ *
  * @see NAS-4.7: Universal State v2 Resource Model
  */
 
@@ -28,7 +36,7 @@ const healthDotVariants = cva(
         DEGRADED: 'bg-warning',
         CRITICAL: 'bg-error',
         FAILED: 'bg-error',
-        UNKNOWN: 'bg-slate-400 dark:bg-slate-600',
+        UNKNOWN: 'bg-muted-foreground',
       },
       size: {
         sm: 'h-2 w-2',
@@ -58,7 +66,7 @@ const healthLabelVariants = cva(
         DEGRADED: 'text-warning',
         CRITICAL: 'text-error',
         FAILED: 'text-error',
-        UNKNOWN: 'text-slate-500 dark:text-slate-400',
+        UNKNOWN: 'text-muted-foreground',
       },
     },
     defaultVariants: {
@@ -147,7 +155,7 @@ export const ResourceHealthIndicator = React.forwardRef<
         ref={ref}
         className={cn(
           'inline-flex items-center',
-          direction === 'row' ? 'gap-2' : 'flex-col gap-1',
+          direction === 'row' ? 'gap-1.5' : 'flex-col gap-1',
           className
         )}
         title={info.description}

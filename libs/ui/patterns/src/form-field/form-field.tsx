@@ -46,22 +46,17 @@ const FormFieldBase = React.forwardRef<HTMLDivElement, FormFieldProps>(
     const errorId = `${fieldId}-error`;
 
     return (
-      <div ref={ref} className={cn('space-y-2.5', className)}>
+      <div ref={ref} className={cn('space-y-2', className)}>
         <label
           htmlFor={fieldId}
           className={cn(
-            'text-sm font-semibold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
+            'text-sm font-medium text-foreground peer-disabled:cursor-not-allowed peer-disabled:opacity-50',
             error ? 'text-error' : 'text-foreground'
           )}
         >
           {label}
           {required && <span className="text-error ml-1" aria-label="required">*</span>}
         </label>
-        {description && (
-          <p id={descriptionId} className="text-sm text-muted-foreground">
-            {description}
-          </p>
-        )}
         <div>
           {React.isValidElement(children)
             ? React.cloneElement(children as React.ReactElement<{ id?: string; 'aria-describedby'?: string; 'aria-invalid'?: boolean }>, {
@@ -71,8 +66,13 @@ const FormFieldBase = React.forwardRef<HTMLDivElement, FormFieldProps>(
               })
             : children}
         </div>
+        {description && (
+          <p id={descriptionId} className="text-xs text-muted-foreground mt-1">
+            {description}
+          </p>
+        )}
         {error && (
-          <p id={errorId} className="text-sm font-medium text-error">
+          <p id={errorId} className="text-xs font-medium text-error mt-1">
             {error}
           </p>
         )}

@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/rollback-firewall-template",
+  "title": "rollbackFirewallTemplate",
+  "description": "Rollback a previously applied template.",
+  "source": "@site/docs/api/operations/mutations/rollback-firewall-template.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/rollback-firewall-template",
+  "permalink": "/api/operations/mutations/rollback-firewall-template",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "rollback-firewall-template",
+    "title": "rollbackFirewallTemplate"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "rollbackChangeSet",
+    "permalink": "/api/operations/mutations/rollback-change-set"
+  },
+  "next": {
+    "title": "rollbackInstance",
+    "permalink": "/api/operations/mutations/rollback-instance"
+  }
+}

@@ -39,7 +39,7 @@ type InterfaceConfig struct {
 // WirelessCredentials holds WiFi credentials.
 type WirelessCredentials struct {
 	SSID     string `json:"ssid"`
-	Password string `json:"password"`
+	Password string `json:"password"` //nolint:gosec // G101: credential field
 }
 
 // ConnectionConfig defines how a WAN link connects.
@@ -53,7 +53,7 @@ type ConnectionConfig struct {
 // PPPoEConfig for PPPoE connections.
 type PPPoEConfig struct {
 	Username string `json:"username"`
-	Password string `json:"password"`
+	Password string `json:"password"` //nolint:gosec // G101: credential field
 }
 
 // StaticIPConfig for static IP connections.

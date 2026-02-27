@@ -1,0 +1,24 @@
+{
+  "id": "integrations/cross-feature-sharing",
+  "title": "Cross-Feature Communication via Stores",
+  "description": "Zustand stores enable cross-feature communication without violating dependency rules. Features can read from any store but should not import directly from other features. Instead, they communicate through shared stores.",
+  "source": "@site/../../libs/state/docs/integrations/cross-feature-sharing.md",
+  "sourceDirName": "integrations",
+  "slug": "/integrations/cross-feature-sharing",
+  "permalink": "/docs/state/integrations/cross-feature-sharing",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/state/docs/integrations/cross-feature-sharing.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Apollo Client & Zustand Integration",
+    "permalink": "/docs/state/integrations/apollo-integration"
+  },
+  "next": {
+    "title": "Machine Hooks Reference",
+    "permalink": "/docs/state/machines/hooks-reference"
+  }
+}

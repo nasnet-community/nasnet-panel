@@ -1,0 +1,24 @@
+{
+  "id": "feature-modules/vpn",
+  "title": "VPN Feature",
+  "description": "The VPN feature manages all MikroTik VPN tunnels — both outgoing client connections",
+  "source": "@site/../connect/docs/feature-modules/vpn.md",
+  "sourceDirName": "feature-modules",
+  "slug": "/feature-modules/vpn",
+  "permalink": "/docs/frontend/feature-modules/vpn",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../connect/docs/feature-modules/vpn.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Services Feature Module",
+    "permalink": "/docs/frontend/feature-modules/services"
+  },
+  "next": {
+    "title": "Wireless Feature Module",
+    "permalink": "/docs/frontend/feature-modules/wireless"
+  }
+}

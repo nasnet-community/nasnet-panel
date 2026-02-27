@@ -1,1 +1,0 @@
-{"version":3,"file":"PeerListItem.d.ts","sourceRoot":"","sources":["PeerListItem.tsx"],"names":[],"mappings":"AAAA;;;GAGG;AAGH,OAAO,KAAK,EAAE,aAAa,EAAE,MAAM,oBAAoB,CAAC;AAIxD,MAAM,WAAW,iBAAiB;IAChC,IAAI,EAAE,aAAa,CAAC;CACrB;AAED;;GAEG;AACH,iBAAS,qBAAqB,CAAC,EAAE,IAAI,EAAE,EAAE,iBAAiB,2CAsFzD;AAED;;GAEG;AACH,eAAO,MAAM,YAAY,mEAA8B,CAAC"}

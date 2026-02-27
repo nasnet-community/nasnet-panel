@@ -1,0 +1,24 @@
+{
+  "id": "router-communication",
+  "title": "Router Communication",
+  "description": "Multi-protocol adapter system with automatic fallback, circuit breaking, and batch execution for MikroTik RouterOS devices.",
+  "source": "@site/../backend/docs/router-communication.md",
+  "sourceDirName": ".",
+  "slug": "/router-communication",
+  "permalink": "/docs/backend/router-communication",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../backend/docs/router-communication.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Provisioning Engine",
+    "permalink": "/docs/backend/provisioning-engine"
+  },
+  "next": {
+    "title": "Router Services",
+    "permalink": "/docs/backend/router-services"
+  }
+}

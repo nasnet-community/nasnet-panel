@@ -57,10 +57,10 @@ export function ServiceExportDialogMobile(props: ServiceExportDialogProps) {
           </Button>
         )}
       </SheetTrigger>
-      <SheetContent side="bottom" className="h-[90vh]">
+      <SheetContent side="bottom" className="h-[90vh] bg-card border-t border-border">
         <SheetHeader>
-          <SheetTitle>Export Service</SheetTitle>
-          <SheetDescription>
+          <SheetTitle className="font-display text-lg font-semibold text-foreground">Export Service</SheetTitle>
+          <SheetDescription className="text-sm text-muted-foreground">
             {instance.instanceName} ({instance.featureID})
           </SheetDescription>
         </SheetHeader>
@@ -72,13 +72,13 @@ export function ServiceExportDialogMobile(props: ServiceExportDialogProps) {
               <div className="space-y-3">
                 <Label className="text-base">Export Format</Label>
                 <RadioGroup value={state.options.format} onValueChange={setFormat}>
-                  <div className="space-y-3">
+                  <div className="space-y-component-md">
                     {/* JSON Format */}
                     <div
-                      className={`flex items-start space-x-3 rounded-lg border p-4 min-h-[44px] cursor-pointer transition-colors ${
+                      className={`flex items-start space-x-3 rounded-[var(--semantic-radius-input)] border p-component-md min-h-[44px] cursor-pointer transition-colors ${
                         state.options.format === 'json'
                           ? 'border-primary bg-primary/5'
-                          : 'hover:bg-accent'
+                          : 'hover:bg-muted'
                       }`}
                       onClick={() => setFormat('json')}
                     >
@@ -98,10 +98,10 @@ export function ServiceExportDialogMobile(props: ServiceExportDialogProps) {
 
                     {/* QR Code Format */}
                     <div
-                      className={`flex items-start space-x-3 rounded-lg border p-4 min-h-[44px] cursor-pointer transition-colors ${
+                      className={`flex items-start space-x-3 rounded-[var(--semantic-radius-input)] border p-component-md min-h-[44px] cursor-pointer transition-colors ${
                         state.options.format === 'qr'
                           ? 'border-primary bg-primary/5'
-                          : 'hover:bg-accent'
+                          : 'hover:bg-muted'
                       }`}
                       onClick={() => setFormat('qr')}
                     >
@@ -123,7 +123,7 @@ export function ServiceExportDialogMobile(props: ServiceExportDialogProps) {
               </div>
 
               {/* Export Options */}
-              <div className="space-y-4 rounded-lg border p-4 bg-muted/30">
+              <div className="space-y-4 rounded-[var(--semantic-radius-input)] border border-border p-component-md bg-muted/30">
                 <div className="flex items-center justify-between min-h-[44px]">
                   <div className="space-y-0.5 flex-1">
                     <Label htmlFor="redact-secrets-mobile" className="text-base">
@@ -166,7 +166,7 @@ export function ServiceExportDialogMobile(props: ServiceExportDialogProps) {
               )}
 
               {/* Actions */}
-              <div className="space-y-3">
+              <div className="space-y-component-md">
                 <Button
                   onClick={handleExport}
                   disabled={loading}
@@ -215,7 +215,7 @@ export function ServiceExportDialogMobile(props: ServiceExportDialogProps) {
               {/* QR Code Preview */}
               {state.options.format === 'qr' && state.qrImageData && (
                 <div className="flex justify-center">
-                  <div className="rounded-lg border p-4 bg-white">
+                  <div className="rounded-[var(--semantic-radius-input)] border border-border p-component-md bg-card">
                     <img
                       src={`data:image/png;base64,${state.qrImageData}`}
                       alt="Service Configuration QR Code"
@@ -237,7 +237,7 @@ export function ServiceExportDialogMobile(props: ServiceExportDialogProps) {
               )}
 
               {/* Actions */}
-              <div className="space-y-3">
+              <div className="space-y-component-md">
                 <Button
                   onClick={handleDownload}
                   size="lg"

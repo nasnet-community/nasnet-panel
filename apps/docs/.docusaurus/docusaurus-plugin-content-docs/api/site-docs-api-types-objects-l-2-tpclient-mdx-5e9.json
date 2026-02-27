@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/l2-tpclient",
+  "title": "L2TPClient",
+  "description": "L2TP VPN Client resource implementing 8-layer model",
+  "source": "@site/docs/api/types/objects/l2-tpclient.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/l2-tpclient",
+  "permalink": "/api/types/objects/l2-tpclient",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "l2-tpclient",
+    "title": "L2TPClient"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "L2TPClientConfig",
+    "permalink": "/api/types/objects/l2-tpclient-config"
+  },
+  "next": {
+    "title": "L2TPDeployment",
+    "permalink": "/api/types/objects/l2-tpdeployment"
+  }
+}

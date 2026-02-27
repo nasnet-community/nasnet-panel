@@ -167,7 +167,7 @@ export const ValidationStage = React.memo(function ValidationStage({
       {showConnector && (
         <div
           className={cn(
-            'absolute left-5 top-10 w-0.5 h-full -translate-x-1/2',
+            'absolute left-4 top-12 w-0.5 h-4 bg-border ml-4',
             result.status === 'passed' ? 'bg-success/30' :
             result.status === 'failed' ? 'bg-error/30' :
             result.status === 'running' ? 'bg-primary/30' :
@@ -182,28 +182,27 @@ export const ValidationStage = React.memo(function ValidationStage({
         onClick={onToggle}
         disabled={!hasDetails}
         className={cn(
-          'w-full flex items-start gap-3 p-3 rounded-lg transition-colors',
+          'w-full flex items-center gap-3 p-3 rounded-lg transition-colors',
           'hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
           hasDetails && 'cursor-pointer',
           !hasDetails && 'cursor-default'
         )}
         aria-expanded={hasDetails ? isExpanded : undefined}
       >
-        {/* Status icon */}
+        {/* Status icon - per spec: h-8 w-8 rounded-full */}
         <div
           className={cn(
-            'flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center',
+            'flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center',
             config.bgClass
           )}
         >
-          <StatusIcon className={cn('h-5 w-5', config.iconClass)} />
+          <StatusIcon className={cn('h-4 w-4', config.iconClass)} />
         </div>
 
         {/* Stage info */}
         <div className="flex-1 min-w-0 text-left">
           <div className="flex items-center gap-2">
-            <StageIcon className="h-4 w-4 text-muted-foreground" />
-            <span className="font-medium text-sm">{meta.label}</span>
+            <span className="font-medium text-sm text-foreground">{meta.label}</span>
             {result.durationMs !== undefined && result.status !== 'pending' && result.status !== 'running' && (
               <span className="text-xs text-muted-foreground">
                 {result.durationMs}ms
@@ -235,7 +234,7 @@ export const ValidationStage = React.memo(function ValidationStage({
 
         {/* Expand/collapse arrow */}
         {hasDetails && (
-          <div className="flex-shrink-0 mt-1">
+          <div className="flex-shrink-0">
             {isExpanded ? (
               <ChevronDown className="h-4 w-4 text-muted-foreground" />
             ) : (
@@ -255,7 +254,7 @@ export const ValidationStage = React.memo(function ValidationStage({
             transition={{ duration: 0.2 }}
             className="overflow-hidden"
           >
-            <div className="ml-16 mr-3 pb-3 space-y-2">
+            <div className="ml-12 mr-3 pb-3 space-y-2">
               {/* Errors */}
               {result.errors.map((error, i) => (
                 <div

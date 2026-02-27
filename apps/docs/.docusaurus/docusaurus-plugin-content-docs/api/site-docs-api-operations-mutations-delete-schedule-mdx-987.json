@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/delete-schedule",
+  "title": "deleteSchedule",
+  "description": "Delete a routing schedule.",
+  "source": "@site/docs/api/operations/mutations/delete-schedule.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/delete-schedule",
+  "permalink": "/api/operations/mutations/delete-schedule",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "delete-schedule",
+    "title": "deleteSchedule"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "deleteRouter",
+    "permalink": "/api/operations/mutations/delete-router"
+  },
+  "next": {
+    "title": "deleteServiceTemplate",
+    "permalink": "/api/operations/mutations/delete-service-template"
+  }
+}

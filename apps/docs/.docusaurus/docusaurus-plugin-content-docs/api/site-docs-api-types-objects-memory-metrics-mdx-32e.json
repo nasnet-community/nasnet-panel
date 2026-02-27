@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/memory-metrics",
+  "title": "MemoryMetrics",
+  "description": "Memory utilization metrics",
+  "source": "@site/docs/api/types/objects/memory-metrics.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/memory-metrics",
+  "permalink": "/api/types/objects/memory-metrics",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "memory-metrics",
+    "title": "MemoryMetrics"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "LteModem",
+    "permalink": "/api/types/objects/lte-modem"
+  },
+  "next": {
+    "title": "MissingDependency",
+    "permalink": "/api/types/objects/missing-dependency"
+  }
+}

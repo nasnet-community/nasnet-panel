@@ -1,0 +1,24 @@
+{
+  "id": "stores/domain-ui-stores",
+  "title": "Domain UI Stores",
+  "description": "Domain UI stores manage feature-specific user interface state like filters, view preferences, selections, and wizard draft data. They follow a consistent pattern across the codebase and are never used for server state (which belongs in Apollo Client).",
+  "source": "@site/../../libs/state/docs/stores/domain-ui-stores.md",
+  "sourceDirName": "stores",
+  "slug": "/stores/domain-ui-stores",
+  "permalink": "/docs/state/stores/domain-ui-stores",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/state/docs/stores/domain-ui-stores.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Connection Stores (useConnectionStore & useNetworkStore)",
+    "permalink": "/docs/state/stores/connection"
+  },
+  "next": {
+    "title": "Drift Detection Store & Utilities",
+    "permalink": "/docs/state/stores/drift-detection"
+  }
+}

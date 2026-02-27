@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/create-webhook-input",
+  "title": "CreateWebhookInput",
+  "description": "Input for creating a webhook",
+  "source": "@site/docs/api/types/inputs/create-webhook-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/create-webhook-input",
+  "permalink": "/api/types/inputs/create-webhook-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "create-webhook-input",
+    "title": "CreateWebhookInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "CreateScheduleInput",
+    "permalink": "/api/types/inputs/create-schedule-input"
+  },
+  "next": {
+    "title": "CredentialsInput",
+    "permalink": "/api/types/inputs/credentials-input"
+  }
+}

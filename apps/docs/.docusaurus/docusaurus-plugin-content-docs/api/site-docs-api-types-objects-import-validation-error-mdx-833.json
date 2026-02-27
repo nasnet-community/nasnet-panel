@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/import-validation-error",
+  "title": "ImportValidationError",
+  "description": "Validation error for service import.",
+  "source": "@site/docs/api/types/objects/import-validation-error.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/import-validation-error",
+  "permalink": "/api/types/objects/import-validation-error",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "import-validation-error",
+    "title": "ImportValidationError"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ImportServiceConfigPayload",
+    "permalink": "/api/types/objects/import-service-config-payload"
+  },
+  "next": {
+    "title": "ImportValidationResult",
+    "permalink": "/api/types/objects/import-validation-result"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/set-traffic-quota",
+  "title": "setTrafficQuota",
+  "description": "Set or update traffic quota for a service instance.",
+  "source": "@site/docs/api/operations/mutations/set-traffic-quota.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/set-traffic-quota",
+  "permalink": "/api/operations/mutations/set-traffic-quota",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "set-traffic-quota",
+    "title": "setTrafficQuota"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "setResourceLimits",
+    "permalink": "/api/operations/mutations/set-resource-limits"
+  },
+  "next": {
+    "title": "setupDualVLANBridge",
+    "permalink": "/api/operations/mutations/setup-dual-vlanbridge"
+  }
+}

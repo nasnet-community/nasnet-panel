@@ -1,0 +1,24 @@
+{
+  "id": "state-management/zustand-stores",
+  "title": "Zustand Stores Inventory",
+  "description": "All stores live in libs/state/stores/src/. Import from @nasnet/state/stores.",
+  "source": "@site/../connect/docs/state-management/zustand-stores.md",
+  "sourceDirName": "state-management",
+  "slug": "/state-management/zustand-stores",
+  "permalink": "/docs/frontend/state-management/zustand-stores",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../connect/docs/state-management/zustand-stores.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "XState State Machines",
+    "permalink": "/docs/frontend/state-management/xstate-machines"
+  },
+  "next": {
+    "title": "Component Testing",
+    "permalink": "/docs/frontend/testing/component-testing"
+  }
+}

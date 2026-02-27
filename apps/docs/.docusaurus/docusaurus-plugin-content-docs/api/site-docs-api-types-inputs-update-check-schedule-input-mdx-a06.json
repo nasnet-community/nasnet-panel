@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/update-check-schedule-input",
+  "title": "UpdateCheckScheduleInput",
+  "description": "Input for configuring update check schedule for an instance.",
+  "source": "@site/docs/api/types/inputs/update-check-schedule-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/update-check-schedule-input",
+  "permalink": "/api/types/inputs/update-check-schedule-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "update-check-schedule-input",
+    "title": "UpdateCheckScheduleInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "UpdateChangeSetItemInput",
+    "permalink": "/api/types/inputs/update-change-set-item-input"
+  },
+  "next": {
+    "title": "UpdateInterfaceInput",
+    "permalink": "/api/types/inputs/update-interface-input"
+  }
+}

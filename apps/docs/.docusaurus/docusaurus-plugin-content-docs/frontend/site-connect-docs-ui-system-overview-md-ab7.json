@@ -1,0 +1,24 @@
+{
+  "id": "ui-system/overview",
+  "title": "UI System Overview",
+  "description": "The NasNetConnect UI system is built around a strict three-layer component architecture. Each layer has a clear responsibility and defined dependency direction. Components flow downward — domain components compose patterns, patterns compose primitives — never the other way around.",
+  "source": "@site/../connect/docs/ui-system/overview.md",
+  "sourceDirName": "ui-system",
+  "slug": "/ui-system/overview",
+  "permalink": "/docs/frontend/ui-system/overview",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../connect/docs/ui-system/overview.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Layouts",
+    "permalink": "/docs/frontend/ui-system/layouts"
+  },
+  "next": {
+    "title": "Patterns Catalog",
+    "permalink": "/docs/frontend/ui-system/patterns-catalog"
+  }
+}

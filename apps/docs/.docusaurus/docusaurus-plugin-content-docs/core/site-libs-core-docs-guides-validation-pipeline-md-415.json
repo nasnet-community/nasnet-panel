@@ -1,0 +1,24 @@
+{
+  "id": "guides/validation-pipeline",
+  "title": "Validation Pipeline: 7-Stage Risk-Based Validation",
+  "description": "Reference: libs/core/forms/src/ | Universal State v2 Layer 2",
+  "source": "@site/../../libs/core/docs/guides/validation-pipeline.md",
+  "sourceDirName": "guides",
+  "slug": "/guides/validation-pipeline",
+  "permalink": "/docs/core/guides/validation-pipeline",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/core/docs/guides/validation-pipeline.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Universal State v2: The 8-Layer Resource Model",
+    "permalink": "/docs/core/guides/universal-state-v2"
+  },
+  "next": {
+    "title": "Constants Reference",
+    "permalink": "/docs/core/sub-libraries/constants"
+  }
+}

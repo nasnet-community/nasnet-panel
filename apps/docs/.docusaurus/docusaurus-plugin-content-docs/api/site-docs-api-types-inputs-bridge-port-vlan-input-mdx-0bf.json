@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/bridge-port-vlan-input",
+  "title": "BridgePortVlanInput",
+  "description": "Input for configuring bridge port VLAN settings",
+  "source": "@site/docs/api/types/inputs/bridge-port-vlan-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/bridge-port-vlan-input",
+  "permalink": "/api/types/inputs/bridge-port-vlan-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "bridge-port-vlan-input",
+    "title": "BridgePortVlanInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "BatchInterfaceInput",
+    "permalink": "/api/types/inputs/batch-interface-input"
+  },
+  "next": {
+    "title": "BulkAddressInput",
+    "permalink": "/api/types/inputs/bulk-address-input"
+  }
+}

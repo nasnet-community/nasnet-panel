@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/routing-chain",
+  "title": "routingChain",
+  "description": "Get the routing chain for a specific device, if any.",
+  "source": "@site/docs/api/operations/queries/routing-chain.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/routing-chain",
+  "permalink": "/api/operations/queries/routing-chain",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "routing-chain",
+    "title": "routingChain"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "routes",
+    "permalink": "/api/operations/queries/routes"
+  },
+  "next": {
+    "title": "routingChains",
+    "permalink": "/api/operations/queries/routing-chains"
+  }
+}

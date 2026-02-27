@@ -1,0 +1,24 @@
+{
+  "id": "stores/change-set",
+  "title": "Change Set Store",
+  "description": "This document covers the change set store that manages atomic multi-resource operations and their execution flow.",
+  "source": "@site/../../libs/state/docs/stores/change-set.md",
+  "sourceDirName": "stores",
+  "slug": "/stores/change-set",
+  "permalink": "/docs/state/stores/change-set",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/state/docs/stores/change-set.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Authentication Store (useAuthStore)",
+    "permalink": "/docs/state/stores/auth"
+  },
+  "next": {
+    "title": "Command and Shortcut Registry Stores",
+    "permalink": "/docs/state/stores/command-shortcut"
+  }
+}

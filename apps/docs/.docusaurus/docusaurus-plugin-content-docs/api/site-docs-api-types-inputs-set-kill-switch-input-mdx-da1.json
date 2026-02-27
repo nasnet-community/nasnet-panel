@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/set-kill-switch-input",
+  "title": "SetKillSwitchInput",
+  "description": "Input for setting kill switch on a device routing.",
+  "source": "@site/docs/api/types/inputs/set-kill-switch-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/set-kill-switch-input",
+  "permalink": "/api/types/inputs/set-kill-switch-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "set-kill-switch-input",
+    "title": "SetKillSwitchInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ScanNetworkInput",
+    "permalink": "/api/types/inputs/scan-network-input"
+  },
+  "next": {
+    "title": "SetResourceLimitsInput",
+    "permalink": "/api/types/inputs/set-resource-limits-input"
+  }
+}

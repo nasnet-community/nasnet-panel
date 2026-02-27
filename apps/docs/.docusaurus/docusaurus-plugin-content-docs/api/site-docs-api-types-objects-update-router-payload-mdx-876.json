@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/update-router-payload",
+  "title": "UpdateRouterPayload",
+  "description": "No description",
+  "source": "@site/docs/api/types/objects/update-router-payload.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/update-router-payload",
+  "permalink": "/api/types/objects/update-router-payload",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "update-router-payload",
+    "title": "UpdateRouterPayload"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "UpdateResult",
+    "permalink": "/api/types/objects/update-result"
+  },
+  "next": {
+    "title": "UpgradeImpact",
+    "permalink": "/api/types/objects/upgrade-impact"
+  }
+}

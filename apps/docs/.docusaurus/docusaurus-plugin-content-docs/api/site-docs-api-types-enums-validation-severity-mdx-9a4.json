@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/validation-severity",
+  "title": "ValidationSeverity",
+  "description": "Validation issue severity",
+  "source": "@site/docs/api/types/enums/validation-severity.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/validation-severity",
+  "permalink": "/api/types/enums/validation-severity",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "validation-severity",
+    "title": "ValidationSeverity"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ValidateFormat",
+    "permalink": "/api/types/enums/validate-format"
+  },
+  "next": {
+    "title": "ValidationStage",
+    "permalink": "/api/types/enums/validation-stage"
+  }
+}

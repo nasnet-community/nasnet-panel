@@ -1,0 +1,24 @@
+{
+  "id": "provisioning-engine",
+  "title": "Provisioning Engine",
+  "description": "Translates a wizard-configured StarState into live RouterOS configuration via an 8-phase ordered pipeline with per-step rollback.",
+  "source": "@site/../backend/docs/provisioning-engine.md",
+  "sourceDirName": ".",
+  "slug": "/provisioning-engine",
+  "permalink": "/docs/backend/provisioning-engine",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../backend/docs/provisioning-engine.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Process Isolation",
+    "permalink": "/docs/backend/process-isolation"
+  },
+  "next": {
+    "title": "Router Communication",
+    "permalink": "/docs/backend/router-communication"
+  }
+}

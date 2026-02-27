@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/firewall-rule",
+  "title": "FirewallRule",
+  "description": "Firewall rule placeholder type.",
+  "source": "@site/docs/api/types/objects/firewall-rule.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/firewall-rule",
+  "permalink": "/api/types/objects/firewall-rule",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "firewall-rule",
+    "title": "FirewallRule"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "FirewallRuleResource",
+    "permalink": "/api/types/objects/firewall-rule-resource"
+  },
+  "next": {
+    "title": "FirewallTemplateResult",
+    "permalink": "/api/types/objects/firewall-template-result"
+  }
+}

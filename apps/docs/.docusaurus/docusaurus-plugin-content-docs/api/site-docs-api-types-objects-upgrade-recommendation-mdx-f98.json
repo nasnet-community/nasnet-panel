@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/upgrade-recommendation",
+  "title": "UpgradeRecommendation",
+  "description": "Upgrade recommendation for enabling a feature",
+  "source": "@site/docs/api/types/objects/upgrade-recommendation.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/upgrade-recommendation",
+  "permalink": "/api/types/objects/upgrade-recommendation",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "upgrade-recommendation",
+    "title": "UpgradeRecommendation"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "UpgradeImpact",
+    "permalink": "/api/types/objects/upgrade-impact"
+  },
+  "next": {
+    "title": "UpgradeStep",
+    "permalink": "/api/types/objects/upgrade-step"
+  }
+}

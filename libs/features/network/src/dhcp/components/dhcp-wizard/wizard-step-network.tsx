@@ -92,7 +92,7 @@ function WizardStepNetworkComponent({ stepper, className }: WizardStepNetworkPro
   const MAX_DNS_SERVERS = 3;
 
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={cn('space-y-component-lg', className)}>
       <FormSection
         title="Gateway Configuration"
         description="Set the default gateway for DHCP clients"
@@ -135,7 +135,7 @@ function WizardStepNetworkComponent({ stepper, className }: WizardStepNetworkPro
                   variant="outline"
                   size="icon"
                   onClick={() => handleRemoveDNS(index)}
-                  className="mt-8"
+                  className="mt-component-lg"
                   aria-label={`Remove DNS server ${index + 1}`}
                 >
                   <Icon icon={Trash2} size="sm" />
@@ -153,12 +153,12 @@ function WizardStepNetworkComponent({ stepper, className }: WizardStepNetworkPro
               aria-label={`Add DNS server (${fields.length}/${MAX_DNS_SERVERS})`}
             >
               <Icon icon={Plus} size="sm" />
-              <span className="ml-2">Add DNS Server</span>
+              <span className="ml-component-sm">Add DNS Server</span>
             </Button>
           )}
 
           {form.formState.errors.dnsServers && typeof form.formState.errors.dnsServers === 'object' && 'message' in form.formState.errors.dnsServers && (
-            <p className="text-sm text-destructive">
+            <p className="text-sm text-error">
               {form.formState.errors.dnsServers.message}
             </p>
           )}
@@ -190,7 +190,7 @@ function WizardStepNetworkComponent({ stepper, className }: WizardStepNetworkPro
             </SelectContent>
           </Select>
           {form.formState.errors.leaseTime && (
-            <p className="text-sm text-destructive mt-1">
+            <p className="text-sm text-error mt-component-xs">
               {form.formState.errors.leaseTime.message}
             </p>
           )}
@@ -201,7 +201,7 @@ function WizardStepNetworkComponent({ stepper, className }: WizardStepNetworkPro
         title="Optional Settings"
         description="Additional network configuration (optional)"
       >
-        <div className="space-y-4">
+        <div className="space-y-component-md">
           <div>
             <Label htmlFor="domain">
               Domain Name

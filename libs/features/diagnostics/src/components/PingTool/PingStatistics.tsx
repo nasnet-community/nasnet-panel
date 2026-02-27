@@ -29,8 +29,8 @@ export interface PingStatisticsProps {
  * Get status color based on packet loss percentage
  */
 function getStatusColor(lossPercent: number): string {
-  if (lossPercent >= 100) return 'text-destructive'; // Red - host unreachable
-  if (lossPercent >= 50) return 'text-destructive'; // Red - critical loss
+  if (lossPercent >= 100) return 'text-error'; // Red - host unreachable
+  if (lossPercent >= 50) return 'text-error'; // Red - critical loss
   if (lossPercent > 0) return 'text-warning'; // Amber - some loss
   return 'text-success'; // Green - no loss
 }
@@ -103,7 +103,7 @@ export const PingStatistics = memo(function PingStatistics({
 
       {/* Statistics grid */}
       <dl
-        className="grid grid-cols-2 gap-component-md"
+        className="grid grid-cols-2 gap-component-lg"
         aria-label="Ping statistics summary"
       >
         {/* Packets Sent */}

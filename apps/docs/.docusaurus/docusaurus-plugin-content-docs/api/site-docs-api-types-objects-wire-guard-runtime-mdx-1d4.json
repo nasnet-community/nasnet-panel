@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/wire-guard-runtime",
+  "title": "WireGuardRuntime",
+  "description": "WireGuard runtime state",
+  "source": "@site/docs/api/types/objects/wire-guard-runtime.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/wire-guard-runtime",
+  "permalink": "/api/types/objects/wire-guard-runtime",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "wire-guard-runtime",
+    "title": "WireGuardRuntime"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "WireGuardPeer",
+    "permalink": "/api/types/objects/wire-guard-peer"
+  },
+  "next": {
+    "title": "WireGuardServerConfig",
+    "permalink": "/api/types/objects/wire-guard-server-config"
+  }
+}

@@ -57,7 +57,7 @@ function ResourceGaugesDesktop({
 
   if (loading || !metrics) {
     return (
-      <div className={cn('grid grid-cols-4 gap-6', className)}>
+      <div className={cn('grid grid-cols-4 gap-component-xl', className)}>
         <Skeleton className="h-48 w-full" />
         <Skeleton className="h-48 w-full" />
         <Skeleton className="h-48 w-full" />
@@ -68,7 +68,7 @@ function ResourceGaugesDesktop({
 
   return (
     <>
-      <div className={cn('grid grid-cols-4 gap-6', className)}>
+      <div className={cn('grid grid-cols-4 gap-component-xl', className)}>
         {/* CPU Gauge - clickable to show breakdown */}
         <CircularGauge
           value={metrics.cpu.usage}
@@ -138,7 +138,7 @@ function ResourceGaugesMobile({
 
   if (loading || !metrics) {
     return (
-      <div className={cn('grid grid-cols-2 gap-4', className)}>
+      <div className={cn('grid grid-cols-2 gap-component-md', className)}>
         <Skeleton className="h-32 w-full" />
         <Skeleton className="h-32 w-full" />
         <Skeleton className="h-32 w-full" />
@@ -149,7 +149,7 @@ function ResourceGaugesMobile({
 
   return (
     <>
-      <div className={cn('grid grid-cols-2 gap-4', className)}>
+      <div className={cn('grid grid-cols-2 gap-component-md', className)}>
         {/* CPU Gauge - clickable to show breakdown */}
         <CircularGauge
           value={metrics.cpu.usage}

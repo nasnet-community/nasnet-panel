@@ -100,7 +100,7 @@ function NtfyChannelFormMobileComponent({ ntfyForm }: NtfyChannelFormMobileProps
       {/* Enable Toggle */}
       <div className="flex items-center justify-between rounded-[var(--semantic-radius-card)] border border-border bg-card p-component-md min-h-[56px]">
         <div className="flex items-center gap-component-md">
-          <Icon icon={Bell} size="lg" className="text-muted-foreground" aria-hidden="true" />
+          <Icon icon={Bell} size="lg" className="text-category-monitoring" aria-hidden="true" />
           <div>
             <Label className="text-base font-semibold">Ntfy.sh Notifications</Label>
             <p className="text-sm text-muted-foreground">Send push notifications</p>
@@ -130,8 +130,8 @@ function NtfyChannelFormMobileComponent({ ntfyForm }: NtfyChannelFormMobileProps
           aria-expanded={showServer}
           aria-label="Server Configuration"
         >
-          <div className="flex items-center gap-component-sm">
-            <Icon icon={Server} size="lg" aria-hidden="true" />
+          <div className="flex items-center gap-component-md">
+            <Icon icon={Server} size="lg" className="text-category-monitoring" aria-hidden="true" />
             <span className="font-semibold">Server Configuration</span>
           </div>
           <Icon
@@ -153,6 +153,7 @@ function NtfyChannelFormMobileComponent({ ntfyForm }: NtfyChannelFormMobileProps
                 id="serverUrl"
                 placeholder="https://ntfy.sh"
                 type="url"
+                className="font-mono"
                 {...register('serverUrl')}
                 error={!!errors.serverUrl}
               />
@@ -172,6 +173,7 @@ function NtfyChannelFormMobileComponent({ ntfyForm }: NtfyChannelFormMobileProps
               <Input
                 id="topic"
                 placeholder="my-alerts"
+                className="font-mono"
                 {...register('topic')}
                 error={!!errors.topic}
               />
@@ -207,7 +209,7 @@ function NtfyChannelFormMobileComponent({ ntfyForm }: NtfyChannelFormMobileProps
                           value={preset.value.toString()}
                           className="min-h-[44px]"
                         >
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-component-sm">
                             <span className="text-lg">{preset.icon}</span>
                             <div>
                               <div className="font-medium">{preset.label}</div>
@@ -239,8 +241,8 @@ function NtfyChannelFormMobileComponent({ ntfyForm }: NtfyChannelFormMobileProps
           aria-expanded={showAuth}
           aria-label="Authentication"
         >
-          <div className="flex items-center gap-component-sm">
-            <Icon icon={Shield} size="lg" aria-hidden="true" />
+          <div className="flex items-center gap-component-md">
+            <Icon icon={Shield} size="lg" className="text-category-monitoring" aria-hidden="true" />
             <span className="font-semibold">Authentication</span>
             <Badge variant="secondary" className="text-xs">Optional</Badge>
           </div>
@@ -313,8 +315,8 @@ function NtfyChannelFormMobileComponent({ ntfyForm }: NtfyChannelFormMobileProps
           aria-expanded={showTags}
           aria-label="Tags"
         >
-          <div className="flex items-center gap-component-sm">
-            <Icon icon={Tag} size="lg" aria-hidden="true" />
+          <div className="flex items-center gap-component-md">
+            <Icon icon={Tag} size="lg" className="text-category-monitoring" aria-hidden="true" />
             <span className="font-semibold">Tags</span>
             <Badge variant="secondary" className="text-xs">Optional</Badge>
             {tags.length > 0 && (
@@ -336,7 +338,7 @@ function NtfyChannelFormMobileComponent({ ntfyForm }: NtfyChannelFormMobileProps
             </p>
 
             {/* Tag Input */}
-            <div className="flex gap-component-sm">
+            <div className="flex gap-component-md">
               <Input
                 value={tagInput}
                 onChange={(e) => setTagInput(e.target.value)}
@@ -359,14 +361,14 @@ function NtfyChannelFormMobileComponent({ ntfyForm }: NtfyChannelFormMobileProps
 
             {/* Tag List */}
             {tags.length > 0 && (
-              <div className="flex flex-wrap gap-component-sm">
+              <div className="flex flex-wrap gap-component-md">
                 {tags.map((tag, index) => (
-                  <Badge key={index} variant="secondary" className="flex items-center gap-component-sm text-sm py-2 px-3">
+                  <Badge key={index} variant="secondary" className="flex items-center gap-component-md text-sm py-component-sm px-component-md font-mono">
                     <span>{tag}</span>
                     <button
                       type="button"
                       onClick={() => removeTag(index)}
-                      className="ml-1 p-0.5 min-h-[44px] min-w-[44px] flex items-center justify-center hover:text-error focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm"
+                      className="ml-component-xs p-0.5 min-h-[44px] min-w-[44px] flex items-center justify-center hover:text-error focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm"
                       aria-label={`Remove ${tag}`}
                     >
                       <Icon icon={X} size="md" aria-hidden="true" />
@@ -396,7 +398,7 @@ function NtfyChannelFormMobileComponent({ ntfyForm }: NtfyChannelFormMobileProps
       )}
 
       {/* Fixed Action Buttons (Mobile Bottom Bar) */}
-      <div className="fixed bottom-0 left-0 right-0 border-t border-border bg-background p-component-md space-y-component-sm">
+      <div className="fixed bottom-0 left-0 right-0 border-t border-border bg-background p-component-md space-y-component-md">
         <Button
           type="button"
           variant="outline"

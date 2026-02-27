@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/wanlink-type-enum",
+  "title": "WANLinkTypeEnum",
+  "description": "WAN link type enum",
+  "source": "@site/docs/api/types/enums/wanlink-type-enum.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/wanlink-type-enum",
+  "permalink": "/api/types/enums/wanlink-type-enum",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "wanlink-type-enum",
+    "title": "WANLinkTypeEnum"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "WANEventType",
+    "permalink": "/api/types/enums/wanevent-type"
+  },
+  "next": {
+    "title": "WANStatus",
+    "permalink": "/api/types/enums/wanstatus"
+  }
+}

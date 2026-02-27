@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/router-osinfo",
+  "title": "RouterOSInfo",
+  "description": "Information about a discovered RouterOS device",
+  "source": "@site/docs/api/types/objects/router-osinfo.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/router-osinfo",
+  "permalink": "/api/types/objects/router-osinfo",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "router-osinfo",
+    "title": "RouterOSInfo"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "RouterEdge",
+    "permalink": "/api/types/objects/router-edge"
+  },
+  "next": {
+    "title": "RouterOSVersion",
+    "permalink": "/api/types/objects/router-osversion"
+  }
+}

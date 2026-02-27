@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/test-notification-channel",
+  "title": "testNotificationChannel",
+  "description": "Test a notification channel",
+  "source": "@site/docs/api/operations/mutations/test-notification-channel.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/test-notification-channel",
+  "permalink": "/api/operations/mutations/test-notification-channel",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "test-notification-channel",
+    "title": "testNotificationChannel"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "testAllCredentials",
+    "permalink": "/api/operations/mutations/test-all-credentials"
+  },
+  "next": {
+    "title": "testPortKnockSequence",
+    "permalink": "/api/operations/mutations/test-port-knock-sequence"
+  }
+}

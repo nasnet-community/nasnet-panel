@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/ip-address-dependencies",
+  "title": "ipAddressDependencies",
+  "description": "Get dependencies for an IP address (DHCP servers, routes, etc.)",
+  "source": "@site/docs/api/operations/queries/ip-address-dependencies.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/ip-address-dependencies",
+  "permalink": "/api/operations/queries/ip-address-dependencies",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "ip-address-dependencies",
+    "title": "ipAddressDependencies"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "interfaces",
+    "permalink": "/api/operations/queries/interfaces"
+  },
+  "next": {
+    "title": "ipAddress",
+    "permalink": "/api/operations/queries/ip-address"
+  }
+}

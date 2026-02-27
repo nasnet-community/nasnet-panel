@@ -96,7 +96,7 @@ func (gc *GitHubClient) FetchLatestRelease(ctx context.Context, owner, repo stri
 		req.Header.Set("If-None-Match", etag)
 	}
 
-	resp, err := gc.httpClient.Do(req)
+	resp, err := gc.httpClient.Do(req) //nolint:gosec // G704: URL is constructed from trusted configuration
 	if err != nil {
 		return nil, false, fmt.Errorf("failed to fetch release: %w", err)
 	}
@@ -144,7 +144,7 @@ func (gc *GitHubClient) FetchAllReleases(ctx context.Context, owner, repo string
 	req.Header.Set("Accept", "application/vnd.github.v3+json")
 	req.Header.Set("User-Agent", gc.userAgent)
 
-	resp, err := gc.httpClient.Do(req)
+	resp, err := gc.httpClient.Do(req) //nolint:gosec // G704: URL is constructed from trusted configuration
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch releases: %w", err)
 	}

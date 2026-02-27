@@ -100,16 +100,16 @@ export function ConnectedDevices({
   if (isLoading) {
     return (
       <Card className={cn('p-component-lg', className)}>
-        <div className="space-y-4">
+        <div className="space-y-component-lg">
           <div className="flex items-center justify-between">
             <Skeleton className="h-6 w-48" />
             <Skeleton className="h-5 w-16" />
           </div>
-          <div className="space-y-3">
+          <div className="space-y-component-md">
             {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="flex items-center gap-3">
+              <div key={i} className="flex items-center gap-component-md">
                 <Skeleton className="h-10 w-10 rounded-full flex-shrink-0" />
-                <div className="flex-1 space-y-2">
+                <div className="flex-1 space-y-component-sm">
                   <Skeleton className="h-4 w-32" />
                   <Skeleton className="h-3 w-24" />
                 </div>
@@ -171,17 +171,17 @@ export function ConnectedDevices({
   return (
     <Card className={cn('p-component-lg', className)}>
       {/* Header with actions */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-component-md">
         <div className="flex-1">
           <div className="flex items-center gap-component-sm">
             <h2 className="text-lg font-display font-semibold">Connected Devices</h2>
             {hideHostnames && (
-              <span className="text-xs bg-muted px-2 py-0.5 rounded-card-sm text-foreground">
+              <span className="text-xs bg-muted px-component-sm py-component-xs rounded-card-sm text-foreground">
                 Privacy Mode
               </span>
             )}
           </div>
-          <div className="flex items-center gap-2 mt-0.5">
+          <div className="flex items-center gap-component-sm mt-component-xs">
             <p className="text-sm text-muted-foreground">
               {totalCount} {totalCount === 1 ? 'device' : 'devices'} online
             </p>
@@ -206,12 +206,12 @@ export function ConnectedDevices({
             <DropdownMenuItem onClick={toggleHideHostnames}>
               {hideHostnames ? (
                 <>
-                  <Eye className="h-4 w-4 mr-2" />
+                  <Eye className="h-4 w-4 mr-component-sm" />
                   Show Hostnames
                 </>
               ) : (
                 <>
-                  <EyeOff className="h-4 w-4 mr-2" />
+                  <EyeOff className="h-4 w-4 mr-component-sm" />
                   Hide Hostnames
                 </>
               )}
@@ -220,7 +220,7 @@ export function ConnectedDevices({
             <DropdownMenuItem onClick={handleRefresh} disabled={isRefreshing}>
               <RefreshCw
                 className={cn(
-                  'h-4 w-4 mr-2',
+                  'h-4 w-4 mr-component-sm',
                   isRefreshing && 'animate-spin'
                 )}
               />

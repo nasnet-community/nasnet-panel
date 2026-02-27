@@ -17,23 +17,248 @@ func (s *Service) ImportStarState(ctx context.Context, routerID string, state ty
 		return nil, fmt.Errorf("creating session: %w", err)
 	}
 
-	if err := s.importWANLinks(session.ID, state.WAN); err != nil {
+	// Foundational resources (always present)
+	if err := s.importBaseConfig(session.ID); err != nil {
+		return nil, err
+	}
+	if err := s.importSecurity(session.ID); err != nil {
 		return nil, err
 	}
 
+	// Network resources
+	if err := s.importNetworks(session.ID, state.Choose, state.LAN); err != nil {
+		return nil, err
+	}
+
+	// WAN links
+	if err := s.importWANLinks(session.ID, state.WAN); err != nil {
+		return nil, err
+	}
 	if err := s.importVPNClients(session.ID, state.WAN.VPNClient); err != nil {
 		return nil, err
 	}
 
+	// LAN resources
 	if err := s.importLANResources(session.ID, state.LAN); err != nil {
 		return nil, err
 	}
 
+	// Wireless
+	if err := s.importWireless(session.ID, state.LAN); err != nil {
+		return nil, err
+	}
+
+	// Extra config
 	if err := s.importExtraConfig(session.ID, state.Extra); err != nil {
 		return nil, err
 	}
 
+	// Games and schedules
+	if err := s.importGames(session.ID, state.Extra); err != nil {
+		return nil, err
+	}
+	if err := s.importSchedules(session.ID, state.Extra); err != nil {
+		return nil, err
+	}
+
 	return s.GetSession(ctx, session.ID)
+}
+
+// importBaseConfig adds a foundational system.baseconfig resource (always present).
+func (s *Service) importBaseConfig(sessionID string) error {
+	r := SessionResource{
+		ID:            ulid.NewString(),
+		ResourceType:  "system.baseconfig",
+		Configuration: map[string]interface{}{},
+		Relationships: map[string]interface{}{},
+	}
+	return s.addResource(sessionID, r)
+}
+
+// importSecurity adds a foundational system.security resource (always present).
+func (s *Service) importSecurity(sessionID string) error {
+	r := SessionResource{
+		ID:            ulid.NewString(),
+		ResourceType:  "system.security",
+		Configuration: map[string]interface{}{},
+		Relationships: map[string]interface{}{},
+	}
+	return s.addResource(sessionID, r)
+}
+
+// importNetworks decomposes LAN subnets into lan.network.* resources.
+func (s *Service) importNetworks(sessionID string, _ types.ChooseState, lan *types.LANState) error {
+	if lan == nil || lan.Subnets == nil {
+		return nil
+	}
+	subnets := lan.Subnets
+
+	if subnets.BaseSubnets.Split != nil {
+		if err := s.addNetworkResource(sessionID, "lan.network.split", *subnets.BaseSubnets.Split); err != nil {
+			return err
+		}
+	}
+	if subnets.BaseSubnets.Domestic != nil {
+		if err := s.addNetworkResource(sessionID, "lan.network.domestic", *subnets.BaseSubnets.Domestic); err != nil {
+			return err
+		}
+	}
+	if subnets.BaseSubnets.Foreign != nil {
+		if err := s.addNetworkResource(sessionID, "lan.network.foreign", *subnets.BaseSubnets.Foreign); err != nil {
+			return err
+		}
+	}
+	if subnets.BaseSubnets.VPN != nil {
+		if err := s.addNetworkResource(sessionID, "lan.network.vpn", *subnets.BaseSubnets.VPN); err != nil {
+			return err
+		}
+	}
+
+	for _, sub := range subnets.ForeignSubnets {
+		if err := s.addNetworkResource(sessionID, "lan.network.foreign", sub); err != nil {
+			return err
+		}
+	}
+	for _, sub := range subnets.DomesticSubnets {
+		if err := s.addNetworkResource(sessionID, "lan.network.domestic", sub); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// addNetworkResource adds a single lan.network.* resource.
+func (s *Service) addNetworkResource(sessionID, resourceType string, subnet types.SubnetConfig) error {
+	r := SessionResource{
+		ID:           ulid.NewString(),
+		ResourceType: resourceType,
+		Configuration: map[string]interface{}{
+			"name":   subnet.Name,
+			"subnet": subnet.Subnet,
+		},
+		Relationships: map[string]interface{}{},
+	}
+	return s.addResource(sessionID, r)
+}
+
+// importWireless decomposes LAN wireless configs into system.wireless.* resources.
+func (s *Service) importWireless(sessionID string, lan *types.LANState) error {
+	if lan == nil || len(lan.Wireless) == 0 {
+		return nil
+	}
+	for i, wCfg := range lan.Wireless {
+		r := SessionResource{
+			ID:           ulid.NewString(),
+			ResourceType: fmt.Sprintf("system.wireless.%d", i),
+			Configuration: map[string]interface{}{
+				"ssid":        wCfg.SSID,
+				"password":    wCfg.Password,
+				"isHide":      wCfg.IsHide,
+				"isDisabled":  wCfg.IsDisabled,
+				"splitBand":   wCfg.SplitBand,
+				"wifiTarget":  wCfg.WifiTarget,
+				"networkName": wCfg.NetworkName,
+			},
+			Relationships: map[string]interface{}{},
+		}
+		if err := s.addResource(sessionID, r); err != nil {
+			return fmt.Errorf("adding wireless resource %d: %w", i, err)
+		}
+	}
+	return nil
+}
+
+// importGames decomposes extra game entries into system.game.* resources.
+func (s *Service) importGames(sessionID string, extra *types.ExtraConfigState) error {
+	if extra == nil || len(extra.Games) == 0 {
+		return nil
+	}
+	for i, game := range extra.Games {
+		r := SessionResource{
+			ID:           ulid.NewString(),
+			ResourceType: fmt.Sprintf("system.game.%d", i),
+			Configuration: map[string]interface{}{
+				"name":    game.Name,
+				"network": game.Network,
+				"ports":   game.Ports,
+			},
+			Relationships: map[string]interface{}{},
+		}
+		if err := s.addResource(sessionID, r); err != nil {
+			return fmt.Errorf("adding game resource %d: %w", i, err)
+		}
+	}
+	return nil
+}
+
+// importSchedules decomposes RUIConfig schedule fields into system.scheduler.* resources.
+func (s *Service) importSchedules(sessionID string, extra *types.ExtraConfigState) error {
+	if extra == nil || extra.RUIConfig == nil {
+		return nil
+	}
+	rui := extra.RUIConfig
+
+	if rui.Timezone != nil {
+		r := SessionResource{
+			ID:           ulid.NewString(),
+			ResourceType: "system.scheduler.timezone",
+			Configuration: map[string]interface{}{
+				"timezone": *rui.Timezone,
+			},
+			Relationships: map[string]interface{}{},
+		}
+		if err := s.addResource(sessionID, r); err != nil {
+			return fmt.Errorf("adding timezone resource: %w", err)
+		}
+	}
+
+	if rui.Reboot != nil {
+		r := SessionResource{
+			ID:           ulid.NewString(),
+			ResourceType: "system.scheduler.reboot",
+			Configuration: map[string]interface{}{
+				"interval": rui.Reboot.Interval,
+				"time":     rui.Reboot.Time,
+			},
+			Relationships: map[string]interface{}{},
+		}
+		if err := s.addResource(sessionID, r); err != nil {
+			return fmt.Errorf("adding reboot schedule resource: %w", err)
+		}
+	}
+
+	if rui.Update != nil {
+		r := SessionResource{
+			ID:           ulid.NewString(),
+			ResourceType: "system.scheduler.update",
+			Configuration: map[string]interface{}{
+				"interval": rui.Update.Interval,
+				"time":     rui.Update.Time,
+			},
+			Relationships: map[string]interface{}{},
+		}
+		if err := s.addResource(sessionID, r); err != nil {
+			return fmt.Errorf("adding update schedule resource: %w", err)
+		}
+	}
+
+	if rui.IPAddressUpdate != nil {
+		r := SessionResource{
+			ID:           ulid.NewString(),
+			ResourceType: "system.scheduler.ipaddress",
+			Configuration: map[string]interface{}{
+				"interval": rui.IPAddressUpdate.Interval,
+				"time":     rui.IPAddressUpdate.Time,
+			},
+			Relationships: map[string]interface{}{},
+		}
+		if err := s.addResource(sessionID, r); err != nil {
+			return fmt.Errorf("adding IP address update schedule resource: %w", err)
+		}
+	}
+
+	return nil
 }
 
 // importWANLinks decomposes WANState into wan.link.* and wan.multilink.* resources.

@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/available-provisioning-resources",
+  "title": "availableProvisioningResources",
+  "description": "Get available provisioning resources (VPN clients, tunnels, etc.)",
+  "source": "@site/docs/api/operations/queries/available-provisioning-resources.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/available-provisioning-resources",
+  "permalink": "/api/operations/queries/available-provisioning-resources",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "available-provisioning-resources",
+    "title": "availableProvisioningResources"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "availableInterfacesForBridge",
+    "permalink": "/api/operations/queries/available-interfaces-for-bridge"
+  },
+  "next": {
+    "title": "availableServices",
+    "permalink": "/api/operations/queries/available-services"
+  }
+}

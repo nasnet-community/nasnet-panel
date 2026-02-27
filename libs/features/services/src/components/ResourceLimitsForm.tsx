@@ -170,11 +170,11 @@ export function ResourceLimitsForm({
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-component-md">
           {/* Memory Limit */}
-          <div className="space-y-2">
+          <div className="space-y-component-sm">
             <Label htmlFor="memoryMB">
-              Memory Limit (MB) <span className="text-destructive">*</span>
+              Memory Limit (MB) <span className="text-error">*</span>
             </Label>
             <Input
               id="memoryMB"
@@ -203,7 +203,7 @@ export function ResourceLimitsForm({
           </div>
 
           {/* CPU Weight */}
-          <div className="space-y-2">
+          <div className="space-y-component-sm">
             <Label htmlFor="cpuWeight">CPU Weight (Optional)</Label>
             <Input
               id="cpuWeight"
@@ -238,7 +238,7 @@ export function ResourceLimitsForm({
           {/* Form-level error */}
           {form.formState.errors.root && (
             <div
-              className="p-3 rounded-md bg-error/10 border border-error/20"
+              className="p-component-sm rounded-md bg-error/10 border border-error/20"
               role="alert"
             >
               <p className="text-sm text-error">
@@ -250,7 +250,7 @@ export function ResourceLimitsForm({
           {/* Success message */}
           {successMessage && (
             <div
-              className="p-3 rounded-md bg-success/10 border border-success/20"
+              className="p-component-sm rounded-md bg-success/10 border border-success/20"
               role="status"
             >
               <p className="text-sm text-success font-medium">
@@ -260,7 +260,7 @@ export function ResourceLimitsForm({
           )}
 
           {/* Action buttons */}
-          <div className="flex items-center gap-3 pt-2">
+          <div className="flex items-center gap-component-sm pt-component-sm">
             <Button
               type="submit"
               disabled={loading || !form.formState.isDirty}
@@ -290,7 +290,7 @@ export function ResourceLimitsForm({
 
           {/* Applied status */}
           {currentLimits && (
-            <div className="pt-3 border-t">
+            <div className="pt-component-sm border-t">
               <p className="text-xs text-muted-foreground">
                 Current limits:{' '}
                 <span className="font-medium font-mono">

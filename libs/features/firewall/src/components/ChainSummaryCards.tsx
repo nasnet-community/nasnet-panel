@@ -36,7 +36,7 @@ const ActionDistribution = React.memo(function ActionDistribution({
   if (activeRules === 0) return null;
 
   return (
-    <div className="mt-3">
+    <div className="mt-component-md">
       <div
         className="flex h-1.5 w-full overflow-hidden rounded-full bg-muted"
         role="img"
@@ -93,11 +93,11 @@ const ChainCard = React.memo(function ChainCard({
   };
 
   const selectedBg: Record<string, string> = {
-    blue: 'bg-info/10 dark:bg-info/5',
-    purple: 'bg-secondary/10 dark:bg-secondary/5',
-    amber: 'bg-primary/10 dark:bg-primary/5',
-    teal: 'bg-success/10 dark:bg-success/5',
-    rose: 'bg-error/10 dark:bg-error/5',
+    blue: 'bg-info/10',
+    purple: 'bg-secondary/10',
+    amber: 'bg-primary/10',
+    teal: 'bg-success/10',
+    rose: 'bg-error/10',
   };
 
   const handleClick = useCallback(() => {
@@ -110,11 +110,11 @@ const ChainCard = React.memo(function ChainCard({
       onClick={handleClick}
       aria-pressed={isSelected}
       className={cn(
-        'w-full text-left rounded-xl border-l-4 p-4 transition-all',
+        'w-full text-left rounded-xl border-l-4 p-component-md transition-all',
         borderColors[colorName] || 'border-l-muted-foreground',
         isSelected
-          ? `${selectedBg[colorName] || 'bg-muted/50 dark:bg-muted/20'} ring-2 ring-primary/50`
-          : 'bg-card hover:bg-muted/50 dark:hover:bg-muted/30',
+          ? `${selectedBg[colorName] || 'bg-muted/50'} ring-2 ring-primary/50`
+          : 'bg-card hover:bg-muted/50',
         'border border-border'
       )}
     >
@@ -124,7 +124,7 @@ const ChainCard = React.memo(function ChainCard({
           <h3 className="font-semibold text-foreground uppercase text-sm tracking-wide">
             {summary.chain}
           </h3>
-          <p className="text-xs text-muted-foreground mt-0.5">
+          <p className="text-xs text-muted-foreground mt-component-xs">
             {description}
           </p>
         </div>
@@ -134,7 +134,7 @@ const ChainCard = React.memo(function ChainCard({
       </div>
 
       {/* Stats grid */}
-      <div className="mt-3 grid grid-cols-3 gap-2 text-xs">
+      <div className="mt-component-md grid grid-cols-3 gap-component-sm text-xs">
         <div className="text-center">
           <span className="block font-semibold text-success">
             {summary.acceptCount}
@@ -211,13 +211,13 @@ const ChainSummaryCards = React.memo(function ChainSummaryCards({
   if (isLoading) {
     return (
       <div className={className}>
-        <div className="px-2 mb-4">
+        <div className="px-component-sm mb-component-lg">
           <h2 className="text-lg font-semibold">Chain Summary</h2>
           <p className="text-sm text-muted-foreground">
             Loading firewall chain statistics
           </p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-component-lg">
           {[...Array(3)].map((_, i) => (
             <div
               key={i}
@@ -233,11 +233,11 @@ const ChainSummaryCards = React.memo(function ChainSummaryCards({
   if (error) {
     return (
       <div
-        className={cn('p-4 text-error rounded-lg bg-error/10', className)}
+        className={cn('p-component-md text-error rounded-lg bg-error/10', className)}
         role="alert"
       >
         <p className="font-medium">Error Loading Chain Summary</p>
-        <p className="text-sm mt-1">{error instanceof Error ? error.message : 'Failed to load firewall statistics'}</p>
+        <p className="text-sm mt-component-xs">{error instanceof Error ? error.message : 'Failed to load firewall statistics'}</p>
       </div>
     );
   }
@@ -245,7 +245,7 @@ const ChainSummaryCards = React.memo(function ChainSummaryCards({
   return (
     <div className={className}>
       {/* Section header */}
-      <div className="px-2 mb-4 flex items-center justify-between">
+      <div className="px-component-sm mb-component-lg flex items-center justify-between">
         <div>
           <h2 className="text-lg font-semibold">Chain Summary</h2>
           <p className="text-sm text-muted-foreground">
@@ -263,7 +263,7 @@ const ChainSummaryCards = React.memo(function ChainSummaryCards({
       </div>
 
       {/* Summary cards grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-component-lg">
         {mainChains.map((summary) => (
           <ChainCard
             key={summary.chain}
@@ -275,16 +275,16 @@ const ChainSummaryCards = React.memo(function ChainSummaryCards({
       </div>
 
       {/* Legend */}
-      <div className="mt-3 px-2 flex items-center gap-4 text-xs text-muted-foreground">
-        <span className="flex items-center gap-1">
+      <div className="mt-component-md px-component-sm flex items-center gap-component-lg text-xs text-muted-foreground">
+        <span className="flex items-center gap-component-xs">
           <span className="inline-block w-2 h-2 rounded-full bg-success" aria-hidden="true" />
           Accept
         </span>
-        <span className="flex items-center gap-1">
+        <span className="flex items-center gap-component-xs">
           <span className="inline-block w-2 h-2 rounded-full bg-error" aria-hidden="true" />
           Drop
         </span>
-        <span className="flex items-center gap-1">
+        <span className="flex items-center gap-component-xs">
           <span className="inline-block w-2 h-2 rounded-full bg-warning" aria-hidden="true" />
           Reject
         </span>

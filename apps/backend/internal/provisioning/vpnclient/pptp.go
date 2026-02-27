@@ -86,14 +86,19 @@ func (s *Service) createPPTPInterface(
 	comment string,
 ) (string, error) {
 
+	// Build allow= value: prefer AuthMethods slice (multiple), fall back to AuthMethod (single).
+	allowValue := buildAuthMethodString(cfg.AuthMethods, cfg.AuthMethod)
+
 	args := map[string]string{
 		"name":       ifName,
 		"connect-to": cfg.ConnectTo.Address,
 		"user":       cfg.Credentials.Username,
 		"password":   cfg.Credentials.Password,
-		"allow":      string(cfg.AuthMethod),
 		"comment":    comment,
 		"disabled":   "no",
+	}
+	if allowValue != "" {
+		args["allow"] = allowValue
 	}
 
 	// Set port if non-zero

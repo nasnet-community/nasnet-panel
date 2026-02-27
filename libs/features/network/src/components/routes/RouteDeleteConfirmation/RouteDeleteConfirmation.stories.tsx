@@ -105,8 +105,8 @@ function RouteDeleteConfirmationWrapper({
   };
 
   return (
-    <div className="flex flex-col items-center gap-4 p-8">
-      <div className="flex flex-col items-center gap-2 text-center">
+    <div className="flex flex-col items-center gap-component-md p-component-xl">
+      <div className="flex flex-col items-center gap-component-sm text-center">
         <h3 className="text-lg font-semibold">Route Management</h3>
         <p className="text-sm text-muted-foreground">
           Click below to delete route: <code className="font-mono">{route.destination}</code>
@@ -330,7 +330,7 @@ export const Submitting: Story = {
     const [loading, setLoading] = useState(false);
 
     return (
-      <div className="flex flex-col items-center gap-4">
+      <div className="flex flex-col items-center gap-component-md">
         <Button variant="destructive" onClick={() => setOpen(true)}>
           Delete Route
         </Button>

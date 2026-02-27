@@ -116,16 +116,16 @@ export function VStepperItem({
       {/* Step indicator circle */}
       <motion.div
         className={cn(
-          // Base styles
-          'flex items-center justify-center w-8 h-8 rounded-full border-2 shrink-0',
-          // Active state
-          isActive && 'border-primary bg-primary text-primary-foreground',
-          // Completed state
-          isCompleted && !isActive && 'border-primary bg-primary text-primary-foreground',
-          // Error state
-          hasError && 'border-error bg-error text-error-foreground',
-          // Future/pending state
-          isFuture && 'border-muted-foreground text-muted-foreground'
+          // Base styles - 32px (h-8 w-8) as per spec
+          'flex items-center justify-center w-8 h-8 rounded-full shrink-0',
+          // Active state - bg-primary text-primary-foreground
+          isActive && 'bg-primary text-primary-foreground',
+          // Completed state - bg-success text-white
+          isCompleted && !isActive && 'bg-success text-white',
+          // Error state - bg-error text-white
+          hasError && 'bg-error text-white',
+          // Future/pending state - bg-muted text-muted-foreground
+          isFuture && 'bg-muted text-muted-foreground'
         )}
         initial={false}
         animate={{

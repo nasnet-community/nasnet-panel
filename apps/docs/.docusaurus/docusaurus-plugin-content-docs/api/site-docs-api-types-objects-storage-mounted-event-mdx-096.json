@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/storage-mounted-event",
+  "title": "StorageMountedEvent",
+  "description": "Event emitted when storage is mounted or becomes available.",
+  "source": "@site/docs/api/types/objects/storage-mounted-event.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/storage-mounted-event",
+  "permalink": "/api/types/objects/storage-mounted-event",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "storage-mounted-event",
+    "title": "StorageMountedEvent"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "StorageMetrics",
+    "permalink": "/api/types/objects/storage-metrics"
+  },
+  "next": {
+    "title": "StorageSpaceEvent",
+    "permalink": "/api/types/objects/storage-space-event"
+  }
+}

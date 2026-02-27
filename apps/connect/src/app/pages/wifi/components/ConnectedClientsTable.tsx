@@ -76,18 +76,18 @@ export const ConnectedClientsTable = React.memo(function ConnectedClientsTable({
   return (
     <section>
       <SectionHeader title={t('clients.title')} count={clients.length} />
-      <div className="bg-card rounded-card-sm border border-border overflow-hidden">
+      <div className="bg-card rounded-card-sm border border-border overflow-hidden shadow-sm">
         {/* Desktop Table */}
         <div className="hidden md:block overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="border-b border-border">
-                <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide p-component-md">{t('clients.macAddress')}</th>
-                <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide p-component-md">{t('clients.interface')}</th>
-                <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide p-component-md">{t('clients.signal')}</th>
-                <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide p-component-md">{t('clients.rate')}</th>
-                <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide p-component-md">{t('clients.traffic')}</th>
-                <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide p-component-md">{t('clients.uptime')}</th>
+                <th className="text-left text-xs font-display font-medium text-muted-foreground uppercase tracking-wide p-component-md">{t('clients.macAddress')}</th>
+                <th className="text-left text-xs font-display font-medium text-muted-foreground uppercase tracking-wide p-component-md">{t('clients.interface')}</th>
+                <th className="text-left text-xs font-display font-medium text-muted-foreground uppercase tracking-wide p-component-md">{t('clients.signal')}</th>
+                <th className="text-left text-xs font-display font-medium text-muted-foreground uppercase tracking-wide p-component-md">{t('clients.rate')}</th>
+                <th className="text-left text-xs font-display font-medium text-muted-foreground uppercase tracking-wide p-component-md">{t('clients.traffic')}</th>
+                <th className="text-left text-xs font-display font-medium text-muted-foreground uppercase tracking-wide p-component-md">{t('clients.uptime')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -97,16 +97,16 @@ export const ConnectedClientsTable = React.memo(function ConnectedClientsTable({
                     <span className="font-mono text-sm text-foreground">{client.macAddress}</span>
                   </td>
                   <td className="p-component-md">
-                    <span className="text-sm text-muted-foreground">{client.interface}</span>
+                    <span className="text-sm text-muted-foreground font-display">{client.interface}</span>
                   </td>
                   <td className="p-component-md">
                     <div className="flex items-center gap-2">
                       <SignalBars signal={client.signalStrength} />
-                      <span className="text-sm text-muted-foreground">{client.signalStrength} dBm</span>
+                      <span className="text-sm text-muted-foreground font-mono">{client.signalStrength} dBm</span>
                     </div>
                   </td>
                   <td className="p-component-md">
-                    <div className="text-sm text-muted-foreground">
+                    <div className="text-sm text-muted-foreground font-mono">
                       <span className="text-success">↓</span> {client.rxRate} Mbps
                       <span className="text-warning ml-2">↑</span> {client.txRate} Mbps
                     </div>
@@ -118,7 +118,7 @@ export const ConnectedClientsTable = React.memo(function ConnectedClientsTable({
                     </div>
                   </td>
                   <td className="p-component-md">
-                    <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-1 text-sm text-muted-foreground font-mono">
                       <Clock className="w-3.5 h-3.5" />
                       {client.uptime}
                     </div>
@@ -134,14 +134,14 @@ export const ConnectedClientsTable = React.memo(function ConnectedClientsTable({
           {sortedClients.map((client) => (
             <div key={client.id} className="p-component-md space-y-2">
               <div className="flex items-center justify-between">
-                <span className="font-mono text-sm text-foreground">{client.macAddress}</span>
+                <span className="font-mono text-sm text-foreground font-display">{client.macAddress}</span>
                 <SignalBars signal={client.signalStrength} />
               </div>
               <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">{client.interface}</span>
-                <span className="text-muted-foreground">{client.signalStrength} dBm</span>
+                <span className="text-muted-foreground font-display">{client.interface}</span>
+                <span className="text-muted-foreground font-mono">{client.signalStrength} dBm</span>
               </div>
-              <div className="flex items-center justify-between text-xs text-muted-foreground">
+              <div className="flex items-center justify-between text-xs text-muted-foreground font-mono">
                 <div className="flex items-center gap-2">
                   <ArrowDown className="w-3 h-3 text-success" />
                   {formatBytes(client.rxBytes)}

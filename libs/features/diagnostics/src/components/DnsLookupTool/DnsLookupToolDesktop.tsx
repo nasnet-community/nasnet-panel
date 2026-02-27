@@ -90,7 +90,7 @@ export const DnsLookupToolDesktop = memo(function DnsLookupToolDesktop({
       {/* Left Panel: Form */}
       <Card>
         <CardHeader>
-          <h2 className="text-lg font-semibold font-display">DNS Lookup</h2>
+          <h2 className="text-lg font-semibold font-display text-category-networking">DNS Lookup</h2>
           <p className="text-sm text-muted-foreground">
             Query DNS records from the router
           </p>
@@ -108,7 +108,7 @@ export const DnsLookupToolDesktop = memo(function DnsLookupToolDesktop({
                 disabled={isLoading}
               />
               {errors.hostname && (
-                <p className="text-sm text-destructive" role="alert">
+                <p className="text-sm text-error" role="alert">
                   {errors.hostname.message}
                 </p>
               )}
@@ -189,7 +189,7 @@ export const DnsLookupToolDesktop = memo(function DnsLookupToolDesktop({
       {/* Right Panel: Results */}
       <Card>
         <CardHeader>
-          <h2 className="text-lg font-semibold font-display">Results</h2>
+          <h2 className="text-lg font-semibold font-display text-category-networking">Results</h2>
         </CardHeader>
         <CardContent role="status" aria-label="DNS lookup results">
           {!result && !isLoading && (

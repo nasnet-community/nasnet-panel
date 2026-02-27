@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/throttle-group-status",
+  "title": "ThrottleGroupStatus",
+  "description": "Throttle status for a specific group (when groupByField is used)",
+  "source": "@site/docs/api/types/objects/throttle-group-status.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/throttle-group-status",
+  "permalink": "/api/types/objects/throttle-group-status",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "throttle-group-status",
+    "title": "ThrottleGroupStatus"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ThrottleConfig",
+    "permalink": "/api/types/objects/throttle-config"
+  },
+  "next": {
+    "title": "ThrottleStatus",
+    "permalink": "/api/types/objects/throttle-status"
+  }
+}

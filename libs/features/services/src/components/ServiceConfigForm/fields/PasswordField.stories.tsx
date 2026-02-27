@@ -150,7 +150,7 @@ export const WithError: Story = {
     <div className="space-y-2">
       <Label htmlFor="error-password">Database Password</Label>
       <PasswordField {...args} id="error-password" aria-invalid={true} />
-      <p className="text-xs text-destructive">
+      <p className="text-xs text-error">
         Password must be at least 8 characters long
       </p>
     </div>

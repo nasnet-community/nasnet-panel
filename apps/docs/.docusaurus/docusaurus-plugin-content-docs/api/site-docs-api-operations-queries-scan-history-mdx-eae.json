@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/scan-history",
+  "title": "scanHistory",
+  "description": "Get scan history (recent scans)",
+  "source": "@site/docs/api/operations/queries/scan-history.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/scan-history",
+  "permalink": "/api/operations/queries/scan-history",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "scan-history",
+    "title": "scanHistory"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "rulesReferencingAddressList",
+    "permalink": "/api/operations/queries/rules-referencing-address-list"
+  },
+  "next": {
+    "title": "scanStatus",
+    "permalink": "/api/operations/queries/scan-status"
+  }
+}

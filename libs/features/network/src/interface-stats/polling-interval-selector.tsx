@@ -66,7 +66,7 @@ const PollingIntervalSelector = React.memo(function PollingIntervalSelector({
   if (inline) {
     return (
       <Select value={pollingInterval} onValueChange={handleChange}>
-        <SelectTrigger className={className} aria-label="Update interval">
+        <SelectTrigger className={cn('category-networking', className)} aria-label="Update interval">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
@@ -87,8 +87,8 @@ const PollingIntervalSelector = React.memo(function PollingIntervalSelector({
   }
 
   return (
-    <div className={cn(className)}>
-      <label htmlFor="polling-interval" className="mb-2 block text-sm font-medium">
+    <div className={cn('category-networking', className)}>
+      <label htmlFor="polling-interval" className="mb-component-sm block text-sm font-medium">
         Update Interval
       </label>
       <Select value={pollingInterval} onValueChange={handleChange}>
@@ -109,7 +109,7 @@ const PollingIntervalSelector = React.memo(function PollingIntervalSelector({
           })}
         </SelectContent>
       </Select>
-      <p className="mt-1 text-xs text-muted-foreground">
+      <p className="mt-component-sm text-xs text-muted-foreground">
         Changes apply immediately to active statistics subscriptions
       </p>
     </div>

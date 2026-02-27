@@ -1,0 +1,24 @@
+{
+  "id": "feature-modules/services",
+  "title": "Services Feature Module",
+  "description": "Source: libs/features/services/src/",
+  "source": "@site/../connect/docs/feature-modules/services.md",
+  "sourceDirName": "feature-modules",
+  "slug": "/feature-modules/services",
+  "permalink": "/docs/frontend/feature-modules/services",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../connect/docs/feature-modules/services.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Network Feature",
+    "permalink": "/docs/frontend/feature-modules/network"
+  },
+  "next": {
+    "title": "VPN Feature",
+    "permalink": "/docs/frontend/feature-modules/vpn"
+  }
+}

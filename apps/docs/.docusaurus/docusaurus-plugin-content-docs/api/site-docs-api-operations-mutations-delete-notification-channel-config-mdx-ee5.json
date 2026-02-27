@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/delete-notification-channel-config",
+  "title": "deleteNotificationChannelConfig",
+  "description": "Delete a notification channel configuration (soft delete)",
+  "source": "@site/docs/api/operations/mutations/delete-notification-channel-config.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/delete-notification-channel-config",
+  "permalink": "/api/operations/mutations/delete-notification-channel-config",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "delete-notification-channel-config",
+    "title": "deleteNotificationChannelConfig"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "deleteNatRule",
+    "permalink": "/api/operations/mutations/delete-nat-rule"
+  },
+  "next": {
+    "title": "deletePortForward",
+    "permalink": "/api/operations/mutations/delete-port-forward"
+  }
+}

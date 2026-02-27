@@ -90,21 +90,33 @@ func NewDeviceRoutingQuerier(client *ent.Client) *RealDeviceRoutingQuerier {
 }
 
 func (r *RealDeviceRoutingQuerier) GetRoutingsByInstance(ctx context.Context, instanceID string) ([]*ent.DeviceRouting, error) {
-	return r.client.DeviceRouting.Query().
+	routings, err := r.client.DeviceRouting.Query().
 		Where(devicerouting.InstanceID(instanceID)).
 		All(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("get routings by instance: %w", err)
+	}
+	return routings, nil
 }
 
 func (r *RealDeviceRoutingQuerier) GetRoutingsByDevice(ctx context.Context, deviceMAC string) ([]*ent.DeviceRouting, error) {
-	return r.client.DeviceRouting.Query().
+	routings, err := r.client.DeviceRouting.Query().
 		Where(devicerouting.MACAddress(deviceMAC)).
 		All(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("get routings by device: %w", err)
+	}
+	return routings, nil
 }
 
 func (r *RealDeviceRoutingQuerier) IsDeviceRouted(ctx context.Context, deviceMAC string) (bool, error) {
-	return r.client.DeviceRouting.Query().
+	exists, err := r.client.DeviceRouting.Query().
 		Where(devicerouting.MACAddress(deviceMAC)).
 		Exist(ctx)
+	if err != nil {
+		return false, fmt.Errorf("check device routing existence: %w", err)
+	}
+	return exists, nil
 }
 
 // NoOpDeviceRoutingQuerier is a stub implementation that returns empty results.
@@ -155,19 +167,35 @@ func NewKillSwitchCoordinator(mgr *isolation.KillSwitchManager) *RealKillSwitchC
 }
 
 func (r *RealKillSwitchCoordinator) SuspendRouting(ctx context.Context, instanceID string) (int, error) {
-	return r.mgr.SuspendRouting(ctx, instanceID)
+	count, err := r.mgr.SuspendRouting(ctx, instanceID)
+	if err != nil {
+		return 0, fmt.Errorf("suspend routing: %w", err)
+	}
+	return count, nil
 }
 
 func (r *RealKillSwitchCoordinator) ResumeRouting(ctx context.Context, instanceID string) (int, error) {
-	return r.mgr.ResumeRouting(ctx, instanceID)
+	count, err := r.mgr.ResumeRouting(ctx, instanceID)
+	if err != nil {
+		return 0, fmt.Errorf("resume routing: %w", err)
+	}
+	return count, nil
 }
 
 func (r *RealKillSwitchCoordinator) GetSuspendedDevices(ctx context.Context, instanceID string) ([]string, error) {
-	return r.mgr.GetSuspendedDevices(ctx, instanceID)
+	devices, err := r.mgr.GetSuspendedDevices(ctx, instanceID)
+	if err != nil {
+		return nil, fmt.Errorf("get suspended devices: %w", err)
+	}
+	return devices, nil
 }
 
 func (r *RealKillSwitchCoordinator) IsSuspended(ctx context.Context, instanceID string) (bool, error) {
-	return r.mgr.IsSuspended(ctx, instanceID)
+	suspended, err := r.mgr.IsSuspended(ctx, instanceID)
+	if err != nil {
+		return false, fmt.Errorf("check suspension status: %w", err)
+	}
+	return suspended, nil
 }
 
 // NoOpPBRCascadeHook is a stub implementation that succeeds without side effects.

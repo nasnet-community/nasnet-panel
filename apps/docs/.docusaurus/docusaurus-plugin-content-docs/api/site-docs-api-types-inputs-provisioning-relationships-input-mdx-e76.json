@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/provisioning-relationships-input",
+  "title": "ProvisioningRelationshipsInput",
+  "description": "Resource relationships for provisioning context",
+  "source": "@site/docs/api/types/inputs/provisioning-relationships-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/provisioning-relationships-input",
+  "permalink": "/api/types/inputs/provisioning-relationships-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "provisioning-relationships-input",
+    "title": "ProvisioningRelationshipsInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "PreviewNotificationTemplateInput",
+    "permalink": "/api/types/inputs/preview-notification-template-input"
+  },
+  "next": {
+    "title": "QuietHoursConfigInput",
+    "permalink": "/api/types/inputs/quiet-hours-config-input"
+  }
+}

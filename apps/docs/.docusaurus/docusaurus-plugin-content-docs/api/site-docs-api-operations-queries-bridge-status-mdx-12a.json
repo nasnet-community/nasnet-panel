@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/bridge-status",
+  "title": "bridgeStatus",
+  "description": "Get bridge status for a service instance.",
+  "source": "@site/docs/api/operations/queries/bridge-status.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/bridge-status",
+  "permalink": "/api/operations/queries/bridge-status",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "bridge-status",
+    "title": "bridgeStatus"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "bridgePorts",
+    "permalink": "/api/operations/queries/bridge-ports"
+  },
+  "next": {
+    "title": "bridgeVlans",
+    "permalink": "/api/operations/queries/bridge-vlans"
+  }
+}

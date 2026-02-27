@@ -234,173 +234,149 @@ export const FirewallLogViewerMobile = memo(
           </div>
         )}
 
-        {/* Log Cards */}
-        <div className="flex-1 overflow-auto p-4 space-y-3">
+        {/* Log Cards - Always Dark Background */}
+        <div className="flex-1 overflow-auto bg-slate-950 dark:bg-slate-900 p-4 space-y-3">
           {viewer.error ? (
-            <Card className="p-6 bg-error/10 border-error/20">
-              <p className="text-error text-center">
-                Error loading logs: {viewer.error.message}
-              </p>
-            </Card>
+            <div className="bg-card border border-error/20 rounded-[var(--semantic-radius-card)] p-6 text-error text-center">
+              <p>Error loading logs: {viewer.error.message}</p>
+            </div>
           ) : viewer.logs.length === 0 ? (
-            <Card className="p-6">
-              <p className="text-muted-foreground text-center">
+            <div className="bg-card border border-border rounded-[var(--semantic-radius-card)] p-6 text-muted-foreground text-center">
+              <p>
                 {viewer.isLoading
                   ? 'Loading logs...'
                   : 'No logs found. Try adjusting your filters.'}
               </p>
-            </Card>
+            </div>
           ) : (
             viewer.logs.map((log) => {
-              const colors = getActionColorClasses(
-                log.parsed.action || 'unknown'
-              );
               const isSelected = viewer.selectedLog?.id === log.id;
+              const actionColor = log.parsed.action === 'accept' ? 'text-green-400' : 'text-red-400';
 
               return (
-                <Card
+                <div
                   key={log.id}
-                  className={`cursor-pointer transition-colors ${
-                    isSelected ? 'ring-2 ring-primary' : ''
+                  className={`bg-slate-800/30 border border-slate-700 rounded-[var(--semantic-radius-card)] cursor-pointer transition-colors p-3 ${
+                    isSelected ? 'ring-2 ring-primary bg-slate-800/60' : 'hover:bg-slate-800/50'
                   }`}
                   onClick={() => handleLogClick(log)}
                 >
-                  <CardHeader className="pb-3">
-                    <div className="flex items-start justify-between">
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <Badge
-                            className={`${colors.bg} ${colors.text} ${colors.border} border`}
-                          >
-                            {log.parsed.action || 'unknown'}
-                          </Badge>
-                          {log.parsed.prefix && (
-                            <>
-                              {onPrefixClick ? (
-                                <Button
-                                  variant="link"
-                                  size="sm"
-                                  className="h-auto p-0 text-primary min-h-[44px]"
-                                  onClick={(e) =>
-                                    handlePrefixClick(e, log.parsed.prefix!)
-                                  }
-                                >
-                                  {log.parsed.prefix}
-                                  <ExternalLink className="h-3 w-3 ml-1" />
-                                </Button>
-                              ) : (
-                                <span className="text-sm text-muted-foreground">
-                                  {log.parsed.prefix}
-                                </span>
-                              )}
-                            </>
-                          )}
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          {formatDate(log.timestamp)} {formatTime(log.timestamp)}
-                        </div>
+                  {/* Header */}
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="space-y-1 flex-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <Badge className={`${actionColor} bg-transparent border border-current`}>
+                          {log.parsed.action || 'unknown'}
+                        </Badge>
+                        {log.parsed.prefix && (
+                          <>
+                            {onPrefixClick ? (
+                              <Button
+                                variant="link"
+                                size="sm"
+                                className="h-auto p-0 text-primary min-h-[44px]"
+                                onClick={(e) =>
+                                  handlePrefixClick(e, log.parsed.prefix!)
+                                }
+                              >
+                                {log.parsed.prefix}
+                                <ExternalLink className="h-3 w-3 ml-1" />
+                              </Button>
+                            ) : (
+                              <span className="text-xs text-slate-400">
+                                {log.parsed.prefix}
+                              </span>
+                            )}
+                          </>
+                        )}
                       </div>
-                      {isSelected && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            viewer.selectLog(null);
-                          }}
-                          className="min-h-[44px] min-w-[44px]"
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
-                      )}
-                    </div>
-                  </CardHeader>
-
-                  <CardContent className="space-y-2">
-                    {/* Connection Info */}
-                    <div className="grid grid-cols-2 gap-3 text-sm">
-                      <div>
-                        <div className="text-muted-foreground text-xs mb-1">
-                          Source
-                        </div>
-                        <div className="font-mono text-xs">
-                          {log.parsed.srcIp || '-'}
-                          {log.parsed.srcPort && (
-                            <span className="text-muted-foreground">
-                              :{log.parsed.srcPort}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      <div>
-                        <div className="text-muted-foreground text-xs mb-1">
-                          Destination
-                        </div>
-                        <div className="font-mono text-xs">
-                          {log.parsed.dstIp || '-'}
-                          {log.parsed.dstPort && (
-                            <span className="text-muted-foreground">
-                              :{log.parsed.dstPort}
-                            </span>
-                          )}
-                        </div>
+                      <div className="text-xs text-slate-400">
+                        {formatDate(log.timestamp)} {formatTime(log.timestamp)}
                       </div>
                     </div>
-
-                    {/* Protocol and Chain */}
-                    <div className="grid grid-cols-2 gap-3 text-sm">
-                      <div>
-                        <div className="text-muted-foreground text-xs mb-1">
-                          Protocol
-                        </div>
-                        <div className="text-xs">
-                          {log.parsed.protocol || '-'}
-                        </div>
-                      </div>
-                      <div>
-                        <div className="text-muted-foreground text-xs mb-1">
-                          Chain
-                        </div>
-                        <div className="text-xs">{log.parsed.chain || '-'}</div>
-                      </div>
-                    </div>
-
-                    {/* Expanded Details */}
                     {isSelected && (
-                      <>
-                        <Separator className="my-3" />
-                        <div className="space-y-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          viewer.selectLog(null);
+                        }}
+                        className="min-h-[44px] min-w-[44px] text-slate-400"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+
+                  {/* Connection Info */}
+                  <div className="grid grid-cols-2 gap-3 text-xs font-mono mb-2">
+                    <div>
+                      <div className="text-slate-500 mb-1">Source</div>
+                      <div className="text-sky-400">
+                        {log.parsed.srcIp || '-'}
+                        {log.parsed.srcPort && (
+                          <span className="text-purple-400">
+                            :{log.parsed.srcPort}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-slate-500 mb-1">Destination</div>
+                      <div className="text-amber-400">
+                        {log.parsed.dstIp || '-'}
+                        {log.parsed.dstPort && (
+                          <span className="text-purple-400">
+                            :{log.parsed.dstPort}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Protocol and Chain */}
+                  <div className="grid grid-cols-2 gap-3 text-xs mb-3">
+                    <div>
+                      <div className="text-slate-500 mb-1">Protocol</div>
+                      <div className="text-slate-400">{log.parsed.protocol || '-'}</div>
+                    </div>
+                    <div>
+                      <div className="text-slate-500 mb-1">Chain</div>
+                      <div className="text-slate-400">{log.parsed.chain || '-'}</div>
+                    </div>
+                  </div>
+
+                  {/* Expanded Details */}
+                  {isSelected && (
+                    <>
+                      <div className="border-t border-slate-700 pt-3 mt-3">
+                        <div className="space-y-2 text-xs">
                           <div>
-                            <div className="text-muted-foreground text-xs mb-1">
-                              Message
-                            </div>
-                            <p className="text-xs font-mono text-muted-foreground">
+                            <div className="text-slate-500 mb-1">Message</div>
+                            <p className="text-slate-400 font-mono break-words">
                               {log.message}
                             </p>
                           </div>
                           <div className="grid grid-cols-2 gap-3">
                             <div>
-                              <div className="text-muted-foreground text-xs mb-1">
-                                Interface In
-                              </div>
-                              <div className="text-xs">
+                              <div className="text-slate-500 mb-1">Interface In</div>
+                              <div className="text-slate-400">
                                 {log.parsed.interfaceIn || '-'}
                               </div>
                             </div>
                             <div>
-                              <div className="text-muted-foreground text-xs mb-1">
-                                Interface Out
-                              </div>
-                              <div className="text-xs">
+                              <div className="text-slate-500 mb-1">Interface Out</div>
+                              <div className="text-slate-400">
                                 {log.parsed.interfaceOut || '-'}
                               </div>
                             </div>
                           </div>
                         </div>
-                      </>
-                    )}
-                  </CardContent>
-                </Card>
+                      </div>
+                    </>
+                  )}
+                </div>
               );
             })
           )}

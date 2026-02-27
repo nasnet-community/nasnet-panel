@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/apply-resource",
+  "title": "applyResource",
+  "description": "Apply resource to router (transitions VALID -&#x003E; APPLYING -&#x003E; ACTIVE/ERROR)",
+  "source": "@site/docs/api/operations/mutations/apply-resource.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/apply-resource",
+  "permalink": "/api/operations/mutations/apply-resource",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "apply-resource",
+    "title": "applyResource"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "applyProvisioningSession",
+    "permalink": "/api/operations/mutations/apply-provisioning-session"
+  },
+  "next": {
+    "title": "applyServiceConfig",
+    "permalink": "/api/operations/mutations/apply-service-config"
+  }
+}

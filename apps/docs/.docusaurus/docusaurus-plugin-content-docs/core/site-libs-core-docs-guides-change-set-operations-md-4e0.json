@@ -1,0 +1,24 @@
+{
+  "id": "guides/change-set-operations",
+  "title": "Change Set Operations: Atomic Multi-Resource Transactions",
+  "description": "Reference: ADR-012, FR-STM-013 | libs/core/types/src/resource/change-set.ts | libs/core/utils/src/graph/dependency-graph.ts",
+  "source": "@site/../../libs/core/docs/guides/change-set-operations.md",
+  "sourceDirName": "guides",
+  "slug": "/guides/change-set-operations",
+  "permalink": "/docs/core/guides/change-set-operations",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/core/docs/guides/change-set-operations.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Security Patterns",
+    "permalink": "/docs/core/guides/security-patterns"
+  },
+  "next": {
+    "title": "Device Detection Pipeline Guide",
+    "permalink": "/docs/core/guides/device-detection-pipeline"
+  }
+}

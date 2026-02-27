@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/interface-operation-error",
+  "title": "InterfaceOperationError",
+  "description": "Error information for a single interface operation in a batch",
+  "source": "@site/docs/api/types/objects/interface-operation-error.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/interface-operation-error",
+  "permalink": "/api/types/objects/interface-operation-error",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "interface-operation-error",
+    "title": "InterfaceOperationError"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "InterfaceEdge",
+    "permalink": "/api/types/objects/interface-edge"
+  },
+  "next": {
+    "title": "InterfaceStatsHistory",
+    "permalink": "/api/types/objects/interface-stats-history"
+  }
+}

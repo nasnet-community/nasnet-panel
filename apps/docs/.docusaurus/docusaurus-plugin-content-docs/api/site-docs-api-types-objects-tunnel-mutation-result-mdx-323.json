@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/tunnel-mutation-result",
+  "title": "TunnelMutationResult",
+  "description": "Result of a tunnel mutation (create, update)",
+  "source": "@site/docs/api/types/objects/tunnel-mutation-result.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/tunnel-mutation-result",
+  "permalink": "/api/types/objects/tunnel-mutation-result",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "tunnel-mutation-result",
+    "title": "TunnelMutationResult"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "TroubleshootStep",
+    "permalink": "/api/types/objects/troubleshoot-step"
+  },
+  "next": {
+    "title": "TunnelTestResult",
+    "permalink": "/api/types/objects/tunnel-test-result"
+  }
+}

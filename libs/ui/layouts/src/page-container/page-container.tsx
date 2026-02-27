@@ -93,14 +93,14 @@ const PageContainerImpl = React.forwardRef<HTMLElement, PageContainerProps>(
       <main
         ref={ref}
         className={cn(
-          'mx-auto w-full px-4 py-4 sm:px-6 md:px-8',
+          'mx-auto w-full px-page-mobile md:px-page-tablet lg:px-page-desktop py-component-lg',
           maxWidthClasses[maxWidth],
           variantClasses[variant],
           className
         )}
       >
         {breadcrumbs && (
-          <nav className="mb-4 text-sm text-foregroundMuted">{breadcrumbs}</nav>
+          <nav className="mb-6 text-sm text-muted-foreground">{breadcrumbs}</nav>
         )}
         {(title || actions) && (
           <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -111,7 +111,7 @@ const PageContainerImpl = React.forwardRef<HTMLElement, PageContainerProps>(
                 </h1>
               )}
               {description && (
-                <p className="mt-1 text-sm text-foregroundMuted">
+                <p className="mt-1 text-sm text-muted-foreground">
                   {description}
                 </p>
               )}

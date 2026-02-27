@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/port-forward-input",
+  "title": "PortForwardInput",
+  "description": "Input for creating a port forward (simplified wizard).",
+  "source": "@site/docs/api/types/inputs/port-forward-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/port-forward-input",
+  "permalink": "/api/types/inputs/port-forward-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "port-forward-input",
+    "title": "PortForwardInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "PaginationInput",
+    "permalink": "/api/types/inputs/pagination-input"
+  },
+  "next": {
+    "title": "PortKnockLogFilters",
+    "permalink": "/api/types/inputs/port-knock-log-filters"
+  }
+}

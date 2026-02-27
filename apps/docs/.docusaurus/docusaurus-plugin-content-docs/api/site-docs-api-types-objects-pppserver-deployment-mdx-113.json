@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/pppserver-deployment",
+  "title": "PPPServerDeployment",
+  "description": "PPP server deployment state",
+  "source": "@site/docs/api/types/objects/pppserver-deployment.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/pppserver-deployment",
+  "permalink": "/api/types/objects/pppserver-deployment",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "pppserver-deployment",
+    "title": "PPPServerDeployment"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "PPPServerConfig",
+    "permalink": "/api/types/objects/pppserver-config"
+  },
+  "next": {
+    "title": "PPPServerRuntime",
+    "permalink": "/api/types/objects/pppserver-runtime"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/assign-device-routing-input",
+  "title": "AssignDeviceRoutingInput",
+  "description": "Input for assigning device routing.",
+  "source": "@site/docs/api/types/inputs/assign-device-routing-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/assign-device-routing-input",
+  "permalink": "/api/types/inputs/assign-device-routing-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "assign-device-routing-input",
+    "title": "AssignDeviceRoutingInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ApplyServiceImportInput",
+    "permalink": "/api/types/inputs/apply-service-import-input"
+  },
+  "next": {
+    "title": "BatchInterfaceInput",
+    "permalink": "/api/types/inputs/batch-interface-input"
+  }
+}

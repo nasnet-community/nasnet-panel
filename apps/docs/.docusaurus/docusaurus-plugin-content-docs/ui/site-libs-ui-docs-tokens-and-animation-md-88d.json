@@ -1,0 +1,20 @@
+{
+  "id": "tokens-and-animation",
+  "title": "Design Tokens & Animation System",
+  "description": "Source package: libs/ui/tokens/",
+  "source": "@site/../../libs/ui/docs/tokens-and-animation.md",
+  "sourceDirName": ".",
+  "slug": "/tokens-and-animation",
+  "permalink": "/docs/ui/tokens-and-animation",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/ui/docs/tokens-and-animation.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Shared Hooks Reference",
+    "permalink": "/docs/ui/shared-hooks"
+  }
+}

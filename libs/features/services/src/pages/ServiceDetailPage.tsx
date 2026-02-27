@@ -114,7 +114,7 @@ export const ServiceDetailPage = React.memo(function ServiceDetailPage({ routerI
   // Loading state
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]" role="status" aria-label={t('common.loading')}>
+      <div className="flex items-center justify-center min-h-[400px] bg-background" role="status" aria-label={t('common.loading')}>
         <div className="flex flex-col items-center gap-component-md">
           <Loader2 className="h-8 w-8 animate-spin text-primary" aria-hidden="true" />
           <p className="text-sm text-muted-foreground">{t('services.detail.loading')}</p>
@@ -126,7 +126,7 @@ export const ServiceDetailPage = React.memo(function ServiceDetailPage({ routerI
   // Error state
   if (error) {
     return (
-      <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-component-lg">
+      <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-component-lg bg-background">
         <Card>
           <CardHeader>
             <CardTitle className="text-error">{t('services.detail.errorLoadingTitle')}</CardTitle>
@@ -136,7 +136,7 @@ export const ServiceDetailPage = React.memo(function ServiceDetailPage({ routerI
             <Button
               variant="outline"
               size="sm"
-              className="mt-4 min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className="mt-component-md min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               onClick={() => window.location.reload()}
               aria-label={t('common.retry')}
             >
@@ -151,7 +151,7 @@ export const ServiceDetailPage = React.memo(function ServiceDetailPage({ routerI
   // Not found state
   if (!instance) {
     return (
-      <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-component-lg">
+      <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-component-lg bg-background">
         <Card>
           <CardHeader>
             <CardTitle>{t('services.detail.notFoundTitle')}</CardTitle>
@@ -187,15 +187,20 @@ export const ServiceDetailPage = React.memo(function ServiceDetailPage({ routerI
     (instance.status as string) !== 'INSTALLING';
 
   return (
-    <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-component-lg space-y-component-lg">
+    <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-component-lg space-y-component-lg bg-background">
       {/* Page header */}
       <div className="flex items-start justify-between">
         <div className="space-y-component-md">
-          <div>
-            <h1 className="text-2xl font-display text-foreground">{instance.instanceName}</h1>
-            <p className="text-sm text-muted-foreground mt-component-sm font-mono">
-              {instance.featureID} service instance
-            </p>
+          <div className="flex items-center gap-component-md">
+            <div>
+              <h1 className="text-2xl font-display text-foreground">{instance.instanceName}</h1>
+              <p className="text-sm text-muted-foreground mt-component-sm font-mono">
+                {instance.featureID} service instance
+              </p>
+            </div>
+            <div className="px-component-sm py-component-xs bg-category-vpn/10 rounded-[var(--semantic-radius-card)] inline-flex">
+              <span className="text-xs font-medium text-category-vpn font-mono">{instance.featureID}</span>
+            </div>
           </div>
           {/* Health status badge (NAS-8.6) */}
           {instance.status === 'RUNNING' && (

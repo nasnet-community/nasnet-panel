@@ -10,6 +10,15 @@ import (
 	"backend/internal/network"
 )
 
+// VLANPurpose indicates whether a VLAN is used for ingress or egress traffic.
+type VLANPurpose string
+
+const (
+	VLANPurposeIngress VLANPurpose = "ingress"
+	VLANPurposeEgress  VLANPurpose = "egress"
+	VLANPurposeLegacy  VLANPurpose = "" // backward compat, uses full pool
+)
+
 // VLANAllocator manages allocation and release of VLAN IDs for virtual interfaces.
 // Allocate now accepts router/instance/service context required by the DB-backed allocator.
 type VLANAllocator interface {
@@ -92,12 +101,15 @@ func (a *NetworkVLANAllocatorAdapter) Allocate(ctx context.Context, routerID, in
 		ServiceType: serviceType,
 	})
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("allocate vlan: %w", err)
 	}
 	return resp.VlanID, nil
 }
 
 // Release delegates to the DB-backed allocator.
 func (a *NetworkVLANAllocatorAdapter) Release(ctx context.Context, routerID string, id int) error {
-	return a.inner.ReleaseVLAN(ctx, routerID, id)
+	if err := a.inner.ReleaseVLAN(ctx, routerID, id); err != nil {
+		return fmt.Errorf("release vlan: %w", err)
+	}
+	return nil
 }

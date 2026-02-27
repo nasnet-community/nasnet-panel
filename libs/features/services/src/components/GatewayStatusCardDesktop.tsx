@@ -44,7 +44,7 @@ export const GatewayStatusCardDesktop = memo(function GatewayStatusCardDesktop({
   return (
     <div
       className={cn(
-        'flex items-center gap-4 rounded-md border border-border bg-card px-4 py-2',
+        'flex items-center gap-component-md rounded-md border border-border bg-card px-component-md py-component-sm',
         className
       )}
       role="status"
@@ -58,9 +58,9 @@ export const GatewayStatusCardDesktop = memo(function GatewayStatusCardDesktop({
 
       {/* TUN interface name */}
       {gateway.tunName && (
-        <div className="flex items-center gap-2 text-sm">
+        <div className="flex items-center gap-component-sm text-sm">
           <span className="text-muted-foreground">Interface:</span>
-          <code className="rounded bg-muted px-2 py-0.5 font-mono text-xs text-foreground">
+          <code className="rounded bg-muted px-component-sm py-0.5 font-mono text-xs text-foreground">
             {gateway.tunName}
           </code>
         </div>
@@ -68,7 +68,7 @@ export const GatewayStatusCardDesktop = memo(function GatewayStatusCardDesktop({
 
       {/* Process ID */}
       {gateway.pid != null && gateway.pid > 0 && (
-        <div className="flex items-center gap-2 text-sm">
+        <div className="flex items-center gap-component-sm text-sm">
           <span className="text-muted-foreground">PID:</span>
           <code className="font-mono text-xs text-foreground" aria-label={`Process ID ${gateway.pid}`}>
             {gateway.pid}
@@ -78,7 +78,7 @@ export const GatewayStatusCardDesktop = memo(function GatewayStatusCardDesktop({
 
       {/* Uptime */}
       {gateway.uptime != null && gateway.uptime > 0 && (
-        <div className="flex items-center gap-2 text-sm">
+        <div className="flex items-center gap-component-sm text-sm">
           <span className="text-muted-foreground">Uptime:</span>
           <span className="font-mono text-xs text-foreground">
             {formatUptime(gateway.uptime)}
@@ -89,7 +89,7 @@ export const GatewayStatusCardDesktop = memo(function GatewayStatusCardDesktop({
       {/* Error message */}
       {gateway.state === GatewayState.ERROR && gateway.errorMessage && (
         <div
-          className="ml-auto flex items-center gap-2 text-sm text-error"
+          className="ml-auto flex items-center gap-component-sm text-sm text-error"
           role="alert"
           aria-label={`Error: ${gateway.errorMessage}`}
         >
@@ -101,7 +101,7 @@ export const GatewayStatusCardDesktop = memo(function GatewayStatusCardDesktop({
       {/* Health check indicator */}
       {gateway.lastHealthCheck && gateway.state === GatewayState.RUNNING && (
         <div
-          className="ml-auto flex items-center gap-1"
+          className="ml-auto flex items-center gap-component-xs"
           role="status"
           aria-label={`Healthy, last checked ${new Date(gateway.lastHealthCheck).toLocaleString()}`}
           title={`Last checked: ${new Date(gateway.lastHealthCheck).toLocaleString()}`}

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/test-port-knock-result",
+  "title": "TestPortKnockResult",
+  "description": "Result of test port knock operation.",
+  "source": "@site/docs/api/types/objects/test-port-knock-result.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/test-port-knock-result",
+  "permalink": "/api/types/objects/test-port-knock-result",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "test-port-knock-result",
+    "title": "TestPortKnockResult"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "TestNotificationPayload",
+    "permalink": "/api/types/objects/test-notification-payload"
+  },
+  "next": {
+    "title": "ThrottleConfig",
+    "permalink": "/api/types/objects/throttle-config"
+  }
+}

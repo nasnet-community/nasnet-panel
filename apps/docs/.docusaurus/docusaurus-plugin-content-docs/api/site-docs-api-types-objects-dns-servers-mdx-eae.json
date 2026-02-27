@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/dns-servers",
+  "title": "DnsServers",
+  "description": "Collection of DNS servers",
+  "source": "@site/docs/api/types/objects/dns-servers.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/dns-servers",
+  "permalink": "/api/types/objects/dns-servers",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "dns-servers",
+    "title": "DnsServers"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "DnsServer",
+    "permalink": "/api/types/objects/dns-server"
+  },
+  "next": {
+    "title": "DnsTopDomain",
+    "permalink": "/api/types/objects/dns-top-domain"
+  }
+}

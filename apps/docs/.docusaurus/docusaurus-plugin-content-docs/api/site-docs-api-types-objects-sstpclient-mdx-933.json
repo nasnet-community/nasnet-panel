@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/sstpclient",
+  "title": "SSTPClient",
+  "description": "SSTP VPN Client resource implementing 8-layer model",
+  "source": "@site/docs/api/types/objects/sstpclient.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/sstpclient",
+  "permalink": "/api/types/objects/sstpclient",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "sstpclient",
+    "title": "SSTPClient"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "SSTPClientConfig",
+    "permalink": "/api/types/objects/sstpclient-config"
+  },
+  "next": {
+    "title": "SSTPDeployment",
+    "permalink": "/api/types/objects/sstpdeployment"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/create-egress-vlan",
+  "title": "createEgressVLAN",
+  "description": "Create an egress VLAN for a discovered WAN interface.",
+  "source": "@site/docs/api/operations/mutations/create-egress-vlan.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/create-egress-vlan",
+  "permalink": "/api/operations/mutations/create-egress-vlan",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "create-egress-vlan",
+    "title": "createEgressVLAN"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "createChangeSet",
+    "permalink": "/api/operations/mutations/create-change-set"
+  },
+  "next": {
+    "title": "createIpAddress",
+    "permalink": "/api/operations/mutations/create-ip-address"
+  }
+}

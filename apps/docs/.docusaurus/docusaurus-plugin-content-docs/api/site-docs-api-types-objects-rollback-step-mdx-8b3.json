@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/rollback-step",
+  "title": "RollbackStep",
+  "description": "Rollback step for recovery",
+  "source": "@site/docs/api/types/objects/rollback-step.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/rollback-step",
+  "permalink": "/api/types/objects/rollback-step",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "rollback-step",
+    "title": "RollbackStep"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "RollbackChangeSetPayload",
+    "permalink": "/api/types/objects/rollback-change-set-payload"
+  },
+  "next": {
+    "title": "RouteDeleteResult",
+    "permalink": "/api/types/objects/route-delete-result"
+  }
+}

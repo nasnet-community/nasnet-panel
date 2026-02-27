@@ -39,7 +39,7 @@ type ConnectionOptions struct {
 	Username string
 
 	// Password for authentication.
-	Password string
+	Password string //nolint:gosec // G101: password field required for authentication
 
 	// ProtocolPreference specifies which protocol to use.
 	// If nil or AUTO, tries protocols in fallback order.
@@ -181,20 +181,20 @@ func (ct *ConnectionTester) tryProtocol(ctx context.Context, proto Protocol, hos
 	// Create and test the adapter
 	adapter, err := ct.createAdapter(proto, cfg)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to create protocol adapter for %s: %w", proto.String(), err)
 	}
 	defer func() { _ = adapter.Disconnect() }() //nolint:errcheck // best effort disconnect
 
 	// Attempt connection
 	connectErr := adapter.Connect(ctx)
 	if connectErr != nil {
-		return nil, connectErr
+		return nil, fmt.Errorf("failed to connect adapter: %w", connectErr)
 	}
 
 	// Get router info
 	info, err := adapter.Info()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get router info: %w", err)
 	}
 
 	// Get capabilities

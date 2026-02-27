@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/available-services",
+  "title": "availableServices",
+  "description": "List all available services from the Feature Marketplace.",
+  "source": "@site/docs/api/operations/queries/available-services.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/available-services",
+  "permalink": "/api/operations/queries/available-services",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "available-services",
+    "title": "availableServices"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "availableProvisioningResources",
+    "permalink": "/api/operations/queries/available-provisioning-resources"
+  },
+  "next": {
+    "title": "availableUpdates",
+    "permalink": "/api/operations/queries/available-updates"
+  }
+}

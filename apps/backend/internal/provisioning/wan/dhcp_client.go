@@ -11,14 +11,21 @@ import (
 // provisionDHCP creates a DHCP client on the WAN interface.
 // RouterOS commands:
 //
-//	/ip/dhcp-client/add interface=ether1 add-default-route=yes use-peer-dns=yes disabled=no
+//	/ip/dhcp-client/add interface=<final-iface> add-default-route=no use-peer-dns=no use-peer-ntp=no disabled=no
+//
+// Matching TS DHCPClient behavior: add-default-route=no, route management is
+// handled externally by multiwan/failover routing tables.
+//
+// The interface used is the final interface after MACVLAN/VLAN transformations
+// (e.g., MacVLAN-ether1-WAN1 instead of ether1).
 func (s *Service) provisionDHCP(
 	ctx context.Context,
 	link types.WANLinkConfig,
 	comment string,
 ) (*ProvisionResult, error) {
 
-	iface := link.InterfaceConfig.InterfaceName
+	// Use the final virtual interface (MACVLAN/VLAN) not the raw physical interface
+	iface := GetWANInterface(link)
 
 	// Check for existing DHCP client on this interface
 	checkCmd := router.Command{
@@ -53,11 +60,13 @@ func (s *Service) provisionDHCP(
 		}
 	}
 
-	// Add new DHCP client
+	// Add new DHCP client.
+	// Use add-default-route=no matching TS behavior — routes are managed externally
+	// via per-link routing tables and multiwan/failover logic.
 	args := map[string]string{
 		"interface":         iface,
-		"add-default-route": "yes",
-		"use-peer-dns":      "yes",
+		"add-default-route": "no",
+		"use-peer-dns":      "no",
 		"use-peer-ntp":      "no",
 		"disabled":          "no",
 		"comment":           comment,

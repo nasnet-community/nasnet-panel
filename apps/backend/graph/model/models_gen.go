@@ -1712,6 +1712,18 @@ type CreateChangeSetPayload struct {
 	Errors []*MutationError `json:"errors,omitempty"`
 }
 
+// Input for creating an egress VLAN.
+type CreateEgressVLANInput struct {
+	// Target router ID
+	RouterID string `json:"routerId"`
+	// WAN name to create egress VLAN for
+	WanName string `json:"wanName"`
+	// Traffic classification
+	Classification WANClassification `json:"classification"`
+	// Priority within classification (lower = higher priority, default 0)
+	Priority graphql.Omittable[*int] `json:"priority,omitempty"`
+}
+
 // Input for creating a NAT rule.
 type CreateNatRuleInput struct {
 	// NAT chain (srcnat or dstnat)
@@ -2464,6 +2476,22 @@ type DiscoveredDevice struct {
 	Services []string `json:"services"`
 }
 
+// A WAN interface discovered on the router via DHCP client, PPPoE, or VPN tunnel.
+type DiscoveredWan struct {
+	// Human-readable name (e.g. 'ISP-Fiber-1')
+	Name string `json:"name"`
+	// MikroTik interface name (e.g. 'ether1')
+	RouterInterface string `json:"routerInterface"`
+	// Connection type: dhcp-client, pppoe-client, vpn-tunnel, static
+	Type string `json:"type"`
+	// User-assigned traffic classification (null if unclassified)
+	Classification *WANClassification `json:"classification,omitempty"`
+	// Whether this WAN has a default route (0.0.0.0/0)
+	HasDefaultRoute bool `json:"hasDefaultRoute"`
+	// Current IP address on this WAN interface
+	IPAddress *string `json:"ipAddress,omitempty"`
+}
+
 // Complete benchmark result comparing all configured DNS servers
 type DNSBenchmarkResult struct {
 	// Test hostname used for benchmarking
@@ -2613,6 +2641,35 @@ type DriftInfo struct {
 	// Suggested action to resolve drift
 	SuggestedAction DriftAction `json:"suggestedAction"`
 }
+
+// Egress VLAN connecting the NNC container to a WAN interface.
+// Each egress VLAN provides outbound internet connectivity through a specific WAN.
+type EgressVlan struct {
+	// Unique identifier
+	ID string `json:"id"`
+	// VLAN ID (150-199 range)
+	VlanID int `json:"vlanId"`
+	// Human-readable WAN name
+	WanName string `json:"wanName"`
+	// Traffic classification of this WAN
+	Classification WANClassification `json:"classification"`
+	// Priority within classification (lower = higher priority)
+	Priority int `json:"priority"`
+	// Router-side VLAN interface name
+	RouterInterface string `json:"routerInterface"`
+	// Container-side VLAN sub-interface name
+	ContainerInterface string `json:"containerInterface"`
+	// IP address obtained via DHCP from router
+	IPAddress *string `json:"ipAddress,omitempty"`
+	// Gateway IP (router's address on this VLAN)
+	Gateway *string `json:"gateway,omitempty"`
+	// Lifecycle status
+	Status EgressVLANStatus `json:"status"`
+	// Creation timestamp
+	CreatedAt time.Time `json:"createdAt"`
+}
+
+func (EgressVlan) IsNode() {}
 
 // Email notification configuration
 type EmailConfig struct {
@@ -3704,6 +3761,33 @@ type ImportValidationWarning struct {
 	Stage string `json:"stage"`
 	// Warning message
 	Message string `json:"message"`
+}
+
+// Ingress VLAN running DHCP server inside the NNC container.
+// Connected devices receive IPs from the container's udhcpd.
+type IngressVlan struct {
+	// VLAN ID (100-149 range)
+	VlanID int `json:"vlanId"`
+	// Service name this ingress VLAN serves
+	ServiceName string `json:"serviceName"`
+	// Service instance ID
+	InstanceID string `json:"instanceId"`
+	// Router-side VLAN interface name
+	RouterInterface string `json:"routerInterface"`
+	// Container-side VLAN sub-interface
+	ContainerInterface string `json:"containerInterface"`
+	// Container's IP address on this VLAN
+	IPAddress string `json:"ipAddress"`
+	// Egress VLAN IDs traffic is forwarded to
+	EgressVlanIds []int `json:"egressVlanIds"`
+	// Current routing mode
+	RoutingMode IngressRoutingMode `json:"routingMode"`
+	// Router bridge this VLAN belongs to (if in bridge mode)
+	BridgeName *string `json:"bridgeName,omitempty"`
+	// Lifecycle status
+	Status IngressVLANStatus `json:"status"`
+	// Creation timestamp
+	CreatedAt time.Time `json:"createdAt"`
 }
 
 // Installation progress event.
@@ -6767,6 +6851,16 @@ type SetTrafficQuotaInput struct {
 	WarningThreshold graphql.Omittable[*int] `json:"warningThreshold,omitempty"`
 }
 
+// Input for setting up a dual-VLAN bridge (ingress + egress VLANs).
+type SetupDualVLANBridgeInput struct {
+	// Service instance ID to set up bridge routing for
+	InstanceID string `json:"instanceId"`
+	// Egress VLAN IDs to route traffic through
+	EgressVlanIds []int `json:"egressVlanIds"`
+	// Router bridge name to add the ingress VLAN to (optional)
+	BridgeName graphql.Omittable[*string] `json:"bridgeName,omitempty"`
+}
+
 // Single device routing assignment for bulk operations.
 type SingleDeviceRoutingInput struct {
 	// Device ID
@@ -8458,6 +8552,14 @@ type VirtualInterface struct {
 	CreatedAt time.Time `json:"createdAt"`
 	// Last update timestamp
 	UpdatedAt time.Time `json:"updatedAt"`
+	// Ingress VLAN ID (for DHCP bridge mode, 100-149)
+	IngressVlanID *int `json:"ingressVlanId,omitempty"`
+	// Egress VLAN IDs for outbound traffic (150-199)
+	EgressVlanIds []int `json:"egressVlanIds,omitempty"`
+	// Routing mode (bridge or advanced)
+	RoutingMode *RoutingMode `json:"routingMode,omitempty"`
+	// Container IP address for DHCP bridge mode
+	ContainerIP *string `json:"containerIp,omitempty"`
 }
 
 // Virtual interface information for routing matrix.
@@ -11440,6 +11542,70 @@ func (e DriftAction) MarshalJSON() ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
+// Egress VLAN lifecycle status.
+type EgressVLANStatus string
+
+const (
+	// VLAN is being created
+	EgressVLANStatusCreating EgressVLANStatus = "CREATING"
+	// VLAN is active and ready
+	EgressVLANStatusActive EgressVLANStatus = "ACTIVE"
+	// VLAN creation/operation failed
+	EgressVLANStatusFailed EgressVLANStatus = "FAILED"
+	// VLAN is being removed
+	EgressVLANStatusRemoving EgressVLANStatus = "REMOVING"
+)
+
+var AllEgressVLANStatus = []EgressVLANStatus{
+	EgressVLANStatusCreating,
+	EgressVLANStatusActive,
+	EgressVLANStatusFailed,
+	EgressVLANStatusRemoving,
+}
+
+func (e EgressVLANStatus) IsValid() bool {
+	switch e {
+	case EgressVLANStatusCreating, EgressVLANStatusActive, EgressVLANStatusFailed, EgressVLANStatusRemoving:
+		return true
+	}
+	return false
+}
+
+func (e EgressVLANStatus) String() string {
+	return string(e)
+}
+
+func (e *EgressVLANStatus) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = EgressVLANStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid EgressVLANStatus", str)
+	}
+	return nil
+}
+
+func (e EgressVLANStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *EgressVLANStatus) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e EgressVLANStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
 // Category of connection error for classification
 type ErrorCategory string
 
@@ -11956,16 +12122,19 @@ const (
 	GatewayTypeNone GatewayType = "NONE"
 	// HEV SOCKS5 tunnel gateway
 	GatewayTypeHevSocks5Tunnel GatewayType = "HEV_SOCKS5_TUNNEL"
+	// DHCP bridge mode - uses ingress/egress VLANs with udhcpd/udhcpc
+	GatewayTypeDhcpBridge GatewayType = "DHCP_BRIDGE"
 )
 
 var AllGatewayType = []GatewayType{
 	GatewayTypeNone,
 	GatewayTypeHevSocks5Tunnel,
+	GatewayTypeDhcpBridge,
 }
 
 func (e GatewayType) IsValid() bool {
 	switch e {
-	case GatewayTypeNone, GatewayTypeHevSocks5Tunnel:
+	case GatewayTypeNone, GatewayTypeHevSocks5Tunnel, GatewayTypeDhcpBridge:
 		return true
 	}
 	return false
@@ -12187,6 +12356,132 @@ func (e *HopStatus) UnmarshalJSON(b []byte) error {
 }
 
 func (e HopStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+// Ingress VLAN routing mode.
+// Determines how traffic flows between ingress and egress VLANs.
+type IngressRoutingMode string
+
+const (
+	// Bridge mode: Add ingress VLAN to router bridge.
+	// All bridge devices are routed through the service via DHCP.
+	// Zero mangle rules needed.
+	IngressRoutingModeBridge IngressRoutingMode = "BRIDGE"
+	// Advanced mode: Per-device PBR mangle rules.
+	// Selective routing with DMZ support.
+	IngressRoutingModeAdvanced IngressRoutingMode = "ADVANCED"
+)
+
+var AllIngressRoutingMode = []IngressRoutingMode{
+	IngressRoutingModeBridge,
+	IngressRoutingModeAdvanced,
+}
+
+func (e IngressRoutingMode) IsValid() bool {
+	switch e {
+	case IngressRoutingModeBridge, IngressRoutingModeAdvanced:
+		return true
+	}
+	return false
+}
+
+func (e IngressRoutingMode) String() string {
+	return string(e)
+}
+
+func (e *IngressRoutingMode) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = IngressRoutingMode(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid IngressRoutingMode", str)
+	}
+	return nil
+}
+
+func (e IngressRoutingMode) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *IngressRoutingMode) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e IngressRoutingMode) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+// Ingress VLAN lifecycle status.
+type IngressVLANStatus string
+
+const (
+	// VLAN is being created
+	IngressVLANStatusCreating IngressVLANStatus = "CREATING"
+	// VLAN is active and ready
+	IngressVLANStatusActive IngressVLANStatus = "ACTIVE"
+	// VLAN creation/operation failed
+	IngressVLANStatusFailed IngressVLANStatus = "FAILED"
+	// VLAN is being removed
+	IngressVLANStatusRemoving IngressVLANStatus = "REMOVING"
+)
+
+var AllIngressVLANStatus = []IngressVLANStatus{
+	IngressVLANStatusCreating,
+	IngressVLANStatusActive,
+	IngressVLANStatusFailed,
+	IngressVLANStatusRemoving,
+}
+
+func (e IngressVLANStatus) IsValid() bool {
+	switch e {
+	case IngressVLANStatusCreating, IngressVLANStatusActive, IngressVLANStatusFailed, IngressVLANStatusRemoving:
+		return true
+	}
+	return false
+}
+
+func (e IngressVLANStatus) String() string {
+	return string(e)
+}
+
+func (e *IngressVLANStatus) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = IngressVLANStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid IngressVLANStatus", str)
+	}
+	return nil
+}
+
+func (e IngressVLANStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *IngressVLANStatus) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e IngressVLANStatus) MarshalJSON() ([]byte, error) {
 	var buf bytes.Buffer
 	e.MarshalGQL(&buf)
 	return buf.Bytes(), nil
@@ -17039,6 +17334,67 @@ func (e *VirtualInterfaceStatus) UnmarshalJSON(b []byte) error {
 }
 
 func (e VirtualInterfaceStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+// WAN traffic classification.
+type WANClassification string
+
+const (
+	// Local/domestic ISP connection
+	WANClassificationDomestic WANClassification = "DOMESTIC"
+	// International/foreign connection (Starlink, VPS, etc.)
+	WANClassificationForeign WANClassification = "FOREIGN"
+	// VPN tunnel (WireGuard, OpenVPN, etc.)
+	WANClassificationVpn WANClassification = "VPN"
+)
+
+var AllWANClassification = []WANClassification{
+	WANClassificationDomestic,
+	WANClassificationForeign,
+	WANClassificationVpn,
+}
+
+func (e WANClassification) IsValid() bool {
+	switch e {
+	case WANClassificationDomestic, WANClassificationForeign, WANClassificationVpn:
+		return true
+	}
+	return false
+}
+
+func (e WANClassification) String() string {
+	return string(e)
+}
+
+func (e *WANClassification) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = WANClassification(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid WANClassification", str)
+	}
+	return nil
+}
+
+func (e WANClassification) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *WANClassification) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e WANClassification) MarshalJSON() ([]byte, error) {
 	var buf bytes.Buffer
 	e.MarshalGQL(&buf)
 	return buf.Bytes(), nil

@@ -69,15 +69,15 @@ export function ConfigPreviewMobile({
 
   return (
     <div
-      className={cn('flex flex-col bg-background', className)}
+      className={cn('flex flex-col bg-card border border-border rounded-[var(--semantic-radius-card)]', className)}
       role="region"
       aria-label={title}
     >
       {/* Sticky header */}
-      <div className="sticky top-0 z-10 flex flex-col gap-3 p-4 bg-background border-b border-border">
+      <div className="sticky top-0 z-10 flex flex-col gap-3 p-4 bg-muted border-b border-border">
         {/* Title row */}
         <div className="flex items-center justify-between">
-          <span className="text-sm font-medium">{title}</span>
+          <h3 className="text-sm font-semibold text-foreground">{title}</h3>
 
           {/* Stats */}
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -129,9 +129,9 @@ export function ConfigPreviewMobile({
         </div>
       </div>
 
-      {/* Code content - horizontal scroll */}
+      {/* Code content - horizontal scroll with dark background */}
       <div
-        className="overflow-x-auto overflow-y-auto bg-muted"
+        className="overflow-x-auto overflow-y-auto bg-slate-950 dark:bg-slate-900"
         style={maxHeightStyle}
       >
         {showDiff ? (

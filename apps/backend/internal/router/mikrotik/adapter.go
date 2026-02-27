@@ -28,7 +28,7 @@ func NewMikroTikAdapter(port router.RouterPort) *MikroTikAdapter {
 func (a *MikroTikAdapter) Execute(ctx context.Context, cmd router.Command) ([]map[string]interface{}, error) {
 	result, err := a.port.ExecuteCommand(ctx, cmd)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to execute command on router port: %w", err)
 	}
 
 	if !result.Success {

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/vlan-input",
+  "title": "VlanInput",
+  "description": "Input for creating a new VLAN interface",
+  "source": "@site/docs/api/types/inputs/vlan-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/vlan-input",
+  "permalink": "/api/types/inputs/vlan-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "vlan-input",
+    "title": "VlanInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "VlanFilter",
+    "permalink": "/api/types/inputs/vlan-filter"
+  },
+  "next": {
+    "title": "WANHealthCheckInput",
+    "permalink": "/api/types/inputs/wanhealth-check-input"
+  }
+}

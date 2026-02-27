@@ -1,0 +1,24 @@
+{
+  "id": "architecture/routing",
+  "title": "Routing — TanStack Router",
+  "description": "NasNetConnect uses TanStack Router v1 with file-based routing. Route files live in apps/connect/src/routes/ and the router tree is auto-generated into apps/connect/src/routeTree.gen.ts by the Vite plugin at build time.",
+  "source": "@site/../connect/docs/architecture/routing.md",
+  "sourceDirName": "architecture",
+  "slug": "/architecture/routing",
+  "permalink": "/docs/frontend/architecture/routing",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../connect/docs/architecture/routing.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Provider Stack Deep Dive",
+    "permalink": "/docs/frontend/architecture/provider-stack"
+  },
+  "next": {
+    "title": "Alerts System",
+    "permalink": "/docs/frontend/cross-cutting-features/alerts-system"
+  }
+}

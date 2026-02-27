@@ -1,0 +1,28 @@
+{
+  "id": "guides/graphql-integration-guide",
+  "title": "GraphQL Integration Guide",
+  "description": "Reference: schema/, libs/api-client/, libs/core/types/ | Universal State v2 Layer 1-3 (API, Cache, Types)",
+  "source": "@site/../../libs/core/docs/guides/graphql-integration-guide.md",
+  "sourceDirName": "guides",
+  "slug": "/guides/graphql-integration-guide",
+  "permalink": "/docs/core/guides/graphql-integration-guide",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/core/docs/guides/graphql-integration-guide.md",
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 9,
+  "frontMatter": {
+    "sidebar_position": 9,
+    "title": "GraphQL Integration Guide"
+  },
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Error Handling Patterns",
+    "permalink": "/docs/core/guides/error-handling-patterns"
+  },
+  "next": {
+    "title": "Testing Patterns",
+    "permalink": "/docs/core/guides/testing-patterns"
+  }
+}

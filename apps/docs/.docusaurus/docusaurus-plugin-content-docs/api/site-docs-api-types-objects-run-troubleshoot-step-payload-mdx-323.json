@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/run-troubleshoot-step-payload",
+  "title": "RunTroubleshootStepPayload",
+  "description": "Result of running a diagnostic step",
+  "source": "@site/docs/api/types/objects/run-troubleshoot-step-payload.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/run-troubleshoot-step-payload",
+  "permalink": "/api/types/objects/run-troubleshoot-step-payload",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "run-troubleshoot-step-payload",
+    "title": "RunTroubleshootStepPayload"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "RunDiagnosticsPayload",
+    "permalink": "/api/types/objects/run-diagnostics-payload"
+  },
+  "next": {
+    "title": "RuntimeMetrics",
+    "permalink": "/api/types/objects/runtime-metrics"
+  }
+}

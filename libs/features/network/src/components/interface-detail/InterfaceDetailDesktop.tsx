@@ -55,7 +55,7 @@ export const InterfaceDetailDesktop = memo(function InterfaceDetailDesktop({
 
   return (
     <Sheet open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-      <SheetContent side="right" className="w-[600px] overflow-y-auto">
+      <SheetContent side="right" className="w-[600px] overflow-y-auto category-networking">
         {loading && (
           <div className="space-y-component-md">
             <Skeleton className="h-8 w-48" />
@@ -65,7 +65,7 @@ export const InterfaceDetailDesktop = memo(function InterfaceDetailDesktop({
         )}
 
         {error && (
-          <div className="p-8 text-center" role="alert">
+          <div className="p-component-xl text-center" role="alert">
             <p className="text-error font-medium">Failed to load interface</p>
             <p className="text-sm text-muted-foreground mt-2">
               {error.message || 'Unknown error'}
@@ -77,7 +77,7 @@ export const InterfaceDetailDesktop = memo(function InterfaceDetailDesktop({
           <>
             <SheetHeader>
               <div className="flex items-center justify-between">
-                <SheetTitle>{iface.name}</SheetTitle>
+                <SheetTitle className="font-mono">{iface.name}</SheetTitle>
                 <div className="flex gap-component-sm">
                   <Badge variant={iface.enabled ? 'default' : 'outline'}>
                     {iface.enabled ? 'Enabled' : 'Disabled'}
@@ -101,7 +101,7 @@ export const InterfaceDetailDesktop = memo(function InterfaceDetailDesktop({
               </SheetDescription>
             </SheetHeader>
 
-            <div className="mt-6">
+            <div className="mt-component-lg">
               <Tabs defaultValue="status">
                 <TabsList className="w-full">
                   <TabsTrigger value="status" className="flex-1">
@@ -225,22 +225,22 @@ const InterfaceTrafficSection = memo(function InterfaceTrafficSection({
       <div className="grid grid-cols-2 gap-component-md">
         <div className="border border-border rounded-[var(--semantic-radius-card)] p-component-md">
           <h4 className="text-sm text-muted-foreground mb-1">TX Rate</h4>
-          <p className="text-2xl font-bold">{formatRate(iface.txRate || 0)}</p>
-          <p className="text-xs text-muted-foreground mt-1">
+          <p className="text-2xl font-bold font-mono">{formatRate(iface.txRate || 0)}</p>
+          <p className="text-xs text-muted-foreground mt-1 font-mono">
             Total: {formatBytes(iface.txBytes || 0)}
           </p>
         </div>
         <div className="border border-border rounded-[var(--semantic-radius-card)] p-component-md">
           <h4 className="text-sm text-muted-foreground mb-1">RX Rate</h4>
-          <p className="text-2xl font-bold">{formatRate(iface.rxRate || 0)}</p>
-          <p className="text-xs text-muted-foreground mt-1">
+          <p className="text-2xl font-bold font-mono">{formatRate(iface.rxRate || 0)}</p>
+          <p className="text-xs text-muted-foreground mt-1 font-mono">
             Total: {formatBytes(iface.rxBytes || 0)}
           </p>
         </div>
       </div>
 
       {/* TODO: Add traffic chart visualization */}
-      <div className="border border-border rounded-[var(--semantic-radius-card)] p-8 text-center text-muted-foreground">
+      <div className="border border-border rounded-[var(--semantic-radius-card)] p-component-xl text-center text-muted-foreground">
         Traffic chart will be implemented here
       </div>
     </div>
@@ -271,8 +271,8 @@ const InterfaceConfigSection = memo(function InterfaceConfigSection({
 
       {iface.ip && iface.ip.length > 0 && (
         <div className="border border-border rounded-[var(--semantic-radius-card)] p-component-md">
-          <h4 className="font-medium mb-2">IP Addresses</h4>
-          <div className="space-y-1">
+          <h4 className="font-medium mb-component-sm">IP Addresses</h4>
+          <div className="space-y-component-xs">
             {iface.ip.map((addr: string) => (
               <div key={addr} className="font-mono text-sm break-all">
                 {addr}
@@ -282,7 +282,7 @@ const InterfaceConfigSection = memo(function InterfaceConfigSection({
         </div>
       )}
 
-      <div className="pt-4">
+      <div className="pt-component-sm">
         <Button className="w-full" onClick={onEdit} aria-label="Edit interface settings">
           Edit Interface Settings
         </Button>
@@ -308,10 +308,11 @@ const StatusItem = memo(function StatusItem({
   value: string | number;
   className?: string;
 }) {
+  const isTechnicalData = label === 'MAC Address' || label === 'Link Partner' || label === 'Link Speed';
   return (
     <div className={cn('border border-border rounded-[var(--semantic-radius-card)] p-component-sm', className)}>
       <h4 className="text-xs text-muted-foreground mb-1">{label}</h4>
-      <p className="text-sm font-medium break-all">{value}</p>
+      <p className={cn('text-sm font-medium break-all', isTechnicalData && 'font-mono')}>{value}</p>
     </div>
   );
 });

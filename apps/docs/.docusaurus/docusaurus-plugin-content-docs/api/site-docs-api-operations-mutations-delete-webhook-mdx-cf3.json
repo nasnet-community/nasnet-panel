@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/delete-webhook",
+  "title": "deleteWebhook",
+  "description": "Delete a webhook",
+  "source": "@site/docs/api/operations/mutations/delete-webhook.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/delete-webhook",
+  "permalink": "/api/operations/mutations/delete-webhook",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "delete-webhook",
+    "title": "deleteWebhook"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "deleteWANConfiguration",
+    "permalink": "/api/operations/mutations/delete-wanconfiguration"
+  },
+  "next": {
+    "title": "deprecateResource",
+    "permalink": "/api/operations/mutations/deprecate-resource"
+  }
+}

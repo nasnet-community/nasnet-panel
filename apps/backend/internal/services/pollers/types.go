@@ -51,12 +51,18 @@ func parseInt(s string) (int, error) {
 	}
 	var val int
 	_, err := fmt.Sscanf(s, "%d", &val)
-	return val, err
+	if err != nil {
+		return 0, fmt.Errorf("failed to parse integer: %w", err)
+	}
+	return val, nil
 }
 
 // parseBytes parses a byte count string from RouterOS.
 func parseBytes(s string) int {
 	var bytes int
-	_, _ = fmt.Sscanf(s, "%d", &bytes) //nolint:errcheck // bytes parsing is best-effort
+	if _, err := fmt.Sscanf(s, "%d", &bytes); err != nil {
+		// bytes parsing is best-effort, return 0 on error
+		return 0
+	}
 	return bytes
 }

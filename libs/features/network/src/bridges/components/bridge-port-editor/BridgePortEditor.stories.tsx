@@ -155,7 +155,7 @@ function BridgePortEditorPreview({
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(handleSubmit)}
-            className="space-y-6 mt-4"
+            className="space-y-component-lg mt-component-md"
           >
             {/* PVID misconfiguration warning */}
             {pvidNotInUntagged && (
@@ -233,7 +233,7 @@ function BridgePortEditorPreview({
               control={form.control}
               name="ingressFiltering"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-component-md">
                   <div className="space-y-0.5">
                     <FormLabel className="text-base">Ingress Filtering</FormLabel>
                     <FormDescription>
@@ -314,15 +314,15 @@ function BridgePortEditorPreview({
             />
 
             {/* STP Section */}
-            <div className="border-t pt-6">
-              <h4 className="text-sm font-medium mb-4">Spanning Tree Settings</h4>
+            <div className="border-t pt-component-lg">
+              <h4 className="text-sm font-medium mb-component-md">Spanning Tree Settings</h4>
 
               {/* Edge Port */}
               <FormField
                 control={form.control}
                 name="edge"
                 render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 mb-4">
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-component-md mb-component-md">
                     <div className="space-y-0.5">
                       <FormLabel className="text-base">Edge Port</FormLabel>
                       <FormDescription>
@@ -372,7 +372,7 @@ function BridgePortEditorPreview({
             </div>
 
             {/* Actions */}
-            <div className="flex justify-end gap-2 pt-4 border-t">
+            <div className="flex justify-end gap-component-sm pt-component-md border-t">
               <Button
                 type="button"
                 variant="outline"

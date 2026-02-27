@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/ip-address",
+  "title": "IpAddress",
+  "description": "An IP address assigned to an interface",
+  "source": "@site/docs/api/types/objects/ip-address.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/ip-address",
+  "permalink": "/api/types/objects/ip-address",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "ip-address",
+    "title": "IpAddress"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "IpAddressMutationResult",
+    "permalink": "/api/types/objects/ip-address-mutation-result"
+  },
+  "next": {
+    "title": "IpConflictResult",
+    "permalink": "/api/types/objects/ip-conflict-result"
+  }
+}

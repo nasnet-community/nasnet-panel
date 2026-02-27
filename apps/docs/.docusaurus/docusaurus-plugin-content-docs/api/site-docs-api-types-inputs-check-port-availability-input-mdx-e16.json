@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/check-port-availability-input",
+  "title": "CheckPortAvailabilityInput",
+  "description": "Input for checking port availability.",
+  "source": "@site/docs/api/types/inputs/check-port-availability-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/check-port-availability-input",
+  "permalink": "/api/types/inputs/check-port-availability-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "check-port-availability-input",
+    "title": "CheckPortAvailabilityInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ChangeSetItemInput",
+    "permalink": "/api/types/inputs/change-set-item-input"
+  },
+  "next": {
+    "title": "CleanupOrphanedPortsInput",
+    "permalink": "/api/types/inputs/cleanup-orphaned-ports-input"
+  }
+}

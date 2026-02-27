@@ -1,0 +1,24 @@
+{
+  "id": "flows/router-connection-flow",
+  "title": "Flow: Router Connection Establishment",
+  "description": "Traces how the backend connects to a MikroTik router, automatically selecting the best available protocol with circuit-breaker protection.",
+  "source": "@site/../backend/docs/flows/router-connection-flow.md",
+  "sourceDirName": "flows",
+  "slug": "/flows/router-connection-flow",
+  "permalink": "/docs/backend/flows/router-connection-flow",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../backend/docs/flows/router-connection-flow.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Flow: GraphQL Request Lifecycle",
+    "permalink": "/docs/backend/flows/graphql-request-lifecycle"
+  },
+  "next": {
+    "title": "Flow: Service Installation",
+    "permalink": "/docs/backend/flows/service-installation-flow"
+  }
+}

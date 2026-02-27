@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/diagnostic-suite",
+  "title": "DiagnosticSuite",
+  "description": "Complete diagnostic suite for a service type.",
+  "source": "@site/docs/api/types/objects/diagnostic-suite.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/diagnostic-suite",
+  "permalink": "/api/types/objects/diagnostic-suite",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "diagnostic-suite",
+    "title": "DiagnosticSuite"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "DiagnosticSuggestion",
+    "permalink": "/api/types/objects/diagnostic-suggestion"
+  },
+  "next": {
+    "title": "DiagnosticTest",
+    "permalink": "/api/types/objects/diagnostic-test"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/device-routing",
+  "title": "deviceRouting",
+  "description": "Get a specific device routing assignment.",
+  "source": "@site/docs/api/operations/queries/device-routing.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/device-routing",
+  "permalink": "/api/operations/queries/device-routing",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "device-routing",
+    "title": "deviceRouting"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "deviceRoutingMatrix",
+    "permalink": "/api/operations/queries/device-routing-matrix"
+  },
+  "next": {
+    "title": "deviceRoutings",
+    "permalink": "/api/operations/queries/device-routings"
+  }
+}

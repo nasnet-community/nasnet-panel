@@ -1,0 +1,28 @@
+{
+  "id": "stores/hooks-utilities",
+  "title": "Hooks & Utility Functions",
+  "description": "Comprehensive reference for authentication hooks, route guards, and error recovery utilities.",
+  "source": "@site/../../libs/state/docs/stores/hooks-utilities.md",
+  "sourceDirName": "stores",
+  "slug": "/stores/hooks-utilities",
+  "permalink": "/docs/state/stores/hooks-utilities",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/state/docs/stores/hooks-utilities.md",
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 4,
+  "frontMatter": {
+    "sidebar_position": 4,
+    "title": "Hooks & Utility Functions"
+  },
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Router Store (useRouterStore)",
+    "permalink": "/docs/state/stores/router"
+  },
+  "next": {
+    "title": "Selectors Reference",
+    "permalink": "/docs/state/stores/selectors-reference"
+  }
+}

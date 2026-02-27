@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/service-template",
+  "title": "serviceTemplate",
+  "description": "Get a specific service template by ID.",
+  "source": "@site/docs/api/operations/queries/service-template.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/service-template",
+  "permalink": "/api/operations/queries/service-template",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "service-template",
+    "title": "serviceTemplate"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "serviceLogFile",
+    "permalink": "/api/operations/queries/service-log-file"
+  },
+  "next": {
+    "title": "serviceTemplates",
+    "permalink": "/api/operations/queries/service-templates"
+  }
+}

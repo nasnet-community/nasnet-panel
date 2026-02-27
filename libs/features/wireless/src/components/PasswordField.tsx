@@ -59,7 +59,7 @@ function PasswordFieldComponent({
       <span className="text-sm text-muted-foreground">
         {label}
       </span>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-component-sm">
         {/* Password display */}
         <code
           className="text-sm font-mono text-foreground"

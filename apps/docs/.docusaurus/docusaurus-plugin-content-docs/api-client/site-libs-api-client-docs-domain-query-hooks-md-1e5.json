@@ -1,0 +1,24 @@
+{
+  "id": "domain-query-hooks",
+  "title": "Domain Query Hooks",
+  "description": "This document is a complete reference for the domain-specific query hooks in libs/api-client/queries/src/. It covers the common conventions that all domains share (router-IP/router-ID parameter, *.graphql.ts document files, queryKeys / queryKey factories), then provides a full inventory table across all domains with hook counts, followed by detailed per-domain sections.",
+  "source": "@site/../../libs/api-client/docs/domain-query-hooks.md",
+  "sourceDirName": ".",
+  "slug": "/domain-query-hooks",
+  "permalink": "/docs/api-client/domain-query-hooks",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/api-client/docs/domain-query-hooks.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Notifications and Webhooks — Alert Delivery Integration",
+    "permalink": "/docs/api-client/notifications-webhooks"
+  },
+  "next": {
+    "title": "Service Lifecycle",
+    "permalink": "/docs/api-client/service-lifecycle"
+  }
+}

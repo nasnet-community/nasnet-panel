@@ -58,7 +58,7 @@ export const SectionHeader = React.memo(function SectionHeader({
         )}
 
         {icon && (
-          <span className="text-muted-foreground">{icon}</span>
+          <span className="text-muted-foreground" aria-hidden={true}>{icon}</span>
         )}
 
         <div>

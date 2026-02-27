@@ -1,0 +1,24 @@
+{
+  "id": "data-fetching/offline-support",
+  "title": "Offline Support",
+  "description": "NasNetConnect runs on a router — network connectivity to the device can disappear at any time. The offline support layer detects disconnection, queues mutations, and replays them automatically when the device is reachable again.",
+  "source": "@site/../connect/docs/data-fetching/offline-support.md",
+  "sourceDirName": "data-fetching",
+  "slug": "/data-fetching/offline-support",
+  "permalink": "/docs/frontend/data-fetching/offline-support",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../connect/docs/data-fetching/offline-support.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "GraphQL Hooks",
+    "permalink": "/docs/frontend/data-fetching/graphql-hooks"
+  },
+  "next": {
+    "title": "Data Fetching Overview",
+    "permalink": "/docs/frontend/data-fetching/overview"
+  }
+}

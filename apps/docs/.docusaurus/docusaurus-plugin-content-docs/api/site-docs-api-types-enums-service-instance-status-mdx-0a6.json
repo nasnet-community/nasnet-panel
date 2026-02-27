@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/service-instance-status",
+  "title": "ServiceInstanceStatus",
+  "description": "Service instance lifecycle status.",
+  "source": "@site/docs/api/types/enums/service-instance-status.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/service-instance-status",
+  "permalink": "/api/types/enums/service-instance-status",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "service-instance-status",
+    "title": "ServiceInstanceStatus"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ScanStatus",
+    "permalink": "/api/types/enums/scan-status"
+  },
+  "next": {
+    "title": "ServiceStatus",
+    "permalink": "/api/types/enums/service-status"
+  }
+}

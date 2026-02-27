@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/update-bridge-port",
+  "title": "updateBridgePort",
+  "description": "Update bridge port settings",
+  "source": "@site/docs/api/operations/mutations/update-bridge-port.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/update-bridge-port",
+  "permalink": "/api/operations/mutations/update-bridge-port",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "update-bridge-port",
+    "title": "updateBridgePort"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "updateAllInstances",
+    "permalink": "/api/operations/mutations/update-all-instances"
+  },
+  "next": {
+    "title": "updateBridge",
+    "permalink": "/api/operations/mutations/update-bridge"
+  }
+}

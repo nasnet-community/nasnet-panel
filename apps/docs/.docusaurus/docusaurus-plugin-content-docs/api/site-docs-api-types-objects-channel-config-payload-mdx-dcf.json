@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/channel-config-payload",
+  "title": "ChannelConfigPayload",
+  "description": "Payload for channel configuration mutations",
+  "source": "@site/docs/api/types/objects/channel-config-payload.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/channel-config-payload",
+  "permalink": "/api/types/objects/channel-config-payload",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "channel-config-payload",
+    "title": "ChannelConfigPayload"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ChangeSet",
+    "permalink": "/api/types/objects/change-set"
+  },
+  "next": {
+    "title": "CircuitBreakerEvent",
+    "permalink": "/api/types/objects/circuit-breaker-event"
+  }
+}

@@ -51,7 +51,7 @@ export function DnsStaticEntriesListMobile({
 
   if (entries.length === 0) {
     return (
-      <div className="space-y-component-md">
+      <div className="space-y-component-md category-networking">
         <EmptyState
           icon={FileText}
           title="No Static Entries"
@@ -68,11 +68,11 @@ export function DnsStaticEntriesListMobile({
 
   return (
     <>
-      <div className="space-y-component-md">
+      <div className="space-y-component-md category-networking">
         {/* Entries List */}
         <div className="space-y-component-sm">
           {sortedEntries.map((entry) => (
-            <Card key={entry['.id']} className="overflow-hidden">
+            <Card key={entry['.id']} className="overflow-hidden bg-card">
               <CardContent className="p-component-sm">
                 <div className="space-y-component-sm">
                   {/* Hostname */}

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/scan-network-input",
+  "title": "ScanNetworkInput",
+  "description": "Input for starting a network scan",
+  "source": "@site/docs/api/types/inputs/scan-network-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/scan-network-input",
+  "permalink": "/api/types/inputs/scan-network-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "scan-network-input",
+    "title": "ScanNetworkInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "SaveTemplateInput",
+    "permalink": "/api/types/inputs/save-template-input"
+  },
+  "next": {
+    "title": "SetKillSwitchInput",
+    "permalink": "/api/types/inputs/set-kill-switch-input"
+  }
+}

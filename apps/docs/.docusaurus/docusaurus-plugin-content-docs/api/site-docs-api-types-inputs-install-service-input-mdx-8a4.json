@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/install-service-input",
+  "title": "InstallServiceInput",
+  "description": "Input for installing a new service instance.",
+  "source": "@site/docs/api/types/inputs/install-service-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/install-service-input",
+  "permalink": "/api/types/inputs/install-service-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "install-service-input",
+    "title": "InstallServiceInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ImportStarStateInput",
+    "permalink": "/api/types/inputs/import-star-state-input"
+  },
+  "next": {
+    "title": "InstallServiceTemplateInput",
+    "permalink": "/api/types/inputs/install-service-template-input"
+  }
+}

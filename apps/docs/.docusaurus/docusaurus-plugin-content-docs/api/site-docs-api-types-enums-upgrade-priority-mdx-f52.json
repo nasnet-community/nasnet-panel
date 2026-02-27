@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/upgrade-priority",
+  "title": "UpgradePriority",
+  "description": "Priority level for upgrade recommendations",
+  "source": "@site/docs/api/types/enums/upgrade-priority.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/upgrade-priority",
+  "permalink": "/api/types/enums/upgrade-priority",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "upgrade-priority",
+    "title": "UpgradePriority"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "UpdateStage",
+    "permalink": "/api/types/enums/update-stage"
+  },
+  "next": {
+    "title": "UserRole",
+    "permalink": "/api/types/enums/user-role"
+  }
+}

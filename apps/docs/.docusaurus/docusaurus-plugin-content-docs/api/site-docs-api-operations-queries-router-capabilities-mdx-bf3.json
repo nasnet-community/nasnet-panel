@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/router-capabilities",
+  "title": "routerCapabilities",
+  "description": "Get router capabilities by router ID",
+  "source": "@site/docs/api/operations/queries/router-capabilities.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/router-capabilities",
+  "permalink": "/api/operations/queries/router-capabilities",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "router-capabilities",
+    "title": "routerCapabilities"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "route",
+    "permalink": "/api/operations/queries/route"
+  },
+  "next": {
+    "title": "routerCredentials",
+    "permalink": "/api/operations/queries/router-credentials"
+  }
+}

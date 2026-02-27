@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/interface",
+  "title": "Interface",
+  "description": "A network interface on a router",
+  "source": "@site/docs/api/types/objects/interface.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/interface",
+  "permalink": "/api/types/objects/interface",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "interface",
+    "title": "Interface"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "InterfaceTrafficEvent",
+    "permalink": "/api/types/objects/interface-traffic-event"
+  },
+  "next": {
+    "title": "IpAddressChangeEvent",
+    "permalink": "/api/types/objects/ip-address-change-event"
+  }
+}

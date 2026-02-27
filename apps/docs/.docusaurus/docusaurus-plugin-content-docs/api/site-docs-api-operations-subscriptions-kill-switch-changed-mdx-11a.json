@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/subscriptions/kill-switch-changed",
+  "title": "killSwitchChanged",
+  "description": "Subscribe to kill switch state changes for a router.",
+  "source": "@site/docs/api/operations/subscriptions/kill-switch-changed.mdx",
+  "sourceDirName": "api/operations/subscriptions",
+  "slug": "/api/operations/subscriptions/kill-switch-changed",
+  "permalink": "/api/operations/subscriptions/kill-switch-changed",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "kill-switch-changed",
+    "title": "killSwitchChanged"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ipAddressChanged",
+    "permalink": "/api/operations/subscriptions/ip-address-changed"
+  },
+  "next": {
+    "title": "portMirrorChanged",
+    "permalink": "/api/operations/subscriptions/port-mirror-changed"
+  }
+}

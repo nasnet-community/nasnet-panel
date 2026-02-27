@@ -134,12 +134,12 @@ const HealthCheckFormComponent = ({
         </div>
 
         {!isEnabled && (
-          <div className="mt-4 rounded-card-sm border border-warning/20 bg-warning/5 p-component-md">
+          <div className="mt-component-md rounded-card-sm border border-warning/20 bg-warning/5 p-component-md">
             <div className="flex gap-component-md">
               <AlertCircle className="h-5 w-5 text-warning flex-shrink-0 mt-0.5" aria-hidden="true" />
               <div>
                 <p className="text-sm font-medium">Health Monitoring Disabled</p>
-                <p className="text-xs text-muted-foreground mt-2">
+                <p className="text-xs text-muted-foreground mt-component-md">
                   WAN link failures will not be detected automatically. Enable
                   monitoring to receive alerts when connectivity is lost.
                 </p>
@@ -397,7 +397,7 @@ const HealthCheckFormComponent = ({
       )}
 
       {/* Action Buttons */}
-      <div className="flex justify-end gap-component-md pt-component-md border-t">
+      <div className="flex justify-end gap-component-md pt-component-lg border-t">
         {onCancel && (
           <Button type="button" variant="outline" onClick={onCancel}>
             Cancel

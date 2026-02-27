@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/create-port-mirror",
+  "title": "createPortMirror",
+  "description": "Create a new port mirror configuration",
+  "source": "@site/docs/api/operations/mutations/create-port-mirror.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/create-port-mirror",
+  "permalink": "/api/operations/mutations/create-port-mirror",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "create-port-mirror",
+    "title": "createPortMirror"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "createPortKnockSequence",
+    "permalink": "/api/operations/mutations/create-port-knock-sequence"
+  },
+  "next": {
+    "title": "createResource",
+    "permalink": "/api/operations/mutations/create-resource"
+  }
+}

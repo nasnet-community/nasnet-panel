@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/tunnel-status",
+  "title": "TunnelStatus",
+  "description": "Status of a VPN tunnel",
+  "source": "@site/docs/api/types/enums/tunnel-status.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/tunnel-status",
+  "permalink": "/api/types/enums/tunnel-status",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "tunnel-status",
+    "title": "TunnelStatus"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "TroubleshootStepType",
+    "permalink": "/api/types/enums/troubleshoot-step-type"
+  },
+  "next": {
+    "title": "TunnelType",
+    "permalink": "/api/types/enums/tunnel-type"
+  }
+}

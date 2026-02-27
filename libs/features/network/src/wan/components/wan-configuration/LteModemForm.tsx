@@ -125,7 +125,7 @@ const SignalStrengthIndicator = memo(function SignalStrengthIndicator({
       : SignalZero;
 
   return (
-    <div className="flex items-center justify-between p-component-md rounded-card-sm border bg-muted/50">
+    <div className="flex items-center justify-between p-component-md rounded-card-sm border bg-muted/50 category-networking">
       <div className="flex items-center gap-component-lg">
         <SignalIcon className="h-5 w-5" style={{ color: `var(--semantic-${strength.color})` }} />
         <div>
@@ -136,7 +136,7 @@ const SignalStrengthIndicator = memo(function SignalStrengthIndicator({
             </Badge>
           </div>
           {quality !== undefined && (
-            <p className="text-xs text-muted-foreground mt-2">
+            <p className="text-xs text-muted-foreground mt-component-md">
               Signal Quality: {quality}%
             </p>
           )}
@@ -244,7 +244,7 @@ export const LteModemForm = memo(function LteModemForm({
    */
   if (success) {
     return (
-      <div className="flex flex-col items-center justify-center py-12 gap-4">
+      <div className="flex flex-col items-center justify-center py-12 gap-component-md">
         <CheckCircle2 className="h-16 w-16 text-success" />
         <h3 className="text-lg font-semibold">LTE Modem Configured</h3>
         <p className="text-sm text-muted-foreground text-center max-w-md">
@@ -560,7 +560,7 @@ export const LteModemForm = memo(function LteModemForm({
               control={form.control as any}
               name="isDefaultRoute"
               render={({ field }) => (
-                <FormItem className="flex items-center justify-between rounded-card-sm border p-component-md">
+                <FormItem className="flex items-center justify-between rounded-card-sm border p-component-md category-networking">
                   <div className="space-y-0.5">
                     <FormLabel className="text-base">Default Route</FormLabel>
                     <FormDescription>
@@ -583,7 +583,7 @@ export const LteModemForm = memo(function LteModemForm({
               control={form.control as any}
               name="enabled"
               render={({ field }) => (
-                <FormItem className="flex items-center justify-between rounded-card-sm border p-component-md">
+                <FormItem className="flex items-center justify-between rounded-card-sm border p-component-md category-networking">
                   <div className="space-y-0.5">
                     <FormLabel className="text-base">Enable Interface</FormLabel>
                     <FormDescription>
@@ -612,7 +612,7 @@ export const LteModemForm = memo(function LteModemForm({
         )}
 
         {/* Actions */}
-        <div className="flex justify-end gap-component-md pt-component-lg border-t">
+        <div className="flex justify-end gap-component-md pt-component-lg border-t category-networking">
           {onCancel && (
             <Button
               type="button"
@@ -629,7 +629,7 @@ export const LteModemForm = memo(function LteModemForm({
             disabled={isSubmitting}
             aria-busy={isSubmitting}
           >
-            {isSubmitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" aria-hidden="true" />}
+            {isSubmitting && <Loader2 className="h-4 w-4 mr-component-sm animate-spin" aria-hidden="true" />}
             Configure LTE Modem
           </Button>
         </div>

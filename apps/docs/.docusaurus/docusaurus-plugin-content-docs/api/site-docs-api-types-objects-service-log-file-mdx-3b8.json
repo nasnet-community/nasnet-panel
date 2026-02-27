@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/service-log-file",
+  "title": "ServiceLogFile",
+  "description": "Service log file with metadata.",
+  "source": "@site/docs/api/types/objects/service-log-file.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/service-log-file",
+  "permalink": "/api/types/objects/service-log-file",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "service-log-file",
+    "title": "ServiceLogFile"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ServiceInstance",
+    "permalink": "/api/types/objects/service-instance"
+  },
+  "next": {
+    "title": "ServiceResult",
+    "permalink": "/api/types/objects/service-result"
+  }
+}

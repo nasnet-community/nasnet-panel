@@ -58,19 +58,19 @@ const DragHandleInner = React.forwardRef<HTMLButtonElement, DragHandleProps>(
           'touch-none select-none',
           // Size - minimum 44x44 for WCAG AAA touch targets
           'min-h-[44px] min-w-[44px]',
-          'p-2',
+          'p-component-sm',
           // Visual styles
           'text-muted-foreground',
-          'rounded-md',
+          'h-4 w-4',
           'transition-colors duration-150',
           // Focus styles (visible focus ring)
           'focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
           // Hover styles
-          'hover:text-foreground hover:bg-muted/50',
-          // Active/dragging styles
-          'active:bg-muted',
+          'hover:text-foreground',
+          // Active/dragging styles (cursor changes to grabbing)
+          'active:cursor-grabbing',
           // Cursor
-          !disabled && 'cursor-grab active:cursor-grabbing',
+          !disabled && 'cursor-grab',
           // Disabled state
           disabled && 'opacity-50 cursor-not-allowed pointer-events-none',
           className
@@ -85,7 +85,7 @@ const DragHandleInner = React.forwardRef<HTMLButtonElement, DragHandleProps>(
         }}
         {...props}
       >
-        {children ?? <GripVertical className="h-5 w-5" aria-hidden="true" />}
+        {children ?? <GripVertical className="h-4 w-4" aria-hidden="true" />}
       </button>
     );
   }

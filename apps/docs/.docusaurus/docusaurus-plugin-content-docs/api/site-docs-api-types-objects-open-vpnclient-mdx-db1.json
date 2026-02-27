@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/open-vpnclient",
+  "title": "OpenVPNClient",
+  "description": "OpenVPN VPN Client resource implementing 8-layer model",
+  "source": "@site/docs/api/types/objects/open-vpnclient.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/open-vpnclient",
+  "permalink": "/api/types/objects/open-vpnclient",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "open-vpnclient",
+    "title": "OpenVPNClient"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "OpenVPNClientConfig",
+    "permalink": "/api/types/objects/open-vpnclient-config"
+  },
+  "next": {
+    "title": "OpenVPNDeployment",
+    "permalink": "/api/types/objects/open-vpndeployment"
+  }
+}

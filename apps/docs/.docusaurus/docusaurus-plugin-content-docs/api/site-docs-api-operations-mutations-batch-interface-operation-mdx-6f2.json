@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/batch-interface-operation",
+  "title": "batchInterfaceOperation",
+  "description": "Batch operation on multiple interfaces",
+  "source": "@site/docs/api/operations/mutations/batch-interface-operation.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/batch-interface-operation",
+  "permalink": "/api/operations/mutations/batch-interface-operation",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "batch-interface-operation",
+    "title": "batchInterfaceOperation"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "autoScanGateways",
+    "permalink": "/api/operations/mutations/auto-scan-gateways"
+  },
+  "next": {
+    "title": "bulkAssignRouting",
+    "permalink": "/api/operations/mutations/bulk-assign-routing"
+  }
+}

@@ -100,7 +100,7 @@ function TemplatesBrowserDesktopComponent({
                   variant="outline"
                   size="sm"
                   onClick={handleRetry}
-                  className="min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  className="min-h-[44px]"
                 >
                   Retry
                 </Button>

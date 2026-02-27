@@ -174,7 +174,7 @@ export const RoutesPage = memo(function RoutesPage({ routerId = 'default-router'
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold font-display">Routes</h1>
-          <p className="text-muted-foreground mt-1">
+          <p className="text-muted-foreground mt-component-sm">
             Manage static routes to direct traffic to specific networks
           </p>
         </div>

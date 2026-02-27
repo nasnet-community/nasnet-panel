@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/service-result",
+  "title": "ServiceResult",
+  "description": "Service result from template installation",
+  "source": "@site/docs/api/types/objects/service-result.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/service-result",
+  "permalink": "/api/types/objects/service-result",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "service-result",
+    "title": "ServiceResult"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ServiceLogFile",
+    "permalink": "/api/types/objects/service-log-file"
+  },
+  "next": {
+    "title": "ServiceSpec",
+    "permalink": "/api/types/objects/service-spec"
+  }
+}

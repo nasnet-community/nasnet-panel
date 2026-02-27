@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/toggle-port-knock-sequence",
+  "title": "togglePortKnockSequence",
+  "description": "Toggle port knock sequence enabled/disabled.",
+  "source": "@site/docs/api/operations/mutations/toggle-port-knock-sequence.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/toggle-port-knock-sequence",
+  "permalink": "/api/operations/mutations/toggle-port-knock-sequence",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "toggle-port-knock-sequence",
+    "title": "togglePortKnockSequence"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "toggleAlertRule",
+    "permalink": "/api/operations/mutations/toggle-alert-rule"
+  },
+  "next": {
+    "title": "triggerBootSequence",
+    "permalink": "/api/operations/mutations/trigger-boot-sequence"
+  }
+}

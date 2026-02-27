@@ -69,75 +69,65 @@ const BreadcrumbMobile = React.memo(function BreadcrumbMobile({
     <nav
       aria-label="Breadcrumb"
       dir={dir}
-      className={cn('flex items-center', className)}
+      className={cn('text-muted-foreground flex items-center gap-1.5 text-sm', className)}
     >
-      <ol className="flex items-center gap-inlineGap text-sm">
+      <ol className="flex items-center gap-1.5">
         {visibleSegments.map((segment, index) => (
           <React.Fragment key={segment.key}>
-            {/* Ellipsis for collapsed items */}
-            {index === 1 && shouldCollapse && hiddenCount > 0 && (
-              <>
+            {/* Back button for collapsed mobile view */}
+            {index === 0 && shouldCollapse && hiddenCount > 0 && (
+              <button
+                onClick={() => setExpanded(true)}
+                className="hover:bg-muted focus-visible:ring-ring flex h-11 w-11 items-center justify-center rounded-lg transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2"
+                aria-label={t('breadcrumb.showMore', { count: hiddenCount })}
+                aria-expanded={expanded}
+              >
                 <Icon
-                  icon={SeparatorIcon}
-                  className="mx-0.5 h-4 w-4 text-muted-foreground"
+                  icon={ChevronLeft}
+                  className="h-5 w-5"
                   aria-hidden="true"
                 />
-                <li>
-                  <button
-                    onClick={() => setExpanded(true)}
-                    className="flex h-11 w-11 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                    aria-label={t('breadcrumb.showMore', { count: hiddenCount })}
-                    aria-expanded={expanded}
-                  >
-                    <Icon
-                      icon={MoreHorizontal}
-                      className="h-4 w-4"
-                      aria-hidden="true"
-                    />
-                  </button>
-                </li>
-              </>
+              </button>
             )}
 
             {/* Separator */}
-            {index > 0 && !(index === 1 && shouldCollapse) && (
+            {index > 0 && !(index === 0 && shouldCollapse) && (
               <Icon
                 icon={SeparatorIcon}
-                className="mx-0.5 h-4 w-4 text-muted-foreground"
+                className="text-muted-foreground/50 h-4 w-4"
                 aria-hidden="true"
               />
             )}
 
             {/* Segment */}
-            <li className="flex items-center">
-              {segment.isCurrent ? (
-                // Current page (not clickable)
-                <span
-                  aria-current="page"
-                  className="truncate font-medium text-foreground"
-                >
-                  {segment.label}
-                </span>
-              ) : (
-                // Clickable link with 44px touch target
-                <Link
-                  to={segment.path}
-                  className="flex h-11 items-center rounded-lg px-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                >
-                  {showHomeIcon && index === 0 ? (
-                    <>
-                      <Icon
-                        icon={Home}
-                        className="h-4 w-4"
-                        aria-hidden="true"
-                      />
-                      <span className="sr-only">{segment.label}</span>
-                    </>
-                  ) : (
-                    <span className="truncate">{segment.label}</span>
-                  )}
-                </Link>
-              )}
+            <li className="flex min-h-[44px] items-center">
+              {
+                segment.isCurrent ?
+                  // Current page (not clickable)
+                  <span
+                    aria-current="page"
+                    className="text-foreground max-w-[120px] truncate font-medium"
+                  >
+                    {segment.label}
+                  </span>
+                  // Clickable link with 44px touch target
+                : <Link
+                    to={segment.path}
+                    className="text-muted-foreground hover:text-foreground focus-visible:ring-ring flex h-11 cursor-pointer items-center rounded-lg px-2 transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2"
+                  >
+                    {showHomeIcon && index === 0 ?
+                      <>
+                        <Icon
+                          icon={Home}
+                          className="h-4 w-4"
+                          aria-hidden="true"
+                        />
+                        <span className="sr-only">{segment.label}</span>
+                      </>
+                    : <span className="max-w-[120px] truncate">{segment.label}</span>}
+                  </Link>
+
+              }
             </li>
           </React.Fragment>
         ))}
@@ -157,29 +147,28 @@ const BreadcrumbMobile = React.memo(function BreadcrumbMobile({
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
-              className="absolute bottom-0 left-0 right-0 rounded-t-xl bg-card p-component-md shadow-xl"
+              className="bg-card p-component-md absolute bottom-0 left-0 right-0 rounded-t-xl shadow-xl"
               onClick={(e) => e.stopPropagation()}
             >
-              <h3 className="mb-3 text-sm font-medium text-muted-foreground">
+              <h3 className="text-muted-foreground mb-3 text-sm font-semibold">
                 {t('breadcrumb.navigationPath')}
               </h3>
-              <ol className="space-y-1">
+              <ol className="space-y-0">
                 {segments.map((segment, index) => (
                   <li key={segment.key}>
-                    {segment.isCurrent ? (
+                    {segment.isCurrent ?
                       <span
                         aria-current="page"
-                        className="flex h-11 items-center rounded-lg bg-accent px-3 font-medium"
+                        className="bg-accent text-accent-foreground flex h-11 items-center rounded-lg px-3 font-medium"
                       >
                         {segment.label}
                       </span>
-                    ) : (
-                      <Link
+                    : <Link
                         to={segment.path}
                         onClick={() => setExpanded(false)}
-                        className="flex h-11 items-center rounded-lg px-3 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                        className="text-muted-foreground hover:bg-accent hover:text-accent-foreground focus-visible:ring-ring flex h-11 cursor-pointer items-center rounded-lg px-3 transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2"
                       >
-                        {showHomeIcon && index === 0 ? (
+                        {showHomeIcon && index === 0 ?
                           <span className="flex items-center gap-2">
                             <Icon
                               icon={Home}
@@ -188,17 +177,15 @@ const BreadcrumbMobile = React.memo(function BreadcrumbMobile({
                             />
                             {segment.label}
                           </span>
-                        ) : (
-                          segment.label
-                        )}
+                        : segment.label}
                       </Link>
-                    )}
+                    }
                   </li>
                 ))}
               </ol>
               <button
                 onClick={() => setExpanded(false)}
-                className="mt-4 w-full rounded-lg bg-muted py-3 font-medium transition-colors hover:bg-muted/80 focus:outline-none focus:ring-2 focus:ring-ring"
+                className="bg-muted hover:bg-muted/80 focus-visible:ring-ring mt-4 w-full rounded-lg py-3 font-medium transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2"
               >
                 {t('actions.close')}
               </button>

@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/vlans",
+  "title": "vlans",
+  "description": "Get all VLANs on a router with optional filtering",
+  "source": "@site/docs/api/operations/queries/vlans.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/vlans",
+  "permalink": "/api/operations/queries/vlans",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "vlans",
+    "title": "vlans"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "vlan",
+    "permalink": "/api/operations/queries/vlan"
+  },
+  "next": {
+    "title": "wanConnectionHistory",
+    "permalink": "/api/operations/queries/wan-connection-history"
+  }
+}

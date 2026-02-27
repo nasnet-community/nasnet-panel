@@ -46,7 +46,7 @@ export const DnsServerComparison = memo(function DnsServerComparison({
 
   if (results.length === 0) {
     return (
-      <div className="text-center py-8 text-muted-foreground">
+      <div className="text-center py-component-xl text-muted-foreground">
         <p>No results to compare</p>
       </div>
     );
@@ -74,7 +74,7 @@ export const DnsServerComparison = memo(function DnsServerComparison({
             >
               <CardHeader className="pb-component-sm">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-semibold font-mono break-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+                  <h3 className="text-sm font-semibold font-mono text-foreground break-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
                     {result.server}
                   </h3>
                   {isFastest && !hasError && (
@@ -103,17 +103,17 @@ export const DnsServerComparison = memo(function DnsServerComparison({
 
       {/* Summary Section */}
       <div className="mt-component-lg p-component-md bg-muted/50 rounded-card-sm">
-        <h4 className="text-sm font-semibold mb-component-sm font-display">Comparison Summary</h4>
+        <h4 className="text-sm font-semibold mb-component-sm font-display text-category-networking">Comparison Summary</h4>
         <div className="grid grid-cols-2 gap-component-md text-sm">
           <div>
             <span className="text-muted-foreground">Successful queries:</span>
-            <span className="ml-2 font-mono tabular-nums">
+            <span className="ml-component-sm font-mono tabular-nums text-foreground">
               {results.filter((r) => !isErrorStatus(r.status)).length} / {results.length}
             </span>
           </div>
           <div>
             <span className="text-muted-foreground">Fastest response:</span>
-            <span className="ml-2 font-mono tabular-nums text-success">
+            <span className="ml-component-sm font-mono tabular-nums text-success">
               {fastestTime}
               ms
             </span>
@@ -132,7 +132,7 @@ export const DnsServerComparison = memo(function DnsServerComparison({
             return (
               <div className="mt-component-sm p-component-sm bg-warning/10 border border-warning/20 rounded-md text-sm">
                 <span className="text-warning font-medium">⚠ Discrepancy detected:</span>
-                <span className="ml-component-sm text-muted-foreground">
+                <span className="ml-component-sm text-muted-foreground text-foreground">
                   Different servers returned different numbers of records
                 </span>
               </div>

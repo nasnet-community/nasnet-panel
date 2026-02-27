@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/virtual-interface",
+  "title": "VirtualInterface",
+  "description": "Virtual network interface for service instance isolation.",
+  "source": "@site/docs/api/types/objects/virtual-interface.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/virtual-interface",
+  "permalink": "/api/types/objects/virtual-interface",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "virtual-interface",
+    "title": "VirtualInterface"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "VirtualInterfaceInfo",
+    "permalink": "/api/types/objects/virtual-interface-info"
+  },
+  "next": {
+    "title": "VlanDependencies",
+    "permalink": "/api/types/objects/vlan-dependencies"
+  }
+}

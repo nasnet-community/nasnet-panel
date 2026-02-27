@@ -191,7 +191,7 @@ function ServiceTrafficPanelMobileComponent({
             {uploadRate !== null && (
               <div className="flex items-center justify-between rounded-lg bg-muted p-component-md">
                 <div className="flex items-center gap-component-sm">
-                  <Icon icon={TrendingUp} className="h-5 w-5 text-info" aria-hidden="true" />
+                  <Icon icon={TrendingUp} className="h-5 w-5 text-category-vpn" aria-hidden="true" />
                   <span className="text-sm font-medium">Upload</span>
                 </div>
                 <span className="text-lg font-mono font-semibold">
@@ -258,7 +258,7 @@ function ServiceTrafficPanelMobileComponent({
                 value={Math.min(quotaUsagePercent, 100)}
                 className={cn(
                   'h-2',
-                  quotaExceeded && '[&>div]:bg-destructive',
+                  quotaExceeded && '[&>div]:bg-error',
                   quotaWarning && !quotaExceeded && '[&>div]:bg-warning'
                 )}
               />

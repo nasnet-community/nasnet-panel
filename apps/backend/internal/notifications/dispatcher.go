@@ -108,7 +108,7 @@ func (d *Dispatcher) Dispatch(ctx context.Context, notification Notification, ch
 		isCritical := notification.Severity == "critical"
 		shouldQueue := digestConfig != nil &&
 			digestConfig.Enabled &&
-			!(isCritical && digestConfig.BypassCritical)
+			(!isCritical || !digestConfig.BypassCritical)
 
 		if shouldQueue {
 			// Queue for digest delivery
@@ -166,7 +166,10 @@ func (d *Dispatcher) TestChannel(ctx context.Context, channelName string, config
 		return fmt.Errorf("channel '%s' not configured", channelName)
 	}
 
-	return channel.Test(ctx, config)
+	if err := channel.Test(ctx, config); err != nil {
+		return fmt.Errorf("channel test failed: %w", err)
+	}
+	return nil
 }
 
 // GetChannels returns a list of all registered channel names.

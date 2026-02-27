@@ -1,0 +1,24 @@
+{
+  "id": "data-fetching/overview",
+  "title": "Data Fetching Overview",
+  "description": "This document describes how data flows from the React frontend to the MikroTik router and back.",
+  "source": "@site/../connect/docs/data-fetching/overview.md",
+  "sourceDirName": "data-fetching",
+  "slug": "/data-fetching/overview",
+  "permalink": "/docs/frontend/data-fetching/overview",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../connect/docs/data-fetching/overview.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Offline Support",
+    "permalink": "/docs/frontend/data-fetching/offline-support"
+  },
+  "next": {
+    "title": "REST Client",
+    "permalink": "/docs/frontend/data-fetching/rest-client"
+  }
+}

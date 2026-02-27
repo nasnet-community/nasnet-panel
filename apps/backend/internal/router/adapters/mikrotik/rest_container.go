@@ -2,9 +2,11 @@ package mikrotik
 
 import (
 	"bufio"
+	"context"
 	"net"
 	"os"
 	"strings"
+	"time"
 )
 
 // InitializeContainerIPs detects all IP addresses of the container. //nolint:nestif
@@ -124,7 +126,11 @@ func DetectDefaultGateway() {
 
 // detectGatewayAlternative attempts to detect gateway on non-Linux systems.
 func detectGatewayAlternative() {
-	conn, err := net.Dial("udp", "8.8.8.8:80")
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+
+	dialer := &net.Dialer{}
+	conn, err := dialer.DialContext(ctx, "udp", "8.8.8.8:80")
 	if err != nil {
 		return
 	}

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/apply-service-config-input",
+  "title": "ApplyServiceConfigInput",
+  "description": "Input for applying service configuration",
+  "source": "@site/docs/api/types/inputs/apply-service-config-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/apply-service-config-input",
+  "permalink": "/api/types/inputs/apply-service-config-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "apply-service-config-input",
+    "title": "ApplyServiceConfigInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ApplyAlertTemplateInput",
+    "permalink": "/api/types/inputs/apply-alert-template-input"
+  },
+  "next": {
+    "title": "ApplyServiceImportInput",
+    "permalink": "/api/types/inputs/apply-service-import-input"
+  }
+}

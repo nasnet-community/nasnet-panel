@@ -40,24 +40,25 @@ const InterfaceListItem = React.memo(function InterfaceListItem({ iface }: { ifa
             'w-2 h-2 rounded-full',
             isRunning && isLinkUp ? 'bg-success' : isRunning ? 'bg-warning' : 'bg-muted-foreground'
           )}
+          aria-hidden="true"
         />
         <InterfaceTypeIcon type={iface.type} className="w-3.5 h-3.5 text-muted-foreground" />
-        <span className="text-foreground text-sm">{iface.name}</span>
+        <span className="font-display font-semibold text-foreground text-sm">{iface.name}</span>
       </div>
       <div className="flex items-center gap-component-md">
         {trafficStats && isRunning && isLinkUp ? (
           <span className="text-muted-foreground text-xs font-mono flex items-center gap-component-sm">
             <span className="flex items-center gap-component-xs">
-              <ArrowDown className="w-3 h-3 text-info" />
+              <ArrowDown className="w-3 h-3 text-success" aria-hidden="true" />
               {formatBytes(trafficStats.rxBytes)}
             </span>
             <span className="flex items-center gap-0.5">
-              <ArrowUp className="w-3 h-3 text-secondary" />
+              <ArrowUp className="w-3 h-3 text-category-monitoring" aria-hidden="true" />
               {formatBytes(trafficStats.txBytes)}
             </span>
           </span>
         ) : (
-          <span className="text-muted-foreground text-xs">
+          <span className={cn('text-xs', isRunning && isLinkUp ? 'text-success' : isRunning ? 'text-warning' : 'text-muted-foreground')}>
             {isRunning && isLinkUp ? t('status.active', { ns: 'common' }) : isRunning ? t('interfaces.noLink') : t('status.disabled', { ns: 'common' })}
           </span>
         )}
@@ -99,7 +100,7 @@ export const InterfaceCompactList = React.memo(function InterfaceCompactList({
     <div className="px-component-lg py-component-sm">
       {/* Header */}
       <div className="flex justify-between items-center mb-component-sm">
-        <p className="text-muted-foreground text-xs uppercase tracking-wide">{t('interfaces.title')}</p>
+        <p className="font-display font-semibold text-muted-foreground text-xs uppercase tracking-wide">{t('interfaces.title')}</p>
         {hasMore && (
           <button className="text-primary text-xs flex items-center gap-component-xs hover:text-primary/80 transition-colors min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-lg px-component-sm">
             {t('button.viewAll', { ns: 'common' })}

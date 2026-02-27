@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/capability-entry",
+  "title": "CapabilityEntry",
+  "description": "Single capability with its support level and guidance",
+  "source": "@site/docs/api/types/objects/capability-entry.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/capability-entry",
+  "permalink": "/api/types/objects/capability-entry",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "capability-entry",
+    "title": "CapabilityEntry"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "CancelScanPayload",
+    "permalink": "/api/types/objects/cancel-scan-payload"
+  },
+  "next": {
+    "title": "ChainHop",
+    "permalink": "/api/types/objects/chain-hop"
+  }
+}

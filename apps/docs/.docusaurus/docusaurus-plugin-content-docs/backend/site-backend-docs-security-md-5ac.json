@@ -1,0 +1,24 @@
+{
+  "id": "security",
+  "title": "Security",
+  "description": "Multi-layer security model: JWT RS256 authentication, bcrypt+NIST password policy, AES-256-GCM credential encryption, GraphQL directive-based authorization, and sensitive field redaction throughout.",
+  "source": "@site/../backend/docs/security.md",
+  "sourceDirName": ".",
+  "slug": "/security",
+  "permalink": "/docs/backend/security",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../backend/docs/security.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Router Services",
+    "permalink": "/docs/backend/router-services"
+  },
+  "next": {
+    "title": "Service Orchestrator",
+    "permalink": "/docs/backend/service-orchestrator"
+  }
+}

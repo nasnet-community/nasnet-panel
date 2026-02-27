@@ -84,13 +84,16 @@ func echoHealthHandler(c echo.Context) error {
 	var m runtime.MemStats
 	runtime.ReadMemStats(&m)
 	uptime := time.Since(serverStartTime).Round(time.Second)
-	return c.JSON(http.StatusOK, HealthResponse{
+	if err := c.JSON(http.StatusOK, HealthResponse{
 		Status:    "healthy",
 		Timestamp: time.Now().Unix(),
 		Memory:    m.Alloc / 1024 / 1024,
 		Version:   ServerVersion,
 		Uptime:    uptime.String(),
-	})
+	}); err != nil {
+		return fmt.Errorf("send health response: %w", err)
+	}
+	return nil
 }
 
 func echoScanHandler(c echo.Context) error {
@@ -126,14 +129,20 @@ func echoBatchJobsHandler(c echo.Context) error {
 func echoOUILookupHandler(c echo.Context) error {
 	macAddress := c.Param("mac")
 	if macAddress == "" {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "MAC address is required"})
+		if err := c.JSON(http.StatusBadRequest, map[string]string{"error": "MAC address is required"}); err != nil {
+			return fmt.Errorf("send error response: %w", err)
+		}
+		return nil
 	}
 	db := oui.GetDatabase()
 	vendor, found := db.Lookup(macAddress)
 	c.Response().Header().Set("Cache-Control", "public, max-age=86400")
-	return c.JSON(http.StatusOK, map[string]interface{}{
+	if err := c.JSON(http.StatusOK, map[string]interface{}{
 		"mac": macAddress, "vendor": vendor, "found": found,
-	})
+	}); err != nil {
+		return fmt.Errorf("send lookup response: %w", err)
+	}
+	return nil
 }
 
 func echoOUIBatchHandler(c echo.Context) error {
@@ -141,25 +150,40 @@ func echoOUIBatchHandler(c echo.Context) error {
 		MacAddresses []string `json:"macAddresses"`
 	}
 	if err := c.Bind(&request); err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid request body"})
+		if errResp := c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid request body"}); errResp != nil {
+			return fmt.Errorf("send bind error response: %w", errResp)
+		}
+		return nil
 	}
 	if len(request.MacAddresses) == 0 {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "macAddresses array is required"})
+		if err := c.JSON(http.StatusBadRequest, map[string]string{"error": "macAddresses array is required"}); err != nil {
+			return fmt.Errorf("send array required error response: %w", err)
+		}
+		return nil
 	}
 	if len(request.MacAddresses) > 100 {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Maximum 100 MAC addresses per request"})
+		if err := c.JSON(http.StatusBadRequest, map[string]string{"error": "Maximum 100 MAC addresses per request"}); err != nil {
+			return fmt.Errorf("send max addresses error response: %w", err)
+		}
+		return nil
 	}
 	db := oui.GetDatabase()
 	results := db.LookupBatch(request.MacAddresses)
 	c.Response().Header().Set("Cache-Control", "public, max-age=86400")
-	return c.JSON(http.StatusOK, map[string]interface{}{"results": results, "count": len(results)})
+	if err := c.JSON(http.StatusOK, map[string]interface{}{"results": results, "count": len(results)}); err != nil {
+		return fmt.Errorf("send batch response: %w", err)
+	}
+	return nil
 }
 
 func echoOUIStatsHandler(c echo.Context) error {
 	db := oui.GetDatabase()
 	size := db.Size()
 	c.Response().Header().Set("Cache-Control", "public, max-age=3600")
-	return c.JSON(http.StatusOK, map[string]interface{}{"entries": size, "loaded": size > 0})
+	if err := c.JSON(http.StatusOK, map[string]interface{}{"entries": size, "loaded": size > 0}); err != nil {
+		return fmt.Errorf("send stats response: %w", err)
+	}
+	return nil
 }
 
 // writeJSONResponse sends a JSON response and logs encoding errors.

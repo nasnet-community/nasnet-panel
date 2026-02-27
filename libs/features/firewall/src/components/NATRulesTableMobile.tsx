@@ -92,10 +92,10 @@ interface RuleCardProps {
 const RuleCard = memo(function RuleCard({ rule, onEdit, onDelete, onToggle }: RuleCardProps) {
   return (
     <Card className={rule.disabled ? 'opacity-50 bg-muted/50' : ''}>
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between gap-2">
-          <div className="flex-1 space-y-2">
-            <div className="flex items-center gap-2 flex-wrap">
+      <CardHeader className="pb-component-sm">
+        <div className="flex items-start justify-between gap-component-sm">
+          <div className="flex-1 space-y-component-sm">
+            <div className="flex items-center gap-component-sm flex-wrap">
               <span className="font-mono text-xs text-muted-foreground">#{rule.order}</span>
               <ChainBadge chain={rule.chain} />
               <NATActionBadge action={rule.action} />
@@ -119,25 +119,25 @@ const RuleCard = memo(function RuleCard({ rule, onEdit, onDelete, onToggle }: Ru
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => onEdit(rule)}>
-                <Edit className="h-4 w-4 mr-2" aria-hidden="true" />
+                <Edit className="h-4 w-4 mr-component-sm" aria-hidden="true" />
                 Edit
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => onToggle(rule.id, !rule.disabled)}>
                 {rule.disabled ? (
                   <>
-                    <Eye className="h-4 w-4 mr-2" aria-hidden="true" />
+                    <Eye className="h-4 w-4 mr-component-sm" aria-hidden="true" />
                     Enable
                   </>
                 ) : (
                   <>
-                    <EyeOff className="h-4 w-4 mr-2" aria-hidden="true" />
+                    <EyeOff className="h-4 w-4 mr-component-sm" aria-hidden="true" />
                     Disable
                   </>
                 )}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => onDelete(rule.id)} className="text-error">
-                <Trash2 className="h-4 w-4 mr-2" aria-hidden="true" />
+                <Trash2 className="h-4 w-4 mr-component-sm" aria-hidden="true" />
                 Delete
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -145,7 +145,7 @@ const RuleCard = memo(function RuleCard({ rule, onEdit, onDelete, onToggle }: Ru
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-2 text-sm">
+      <CardContent className="space-y-component-sm text-sm">
         {/* Protocol */}
         {rule.protocol && (
           <div className="flex justify-between">
@@ -312,7 +312,7 @@ export const NATRulesTableMobile = memo(function NATRulesTableMobile({ chain, on
 
   if (isLoading) {
     return (
-      <div className="space-y-3 p-4">
+      <div className="space-y-component-sm p-component-md">
         {[1, 2, 3].map((i) => (
           <div key={i} className="animate-pulse">
             <div className="h-32 bg-muted rounded-lg" />
@@ -324,7 +324,7 @@ export const NATRulesTableMobile = memo(function NATRulesTableMobile({ chain, on
 
   if (error) {
     return (
-      <div className="p-4 text-error" role="alert">
+      <div className="p-component-md text-error" role="alert">
         Error loading NAT rules: {error.message}
       </div>
     );
@@ -332,7 +332,7 @@ export const NATRulesTableMobile = memo(function NATRulesTableMobile({ chain, on
 
   if (!filteredRules || filteredRules.length === 0) {
     return (
-      <div className="p-8 text-center text-muted-foreground">
+      <div className="p-component-xl text-center text-muted-foreground">
         No NAT rules found {chain && chain !== 'all' ? `in ${chain} chain` : ''}
       </div>
     );
@@ -340,7 +340,7 @@ export const NATRulesTableMobile = memo(function NATRulesTableMobile({ chain, on
 
   return (
     <>
-      <div className="space-y-3 p-4" role="list" aria-label="NAT rules">
+      <div className="space-y-component-sm p-component-md" role="list" aria-label="NAT rules">
         {filteredRules.map((rule) => (
           <div key={rule.id} role="listitem">
             <RuleCard

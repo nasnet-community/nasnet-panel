@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/available-updates",
+  "title": "availableUpdates",
+  "description": "Get available updates for all instances on a router.",
+  "source": "@site/docs/api/operations/queries/available-updates.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/available-updates",
+  "permalink": "/api/operations/queries/available-updates",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "available-updates",
+    "title": "availableUpdates"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "availableServices",
+    "permalink": "/api/operations/queries/available-services"
+  },
+  "next": {
+    "title": "bootSequenceProgress",
+    "permalink": "/api/operations/queries/boot-sequence-progress"
+  }
+}

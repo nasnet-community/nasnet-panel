@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/provisioning-session-payload",
+  "title": "ProvisioningSessionPayload",
+  "description": "Payload for provisioning session mutations",
+  "source": "@site/docs/api/types/objects/provisioning-session-payload.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/provisioning-session-payload",
+  "permalink": "/api/types/objects/provisioning-session-payload",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "provisioning-session-payload",
+    "title": "ProvisioningSessionPayload"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ProvisioningSessionEdge",
+    "permalink": "/api/types/objects/provisioning-session-edge"
+  },
+  "next": {
+    "title": "ProvisioningSession",
+    "permalink": "/api/types/objects/provisioning-session"
+  }
+}

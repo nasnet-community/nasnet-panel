@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/update-resource-payload",
+  "title": "UpdateResourcePayload",
+  "description": "No description",
+  "source": "@site/docs/api/types/objects/update-resource-payload.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/update-resource-payload",
+  "permalink": "/api/types/objects/update-resource-payload",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "update-resource-payload",
+    "title": "UpdateResourcePayload"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "UpdateProgress",
+    "permalink": "/api/types/objects/update-progress"
+  },
+  "next": {
+    "title": "UpdateResult",
+    "permalink": "/api/types/objects/update-result"
+  }
+}

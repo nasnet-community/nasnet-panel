@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/create-port-mirror-input",
+  "title": "CreatePortMirrorInput",
+  "description": "Input for creating a new port mirror configuration",
+  "source": "@site/docs/api/types/inputs/create-port-mirror-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/create-port-mirror-input",
+  "permalink": "/api/types/inputs/create-port-mirror-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "create-port-mirror-input",
+    "title": "CreatePortMirrorInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "CreateNotificationChannelConfigInput",
+    "permalink": "/api/types/inputs/create-notification-channel-config-input"
+  },
+  "next": {
+    "title": "CreateResourceInput",
+    "permalink": "/api/types/inputs/create-resource-input"
+  }
+}

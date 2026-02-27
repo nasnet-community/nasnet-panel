@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/interface-stats-history",
+  "title": "InterfaceStatsHistory",
+  "description": "Historical interface statistics with time-series data",
+  "source": "@site/docs/api/types/objects/interface-stats-history.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/interface-stats-history",
+  "permalink": "/api/types/objects/interface-stats-history",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "interface-stats-history",
+    "title": "InterfaceStatsHistory"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "InterfaceOperationError",
+    "permalink": "/api/types/objects/interface-operation-error"
+  },
+  "next": {
+    "title": "InterfaceStats",
+    "permalink": "/api/types/objects/interface-stats"
+  }
+}

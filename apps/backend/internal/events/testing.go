@@ -60,7 +60,7 @@ func (b *InMemoryEventBus) Publish(ctx context.Context, event Event) error {
 				select {
 				case ch <- event:
 				case <-ctx.Done():
-					return ctx.Err()
+					return fmt.Errorf("context done: %w", ctx.Err())
 				default:
 					// Drop event if channel is full (prevent blocking)
 				}

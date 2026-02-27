@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/update-vlanpool-config",
+  "title": "updateVLANPoolConfig",
+  "description": "Update VLAN pool configuration.",
+  "source": "@site/docs/api/operations/mutations/update-vlanpool-config.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/update-vlanpool-config",
+  "permalink": "/api/operations/mutations/update-vlanpool-config",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "update-vlanpool-config",
+    "title": "updateVLANPoolConfig"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "updateVlan",
+    "permalink": "/api/operations/mutations/update-vlan"
+  },
+  "next": {
+    "title": "updateWebhook",
+    "permalink": "/api/operations/mutations/update-webhook"
+  }
+}

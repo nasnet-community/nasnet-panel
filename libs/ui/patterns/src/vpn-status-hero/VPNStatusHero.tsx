@@ -66,42 +66,46 @@ function getStatusConfig(status: VPNHealthStatus) {
     case 'healthy':
       return {
         Icon: Shield,
-        title: 'All Systems Protected',
-        subtitle: 'Your VPN infrastructure is healthy',
-        bgClass: 'bg-success',
-        iconBg: 'bg-white/20',
-        textColor: 'text-success-foreground',
-        mutedColor: 'text-success-foreground/70',
+        title: 'Connected',
+        subtitle: 'Your VPN is active and protected',
+        bgClass: 'bg-card border border-border',
+        iconBg: 'bg-success/10',
+        textColor: 'text-foreground',
+        mutedColor: 'text-muted-foreground',
+        accentColor: 'text-success',
       };
     case 'warning':
       return {
         Icon: ShieldAlert,
         title: 'Attention Required',
         subtitle: 'Some VPN connections need attention',
-        bgClass: 'bg-warning',
-        iconBg: 'bg-white/20',
-        textColor: 'text-warning-foreground',
-        mutedColor: 'text-warning-foreground/70',
+        bgClass: 'bg-card border border-border',
+        iconBg: 'bg-warning/10',
+        textColor: 'text-foreground',
+        mutedColor: 'text-muted-foreground',
+        accentColor: 'text-warning',
       };
     case 'critical':
       return {
         Icon: ShieldX,
-        title: 'Issues Detected',
-        subtitle: 'VPN connections have errors',
-        bgClass: 'bg-destructive',
-        iconBg: 'bg-white/20',
-        textColor: 'text-destructive-foreground',
-        mutedColor: 'text-destructive-foreground/70',
+        title: 'Disconnected',
+        subtitle: 'VPN connection is offline',
+        bgClass: 'bg-card border border-border',
+        iconBg: 'bg-error/10',
+        textColor: 'text-foreground',
+        mutedColor: 'text-muted-foreground',
+        accentColor: 'text-error',
       };
     case 'loading':
       return {
         Icon: Loader2,
         title: 'Loading...',
         subtitle: 'Fetching VPN status',
-        bgClass: 'bg-muted',
-        iconBg: 'bg-foreground/10',
+        bgClass: 'bg-card border border-border',
+        iconBg: 'bg-muted',
         textColor: 'text-foreground',
         mutedColor: 'text-muted-foreground',
+        accentColor: 'text-muted-foreground',
       };
   }
 }
@@ -127,81 +131,81 @@ function VPNStatusHeroComponent({
   const isLoading = status === 'loading';
 
   return (
-    <Card className={cn('overflow-hidden', className)} role="status" aria-label={`VPN health: ${config.title}`}>
+    <Card className={cn('overflow-hidden rounded-[var(--semantic-radius-card)] shadow-[var(--semantic-shadow-card)]', className)} role="status" aria-label={`VPN health: ${config.title}`}>
       <CardContent className={cn('p-0', config.bgClass)}>
         {/* Hero Section */}
-        <div className="p-6 pb-8 text-center">
+        <div className="p-6 sm:p-8 text-center">
           <div
             className={cn(
-              'w-20 h-20 mx-auto mb-4 rounded-full flex items-center justify-center',
+              'h-16 w-16 mx-auto mb-4 rounded-full flex items-center justify-center',
               config.iconBg,
               isHealthy && 'animate-pulse'
             )}
           >
             <Icon
               className={cn(
-                'w-10 h-10',
-                config.textColor,
+                'h-8 w-8',
+                config.accentColor,
                 isLoading && 'animate-spin'
               )}
             />
           </div>
-          <h2 className={cn('text-2xl font-bold mb-1', config.textColor)}>
+          <h2 className={cn('text-2xl font-bold font-display mb-1 text-foreground')}>
             {config.title}
           </h2>
-          <p className={config.mutedColor}>
+          <p className="text-sm text-muted-foreground">
             {config.subtitle}
           </p>
           {issueCount > 0 && status !== 'healthy' && (
-            <p className={cn('mt-2 text-sm font-medium', config.textColor)}>
+            <p className="mt-2 text-sm font-medium text-foreground">
               {issueCount} {issueCount === 1 ? 'issue' : 'issues'} found
             </p>
           )}
         </div>
 
         {/* Stats Bar */}
-        <div className="bg-black/10 backdrop-blur-sm px-6 py-4">
+        <div className="bg-muted border-t border-border px-6 sm:px-8 py-4">
           <div className="grid grid-cols-4 gap-4 text-center">
             {/* Servers */}
             <div className="flex flex-col items-center">
-              <Server className={cn('w-5 h-5 mb-1', config.mutedColor)} />
-              <p className={cn('text-xl font-bold', config.textColor)}>
+              <Server className="h-5 w-5 mb-1 text-muted-foreground" />
+              <p className="text-xl font-bold text-foreground">
                 {totalServers}
               </p>
-              <p className={cn('text-xs', config.mutedColor)}>
+              <p className="text-xs text-muted-foreground">
                 Servers
               </p>
             </div>
 
             {/* Clients */}
             <div className="flex flex-col items-center">
-              <Monitor className={cn('w-5 h-5 mb-1', config.mutedColor)} />
-              <p className={cn('text-xl font-bold', config.textColor)}>
+              <Monitor className="h-5 w-5 mb-1 text-muted-foreground" />
+              <p className="text-xl font-bold text-foreground">
                 {totalClients}
               </p>
-              <p className={cn('text-xs', config.mutedColor)}>
+              <p className="text-xs text-muted-foreground">
                 Clients
               </p>
             </div>
 
             {/* Active */}
             <div className="flex flex-col items-center">
-              <Activity className={cn('w-5 h-5 mb-1', config.mutedColor)} />
-              <p className={cn('text-xl font-bold', config.textColor)}>
+              <Activity className="h-5 w-5 mb-1 text-muted-foreground" />
+              <p className="text-xl font-bold text-foreground">
                 {activeServerConnections + activeClientConnections}
               </p>
-              <p className={cn('text-xs', config.mutedColor)}>
+              <p className="text-xs text-muted-foreground">
                 Active
               </p>
             </div>
 
             {/* Traffic */}
             <div className="flex flex-col items-center">
-              <ArrowDownUp className={cn('w-5 h-5 mb-1', config.mutedColor)} />
-              <p className={cn('text-lg font-bold', config.textColor)}>
+              <ArrowDownUp className="h-5 w-5 mb-1 text-muted-foreground" />
+              <p className="text-lg font-bold font-mono text-foreground">
                 {formatBytes(totalRx + totalTx)}
               </p>
-              <p className={cn('text-xs', config.mutedColor)}>
+              <p className="text-xs text-muted-foreground">
                 Traffic
               </p>
             </div>

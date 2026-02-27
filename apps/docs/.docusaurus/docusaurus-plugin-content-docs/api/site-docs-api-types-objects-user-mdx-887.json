@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/user",
+  "title": "User",
+  "description": "User account in NasNetConnect",
+  "source": "@site/docs/api/types/objects/user.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/user",
+  "permalink": "/api/types/objects/user",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "user",
+    "title": "User"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "UptimeDataPoint",
+    "permalink": "/api/types/objects/uptime-data-point"
+  },
+  "next": {
+    "title": "ValidateChangeSetPayload",
+    "permalink": "/api/types/objects/validate-change-set-payload"
+  }
+}

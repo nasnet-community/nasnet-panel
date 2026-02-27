@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/health-status",
+  "title": "HealthStatus",
+  "description": "Overall system health status",
+  "source": "@site/docs/api/types/objects/health-status.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/health-status",
+  "permalink": "/api/types/objects/health-status",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "health-status",
+    "title": "HealthStatus"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "HealthCheckResult",
+    "permalink": "/api/types/objects/health-check-result"
+  },
+  "next": {
+    "title": "HopProbe",
+    "permalink": "/api/types/objects/hop-probe"
+  }
+}

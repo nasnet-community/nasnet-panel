@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/import-validation-result",
+  "title": "ImportValidationResult",
+  "description": "Validation result for service import.",
+  "source": "@site/docs/api/types/objects/import-validation-result.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/import-validation-result",
+  "permalink": "/api/types/objects/import-validation-result",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "import-validation-result",
+    "title": "ImportValidationResult"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ImportValidationError",
+    "permalink": "/api/types/objects/import-validation-error"
+  },
+  "next": {
+    "title": "ImportValidationWarning",
+    "permalink": "/api/types/objects/import-validation-warning"
+  }
+}

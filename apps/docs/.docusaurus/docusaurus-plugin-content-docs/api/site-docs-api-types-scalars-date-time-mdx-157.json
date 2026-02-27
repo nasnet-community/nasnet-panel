@@ -1,0 +1,26 @@
+{
+  "id": "api/types/scalars/date-time",
+  "title": "DateTime",
+  "description": "ISO 8601 datetime string (e.g., \"2024-01-15T1000Z\")",
+  "source": "@site/docs/api/types/scalars/date-time.mdx",
+  "sourceDirName": "api/types/scalars",
+  "slug": "/api/types/scalars/date-time",
+  "permalink": "/api/types/scalars/date-time",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "date-time",
+    "title": "DateTime"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "CIDR",
+    "permalink": "/api/types/scalars/cidr"
+  },
+  "next": {
+    "title": "Duration",
+    "permalink": "/api/types/scalars/duration"
+  }
+}

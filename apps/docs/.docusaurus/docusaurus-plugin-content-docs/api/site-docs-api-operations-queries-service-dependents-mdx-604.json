@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/service-dependents",
+  "title": "serviceDependents",
+  "description": "Get all dependents of a service instance (services that depend on it).",
+  "source": "@site/docs/api/operations/queries/service-dependents.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/service-dependents",
+  "permalink": "/api/operations/queries/service-dependents",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "service-dependents",
+    "title": "serviceDependents"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "serviceDependencies",
+    "permalink": "/api/operations/queries/service-dependencies"
+  },
+  "next": {
+    "title": "serviceDeviceBreakdown",
+    "permalink": "/api/operations/queries/service-device-breakdown"
+  }
+}

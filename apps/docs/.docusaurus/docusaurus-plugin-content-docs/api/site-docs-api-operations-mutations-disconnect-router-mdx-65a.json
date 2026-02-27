@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/disconnect-router",
+  "title": "disconnectRouter",
+  "description": "Disconnect from a router",
+  "source": "@site/docs/api/operations/mutations/disconnect-router.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/disconnect-router",
+  "permalink": "/api/operations/mutations/disconnect-router",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "disconnect-router",
+    "title": "disconnectRouter"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "discardProvisioningSession",
+    "permalink": "/api/operations/mutations/discard-provisioning-session"
+  },
+  "next": {
+    "title": "enableInterface",
+    "permalink": "/api/operations/mutations/enable-interface"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/acknowledge-alerts",
+  "title": "acknowledgeAlerts",
+  "description": "Acknowledge multiple alerts",
+  "source": "@site/docs/api/operations/mutations/acknowledge-alerts.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/acknowledge-alerts",
+  "permalink": "/api/operations/mutations/acknowledge-alerts",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "acknowledge-alerts",
+    "title": "acknowledgeAlerts"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "acknowledgeAlert",
+    "permalink": "/api/operations/mutations/acknowledge-alert"
+  },
+  "next": {
+    "title": "addBridgePort",
+    "permalink": "/api/operations/mutations/add-bridge-port"
+  }
+}

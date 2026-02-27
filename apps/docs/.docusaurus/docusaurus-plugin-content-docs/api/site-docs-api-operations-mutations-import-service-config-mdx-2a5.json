@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/import-service-config",
+  "title": "importServiceConfig",
+  "description": "Import a service configuration package (validation only).",
+  "source": "@site/docs/api/operations/mutations/import-service-config.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/import-service-config",
+  "permalink": "/api/operations/mutations/import-service-config",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "import-service-config",
+    "title": "importServiceConfig"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "importAlertRuleTemplate",
+    "permalink": "/api/operations/mutations/import-alert-rule-template"
+  },
+  "next": {
+    "title": "importServiceTemplate",
+    "permalink": "/api/operations/mutations/import-service-template"
+  }
+}

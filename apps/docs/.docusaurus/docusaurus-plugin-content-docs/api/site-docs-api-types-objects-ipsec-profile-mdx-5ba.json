@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/ipsec-profile",
+  "title": "IpsecProfile",
+  "description": "IPsec profile for GRE tunnel encryption",
+  "source": "@site/docs/api/types/objects/ipsec-profile.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/ipsec-profile",
+  "permalink": "/api/types/objects/ipsec-profile",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "ipsec-profile",
+    "title": "IpsecProfile"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "IPIPTunnel",
+    "permalink": "/api/types/objects/ipiptunnel"
+  },
+  "next": {
+    "title": "IsolationStatus",
+    "permalink": "/api/types/objects/isolation-status"
+  }
+}

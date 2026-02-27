@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/port-knock-attempt-edge",
+  "title": "PortKnockAttemptEdge",
+  "description": "Edge type for knock attempt connections.",
+  "source": "@site/docs/api/types/objects/port-knock-attempt-edge.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/port-knock-attempt-edge",
+  "permalink": "/api/types/objects/port-knock-attempt-edge",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "port-knock-attempt-edge",
+    "title": "PortKnockAttemptEdge"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "PortKnockAttemptConnection",
+    "permalink": "/api/types/objects/port-knock-attempt-connection"
+  },
+  "next": {
+    "title": "PortKnockAttempt",
+    "permalink": "/api/types/objects/port-knock-attempt"
+  }
+}

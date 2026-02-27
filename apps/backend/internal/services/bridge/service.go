@@ -31,7 +31,7 @@ func NewService(config base.ServiceConfig) *Service {
 // GetBridges retrieves all bridges from a router.
 func (s *Service) GetBridges(ctx context.Context, routerID string) ([]*Data, error) {
 	if err := s.EnsureConnected(ctx); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("ensure connected: %w", err)
 	}
 
 	result, err := s.Port().ExecuteCommand(ctx, router.Command{
@@ -39,12 +39,12 @@ func (s *Service) GetBridges(ctx context.Context, routerID string) ([]*Data, err
 		Action: "print",
 	})
 	if err != nil {
-		return nil, fmt.Errorf("failed to fetch bridges: %w", err)
+		return nil, fmt.Errorf("fetch bridges: %w", err)
 	}
 
 	bridges, err := s.parseBridges(result.Data)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse bridges: %w", err)
+		return nil, fmt.Errorf("parse bridges: %w", err)
 	}
 
 	for _, b := range bridges {
@@ -75,7 +75,7 @@ func (s *Service) GetBridges(ctx context.Context, routerID string) ([]*Data, err
 func (s *Service) GetBridge(ctx context.Context, uuid string) (*Data, error) {
 	bridges, err := s.GetBridges(ctx, "")
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("get bridges: %w", err)
 	}
 	for _, b := range bridges {
 		if b.UUID == uuid {
@@ -88,7 +88,7 @@ func (s *Service) GetBridge(ctx context.Context, uuid string) (*Data, error) {
 // CreateBridge creates a new bridge.
 func (s *Service) CreateBridge(ctx context.Context, routerID string, input *CreateBridgeInput) (*Data, string, error) {
 	if err := s.EnsureConnected(ctx); err != nil {
-		return nil, "", err
+		return nil, "", fmt.Errorf("ensure connected: %w", err)
 	}
 
 	builder := base.NewCommandArgsBuilder().AddString("name", input.Name)
@@ -118,17 +118,17 @@ func (s *Service) CreateBridge(ctx context.Context, routerID string, input *Crea
 		Args:   args,
 	})
 	if err != nil {
-		return nil, "", fmt.Errorf("failed to create bridge: %w", err)
+		return nil, "", fmt.Errorf("create bridge: %w", err)
 	}
 
 	bridge, err := s.parseBridge(cmdResult.Data)
 	if err != nil {
-		return nil, "", fmt.Errorf("failed to parse created bridge: %w", err)
+		return nil, "", fmt.Errorf("parse created bridge: %w", err)
 	}
 
 	operationID, err := s.undoStore.Add("create", "bridge", nil)
 	if err != nil {
-		return nil, "", fmt.Errorf("failed to store undo operation: %w", err)
+		return nil, "", fmt.Errorf("store undo operation: %w", err)
 	}
 
 	return bridge, operationID, nil
@@ -142,7 +142,7 @@ func (s *Service) UpdateBridge(ctx context.Context, uuid string, input *UpdateBr
 	}
 
 	if connErr := s.EnsureConnected(ctx); connErr != nil {
-		return nil, "", connErr
+		return nil, "", fmt.Errorf("ensure connected: %w", connErr)
 	}
 
 	args := base.NewCommandArgsBuilder().
@@ -172,7 +172,7 @@ func (s *Service) UpdateBridge(ctx context.Context, uuid string, input *UpdateBr
 
 	operationID, err := s.undoStore.Add("update", "bridge", previousState)
 	if err != nil {
-		return nil, "", fmt.Errorf("failed to store undo operation: %w", err)
+		return nil, "", fmt.Errorf("store undo operation: %w", err)
 	}
 
 	return updatedBridge, operationID, nil
@@ -186,7 +186,7 @@ func (s *Service) DeleteBridge(ctx context.Context, uuid string) (string, error)
 	}
 
 	if connErr := s.EnsureConnected(ctx); connErr != nil {
-		return "", connErr
+		return "", fmt.Errorf("ensure connected: %w", connErr)
 	}
 
 	_, execErr := s.Port().ExecuteCommand(ctx, router.Command{
@@ -272,7 +272,7 @@ func (s *Service) UndoBridgeOperation(ctx context.Context, operationID string) (
 func (s *Service) GetImpact(ctx context.Context, uuid string) (*Impact, error) {
 	b, err := s.GetBridge(ctx, uuid)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("get bridge: %w", err)
 	}
 
 	impact := &Impact{

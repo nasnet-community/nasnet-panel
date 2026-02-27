@@ -56,13 +56,19 @@ interface RuleCardProps {
 
 function RuleCard({ rule, index }: RuleCardProps) {
   return (
-    <Card className="p-3">
-      <div className="flex items-start justify-between gap-2 mb-2">
-        <div className="flex flex-wrap gap-1">
-          <Badge variant="outline" className="text-xs">
+    <Card className="bg-card border border-border rounded-[var(--semantic-radius-card)] p-component-sm">
+      <div className="flex items-start justify-between gap-component-sm mb-component-sm">
+        <div className="flex flex-wrap gap-component-sm">
+          <Badge
+            variant="outline"
+            className="text-xs rounded-[var(--semantic-radius-badge)]"
+          >
             {rule.table}
           </Badge>
-          <Badge variant="secondary" className="text-xs">
+          <Badge
+            variant="secondary"
+            className="text-xs rounded-[var(--semantic-radius-badge)]"
+          >
             {rule.chain}
           </Badge>
           <Badge
@@ -73,24 +79,27 @@ function RuleCard({ rule, index }: RuleCardProps) {
                   ? 'error'
                   : 'outline'
             }
-            className="text-xs"
+            className="text-xs rounded-[var(--semantic-radius-badge)]"
           >
             {rule.action}
           </Badge>
         </div>
-        <Badge variant="outline" className="text-xs">
+        <Badge
+          variant="outline"
+          className="text-xs rounded-[var(--semantic-radius-badge)]"
+        >
           #{index + 1}
         </Badge>
       </div>
 
       {rule.comment && (
-        <p className="text-sm text-muted-foreground mb-2">{rule.comment}</p>
+        <p className="text-sm text-muted-foreground mb-component-sm">{rule.comment}</p>
       )}
 
       {Object.keys(rule.properties).length > 0 && (
-        <div className="space-y-1 text-xs">
+        <div className="space-y-component-sm text-xs">
           {Object.entries(rule.properties).map(([key, value]) => (
-            <div key={key} className="flex justify-between gap-2">
+            <div key={key} className="flex justify-between gap-component-sm">
               <span className="text-muted-foreground">{key}:</span>
               <span className="font-mono text-right">{String(value)}</span>
             </div>
@@ -111,33 +120,42 @@ interface ConflictCardProps {
 
 function ConflictCard({ conflict, index }: ConflictCardProps) {
   return (
-    <Card className="p-3 border-destructive">
-      <div className="flex items-start justify-between gap-2 mb-2">
-        <Badge variant="error" className="text-xs">
+    <Card className="bg-card border border-destructive rounded-[var(--semantic-radius-card)] p-component-sm">
+      <div className="flex items-start justify-between gap-component-sm mb-component-sm">
+        <Badge variant="error" className="text-xs rounded-[var(--semantic-radius-badge)]">
           {conflict.type}
         </Badge>
         <span className="text-xs text-muted-foreground">#{index + 1}</span>
       </div>
 
-      <p className="text-sm mb-2">{conflict.message}</p>
+      <p className="text-sm mb-component-sm text-foreground">{conflict.message}</p>
 
       {conflict.existingRuleId && (
-        <p className="text-xs text-muted-foreground mb-2">
+        <p className="text-xs text-muted-foreground mb-component-sm">
           Conflicts with rule {conflict.existingRuleId}
         </p>
       )}
 
       {conflict.proposedRule && (
-        <div className="mt-2 p-2 bg-muted rounded-md">
-          <p className="text-xs font-semibold mb-1">Proposed rule:</p>
-          <div className="flex flex-wrap gap-1">
-            <Badge variant="outline" className="text-xs">
+        <div className="mt-component-sm p-component-sm bg-muted rounded-[var(--semantic-radius-button)]">
+          <p className="text-xs font-semibold mb-component-sm">Proposed rule:</p>
+          <div className="flex flex-wrap gap-component-sm">
+            <Badge
+              variant="outline"
+              className="text-xs rounded-[var(--semantic-radius-badge)]"
+            >
               {conflict.proposedRule.table}
             </Badge>
-            <Badge variant="secondary" className="text-xs">
+            <Badge
+              variant="secondary"
+              className="text-xs rounded-[var(--semantic-radius-badge)]"
+            >
               {conflict.proposedRule.chain}
             </Badge>
-            <Badge variant="outline" className="text-xs">
+            <Badge
+              variant="outline"
+              className="text-xs rounded-[var(--semantic-radius-badge)]"
+            >
               {conflict.proposedRule.action}
             </Badge>
           </div>
@@ -156,30 +174,34 @@ interface ImpactSummaryProps {
 
 function ImpactSummary({ impactAnalysis }: ImpactSummaryProps) {
   return (
-    <div className="space-y-3">
+    <div className="space-y-component-md">
       {/* Summary cards */}
-      <div className="grid grid-cols-3 gap-2">
-        <Card className="p-3 text-center">
-          <p className="text-xs text-muted-foreground mb-1">Rules</p>
-          <p className="text-xl font-bold">{impactAnalysis.newRulesCount}</p>
+      <div className="grid grid-cols-3 gap-component-sm">
+        <Card className="bg-card border border-border rounded-[var(--semantic-radius-card)] p-component-sm text-center">
+          <p className="text-xs text-muted-foreground mb-component-sm">Rules</p>
+          <p className="text-xl font-bold text-foreground">{impactAnalysis.newRulesCount}</p>
         </Card>
-        <Card className="p-3 text-center">
-          <p className="text-xs text-muted-foreground mb-1">Chains</p>
-          <p className="text-xl font-bold">{impactAnalysis.affectedChains.length}</p>
+        <Card className="bg-card border border-border rounded-[var(--semantic-radius-card)] p-component-sm text-center">
+          <p className="text-xs text-muted-foreground mb-component-sm">Chains</p>
+          <p className="text-xl font-bold text-foreground">{impactAnalysis.affectedChains.length}</p>
         </Card>
-        <Card className="p-3 text-center">
-          <p className="text-xs text-muted-foreground mb-1">Time</p>
-          <p className="text-xl font-bold">{impactAnalysis.estimatedApplyTime}s</p>
+        <Card className="bg-card border border-border rounded-[var(--semantic-radius-card)] p-component-sm text-center">
+          <p className="text-xs text-muted-foreground mb-component-sm">Time</p>
+          <p className="text-xl font-bold text-foreground">{impactAnalysis.estimatedApplyTime}s</p>
         </Card>
       </div>
 
       {/* Affected chains */}
       {impactAnalysis.affectedChains.length > 0 && (
-        <Card className="p-3">
-          <p className="text-xs font-semibold mb-2">Affected Chains</p>
-          <div className="flex flex-wrap gap-1">
+        <Card className="bg-card border border-border rounded-[var(--semantic-radius-card)] p-component-sm">
+          <p className="text-xs font-semibold mb-component-sm text-foreground">Affected Chains</p>
+          <div className="flex flex-wrap gap-component-sm">
             {impactAnalysis.affectedChains.map((chain: string) => (
-              <Badge key={chain} variant="outline" className="text-xs">
+              <Badge
+                key={chain}
+                variant="outline"
+                className="text-xs rounded-[var(--semantic-radius-badge)]"
+              >
                 {chain}
               </Badge>
             ))}
@@ -191,8 +213,8 @@ function ImpactSummary({ impactAnalysis }: ImpactSummaryProps) {
       {impactAnalysis.warnings.length > 0 && (
         <Alert variant="warning">
           <AlertDescription>
-            <p className="font-semibold text-xs mb-2">Warnings:</p>
-            <ul className="list-disc list-inside space-y-1">
+            <p className="font-semibold text-xs mb-component-sm">Warnings:</p>
+            <ul className="list-disc list-inside space-y-component-sm">
               {impactAnalysis.warnings.map((warning: string, index: number) => (
                 <li key={index} className="text-xs">
                   {warning}
@@ -244,42 +266,45 @@ function TemplatePreviewMobileComponent({
   return (
     <div className={cn('flex flex-col h-full', className)}>
       {/* Header */}
-      <div className="p-4 border-b bg-background">
-        <h2 className="text-lg font-semibold">Template Preview</h2>
+      <div className="p-component-md border-b border-border bg-background">
+        <h2 className="text-lg font-semibold font-display text-foreground">Template Preview</h2>
         <p className="text-sm text-muted-foreground">Configure and preview template rules</p>
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto p-4">
+      <div className="flex-1 overflow-y-auto p-component-md">
         {previewError && (
-          <Alert variant="destructive" className="mb-4">
+          <Alert variant="destructive" className="mb-component-md">
             <AlertDescription>{previewError}</AlertDescription>
           </Alert>
         )}
 
-        <Accordion type="multiple" defaultValue={['variables']} className="space-y-3">
+        <Accordion type="multiple" defaultValue={['variables']} className="space-y-component-md">
           {/* Variables Section */}
           <AccordionItem value="variables">
-            <AccordionTrigger className="min-h-[44px] px-4 bg-muted rounded-lg">
-              <div className="flex items-center gap-2">
-                <span className="font-semibold">Variables</span>
-                <Badge variant="secondary" className="text-xs">
+            <AccordionTrigger className="min-h-[44px] px-component-md bg-muted rounded-[var(--semantic-radius-button)]">
+              <div className="flex items-center gap-component-sm">
+                <span className="font-semibold text-foreground">Variables</span>
+                <Badge
+                  variant="secondary"
+                  className="text-xs rounded-[var(--semantic-radius-badge)]"
+                >
                   {variables.length}
                 </Badge>
               </div>
             </AccordionTrigger>
-            <AccordionContent className="px-4 pt-4">
+            <AccordionContent className="px-component-md pt-component-md">
               <TemplateVariableEditor
                 variables={variables}
                 form={form}
                 disabled={isGeneratingPreview || isApplying}
               />
 
-              <div className="flex gap-2 mt-4">
+              <div className="flex gap-component-sm mt-component-lg">
                 <Button
                   onClick={generatePreview}
                   disabled={!isValid || isGeneratingPreview || isApplying}
-                  className="flex-1 h-11"
+                  className="flex-1 min-h-[44px]"
                 >
                   {isGeneratingPreview ? 'Generating...' : 'Generate Preview'}
                 </Button>
@@ -287,7 +312,7 @@ function TemplatePreviewMobileComponent({
                   variant="outline"
                   onClick={resetVariables}
                   disabled={!isDirty || isGeneratingPreview || isApplying}
-                  className="h-11"
+                  className="min-h-[44px]"
                 >
                   Reset
                 </Button>
@@ -298,17 +323,20 @@ function TemplatePreviewMobileComponent({
           {/* Rules Section */}
           {previewResult && (
             <AccordionItem value="rules">
-              <AccordionTrigger className="min-h-[44px] px-4 bg-muted rounded-lg">
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold">Rules</span>
-                  <Badge variant="secondary" className="text-xs">
+              <AccordionTrigger className="min-h-[44px] px-component-md bg-muted rounded-[var(--semantic-radius-button)]">
+                <div className="flex items-center gap-component-sm">
+                  <span className="font-semibold text-foreground">Rules</span>
+                  <Badge
+                    variant="secondary"
+                    className="text-xs rounded-[var(--semantic-radius-badge)]"
+                  >
                     {previewResult.resolvedRules?.length || 0}
                   </Badge>
                 </div>
               </AccordionTrigger>
-              <AccordionContent className="px-4 pt-4">
+              <AccordionContent className="px-component-md pt-component-md">
                 {previewResult.resolvedRules && previewResult.resolvedRules.length > 0 ? (
-                  <div className="space-y-2">
+                  <div className="space-y-component-sm">
                     {(previewResult.resolvedRules as readonly TemplateRule[]).map((rule: TemplateRule, index: number) => (
                       <RuleCard key={index} rule={rule} index={index} />
                     ))}
@@ -327,24 +355,30 @@ function TemplatePreviewMobileComponent({
           {/* Conflicts Section */}
           {previewResult && (
             <AccordionItem value="conflicts">
-              <AccordionTrigger className="min-h-[44px] px-4 bg-muted rounded-lg">
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold">Conflicts</span>
+              <AccordionTrigger className="min-h-[44px] px-component-md bg-muted rounded-[var(--semantic-radius-button)]">
+                <div className="flex items-center gap-component-sm">
+                  <span className="font-semibold text-foreground">Conflicts</span>
                   {hasConflicts ? (
-                    <Badge variant="error" className="text-xs">
+                    <Badge
+                      variant="error"
+                      className="text-xs rounded-[var(--semantic-radius-badge)]"
+                    >
                       {previewResult.conflicts?.length || 0}
                     </Badge>
                   ) : (
-                    <Badge variant="secondary" className="text-xs">
+                    <Badge
+                      variant="secondary"
+                      className="text-xs rounded-[var(--semantic-radius-badge)]"
+                    >
                       None
                     </Badge>
                   )}
                 </div>
               </AccordionTrigger>
-              <AccordionContent className="px-4 pt-4">
+              <AccordionContent className="px-component-md pt-component-md">
                 {previewResult.conflicts && previewResult.conflicts.length > 0 ? (
-                  <div className="space-y-2">
-                    <Alert variant="destructive" className="mb-3">
+                  <div className="space-y-component-sm">
+                    <Alert variant="destructive" className="mb-component-md">
                       <AlertDescription>
                         {previewResult.conflicts.length} conflict(s) detected. Review before
                         applying.
@@ -368,17 +402,20 @@ function TemplatePreviewMobileComponent({
           {/* Impact Section */}
           {previewResult?.impactAnalysis && (
             <AccordionItem value="impact">
-              <AccordionTrigger className="min-h-[44px] px-4 bg-muted rounded-lg">
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold">Impact Analysis</span>
+              <AccordionTrigger className="min-h-[44px] px-component-md bg-muted rounded-[var(--semantic-radius-button)]">
+                <div className="flex items-center gap-component-sm">
+                  <span className="font-semibold text-foreground">Impact Analysis</span>
                   {hasWarnings && (
-                    <Badge variant="warning" className="text-xs">
+                    <Badge
+                      variant="warning"
+                      className="text-xs rounded-[var(--semantic-radius-badge)]"
+                    >
                       ⚠
                     </Badge>
                   )}
                 </div>
               </AccordionTrigger>
-              <AccordionContent className="px-4 pt-4">
+              <AccordionContent className="px-component-md pt-component-md">
                 <ImpactSummary impactAnalysis={previewResult.impactAnalysis} />
               </AccordionContent>
             </AccordionItem>
@@ -390,19 +427,19 @@ function TemplatePreviewMobileComponent({
             icon={FileText}
             title="No preview generated"
             description="Configure the variables and generate a preview to see the resolved rules."
-            className="mt-8"
+            className="mt-component-xl"
           />
         )}
       </div>
 
       {/* Action Buttons (Fixed Footer) */}
       {previewResult && (
-        <div className="border-t p-4 bg-background">
-          <div className="flex flex-col gap-2">
+        <div className="border-t border-border p-component-md bg-background">
+          <div className="flex flex-col gap-component-sm">
             <Button
               onClick={onApply}
               disabled={!canApply || isApplying}
-              className="w-full h-11"
+              className="w-full min-h-[44px]"
               variant={hasConflicts ? 'destructive' : 'default'}
             >
               {isApplying ? 'Applying...' : hasConflicts ? 'Apply Anyway' : 'Apply Template'}
@@ -412,7 +449,7 @@ function TemplatePreviewMobileComponent({
                 variant="outline"
                 onClick={onCancel}
                 disabled={isApplying}
-                className="w-full h-11"
+                className="w-full min-h-[44px]"
               >
                 Cancel
               </Button>

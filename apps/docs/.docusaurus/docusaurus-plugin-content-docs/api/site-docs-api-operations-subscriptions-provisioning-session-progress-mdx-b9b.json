@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/subscriptions/provisioning-session-progress",
+  "title": "provisioningSessionProgress",
+  "description": "Subscribe to provisioning session progress updates.",
+  "source": "@site/docs/api/operations/subscriptions/provisioning-session-progress.mdx",
+  "sourceDirName": "api/operations/subscriptions",
+  "slug": "/api/operations/subscriptions/provisioning-session-progress",
+  "permalink": "/api/operations/subscriptions/provisioning-session-progress",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "provisioning-session-progress",
+    "title": "provisioningSessionProgress"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "provisioningSessionChanged",
+    "permalink": "/api/operations/subscriptions/provisioning-session-changed"
+  },
+  "next": {
+    "title": "resourceMetrics",
+    "permalink": "/api/operations/subscriptions/resource-metrics"
+  }
+}

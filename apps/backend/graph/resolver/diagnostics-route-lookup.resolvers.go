@@ -7,7 +7,7 @@ package resolver
 
 import (
 	"backend/graph/model"
-	"backend/internal/errors"
+	"backend/internal/apperrors"
 	"context"
 )
 
@@ -15,17 +15,17 @@ import (
 func (r *queryResolver) RouteLookup(ctx context.Context, routerID string, destination model.IPv4, source *model.IPv4) (*model.RouteLookupResult, error) {
 	// Validate required inputs
 	if routerID == "" {
-		panic(errors.NewValidationError("input", nil, "routerID cannot be empty"))
+		panic(apperrors.NewValidationError("input", nil, "routerID cannot be empty"))
 	}
 	if destination == "" {
-		panic(errors.NewValidationError("input", nil, "destination IPv4 address cannot be empty"))
+		panic(apperrors.NewValidationError("input", nil, "destination IPv4 address cannot be empty"))
 	}
 	// Validate IPv4 format (destination is required)
 	// Note: source is optional, validate only if provided
 	if source != nil && *source == "" {
-		panic(errors.NewValidationError("input", nil, "source IPv4 address cannot be empty string if provided"))
+		panic(apperrors.NewValidationError("input", nil, "source IPv4 address cannot be empty string if provided"))
 	}
 	// Context used for request timeout handling
 	_ = ctx
-	panic(errors.NewValidationError("input", nil, "not implemented: RouteLookup - routeLookup"))
+	panic(apperrors.NewValidationError("input", nil, "not implemented: RouteLookup - routeLookup"))
 }

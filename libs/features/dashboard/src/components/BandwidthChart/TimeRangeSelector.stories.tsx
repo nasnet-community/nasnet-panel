@@ -97,7 +97,7 @@ export const Interactive: Story = {
   render: (args) => {
     const [selected, setSelected] = useState<TimeRange>('5m');
     return (
-      <div className="flex flex-col items-center gap-4">
+      <div className="flex flex-col items-center gap-component-md">
         <TimeRangeSelector {...args} value={selected} onChange={setSelected} />
         <p className="text-sm text-muted-foreground">
           Selected: <span className="font-medium">{selected}</span>
@@ -126,7 +126,7 @@ export const KeyboardNavigation: Story = {
   render: () => {
     const [selected, setSelected] = useState<TimeRange>('5m');
     return (
-      <div className="flex flex-col items-center gap-6 p-4">
+      <div className="flex flex-col items-center gap-component-lg p-component-md">
         <TimeRangeSelector value={selected} onChange={setSelected} />
         <ul className="text-xs text-muted-foreground space-y-1 list-disc list-inside">
           <li>Tab into the group, then use ArrowRight / ArrowLeft to move between options</li>

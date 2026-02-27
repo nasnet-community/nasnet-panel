@@ -65,15 +65,24 @@ function RulesPreview({ rules }: RulesPreviewProps) {
   }
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-component-sm">
       {rules.map((rule, index) => (
-        <Card key={index} className="p-3">
-          <div className="flex items-start justify-between gap-2 mb-2">
-            <div className="flex items-center gap-2">
-              <Badge variant="outline" className="text-xs">
+        <Card
+          key={index}
+          className="bg-card border border-border rounded-[var(--semantic-radius-card)] p-component-sm"
+        >
+          <div className="flex items-start justify-between gap-component-sm mb-component-sm">
+            <div className="flex items-center gap-component-sm">
+              <Badge
+                variant="outline"
+                className="text-xs rounded-[var(--semantic-radius-badge)]"
+              >
                 {rule.table}
               </Badge>
-              <Badge variant="secondary" className="text-xs">
+              <Badge
+                variant="secondary"
+                className="text-xs rounded-[var(--semantic-radius-badge)]"
+              >
                 {rule.chain}
               </Badge>
               <Badge
@@ -84,26 +93,29 @@ function RulesPreview({ rules }: RulesPreviewProps) {
                       ? 'error'
                       : 'outline'
                 }
-                className="text-xs"
+                className="text-xs rounded-[var(--semantic-radius-badge)]"
               >
                 {rule.action}
               </Badge>
             </div>
             {rule.position !== null && rule.position !== undefined && (
-              <Badge variant="outline" className="text-xs">
+              <Badge
+                variant="outline"
+                className="text-xs rounded-[var(--semantic-radius-badge)]"
+              >
                 pos: {rule.position}
               </Badge>
             )}
           </div>
 
           {rule.comment && (
-            <p className="text-sm text-muted-foreground mb-2">{rule.comment}</p>
+            <p className="text-sm text-muted-foreground mb-component-sm">{rule.comment}</p>
           )}
 
           {Object.keys(rule.properties).length > 0 && (
-            <div className="grid grid-cols-2 gap-2 text-xs">
+            <div className="grid grid-cols-2 gap-component-sm text-xs">
               {Object.entries(rule.properties).map(([key, value]) => (
-                <div key={key} className="flex items-start gap-2">
+                <div key={key} className="flex items-start gap-component-sm">
                   <span className="text-muted-foreground">{key}:</span>
                   <span className="font-mono">{String(value)}</span>
                 </div>
@@ -133,7 +145,7 @@ function ConflictsPreview({ conflicts }: ConflictsPreviewProps) {
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-component-md">
       <Alert variant="destructive">
         <AlertDescription>
           {conflicts.length} {conflicts.length === 1 ? 'conflict' : 'conflicts'} detected. Please
@@ -142,33 +154,47 @@ function ConflictsPreview({ conflicts }: ConflictsPreviewProps) {
       </Alert>
 
       {conflicts.map((conflict, index) => (
-        <Card key={index} className="p-4 border-destructive">
-          <div className="flex items-start justify-between gap-2 mb-2">
-            <Badge variant="error">{conflict.type}</Badge>
+        <Card
+          key={index}
+          className="bg-card border border-destructive rounded-[var(--semantic-radius-card)] p-component-md"
+        >
+          <div className="flex items-start justify-between gap-component-sm mb-component-sm">
+            <Badge variant="error" className="rounded-[var(--semantic-radius-badge)]">
+              {conflict.type}
+            </Badge>
             {conflict.existingRuleId && (
               <span className="text-xs text-muted-foreground">
                 Conflicts with rule {conflict.existingRuleId}
               </span>
             )}
           </div>
-          <p className="text-sm">{conflict.message}</p>
+          <p className="text-sm text-foreground">{conflict.message}</p>
 
           {conflict.proposedRule && (
-            <div className="mt-3 p-3 bg-muted rounded-md">
-              <p className="text-xs font-semibold mb-2">Proposed rule:</p>
-              <div className="flex gap-2">
-                <Badge variant="outline" className="text-xs">
+            <div className="mt-component-md p-component-sm bg-muted rounded-[var(--semantic-radius-button)]">
+              <p className="text-xs font-semibold mb-component-sm text-foreground">Proposed rule:</p>
+              <div className="flex gap-component-sm">
+                <Badge
+                  variant="outline"
+                  className="text-xs rounded-[var(--semantic-radius-badge)]"
+                >
                   {conflict.proposedRule.table}
                 </Badge>
-                <Badge variant="secondary" className="text-xs">
+                <Badge
+                  variant="secondary"
+                  className="text-xs rounded-[var(--semantic-radius-badge)]"
+                >
                   {conflict.proposedRule.chain}
                 </Badge>
-                <Badge variant="outline" className="text-xs">
+                <Badge
+                  variant="outline"
+                  className="text-xs rounded-[var(--semantic-radius-badge)]"
+                >
                   {conflict.proposedRule.action}
                 </Badge>
               </div>
               {conflict.proposedRule.comment && (
-                <p className="text-xs text-muted-foreground mt-2">
+                <p className="text-xs text-muted-foreground mt-component-sm">
                   {conflict.proposedRule.comment}
                 </p>
               )}
@@ -189,33 +215,37 @@ interface ImpactAnalysisViewProps {
 
 function ImpactAnalysisView({ impactAnalysis }: ImpactAnalysisViewProps) {
   return (
-    <div className="space-y-4">
+    <div className="space-y-component-lg">
       {/* Summary */}
-      <Card className="p-4">
-        <h3 className="font-semibold mb-3">Impact Summary</h3>
-        <div className="grid grid-cols-3 gap-4 text-sm">
+      <Card className="bg-card border border-border rounded-[var(--semantic-radius-card)] p-component-md">
+        <h3 className="font-semibold mb-component-md text-foreground">Impact Summary</h3>
+        <div className="grid grid-cols-3 gap-component-lg text-sm">
           <div>
-            <p className="text-muted-foreground mb-1">New Rules</p>
-            <p className="text-2xl font-bold">{impactAnalysis.newRulesCount}</p>
+            <p className="text-muted-foreground mb-component-sm">New Rules</p>
+            <p className="text-2xl font-bold text-foreground">{impactAnalysis.newRulesCount}</p>
           </div>
           <div>
-            <p className="text-muted-foreground mb-1">Affected Chains</p>
-            <p className="text-2xl font-bold">{impactAnalysis.affectedChains.length}</p>
+            <p className="text-muted-foreground mb-component-sm">Affected Chains</p>
+            <p className="text-2xl font-bold text-foreground">{impactAnalysis.affectedChains.length}</p>
           </div>
           <div>
-            <p className="text-muted-foreground mb-1">Apply Time</p>
-            <p className="text-2xl font-bold">{impactAnalysis.estimatedApplyTime}s</p>
+            <p className="text-muted-foreground mb-component-sm">Apply Time</p>
+            <p className="text-2xl font-bold text-foreground">{impactAnalysis.estimatedApplyTime}s</p>
           </div>
         </div>
       </Card>
 
       {/* Affected chains */}
       {impactAnalysis.affectedChains.length > 0 && (
-        <Card className="p-4">
-          <h3 className="font-semibold mb-3">Affected Chains</h3>
-          <div className="flex flex-wrap gap-2">
+        <Card className="bg-card border border-border rounded-[var(--semantic-radius-card)] p-component-md">
+          <h3 className="font-semibold mb-component-md text-foreground">Affected Chains</h3>
+          <div className="flex flex-wrap gap-component-sm">
             {impactAnalysis.affectedChains.map((chain: string) => (
-              <Badge key={chain} variant="outline">
+              <Badge
+                key={chain}
+                variant="outline"
+                className="rounded-[var(--semantic-radius-badge)]"
+              >
                 {chain}
               </Badge>
             ))}
@@ -227,8 +257,8 @@ function ImpactAnalysisView({ impactAnalysis }: ImpactAnalysisViewProps) {
       {impactAnalysis.warnings.length > 0 && (
         <Alert variant="warning">
           <AlertDescription>
-            <p className="font-semibold mb-2">Warnings:</p>
-            <ul className="list-disc list-inside space-y-1">
+            <p className="font-semibold mb-component-sm">Warnings:</p>
+            <ul className="list-disc list-inside space-y-component-sm">
               {impactAnalysis.warnings.map((warning: string, index: number) => (
                 <li key={index} className="text-sm">
                   {warning}
@@ -279,12 +309,12 @@ function TemplatePreviewDesktopComponent({
   const variables = template?.variables || [];
 
   return (
-    <div className={cn('flex gap-6 h-full', className)}>
+    <div className={cn('flex gap-component-lg h-full', className)}>
       {/* Left Column: Variables Editor */}
       <div className="w-1/3 flex flex-col">
-        <Card className="p-6 flex-1 overflow-y-auto">
-          <div className="mb-4">
-            <h2 className="text-lg font-semibold">Template Variables</h2>
+        <Card className="bg-card border border-border rounded-[var(--semantic-radius-card)] shadow-[var(--semantic-shadow-card)] p-component-lg flex-1 overflow-y-auto">
+          <div className="mb-component-lg">
+            <h2 className="text-lg font-semibold font-display text-foreground">Template Variables</h2>
             <p className="text-sm text-muted-foreground">
               Configure the template parameters
             </p>
@@ -296,11 +326,11 @@ function TemplatePreviewDesktopComponent({
             disabled={isGeneratingPreview || isApplying}
           />
 
-          <div className="flex gap-2 mt-6 pt-6 border-t">
+          <div className="flex gap-component-sm mt-component-xl pt-component-lg border-t border-border">
             <Button
               onClick={generatePreview}
               disabled={!isValid || isGeneratingPreview || isApplying}
-              className="flex-1"
+              className="flex-1 min-h-[44px]"
             >
               {isGeneratingPreview ? 'Generating...' : 'Generate Preview'}
             </Button>
@@ -308,6 +338,7 @@ function TemplatePreviewDesktopComponent({
               variant="outline"
               onClick={resetVariables}
               disabled={!isDirty || isGeneratingPreview || isApplying}
+              className="min-h-[44px]"
             >
               Reset
             </Button>
@@ -317,16 +348,16 @@ function TemplatePreviewDesktopComponent({
 
       {/* Right Column: Preview */}
       <div className="flex-1 flex flex-col">
-        <Card className="p-6 flex-1 flex flex-col">
-          <div className="mb-4">
-            <h2 className="text-lg font-semibold">Preview</h2>
+        <Card className="bg-card border border-border rounded-[var(--semantic-radius-card)] shadow-[var(--semantic-shadow-card)] p-component-lg flex-1 flex flex-col">
+          <div className="mb-component-lg">
+            <h2 className="text-lg font-semibold font-display text-foreground">Preview</h2>
             <p className="text-sm text-muted-foreground">
               Review the resolved rules and conflicts
             </p>
           </div>
 
           {previewError && (
-            <Alert variant="destructive" className="mb-4">
+            <Alert variant="destructive" className="mb-component-lg">
               <AlertDescription>{previewError}</AlertDescription>
             </Alert>
           )}
@@ -343,7 +374,10 @@ function TemplatePreviewDesktopComponent({
                 <TabsTrigger value="rules">
                   Rules
                   {previewResult.resolvedRules && (
-                    <Badge variant="secondary" className="ml-2">
+                    <Badge
+                      variant="secondary"
+                      className="ml-component-sm rounded-[var(--semantic-radius-badge)]"
+                    >
                       {previewResult.resolvedRules.length}
                     </Badge>
                   )}
@@ -351,7 +385,10 @@ function TemplatePreviewDesktopComponent({
                 <TabsTrigger value="conflicts">
                   Conflicts
                   {hasConflicts && (
-                    <Badge variant="error" className="ml-2">
+                    <Badge
+                      variant="error"
+                      className="ml-component-sm rounded-[var(--semantic-radius-badge)]"
+                    >
                       {previewResult.conflicts?.length || 0}
                     </Badge>
                   )}
@@ -359,22 +396,25 @@ function TemplatePreviewDesktopComponent({
                 <TabsTrigger value="impact">
                   Impact
                   {hasWarnings && (
-                    <Badge variant="warning" className="ml-2">
+                    <Badge
+                      variant="warning"
+                      className="ml-component-sm rounded-[var(--semantic-radius-badge)]"
+                    >
                       ⚠
                     </Badge>
                   )}
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="rules" className="flex-1 overflow-y-auto mt-4">
+              <TabsContent value="rules" className="flex-1 overflow-y-auto mt-component-md">
                 <RulesPreview rules={[...(previewResult.resolvedRules || [])]} />
               </TabsContent>
 
-              <TabsContent value="conflicts" className="flex-1 overflow-y-auto mt-4">
+              <TabsContent value="conflicts" className="flex-1 overflow-y-auto mt-component-md">
                 <ConflictsPreview conflicts={[...(previewResult.conflicts || [])]} />
               </TabsContent>
 
-              <TabsContent value="impact" className="flex-1 overflow-y-auto mt-4">
+              <TabsContent value="impact" className="flex-1 overflow-y-auto mt-component-md">
                 {previewResult.impactAnalysis && (
                   <ImpactAnalysisView impactAnalysis={previewResult.impactAnalysis} />
                 )}
@@ -384,17 +424,22 @@ function TemplatePreviewDesktopComponent({
 
           {/* Action Buttons */}
           {previewResult && (
-            <div className="flex gap-2 mt-6 pt-6 border-t">
+            <div className="flex gap-component-sm mt-component-xl pt-component-lg border-t border-border">
               <Button
                 onClick={onApply}
                 disabled={!canApply || isApplying}
-                className="flex-1"
+                className="flex-1 min-h-[44px]"
                 variant={hasConflicts ? 'destructive' : 'default'}
               >
                 {isApplying ? 'Applying...' : hasConflicts ? 'Apply Anyway' : 'Apply Template'}
               </Button>
               {onCancel && (
-                <Button variant="outline" onClick={onCancel} disabled={isApplying}>
+                <Button
+                  variant="outline"
+                  onClick={onCancel}
+                  disabled={isApplying}
+                  className="min-h-[44px]"
+                >
                   Cancel
                 </Button>
               )}

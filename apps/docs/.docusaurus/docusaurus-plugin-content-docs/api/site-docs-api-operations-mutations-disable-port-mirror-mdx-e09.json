@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/disable-port-mirror",
+  "title": "disablePortMirror",
+  "description": "Disable a port mirror configuration",
+  "source": "@site/docs/api/operations/mutations/disable-port-mirror.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/disable-port-mirror",
+  "permalink": "/api/operations/mutations/disable-port-mirror",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "disable-port-mirror",
+    "title": "disablePortMirror"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "disableInterface",
+    "permalink": "/api/operations/mutations/disable-interface"
+  },
+  "next": {
+    "title": "discardProvisioningSession",
+    "permalink": "/api/operations/mutations/discard-provisioning-session"
+  }
+}

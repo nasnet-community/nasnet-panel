@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/apply-change-set-payload",
+  "title": "ApplyChangeSetPayload",
+  "description": "No description",
+  "source": "@site/docs/api/types/objects/apply-change-set-payload.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/apply-change-set-payload",
+  "permalink": "/api/types/objects/apply-change-set-payload",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "apply-change-set-payload",
+    "title": "ApplyChangeSetPayload"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "Alert",
+    "permalink": "/api/types/objects/alert"
+  },
+  "next": {
+    "title": "ApplyConfigPayload",
+    "permalink": "/api/types/objects/apply-config-payload"
+  }
+}

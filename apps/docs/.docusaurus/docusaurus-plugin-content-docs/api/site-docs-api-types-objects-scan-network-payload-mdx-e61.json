@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/scan-network-payload",
+  "title": "ScanNetworkPayload",
+  "description": "No description",
+  "source": "@site/docs/api/types/objects/scan-network-payload.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/scan-network-payload",
+  "permalink": "/api/types/objects/scan-network-payload",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "scan-network-payload",
+    "title": "ScanNetworkPayload"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "RuntimeState",
+    "permalink": "/api/types/objects/runtime-state"
+  },
+  "next": {
+    "title": "ScanProgressEvent",
+    "permalink": "/api/types/objects/scan-progress-event"
+  }
+}

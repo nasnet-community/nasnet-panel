@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/remove-provisioning-resource",
+  "title": "removeProvisioningResource",
+  "description": "Remove a resource from the provisioning session",
+  "source": "@site/docs/api/operations/mutations/remove-provisioning-resource.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/remove-provisioning-resource",
+  "permalink": "/api/operations/mutations/remove-provisioning-resource",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "remove-provisioning-resource",
+    "title": "removeProvisioningResource"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "removeIngressFromBridge",
+    "permalink": "/api/operations/mutations/remove-ingress-from-bridge"
+  },
+  "next": {
+    "title": "removeRoutingChain",
+    "permalink": "/api/operations/mutations/remove-routing-chain"
+  }
+}

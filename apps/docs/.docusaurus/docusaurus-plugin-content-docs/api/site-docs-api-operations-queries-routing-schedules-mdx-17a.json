@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/routing-schedules",
+  "title": "routingSchedules",
+  "description": "Get all schedules for a device routing.",
+  "source": "@site/docs/api/operations/queries/routing-schedules.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/routing-schedules",
+  "permalink": "/api/operations/queries/routing-schedules",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "routing-schedules",
+    "title": "routingSchedules"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "routingSchedule",
+    "permalink": "/api/operations/queries/routing-schedule"
+  },
+  "next": {
+    "title": "rulesReferencingAddressList",
+    "permalink": "/api/operations/queries/rules-referencing-address-list"
+  }
+}

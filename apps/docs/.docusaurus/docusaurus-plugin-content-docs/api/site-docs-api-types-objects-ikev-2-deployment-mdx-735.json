@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/ikev-2-deployment",
+  "title": "IKEv2Deployment",
+  "description": "IKEv2 deployment state",
+  "source": "@site/docs/api/types/objects/ikev-2-deployment.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/ikev-2-deployment",
+  "permalink": "/api/types/objects/ikev-2-deployment",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "ikev-2-deployment",
+    "title": "IKEv2Deployment"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "IKEv2Client",
+    "permalink": "/api/types/objects/ikev-2-client"
+  },
+  "next": {
+    "title": "IKEv2Runtime",
+    "permalink": "/api/types/objects/ikev-2-runtime"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/trigger-digest-now",
+  "title": "triggerDigestNow",
+  "description": "Trigger digest delivery immediately for a channel (NAS-18.11)",
+  "source": "@site/docs/api/operations/mutations/trigger-digest-now.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/trigger-digest-now",
+  "permalink": "/api/operations/mutations/trigger-digest-now",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "trigger-digest-now",
+    "title": "triggerDigestNow"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "triggerBootSequence",
+    "permalink": "/api/operations/mutations/trigger-boot-sequence"
+  },
+  "next": {
+    "title": "undoBridgeOperation",
+    "permalink": "/api/operations/mutations/undo-bridge-operation"
+  }
+}

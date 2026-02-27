@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/ispinfo",
+  "title": "ISPInfo",
+  "description": "ISP contact information",
+  "source": "@site/docs/api/types/objects/ispinfo.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/ispinfo",
+  "permalink": "/api/types/objects/ispinfo",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "ispinfo",
+    "title": "ISPInfo"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "IsolationViolation",
+    "permalink": "/api/types/objects/isolation-violation"
+  },
+  "next": {
+    "title": "KillSwitchStatus",
+    "permalink": "/api/types/objects/kill-switch-status"
+  }
+}

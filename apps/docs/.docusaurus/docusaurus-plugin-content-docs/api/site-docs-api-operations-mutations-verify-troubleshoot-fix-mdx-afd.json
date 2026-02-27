@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/verify-troubleshoot-fix",
+  "title": "verifyTroubleshootFix",
+  "description": "Verify a fix by re-running the diagnostic step",
+  "source": "@site/docs/api/operations/mutations/verify-troubleshoot-fix.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/verify-troubleshoot-fix",
+  "permalink": "/api/operations/mutations/verify-troubleshoot-fix",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "verify-troubleshoot-fix",
+    "title": "verifyTroubleshootFix"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "validateServiceConfig",
+    "permalink": "/api/operations/mutations/validate-service-config"
+  },
+  "next": {
+    "title": "Queries",
+    "permalink": "/category/queries"
+  }
+}

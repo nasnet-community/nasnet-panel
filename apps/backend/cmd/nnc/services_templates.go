@@ -5,6 +5,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 
 	"go.uber.org/zap"
 
@@ -36,7 +37,7 @@ func initUpdateAndTemplates(
 		logger,
 	)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, fmt.Errorf("initializing update manager: %w", err)
 	}
 
 	// Initialize Template System
@@ -48,7 +49,7 @@ func initUpdateAndTemplates(
 		logger,
 	)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, fmt.Errorf("initializing template system: %w", err)
 	}
 
 	return updates, templates, nil

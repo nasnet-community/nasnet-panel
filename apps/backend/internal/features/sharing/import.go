@@ -90,7 +90,10 @@ func (s *Service) Import(ctx context.Context, pkg *ServiceExportPackage, options
 	}
 
 	// Check for redacted fields
-	if pkg.IncludesSecrets {
+	if pkg != nil && pkg.IncludesSecrets {
+		if pkg.Config == nil {
+			return result, fmt.Errorf("unexpected nil value for pkg.Config")
+		}
 		result.RedactedFields = s.findRedactedFields(pkg.Config)
 		if len(result.RedactedFields) > 0 {
 			result.RequiresUserInput = true

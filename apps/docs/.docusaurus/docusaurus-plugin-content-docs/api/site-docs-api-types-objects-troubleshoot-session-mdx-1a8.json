@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/troubleshoot-session",
+  "title": "TroubleshootSession",
+  "description": "Complete troubleshooting session",
+  "source": "@site/docs/api/types/objects/troubleshoot-session.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/troubleshoot-session",
+  "permalink": "/api/types/objects/troubleshoot-session",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "troubleshoot-session",
+    "title": "TroubleshootSession"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "TroubleshootFixSuggestion",
+    "permalink": "/api/types/objects/troubleshoot-fix-suggestion"
+  },
+  "next": {
+    "title": "TroubleshootStepResult",
+    "permalink": "/api/types/objects/troubleshoot-step-result"
+  }
+}

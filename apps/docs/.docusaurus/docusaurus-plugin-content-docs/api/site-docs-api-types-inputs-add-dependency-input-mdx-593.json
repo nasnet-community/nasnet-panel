@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/add-dependency-input",
+  "title": "AddDependencyInput",
+  "description": "AddDependencyInput contains parameters for creating a dependency relationship.",
+  "source": "@site/docs/api/types/inputs/add-dependency-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/add-dependency-input",
+  "permalink": "/api/types/inputs/add-dependency-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "add-dependency-input",
+    "title": "AddDependencyInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "AddBridgePortInput",
+    "permalink": "/api/types/inputs/add-bridge-port-input"
+  },
+  "next": {
+    "title": "AddProvisioningResourceInput",
+    "permalink": "/api/types/inputs/add-provisioning-resource-input"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/scalars/mac",
+  "title": "MAC",
+  "description": "MAC address string (e.g., \"002B4D:5E\" or \"00-1A-2B-3C-4D-5E\")",
+  "source": "@site/docs/api/types/scalars/mac.mdx",
+  "sourceDirName": "api/types/scalars",
+  "slug": "/api/types/scalars/mac",
+  "permalink": "/api/types/scalars/mac",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "mac",
+    "title": "MAC"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "JSON",
+    "permalink": "/api/types/scalars/json"
+  },
+  "next": {
+    "title": "PortRange",
+    "permalink": "/api/types/scalars/port-range"
+  }
+}

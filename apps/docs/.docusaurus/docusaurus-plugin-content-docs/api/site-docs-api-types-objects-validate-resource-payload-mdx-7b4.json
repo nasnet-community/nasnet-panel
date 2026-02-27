@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/validate-resource-payload",
+  "title": "ValidateResourcePayload",
+  "description": "No description",
+  "source": "@site/docs/api/types/objects/validate-resource-payload.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/validate-resource-payload",
+  "permalink": "/api/types/objects/validate-resource-payload",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "validate-resource-payload",
+    "title": "ValidateResourcePayload"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ValidateProvisioningSessionPayload",
+    "permalink": "/api/types/objects/validate-provisioning-session-payload"
+  },
+  "next": {
+    "title": "ValidationError",
+    "permalink": "/api/types/objects/validation-error"
+  }
+}

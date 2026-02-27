@@ -349,25 +349,29 @@ export const ServicesPage = React.memo(function ServicesPage({
   );
 
   return (
-    <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-component-lg space-y-component-lg">
+    <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-component-lg space-y-component-lg bg-background">
       {/* Page header */}
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold">{t('services.page.title')}</h1>
-              <p className="text-sm text-muted-foreground mt-1">
-                {t('services.page.subtitle')}
-              </p>
+            <div className="flex items-center gap-component-md">
+              <div>
+                <h1 className="text-2xl font-display text-foreground">{t('services.page.title')}</h1>
+                <p className="text-sm text-muted-foreground mt-component-sm">
+                  {t('services.page.subtitle')}
+                </p>
+              </div>
+              <Cpu className="h-6 w-6 text-category-vpn" aria-hidden="true" />
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-component-md">
               <Button
                 variant="outline"
                 size="lg"
                 onClick={() => setImportDialogOpen(true)}
                 aria-label={t('services.sharing.import.button')}
+                className="min-h-[44px]"
               >
-                <Upload className="w-4 h-4 mr-2" aria-hidden="true" />
+                <Upload className="w-4 h-4 mr-component-sm" aria-hidden="true" />
                 {t('services.sharing.import.button')}
               </Button>
               <Button
@@ -375,6 +379,7 @@ export const ServicesPage = React.memo(function ServicesPage({
                 size="lg"
                 onClick={() => setInstallDialogOpen(true)}
                 aria-label={t('services.actions.install')}
+                className="min-h-[44px]"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -384,7 +389,7 @@ export const ServicesPage = React.memo(function ServicesPage({
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="2"
-                  className="mr-2"
+                  className="mr-component-sm"
                   aria-hidden="true"
                 >
                   <line x1="12" y1="5" x2="12" y2="19" />
@@ -407,10 +412,10 @@ export const ServicesPage = React.memo(function ServicesPage({
             <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" role="button" aria-label={t('services.sections.resourceOverview.toggle')} tabIndex={0}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-component-md">
-                  <Cpu className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
+                  <Cpu className="h-5 w-5 text-category-vpn" aria-hidden="true" />
                   <CardTitle>{t('services.sections.resourceOverview.title')}</CardTitle>
                   {resourcesData && (
-                    <span className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary">
+                    <span className="text-xs px-component-sm py-component-xs rounded-full bg-category-vpn/10 text-category-vpn">
                       {resourcesData.systemResources.instances.length} instances
                     </span>
                   )}
@@ -463,9 +468,9 @@ export const ServicesPage = React.memo(function ServicesPage({
               <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" role="button" aria-label={t('services.sections.updates.toggle')} tabIndex={0}>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-component-md">
-                    <ArrowUp className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
+                    <ArrowUp className="h-5 w-5 text-warning" aria-hidden="true" />
                     <CardTitle>{t('services.sections.updates.title')}</CardTitle>
-                    <span className="text-xs px-2 py-1 rounded-full bg-warning/10 text-warning">
+                    <span className="text-xs px-component-sm py-component-xs rounded-full bg-warning/10 text-warning">
                       {updatesData.length} update{updatesData.length !== 1 ? 's' : ''}
                     </span>
                   </div>
@@ -504,10 +509,10 @@ export const ServicesPage = React.memo(function ServicesPage({
             <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" role="button" aria-label={t('services.sections.storage.toggle')} tabIndex={0}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-component-md">
-                  <HardDrive className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
+                  <HardDrive className="h-5 w-5 text-category-vpn" aria-hidden="true" />
                   <CardTitle>{t('services.sections.storage.title')}</CardTitle>
                   {storageConfig?.enabled && (
-                    <span className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary">
+                    <span className="text-xs px-component-sm py-component-xs rounded-full bg-category-vpn/10 text-category-vpn">
                       Configured
                     </span>
                   )}
@@ -536,7 +541,7 @@ export const ServicesPage = React.memo(function ServicesPage({
             <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" role="button" aria-label={t('services.sections.ports.toggle')} tabIndex={0}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-component-md">
-                  <Network className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
+                  <Network className="h-5 w-5 text-category-vpn" aria-hidden="true" />
                   <CardTitle>{t('services.sections.ports.title')}</CardTitle>
                 </div>
                 {portsOpen ? (
@@ -573,7 +578,7 @@ export const ServicesPage = React.memo(function ServicesPage({
         onViewModeChange={setViewMode}
         showMetrics={showMetrics}
         emptyState={
-          <div className="text-center py-component-lg">
+          <div className="text-center py-component-lg bg-muted/30 rounded-[var(--semantic-radius-card)]">
             <h3 className="text-lg font-display mb-component-sm text-foreground">
               {t('services.empty.title')}
             </h3>

@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/update-tunnel",
+  "title": "updateTunnel",
+  "description": "Update an existing tunnel interface",
+  "source": "@site/docs/api/operations/mutations/update-tunnel.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/update-tunnel",
+  "permalink": "/api/operations/mutations/update-tunnel",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "update-tunnel",
+    "title": "updateTunnel"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "updateSchedule",
+    "permalink": "/api/operations/mutations/update-schedule"
+  },
+  "next": {
+    "title": "updateVlan",
+    "permalink": "/api/operations/mutations/update-vlan"
+  }
+}

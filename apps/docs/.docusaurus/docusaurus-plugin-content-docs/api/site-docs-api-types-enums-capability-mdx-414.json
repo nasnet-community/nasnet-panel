@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/capability",
+  "title": "Capability",
+  "description": "Feature capability categories detected on routers.",
+  "source": "@site/docs/api/types/enums/capability.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/capability",
+  "permalink": "/api/types/enums/capability",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "capability",
+    "title": "Capability"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "CapabilityLevel",
+    "permalink": "/api/types/enums/capability-level"
+  },
+  "next": {
+    "title": "ChangeOperation",
+    "permalink": "/api/types/enums/change-operation"
+  }
+}

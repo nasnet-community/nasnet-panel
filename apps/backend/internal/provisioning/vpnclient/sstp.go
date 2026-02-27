@@ -86,14 +86,19 @@ func (s *Service) createSSTPInterface( //nolint:gocyclo // SSTP has many optiona
 	comment string,
 ) (string, error) {
 
+	// Build authentication= value: prefer AuthMethods slice (multiple), fall back to AuthMethod (single).
+	authValue := buildAuthMethodString(cfg.AuthMethods, cfg.AuthMethod)
+
 	args := map[string]string{
-		"name":           ifName,
-		"connect-to":     cfg.Server.Address,
-		"authentication": string(cfg.AuthMethod),
-		"user":           cfg.Credentials.Username,
-		"password":       cfg.Credentials.Password,
-		"comment":        comment,
-		"disabled":       "no",
+		"name":       ifName,
+		"connect-to": cfg.Server.Address,
+		"user":       cfg.Credentials.Username,
+		"password":   cfg.Credentials.Password,
+		"comment":    comment,
+		"disabled":   "no",
+	}
+	if authValue != "" {
+		args["authentication"] = authValue
 	}
 
 	// Set port if non-zero

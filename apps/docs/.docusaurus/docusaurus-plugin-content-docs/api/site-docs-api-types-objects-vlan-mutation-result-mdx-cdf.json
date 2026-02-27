@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/vlan-mutation-result",
+  "title": "VlanMutationResult",
+  "description": "Result of a VLAN mutation (create, update)",
+  "source": "@site/docs/api/types/objects/vlan-mutation-result.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/vlan-mutation-result",
+  "permalink": "/api/types/objects/vlan-mutation-result",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "vlan-mutation-result",
+    "title": "VlanMutationResult"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "VlanDependencies",
+    "permalink": "/api/types/objects/vlan-dependencies"
+  },
+  "next": {
+    "title": "VlanTopology",
+    "permalink": "/api/types/objects/vlan-topology"
+  }
+}

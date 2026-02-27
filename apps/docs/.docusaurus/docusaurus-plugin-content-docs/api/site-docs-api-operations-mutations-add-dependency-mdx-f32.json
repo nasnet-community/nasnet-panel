@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/add-dependency",
+  "title": "addDependency",
+  "description": "Add a new dependency relationship between service instances.",
+  "source": "@site/docs/api/operations/mutations/add-dependency.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/add-dependency",
+  "permalink": "/api/operations/mutations/add-dependency",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "add-dependency",
+    "title": "addDependency"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "addChangeSetItem",
+    "permalink": "/api/operations/mutations/add-change-set-item"
+  },
+  "next": {
+    "title": "addIngressToBridge",
+    "permalink": "/api/operations/mutations/add-ingress-to-bridge"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/pptpruntime",
+  "title": "PPTPRuntime",
+  "description": "PPTP runtime state",
+  "source": "@site/docs/api/types/objects/pptpruntime.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/pptpruntime",
+  "permalink": "/api/types/objects/pptpruntime",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "pptpruntime",
+    "title": "PPTPRuntime"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "PPTPDeployment",
+    "permalink": "/api/types/objects/pptpdeployment"
+  },
+  "next": {
+    "title": "ProvisioningProgressEvent",
+    "permalink": "/api/types/objects/provisioning-progress-event"
+  }
+}

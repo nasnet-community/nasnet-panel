@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/provisioning-session",
+  "title": "ProvisioningSession",
+  "description": "Provisioning session encapsulates the entire setup workflow for a router.",
+  "source": "@site/docs/api/types/objects/provisioning-session.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/provisioning-session",
+  "permalink": "/api/types/objects/provisioning-session",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "provisioning-session",
+    "title": "ProvisioningSession"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ProvisioningSessionPayload",
+    "permalink": "/api/types/objects/provisioning-session-payload"
+  },
+  "next": {
+    "title": "PushoverUsage",
+    "permalink": "/api/types/objects/pushover-usage"
+  }
+}

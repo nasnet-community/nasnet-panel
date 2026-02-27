@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/subscriptions/storage-mount-changed",
+  "title": "storageMountChanged",
+  "description": "Subscribe to storage mount/unmount events.",
+  "source": "@site/docs/api/operations/subscriptions/storage-mount-changed.mdx",
+  "sourceDirName": "api/operations/subscriptions",
+  "slug": "/api/operations/subscriptions/storage-mount-changed",
+  "permalink": "/api/operations/subscriptions/storage-mount-changed",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "storage-mount-changed",
+    "title": "storageMountChanged"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "serviceTrafficUpdated",
+    "permalink": "/api/operations/subscriptions/service-traffic-updated"
+  },
+  "next": {
+    "title": "storageSpaceChanged",
+    "permalink": "/api/operations/subscriptions/storage-space-changed"
+  }
+}

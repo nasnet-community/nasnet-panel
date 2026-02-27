@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/nat-chain",
+  "title": "NatChain",
+  "description": "NAT chain types (srcnat for source NAT, dstnat for destination NAT).",
+  "source": "@site/docs/api/types/enums/nat-chain.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/nat-chain",
+  "permalink": "/api/types/enums/nat-chain",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "nat-chain",
+    "title": "NatChain"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "NatAction",
+    "permalink": "/api/types/enums/nat-action"
+  },
+  "next": {
+    "title": "NotificationChannel",
+    "permalink": "/api/types/enums/notification-channel"
+  }
+}

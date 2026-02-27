@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/alert-rule",
+  "title": "AlertRule",
+  "description": "Alert rule defines conditions that trigger notifications when met",
+  "source": "@site/docs/api/types/objects/alert-rule.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/alert-rule",
+  "permalink": "/api/types/objects/alert-rule",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "alert-rule",
+    "title": "AlertRule"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "AlertRuleTemplate",
+    "permalink": "/api/types/objects/alert-rule-template"
+  },
+  "next": {
+    "title": "AlertTemplatePayload",
+    "permalink": "/api/types/objects/alert-template-payload"
+  }
+}

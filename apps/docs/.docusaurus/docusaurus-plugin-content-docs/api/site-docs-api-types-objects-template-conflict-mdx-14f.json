@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/template-conflict",
+  "title": "TemplateConflict",
+  "description": "Detected conflict between template and existing configuration.",
+  "source": "@site/docs/api/types/objects/template-conflict.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/template-conflict",
+  "permalink": "/api/types/objects/template-conflict",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "template-conflict",
+    "title": "TemplateConflict"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "TelemetryData",
+    "permalink": "/api/types/objects/telemetry-data"
+  },
+  "next": {
+    "title": "TemplateInstallProgress",
+    "permalink": "/api/types/objects/template-install-progress"
+  }
+}

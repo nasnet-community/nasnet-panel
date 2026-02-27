@@ -158,7 +158,7 @@ function ServiceAlertsTabDesktopComponent({
     return (
       <div className={cn('p-component-lg', className)}>
         <Card>
-          <CardContent className="p-12">
+          <CardContent className="p-component-xl">
             <div className="flex flex-col items-center justify-center gap-component-md">
               <Icon icon={Loader2} className="h-10 w-10 animate-spin text-primary" />
               <p className="text-sm text-muted-foreground">Loading alerts...</p>
@@ -174,7 +174,7 @@ function ServiceAlertsTabDesktopComponent({
     return (
       <div className={cn('p-component-lg', className)}>
         <Card className="border-error">
-          <CardContent className="p-8">
+          <CardContent className="p-component-xl">
             <div className="flex flex-col items-center gap-component-md">
               <Icon icon={AlertTriangle} className="h-10 w-10 text-error" />
               <div className="text-center">
@@ -213,9 +213,9 @@ function ServiceAlertsTabDesktopComponent({
           </div>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center gap-component-md">
+          <div className="flex items-center gap-component-md flex-wrap">
             {/* Search */}
-            <div className="flex-1 max-w-md">
+            <div className="flex-1 min-w-[250px]">
               <div className="relative">
                 <Icon icon={Search} className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -300,7 +300,7 @@ function ServiceAlertsTabDesktopComponent({
             {filteredAlerts.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={7} className="h-32 text-center">
-                  <div className="flex flex-col items-center gap-2">
+                  <div className="flex flex-col items-center gap-component-sm">
                     <Icon icon={Info} className="h-8 w-8 text-muted-foreground" />
                     <p className="text-sm text-muted-foreground">
                       {filters.severity || filters.searchTerm
@@ -405,8 +405,8 @@ function ServiceAlertsTabDesktopComponent({
       {pagination.totalPages > 1 && (
         <Card>
           <CardContent className="p-component-md">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-component-sm">
+            <div className="flex items-center justify-between flex-wrap gap-component-md">
+              <div className="flex items-center gap-component-sm flex-wrap">
                 <span className="text-sm text-muted-foreground">
                   Page {pagination.currentPage} of {pagination.totalPages}
                 </span>

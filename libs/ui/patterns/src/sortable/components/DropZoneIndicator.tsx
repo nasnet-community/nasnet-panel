@@ -47,7 +47,7 @@ const DropZoneIndicatorInner: React.FC<DropZoneIndicatorProps> = ({
           transition={{ duration: 0.15, ease: 'easeOut' }}
           className={cn(
             'absolute left-0 right-0',
-            'h-0.5 mx-2',
+            'h-0.5',
             'bg-primary',
             'rounded-full',
             'pointer-events-none',
@@ -98,17 +98,17 @@ const InsertionLineInner: React.FC<InsertionLineProps> = ({ visible, className }
           transition={{ duration: 0.15, ease: 'easeOut' }}
           className={cn(
             'h-1 w-full',
-            'bg-primary/20',
-            'border-2 border-dashed border-primary',
-            'rounded-full',
+            'bg-primary/5',
+            'border-2 border-dashed border-primary/30',
+            'rounded-[var(--semantic-radius-card)]',
             'my-1',
             className
           )}
           aria-hidden="true"
         >
           {/* Indicator dots on ends */}
-          <div className="absolute -left-1 top-1/2 -translate-y-1/2 h-2 w-2 rounded-full bg-primary" />
-          <div className="absolute -right-1 top-1/2 -translate-y-1/2 h-2 w-2 rounded-full bg-primary" />
+          <div className="absolute -left-1 top-1/2 -translate-y-1/2 h-2 w-2 rounded-full bg-primary/50" />
+          <div className="absolute -right-1 top-1/2 -translate-y-1/2 h-2 w-2 rounded-full bg-primary/50" />
         </motion.div>
       )}
     </AnimatePresence>

@@ -135,16 +135,16 @@ export const RouterList = memo(function RouterList({
   }
 
   return (
-    <div className={cn('space-y-4', className)}>
+    <div className={cn('space-y-component-md', className)}>
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold text-foreground">
           {routers.length} Router{routers.length !== 1 ? 's' : ''}
         </h3>
 
         {/* Status Summary */}
-        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+        <div className="flex items-center gap-component-lg text-sm text-muted-foreground">
           {routers.filter((r) => r.connectionStatus === 'online').length > 0 && (
-            <span className="flex items-center gap-1">
+            <span className="flex items-center gap-component-sm">
               <div className="h-2 w-2 bg-success rounded-full" />
               {routers.filter((r) => r.connectionStatus === 'online').length}{' '}
               Online
@@ -152,7 +152,7 @@ export const RouterList = memo(function RouterList({
           )}
           {routers.filter((r) => r.connectionStatus === 'offline').length >
             0 && (
-            <span className="flex items-center gap-1">
+            <span className="flex items-center gap-component-sm">
               <div className="h-2 w-2 bg-muted-foreground rounded-full" />
               {routers.filter((r) => r.connectionStatus === 'offline').length}{' '}
               Offline
@@ -161,7 +161,7 @@ export const RouterList = memo(function RouterList({
         </div>
       </div>
 
-      <div className="grid gap-3">
+      <div className="grid gap-component-md">
         <AnimatePresence mode="popLayout">
           {sortedRouters.map((router, index) => (
             <motion.div

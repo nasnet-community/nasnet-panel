@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/teardown-dual-vlanbridge",
+  "title": "teardownDualVLANBridge",
+  "description": "Tear down a dual-VLAN bridge for a service instance.",
+  "source": "@site/docs/api/operations/mutations/teardown-dual-vlanbridge.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/teardown-dual-vlanbridge",
+  "permalink": "/api/operations/mutations/teardown-dual-vlanbridge",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "teardown-dual-vlanbridge",
+    "title": "teardownDualVLANBridge"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "stopInstance",
+    "permalink": "/api/operations/mutations/stop-instance"
+  },
+  "next": {
+    "title": "testAllCredentials",
+    "permalink": "/api/operations/mutations/test-all-credentials"
+  }
+}

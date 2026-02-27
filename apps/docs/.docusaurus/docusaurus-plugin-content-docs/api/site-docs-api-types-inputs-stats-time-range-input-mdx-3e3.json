@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/stats-time-range-input",
+  "title": "StatsTimeRangeInput",
+  "description": "Input for specifying a time range",
+  "source": "@site/docs/api/types/inputs/stats-time-range-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/stats-time-range-input",
+  "permalink": "/api/types/inputs/stats-time-range-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "stats-time-range-input",
+    "title": "StatsTimeRangeInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "StaticIPInput",
+    "permalink": "/api/types/inputs/static-ipinput"
+  },
+  "next": {
+    "title": "StopInstanceInput",
+    "permalink": "/api/types/inputs/stop-instance-input"
+  }
+}

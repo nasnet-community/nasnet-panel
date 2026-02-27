@@ -67,7 +67,7 @@ func (p *PushoverChannel) Send(ctx context.Context, notification notifications.N
 	}
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-	resp, err := p.client.Do(req)
+	resp, err := p.client.Do(req) //nolint:gosec // G704: URL is constructed from trusted configuration
 	if err != nil {
 		if ctx.Err() != nil {
 			return fmt.Errorf("connection timeout: %w", err)
@@ -230,7 +230,7 @@ func (p *PushoverChannel) ValidateCredentials(ctx context.Context, userKey, appT
 	}
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-	resp, err := p.client.Do(req)
+	resp, err := p.client.Do(req) //nolint:gosec // G704: URL is constructed from trusted configuration
 	if err != nil {
 		return fmt.Errorf("network error during validation: %w", err)
 	}
@@ -275,7 +275,7 @@ func (p *PushoverChannel) CancelReceipt(ctx context.Context, receipt string) err
 	}
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-	resp, err := p.client.Do(req)
+	resp, err := p.client.Do(req) //nolint:gosec // G704: URL is constructed from trusted configuration
 	if err != nil {
 		return fmt.Errorf("network error during cancel: %w", err)
 	}

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/dns-server",
+  "title": "DnsServer",
+  "description": "DNS server configuration",
+  "source": "@site/docs/api/types/objects/dns-server.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/dns-server",
+  "permalink": "/api/types/objects/dns-server",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "dns-server",
+    "title": "DnsServer"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "DnsRecord",
+    "permalink": "/api/types/objects/dns-record"
+  },
+  "next": {
+    "title": "DnsServers",
+    "permalink": "/api/types/objects/dns-servers"
+  }
+}

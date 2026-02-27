@@ -1,0 +1,26 @@
+{
+  "id": "api/types/scalars/json",
+  "title": "JSON",
+  "description": "Arbitrary JSON data for flexible configuration",
+  "source": "@site/docs/api/types/scalars/json.mdx",
+  "sourceDirName": "api/types/scalars",
+  "slug": "/api/types/scalars/json",
+  "permalink": "/api/types/scalars/json",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "json",
+    "title": "JSON"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "IPv6",
+    "permalink": "/api/types/scalars/ipv-6"
+  },
+  "next": {
+    "title": "MAC",
+    "permalink": "/api/types/scalars/mac"
+  }
+}

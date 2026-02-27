@@ -9,6 +9,7 @@ import (
 
 	"go.uber.org/zap"
 
+	"backend/internal/isolation"
 	"backend/internal/orchestrator/resources"
 	"backend/internal/orchestrator/types"
 
@@ -63,42 +64,46 @@ type ManagedProcess struct {
 	RouterID string
 	Ports    []int
 
-	mu             sync.RWMutex
-	state          ProcessState
-	cmd            *exec.Cmd
-	pid            int
-	startTime      time.Time
-	restartCount   int
-	backoffConfig  BackoffConfig
-	currentBackoff *backoff.ExponentialBackOff
-	cgroupManager  *resources.CgroupManager
-	logCapture     *resources.LogCapture
-	eventBus       *events.Publisher
-	logger         *zap.Logger
-	stopChan       chan struct{}
-	stoppedChan    chan struct{}
-	ctx            context.Context
-	cancel         context.CancelFunc
+	mu                sync.RWMutex
+	state             ProcessState
+	cmd               *exec.Cmd
+	pid               int
+	startTime         time.Time
+	restartCount      int
+	backoffConfig     BackoffConfig
+	currentBackoff    *backoff.ExponentialBackOff
+	cgroupManager     *resources.CgroupManager
+	logCapture        *resources.LogCapture
+	eventBus          *events.Publisher
+	logger            *zap.Logger
+	stopChan          chan struct{}
+	stoppedChan       chan struct{}
+	ctx               context.Context
+	cancel            context.CancelFunc
+	isolationStrategy isolation.Strategy
+	isolationConfig   *isolation.ProcessIsolationConfig
 }
 
 // ProcessConfig is used to create a new ManagedProcess
 type ProcessConfig struct {
-	ID            string
-	Name          string
-	Command       string
-	Args          []string
-	Env           []string
-	WorkDir       string
-	HealthProbe   types.HealthProbe
-	ShutdownGrace time.Duration
-	AutoRestart   bool
-	BackoffConfig *BackoffConfig
-	CgroupManager *resources.CgroupManager
-	LogDir        string
-	EventBus      *events.Publisher
-	Logger        *zap.Logger
-	RouterID      string
-	Ports         []int
+	ID                string
+	Name              string
+	Command           string
+	Args              []string
+	Env               []string
+	WorkDir           string
+	HealthProbe       types.HealthProbe
+	ShutdownGrace     time.Duration
+	AutoRestart       bool
+	BackoffConfig     *BackoffConfig
+	CgroupManager     *resources.CgroupManager
+	LogDir            string
+	EventBus          *events.Publisher
+	Logger            *zap.Logger
+	RouterID          string
+	Ports             []int
+	IsolationStrategy isolation.Strategy
+	IsolationConfig   *isolation.ProcessIsolationConfig
 }
 
 // NewManagedProcess creates a new managed process
@@ -115,26 +120,28 @@ func NewManagedProcess(cfg ProcessConfig) *ManagedProcess {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	mp := &ManagedProcess{
-		ID:            cfg.ID,
-		Name:          cfg.Name,
-		Command:       cfg.Command,
-		Args:          cfg.Args,
-		Env:           cfg.Env,
-		WorkDir:       cfg.WorkDir,
-		HealthProbe:   cfg.HealthProbe,
-		ShutdownGrace: cfg.ShutdownGrace,
-		AutoRestart:   cfg.AutoRestart,
-		RouterID:      cfg.RouterID,
-		Ports:         cfg.Ports,
-		backoffConfig: backoffCfg,
-		cgroupManager: cfg.CgroupManager,
-		eventBus:      cfg.EventBus,
-		logger:        cfg.Logger,
-		state:         ProcessStateStopped,
-		stopChan:      make(chan struct{}),
-		stoppedChan:   make(chan struct{}),
-		ctx:           ctx,
-		cancel:        cancel,
+		ID:                cfg.ID,
+		Name:              cfg.Name,
+		Command:           cfg.Command,
+		Args:              cfg.Args,
+		Env:               cfg.Env,
+		WorkDir:           cfg.WorkDir,
+		HealthProbe:       cfg.HealthProbe,
+		ShutdownGrace:     cfg.ShutdownGrace,
+		AutoRestart:       cfg.AutoRestart,
+		RouterID:          cfg.RouterID,
+		Ports:             cfg.Ports,
+		backoffConfig:     backoffCfg,
+		cgroupManager:     cfg.CgroupManager,
+		eventBus:          cfg.EventBus,
+		logger:            cfg.Logger,
+		state:             ProcessStateStopped,
+		stopChan:          make(chan struct{}),
+		stoppedChan:       make(chan struct{}),
+		ctx:               ctx,
+		cancel:            cancel,
+		isolationStrategy: cfg.IsolationStrategy,
+		isolationConfig:   cfg.IsolationConfig,
 	}
 
 	// Initialize log capture if LogDir is provided
@@ -188,7 +195,7 @@ func (mp *ManagedProcess) Stop(ctx context.Context) error {
 		case <-mp.stoppedChan:
 			return nil
 		case <-ctx.Done():
-			return ctx.Err()
+			return fmt.Errorf("context canceled while waiting for stop: %w", ctx.Err())
 		}
 	}
 
@@ -217,12 +224,15 @@ func (mp *ManagedProcess) Stop(ctx context.Context) error {
 		return nil
 	case <-ctx.Done():
 		mp.logger.Debug("Context timeout", zap.String("process", mp.Name))
-		return ctx.Err()
+		return fmt.Errorf("context canceled while waiting for process to stop: %w", ctx.Err())
 	}
 }
 
 // State returns the current process state
 func (mp *ManagedProcess) State() ProcessState {
+	if mp == nil {
+		return ProcessStateStopped
+	}
 	mp.mu.RLock()
 	defer mp.mu.RUnlock()
 	return mp.state
@@ -237,6 +247,9 @@ func (mp *ManagedProcess) PID() int {
 
 // GetPID returns the current process ID (0 if not running)
 func (mp *ManagedProcess) GetPID() int {
+	if mp == nil {
+		return 0
+	}
 	return mp.PID()
 }
 

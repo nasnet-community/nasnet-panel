@@ -1,0 +1,28 @@
+{
+  "id": "offline-first",
+  "title": "Offline-First Architecture",
+  "description": "NasNetConnect operates in environments where network connectivity to the MikroTik router is inherently unstable — server rooms, mobile devices, and embedded containers. The offline-first system ensures the UI remains functional and consistent across degraded and fully disconnected states. It is composed of three cooperating modules: cache persistence (Apollo InMemoryCache → IndexedDB via localforage), offline detection (four signal sources converging to a Zustand network store), and an offline mutation queue (FIFO, deduplicated, auto-replaying queue backed by IndexedDB). Together they allow the app to serve cached data immediately on load, detect connectivity changes within seconds, and defer mutations until the connection is restored.",
+  "source": "@site/../../libs/api-client/docs/offline-first.md",
+  "sourceDirName": ".",
+  "slug": "/offline-first",
+  "permalink": "/docs/api-client/offline-first",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/api-client/docs/offline-first.md",
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 6,
+  "frontMatter": {
+    "sidebar_position": 6,
+    "title": "Offline-First Architecture"
+  },
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Error Handling",
+    "permalink": "/docs/api-client/error-handling"
+  },
+  "next": {
+    "title": "Universal State v2 Resource Model",
+    "permalink": "/docs/api-client/universal-state-resource-model"
+  }
+}

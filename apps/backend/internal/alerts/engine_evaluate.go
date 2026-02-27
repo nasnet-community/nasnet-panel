@@ -433,8 +433,8 @@ func FormatDigest(alerts []QueuedAlert, deviceID string) string {
 
 	// Build digest message
 	var sb strings.Builder
-	sb.WriteString(fmt.Sprintf("Quiet Hours Digest for %s\n", deviceID))
-	sb.WriteString(fmt.Sprintf("Total Alerts: %d\n\n", len(alerts)))
+	fmt.Fprintf(&sb, "Quiet Hours Digest for %s\n", deviceID)
+	fmt.Fprintf(&sb, "Total Alerts: %d\n\n", len(alerts))
 
 	// Order: CRITICAL, ERROR, WARNING, INFO
 	severityOrder := []string{severityCritical, severityError, severityWarning, severityInfo}
@@ -444,7 +444,7 @@ func FormatDigest(alerts []QueuedAlert, deviceID string) string {
 			continue
 		}
 
-		sb.WriteString(fmt.Sprintf("%s (%d):\n", severity, len(group)))
+		fmt.Fprintf(&sb, "%s (%d):\n", severity, len(group))
 
 		eventTypeGroups := make(map[string]int)
 		for _, a := range group {
@@ -452,7 +452,7 @@ func FormatDigest(alerts []QueuedAlert, deviceID string) string {
 		}
 
 		for eventType, count := range eventTypeGroups {
-			sb.WriteString(fmt.Sprintf("  • %s: %d\n", eventType, count))
+			fmt.Fprintf(&sb, "  • %s: %d\n", eventType, count)
 		}
 		sb.WriteString("\n")
 	}
@@ -469,9 +469,9 @@ func FormatDigest(alerts []QueuedAlert, deviceID string) string {
 				newest = a.Timestamp
 			}
 		}
-		sb.WriteString(fmt.Sprintf("Period: %s to %s\n",
+		fmt.Fprintf(&sb, "Period: %s to %s\n",
 			oldest.Format("15:04:05"),
-			newest.Format("15:04:05")))
+			newest.Format("15:04:05"))
 	}
 
 	return sb.String()

@@ -1,0 +1,28 @@
+{
+  "id": "machines/hooks-reference",
+  "title": "Machine Hooks Reference",
+  "description": "Complete API reference for XState machine hooks in NasNet.",
+  "source": "@site/../../libs/state/docs/machines/hooks-reference.md",
+  "sourceDirName": "machines",
+  "slug": "/machines/hooks-reference",
+  "permalink": "/docs/state/machines/hooks-reference",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/state/docs/machines/hooks-reference.md",
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 7,
+  "frontMatter": {
+    "sidebar_position": 7,
+    "title": "Machine Hooks Reference"
+  },
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Cross-Feature Communication via Stores",
+    "permalink": "/docs/state/integrations/cross-feature-sharing"
+  },
+  "next": {
+    "title": "Change Set Machine (Atomic Multi-Resource Operations)",
+    "permalink": "/docs/state/machines/change-set-machine"
+  }
+}

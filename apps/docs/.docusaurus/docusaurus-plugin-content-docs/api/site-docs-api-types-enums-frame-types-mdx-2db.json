@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/frame-types",
+  "title": "FrameTypes",
+  "description": "No description",
+  "source": "@site/docs/api/types/enums/frame-types.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/frame-types",
+  "permalink": "/api/types/enums/frame-types",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "frame-types",
+    "title": "FrameTypes"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "FixConfidence",
+    "permalink": "/api/types/enums/fix-confidence"
+  },
+  "next": {
+    "title": "GatewayState",
+    "permalink": "/api/types/enums/gateway-state"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/stats-data-point",
+  "title": "StatsDataPoint",
+  "description": "A single data point in interface statistics history",
+  "source": "@site/docs/api/types/objects/stats-data-point.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/stats-data-point",
+  "permalink": "/api/types/objects/stats-data-point",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "stats-data-point",
+    "title": "StatsDataPoint"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "StaticIPConfig",
+    "permalink": "/api/types/objects/static-ipconfig"
+  },
+  "next": {
+    "title": "StorageBreakdown",
+    "permalink": "/api/types/objects/storage-breakdown"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "id": "multi-package-flows",
+  "title": "Multi-Package Flows",
+  "description": "This document traces eight significant runtime flows through the libs/ui/ library system. Each",
+  "source": "@site/../../libs/ui/docs/multi-package-flows.md",
+  "sourceDirName": ".",
+  "slug": "/multi-package-flows",
+  "permalink": "/docs/ui/multi-package-flows",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/ui/docs/multi-package-flows.md",
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 10,
+  "frontMatter": {
+    "sidebar_position": 10,
+    "title": "Multi-Package Flows"
+  },
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Quick Start",
+    "permalink": "/docs/ui/quick-start"
+  },
+  "next": {
+    "title": "Testing & Accessibility",
+    "permalink": "/docs/ui/testing-and-accessibility"
+  }
+}

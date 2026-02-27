@@ -92,7 +92,7 @@ export const CreateMode: Story = {
   decorators: [
     (Story) => (
       <MockedProvider mocks={mockAvailable} addTypename={false}>
-        <div className="min-h-screen flex items-center justify-center p-6">
+        <div className="min-h-screen flex items-center justify-center p-component-lg">
           <Story />
         </div>
       </MockedProvider>
@@ -123,7 +123,7 @@ export const EditMode: Story = {
   decorators: [
     (Story) => (
       <MockedProvider mocks={mockAvailable} addTypename={false}>
-        <div className="min-h-screen flex items-center justify-center p-6">
+        <div className="min-h-screen flex items-center justify-center p-component-lg">
           <Story />
         </div>
       </MockedProvider>
@@ -145,7 +145,7 @@ export const Loading: Story = {
   decorators: [
     (Story) => (
       <MockedProvider mocks={mockAvailable} addTypename={false}>
-        <div className="min-h-screen flex items-center justify-center p-6">
+        <div className="min-h-screen flex items-center justify-center p-component-lg">
           <Story />
         </div>
       </MockedProvider>
@@ -172,7 +172,7 @@ export const DuplicateVlanId: Story = {
   decorators: [
     (Story) => (
       <MockedProvider mocks={mockTaken} addTypename={false}>
-        <div className="min-h-screen flex items-center justify-center p-6">
+        <div className="min-h-screen flex items-center justify-center p-component-lg">
           <Story />
         </div>
       </MockedProvider>
@@ -199,7 +199,7 @@ export const Vlan1Warning: Story = {
   decorators: [
     (Story) => (
       <MockedProvider mocks={mockAvailable} addTypename={false}>
-        <div className="min-h-screen flex items-center justify-center p-6">
+        <div className="min-h-screen flex items-center justify-center p-component-lg">
           <Story />
         </div>
       </MockedProvider>
@@ -226,7 +226,7 @@ export const Vlan4095Warning: Story = {
   decorators: [
     (Story) => (
       <MockedProvider mocks={mockAvailable} addTypename={false}>
-        <div className="min-h-screen flex items-center justify-center p-6">
+        <div className="min-h-screen flex items-center justify-center p-component-lg">
           <Story />
         </div>
       </MockedProvider>
@@ -253,7 +253,7 @@ export const Mobile: Story = {
   decorators: [
     (Story) => (
       <MockedProvider mocks={mockAvailable} addTypename={false}>
-        <div className="min-h-screen p-4">
+        <div className="min-h-screen p-component-sm">
           <Story />
         </div>
       </MockedProvider>
@@ -282,7 +282,7 @@ export const JumboFrames: Story = {
   decorators: [
     (Story) => (
       <MockedProvider mocks={mockAvailable} addTypename={false}>
-        <div className="min-h-screen flex items-center justify-center p-6">
+        <div className="min-h-screen flex items-center justify-center p-component-lg">
           <Story />
         </div>
       </MockedProvider>

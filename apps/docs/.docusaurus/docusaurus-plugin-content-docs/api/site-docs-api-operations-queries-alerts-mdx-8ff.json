@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/alerts",
+  "title": "alerts",
+  "description": "Get alerts with filtering and pagination",
+  "source": "@site/docs/api/operations/queries/alerts.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/alerts",
+  "permalink": "/api/operations/queries/alerts",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "alerts",
+    "title": "alerts"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "alertTemplates",
+    "permalink": "/api/operations/queries/alert-templates"
+  },
+  "next": {
+    "title": "availableDiagnostics",
+    "permalink": "/api/operations/queries/available-diagnostics"
+  }
+}

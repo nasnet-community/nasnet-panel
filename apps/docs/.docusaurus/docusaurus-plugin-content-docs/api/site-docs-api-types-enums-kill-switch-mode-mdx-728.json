@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/kill-switch-mode",
+  "title": "KillSwitchMode",
+  "description": "Kill switch behavior when any hop in a chain fails.",
+  "source": "@site/docs/api/types/enums/kill-switch-mode.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/kill-switch-mode",
+  "permalink": "/api/types/enums/kill-switch-mode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "kill-switch-mode",
+    "title": "KillSwitchMode"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "JobStatus",
+    "permalink": "/api/types/enums/job-status"
+  },
+  "next": {
+    "title": "KnockProtocol",
+    "permalink": "/api/types/enums/knock-protocol"
+  }
+}

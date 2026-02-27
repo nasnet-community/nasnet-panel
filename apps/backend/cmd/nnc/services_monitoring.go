@@ -5,6 +5,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 
 	"go.uber.org/zap"
 
@@ -32,7 +33,7 @@ func initMonitoringAndTraffic(
 		sugar,
 	)
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, nil, nil, fmt.Errorf("initializing monitoring services: %w", err)
 	}
 
 	// Initialize Traffic Management (traffic poller, aggregator, quota enforcer)
@@ -44,7 +45,7 @@ func initMonitoringAndTraffic(
 		sugar.Desugar(),
 	)
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, nil, nil, fmt.Errorf("initializing traffic management: %w", err)
 	}
 
 	// Initialize Scheduling Services (schedule service, evaluator)
@@ -55,7 +56,7 @@ func initMonitoringAndTraffic(
 		sugar,
 	)
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, nil, nil, fmt.Errorf("initializing scheduling services: %w", err)
 	}
 
 	return monitoring, traffic, scheduling, nil

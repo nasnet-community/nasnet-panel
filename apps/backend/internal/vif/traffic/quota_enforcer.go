@@ -47,7 +47,7 @@ func (e *QuotaEnforcer) CheckQuota(ctx context.Context, instanceID string, newBy
 		Only(ctx)
 
 	if err != nil {
-		return false, fmt.Errorf("failed to fetch instance: %w", err)
+		return false, fmt.Errorf("fetch service instance: %w", err)
 	}
 
 	// Skip if no quota configured
@@ -61,7 +61,7 @@ func (e *QuotaEnforcer) CheckQuota(ctx context.Context, instanceID string, newBy
 	// Check if quota period has expired (need to reset)
 	if instance.QuotaResetAt != nil && time.Now().After(*instance.QuotaResetAt) {
 		if resetErr := e.ResetQuota(ctx, instance); resetErr != nil {
-			return false, fmt.Errorf("failed to reset quota: %w", resetErr)
+			return false, fmt.Errorf("check quota reset: %w", resetErr)
 		}
 		currentUsed = 0 // Reset usage
 	}
@@ -70,12 +70,10 @@ func (e *QuotaEnforcer) CheckQuota(ctx context.Context, instanceID string, newBy
 	newUsed := currentUsed + newBytes
 
 	// Update quota_used_bytes in database
-	err = e.client.ServiceInstance.UpdateOneID(instanceID).
+	if err := e.client.ServiceInstance.UpdateOneID(instanceID).
 		SetQuotaUsedBytes(newUsed).
-		Exec(ctx)
-
-	if err != nil {
-		return false, fmt.Errorf("failed to update quota usage: %w", err)
+		Exec(ctx); err != nil {
+		return false, fmt.Errorf("update quota usage: %w", err)
 	}
 
 	// Calculate percentage used
@@ -133,7 +131,8 @@ func (e *QuotaEnforcer) EmitQuotaWarning(
 	}
 
 	var event events.Event
-	if threshold == 80 {
+	switch threshold {
+	case 80:
 		event = events.NewQuotaWarning80Event(
 			instance.ID,
 			instance.RouterID,
@@ -145,7 +144,7 @@ func (e *QuotaEnforcer) EmitQuotaWarning(
 			resetAt,
 			"quota-enforcer",
 		)
-	} else if threshold == 90 {
+	case 90:
 		event = events.NewQuotaWarning90Event(
 			instance.ID,
 			instance.RouterID,
@@ -159,7 +158,10 @@ func (e *QuotaEnforcer) EmitQuotaWarning(
 		)
 	}
 
-	return e.eventBus.Publish(ctx, event)
+	if err := e.eventBus.Publish(ctx, event); err != nil {
+		return fmt.Errorf("publish quota warning event: %w", err)
+	}
+	return nil
 }
 
 // EmitQuotaExceededEvent emits a quota exceeded event
@@ -202,7 +204,10 @@ func (e *QuotaEnforcer) EmitQuotaExceededEvent(
 		"quota-enforcer",
 	)
 
-	return e.eventBus.Publish(ctx, event)
+	if err := e.eventBus.Publish(ctx, event); err != nil {
+		return fmt.Errorf("publish quota exceeded event: %w", err)
+	}
+	return nil
 }
 
 // EnforceQuota executes the configured quota action
@@ -219,11 +224,9 @@ func (e *QuotaEnforcer) EnforceQuota(ctx context.Context, instance *ent.ServiceI
 
 	case serviceinstance.QuotaActionSTOP_SERVICE:
 		// Stop the service instance
-		err := e.client.ServiceInstance.UpdateOneID(instance.ID).
+		if err := e.client.ServiceInstance.UpdateOneID(instance.ID).
 			SetStatus(serviceinstance.StatusStopping).
-			Exec(ctx)
-
-		if err != nil {
+			Exec(ctx); err != nil {
 			return false, fmt.Errorf("failed to stop service: %w", err)
 		}
 
@@ -324,7 +327,7 @@ func (e *QuotaEnforcer) ResetQuota(ctx context.Context, instance *ent.ServiceIns
 		Exec(ctx)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("reset quota update database: %w", err)
 	}
 
 	// Emit reset event
@@ -376,11 +379,14 @@ func (e *QuotaEnforcer) SetQuota(
 	}
 
 	// Update instance
-	return e.client.ServiceInstance.UpdateOneID(instanceID).
+	if err := e.client.ServiceInstance.UpdateOneID(instanceID).
 		SetQuotaBytes(quotaBytes).
 		SetQuotaPeriod(period).
 		SetQuotaAction(action).
 		SetQuotaUsedBytes(0).
 		SetQuotaResetAt(resetAt).
-		Exec(ctx)
+		Exec(ctx); err != nil {
+		return fmt.Errorf("set quota configuration: %w", err)
+	}
+	return nil
 }

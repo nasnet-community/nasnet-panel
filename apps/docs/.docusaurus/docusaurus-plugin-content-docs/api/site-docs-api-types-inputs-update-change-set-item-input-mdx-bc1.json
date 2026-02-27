@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/update-change-set-item-input",
+  "title": "UpdateChangeSetItemInput",
+  "description": "Input for updating an item in a change set",
+  "source": "@site/docs/api/types/inputs/update-change-set-item-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/update-change-set-item-input",
+  "permalink": "/api/types/inputs/update-change-set-item-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "update-change-set-item-input",
+    "title": "UpdateChangeSetItemInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "UpdateBridgePortInput",
+    "permalink": "/api/types/inputs/update-bridge-port-input"
+  },
+  "next": {
+    "title": "UpdateCheckScheduleInput",
+    "permalink": "/api/types/inputs/update-check-schedule-input"
+  }
+}

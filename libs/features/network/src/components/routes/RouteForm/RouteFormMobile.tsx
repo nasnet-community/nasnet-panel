@@ -76,7 +76,7 @@ function RouteFormMobileComponent({
         <Input
           id="destination-mobile"
           placeholder="192.168.1.0/24 or 0.0.0.0/0"
-          className="min-h-[44px] font-mono"
+          className="min-h-[44px] font-mono text-foreground"
           {...register('destination')}
           aria-invalid={errors.destination ? 'true' : 'false'}
         />
@@ -100,7 +100,7 @@ function RouteFormMobileComponent({
         <Input
           id="gateway-mobile"
           placeholder="192.168.1.1"
-          className="min-h-[44px] font-mono"
+          className="min-h-[44px] font-mono text-foreground"
           {...register('gateway')}
           aria-invalid={errors.gateway ? 'true' : 'false'}
         />
@@ -135,7 +135,7 @@ function RouteFormMobileComponent({
                   <AlertTriangle className="mr-1 h-3 w-3" />
                   Gateway may not be reachable
                 </Badge>
-                <div role="alert" className="mt-2 rounded-lg border border-warning/50 bg-warning/10 p-component-sm text-sm">
+                <div role="alert" className="mt-2 rounded-lg border border-warning/50 bg-warning/10 p-component-sm text-sm text-foreground">
                   <div className="flex gap-component-sm">
                     <AlertTriangle className="h-4 w-4 text-warning shrink-0 mt-0.5" aria-hidden="true" />
                     <div className="space-y-component-sm">

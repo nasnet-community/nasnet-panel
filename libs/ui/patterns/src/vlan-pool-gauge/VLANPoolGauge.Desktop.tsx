@@ -36,12 +36,12 @@ export function VLANPoolGaugeDesktop({
   const strokeDashoffset = circumference - (utilization / 100) * circumference;
 
   return (
-    <Card className={cn('hover:shadow-md transition-shadow', className)}>
+    <Card className={cn('bg-card border border-border rounded-[var(--semantic-radius-card)] hover:shadow-md transition-shadow', className)}>
       <CardHeader>
         <CardTitle className="text-lg flex items-center justify-between">
           VLAN Pool Utilization
           {shouldWarn && (
-            <span className="text-xs font-normal text-warning flex items-center gap-1">
+            <span className="text-xs font-normal text-warning flex items-center gap-component-sm">
               <svg
                 className="w-4 h-4"
                 fill="none"
@@ -61,7 +61,7 @@ export function VLANPoolGaugeDesktop({
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-component-lg">
           {/* Circular gauge */}
           <div className="relative inline-flex items-center justify-center flex-shrink-0">
             <svg height={radius * 2} width={radius * 2}>
@@ -103,28 +103,28 @@ export function VLANPoolGaugeDesktop({
           </div>
 
           {/* Stats grid */}
-          <div className="flex-1 grid grid-cols-3 gap-4">
+          <div className="flex-1 grid grid-cols-3 gap-component-md">
             <div>
-              <div className="text-xs font-medium text-muted-foreground uppercase">
+              <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 Allocated
               </div>
-              <div className="text-lg font-semibold mt-1">
+              <div className="text-lg font-semibold mt-2">
                 {allocated.toLocaleString()}
               </div>
             </div>
             <div>
-              <div className="text-xs font-medium text-muted-foreground uppercase">
+              <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 Available
               </div>
-              <div className="text-lg font-semibold mt-1">
+              <div className="text-lg font-semibold mt-2">
                 {available.toLocaleString()}
               </div>
             </div>
             <div>
-              <div className="text-xs font-medium text-muted-foreground uppercase">
+              <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 Total
               </div>
-              <div className="text-lg font-semibold mt-1">
+              <div className="text-lg font-semibold mt-2">
                 {total.toLocaleString()}
               </div>
             </div>

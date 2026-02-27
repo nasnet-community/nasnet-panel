@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"sync"
 	"time"
 
@@ -220,7 +221,11 @@ func (q *CleanupQueue) cleanupRouterDB(routerID string) error {
 		return nil
 	}
 
-	return q.dbManager.DeleteRouterDB(routerID)
+	err := q.dbManager.DeleteRouterDB(routerID)
+	if err != nil {
+		return fmt.Errorf("delete router database: %w", err)
+	}
+	return nil
 }
 
 // ProcessNow immediately processes all pending tasks.

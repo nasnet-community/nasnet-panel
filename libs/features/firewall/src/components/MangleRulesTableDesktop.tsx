@@ -153,7 +153,7 @@ const MatchersSummary = React.memo(function MatchersSummaryComponent({ rule }: {
   return (
     <span className="text-sm">
       <span className="font-mono">{matchers.slice(0, 2).join(', ')}</span>
-      <Badge variant="outline" className="ml-2 text-xs">
+      <Badge variant="outline" className="ml-component-sm text-xs">
         +{matchers.length - 2} more
       </Badge>
     </span>
@@ -212,7 +212,7 @@ const SortableRow = React.memo(function SortableRowComponent({
     >
       {/* Drag handle */}
       <TableCell className="w-8 cursor-grab" {...attributes} {...listeners}>
-        <GripVertical className="h-4 w-4 text-muted-foreground" />
+        <GripVertical className="h-4 w-4 text-category-firewall" />
       </TableCell>
 
       {/* Position */}
@@ -263,7 +263,7 @@ const SortableRow = React.memo(function SortableRowComponent({
 
       {/* Actions */}
       <TableCell>
-        <div className="flex gap-1">
+        <div className="flex gap-component-xs">
           <Button
             variant="ghost"
             size="sm"
@@ -406,8 +406,8 @@ export const MangleRulesTableDesktop = React.memo(function MangleRulesTableDeskt
   // Loading state
   if (isLoading) {
     return (
-      <div className={cn('p-4', className)}>
-        <div className="animate-pulse space-y-4">
+      <div className={cn('p-component-md', className)}>
+        <div className="animate-pulse space-y-component-md">
           <div className="h-10 bg-muted rounded" />
           <div className="h-16 bg-muted rounded" />
           <div className="h-16 bg-muted rounded" />
@@ -419,8 +419,8 @@ export const MangleRulesTableDesktop = React.memo(function MangleRulesTableDeskt
   // Error state
   if (error) {
     return (
-      <div className={cn('p-4 text-error', className)} role="alert">
-        <p className="font-semibold mb-1">{t('mangle.notifications.error.load')}</p>
+      <div className={cn('p-component-md text-error', className)} role="alert">
+        <p className="font-semibold mb-component-xs">{t('mangle.notifications.error.load')}</p>
         <p className="text-sm">{error.message}</p>
       </div>
     );
@@ -429,7 +429,7 @@ export const MangleRulesTableDesktop = React.memo(function MangleRulesTableDeskt
   // Empty state
   if (!rules || rules.length === 0) {
     return (
-      <div className={cn('p-8 text-center', className)}>
+      <div className={cn('p-component-lg text-center', className)}>
         <p className="text-muted-foreground">
           {chain ? t('mangle.table.noRulesInChain') : t('mangle.table.noRules')}
         </p>
@@ -513,9 +513,9 @@ export const MangleRulesTableDesktop = React.memo(function MangleRulesTableDeskt
               {t('mangle.dialogs.deleteRule.description')}
             </DialogDescription>
           </DialogHeader>
-          <div className="py-4">
-            <p className="text-sm font-semibold mb-2">{t('mangle.dialogs.deleteRule.warning')}</p>
-            <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+          <div className="py-component-md">
+            <p className="text-sm font-semibold mb-component-sm">{t('mangle.dialogs.deleteRule.warning')}</p>
+            <ul className="list-disc list-inside text-sm text-muted-foreground space-y-component-xs">
               {(t('mangle.dialogs.deleteRule.consequences', { returnObjects: true }) as string[]).map((consequence, i) => (
                 <li key={i}>{consequence}</li>
               ))}

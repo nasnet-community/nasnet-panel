@@ -56,11 +56,11 @@ function RootInner() {
       {/* Skip to main content link for keyboard/screen reader users */}
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:p-4 focus:bg-primary focus:text-primary-foreground"
+        className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:p-4 focus:bg-primary focus:text-primary-foreground focus:rounded-md focus:shadow-lg"
       >
         {t('a11y.skipToMainContent')}
       </a>
-      <main id="main-content" className="px-page-mobile md:px-page-tablet lg:px-page-desktop">
+      <main id="main-content" className="animate-fade-in-up px-page-mobile py-6 md:px-page-tablet lg:px-page-desktop">
         <Outlet />
       </main>
       <Toaster />

@@ -106,7 +106,7 @@ export function IPAddressDeleteDialog({
     <Dialog open={open} onOpenChange={handleCancel}>
       <DialogContent className={cn('sm:max-w-md', className)}>
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+          <DialogTitle className="flex items-center gap-component-sm">
             <Trash
               className="h-5 w-5 text-error flex-shrink-0"
               aria-hidden="true"
@@ -119,8 +119,8 @@ export function IPAddressDeleteDialog({
         </DialogHeader>
 
         {/* IP Address Info */}
-        <div className="rounded-card-sm border p-component-sm bg-muted/50">
-          <div className="text-sm font-medium mb-1 font-mono">{ipAddress.address}</div>
+        <div className="rounded-card-sm border border-border p-component-sm bg-card">
+          <div className="text-sm font-medium mb-1 font-mono text-foreground">{ipAddress.address}</div>
           <div className="text-sm text-muted-foreground">
             Interface: <span className="font-mono">{ipAddress.interfaceName}</span>
           </div>
@@ -129,7 +129,7 @@ export function IPAddressDeleteDialog({
         {/* Loading Dependencies */}
         {dependenciesLoading && (
           <div
-            className="flex items-center gap-2 text-sm text-muted-foreground py-4"
+            className="flex items-center gap-component-sm text-sm text-muted-foreground py-component-md"
             role="status"
             aria-live="polite"
           >
@@ -163,7 +163,7 @@ export function IPAddressDeleteDialog({
                   <div className="font-medium text-sm mb-1">DHCP Servers:</div>
                   <div className="space-y-1">
                     {dependencies.dhcpServers.map((server: any) => (
-                      <div key={server.id} className="text-sm flex items-center gap-2">
+                      <div key={server.id} className="text-sm flex items-center gap-component-sm">
                         <Badge variant="secondary" className="text-xs">
                           {server.name}
                         </Badge>
@@ -233,7 +233,7 @@ export function IPAddressDeleteDialog({
         )}
 
         {/* Actions */}
-        <DialogFooter className="gap-2 sm:gap-0">
+        <DialogFooter className="gap-component-sm sm:gap-0">
           <Button
             type="button"
             variant="outline"

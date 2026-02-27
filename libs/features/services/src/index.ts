@@ -34,6 +34,10 @@ export type { PortRegistryViewMobileProps } from './components/PortRegistryViewM
 export { GatewayStatusCard } from './components/GatewayStatusCard';
 export type { GatewayStatusCardProps } from './components/GatewayStatusCard';
 
+export { GatewayStatusCardDesktop } from './components/GatewayStatusCardDesktop';
+
+export { GatewayStatusCardMobile } from './components/GatewayStatusCardMobile';
+
 export { VLANPoolConfig } from './components/VLANPoolConfig';
 export type { VLANPoolConfigProps } from './components/VLANPoolConfig';
 
@@ -41,6 +45,15 @@ export { StopDependentsDialog } from './components/StopDependentsDialog';
 
 export { UpdateAllPanel } from './components/UpdateAllPanel';
 export type { UpdateAllPanelProps } from './components/UpdateAllPanel';
+
+export { ChangelogModal } from './components/ChangelogModal';
+export type { ChangelogModalProps } from './components/ChangelogModal';
+
+export { ResourceLimitsForm } from './components/ResourceLimitsForm';
+export type { ResourceLimitsFormProps } from './components/ResourceLimitsForm';
+
+// External Storage Management Sub-module (NAS-8.20)
+export * from './components/storage';
 
 // Service Logs & Diagnostics Components (NAS-8.12)
 export { ServiceLogViewer } from './components/ServiceLogViewer';

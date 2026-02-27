@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/update-notification-channel-config",
+  "title": "updateNotificationChannelConfig",
+  "description": "Update an existing notification channel configuration",
+  "source": "@site/docs/api/operations/mutations/update-notification-channel-config.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/update-notification-channel-config",
+  "permalink": "/api/operations/mutations/update-notification-channel-config",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "update-notification-channel-config",
+    "title": "updateNotificationChannelConfig"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "updateNatRule",
+    "permalink": "/api/operations/mutations/update-nat-rule"
+  },
+  "next": {
+    "title": "updatePortKnockSequence",
+    "permalink": "/api/operations/mutations/update-port-knock-sequence"
+  }
+}

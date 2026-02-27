@@ -149,7 +149,7 @@ const MatchersSummary = ({ rule }: { rule: RawRule }) => {
   return (
     <span className="text-sm font-mono">
       {matchers.slice(0, 2).join(', ')}
-      <Badge variant="outline" className="ml-2 text-xs">
+      <Badge variant="outline" className="ml-component-sm text-xs">
         +{matchers.length - 2} more
       </Badge>
     </span>
@@ -229,7 +229,7 @@ const SortableRow = ({ rule, maxBytes, onEdit, onDuplicate, onDelete, onToggle, 
       </TableCell>
 
       {/* Position */}
-      <TableCell className="font-mono text-xs">{rule.order ?? '-'}</TableCell>
+      <TableCell className="font-mono text-xs"><span className="font-mono">{rule.order ?? '-'}</span></TableCell>
 
       {/* Chain */}
       <TableCell>
@@ -269,7 +269,7 @@ const SortableRow = ({ rule, maxBytes, onEdit, onDuplicate, onDelete, onToggle, 
 
       {/* Actions */}
       <TableCell>
-        <div className="flex gap-1">
+        <div className="flex gap-component-sm">
           <Button
             variant="ghost"
             size="sm"
@@ -290,7 +290,7 @@ const SortableRow = ({ rule, maxBytes, onEdit, onDuplicate, onDelete, onToggle, 
             variant="ghost"
             size="sm"
             onClick={() => onDelete(rule)}
-            className="text-destructive hover:text-destructive/80"
+            className="text-error hover:text-error/80"
             aria-label="Delete rule"
           >
             <Trash2 className="h-4 w-4" aria-hidden="true" />
@@ -465,7 +465,7 @@ export const RawRulesTableDesktop = ({ className, chain }: RawRulesTableDesktopP
 
   if (isLoading) {
     return (
-      <div className={cn('p-4 space-y-4 animate-pulse', className)}>
+      <div className={cn('p-component-md space-y-component-md animate-pulse', className)}>
         <div className="h-10 bg-muted rounded" />
         <div className="h-16 bg-muted rounded" />
         <div className="h-16 bg-muted rounded" />
@@ -475,16 +475,16 @@ export const RawRulesTableDesktop = ({ className, chain }: RawRulesTableDesktopP
 
   if (error) {
     return (
-      <div className={cn('p-component-md text-error rounded-[var(--semantic-radius-card)] bg-error/10', className)}>
+      <div className={cn('p-component-md text-error rounded-lg bg-error/10', className)}>
         <p className="font-medium">{t('raw.notifications.error.loadRules', 'Error loading RAW rules')}</p>
-        <p className="text-sm mt-1">{error.message}</p>
+        <p className="text-sm mt-component-xs">{error.message}</p>
       </div>
     );
   }
 
   if (!rules || rules.length === 0) {
     return (
-      <div className={cn('p-8 text-center space-y-2', className)}>
+      <div className={cn('p-component-xl text-center space-y-component-sm', className)}>
         <p className="font-semibold text-foreground">
           {chain
             ? t('raw.emptyStates.noRulesInChain.title', 'No rules in {{chain}}', { chain })
@@ -566,8 +566,8 @@ export const RawRulesTableDesktop = ({ className, chain }: RawRulesTableDesktopP
               {t('raw.dialogs.deleteRule.warning', 'This action cannot be undone. The rule will be permanently removed.')}
             </DialogDescription>
           </DialogHeader>
-          <div className="py-4">
-            <p className="text-sm font-semibold mb-2">{t('raw.dialogs.deleteRule.message', 'This will:')}</p>
+          <div className="py-component-md">
+            <p className="text-sm font-semibold mb-component-sm">{t('raw.dialogs.deleteRule.message', 'This will:')}</p>
             <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
               <li>Remove the rule from the {deleteConfirmRule?.chain} chain</li>
               <li>Reorder subsequent rules automatically</li>

@@ -28,7 +28,10 @@ func (i *InAppChannel) Send(ctx context.Context, notification notifications.Noti
 		return fmt.Errorf("event bus is not configured")
 	}
 	alertEvent := notifications.NewAlertNotificationEvent(notification, "inapp-channel")
-	return i.eventBus.Publish(ctx, alertEvent)
+	if err := i.eventBus.Publish(ctx, alertEvent); err != nil {
+		return fmt.Errorf("failed to publish alert notification event: %w", err)
+	}
+	return nil
 }
 
 // Test verifies the in-app channel configuration.

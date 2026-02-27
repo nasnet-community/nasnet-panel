@@ -2,6 +2,7 @@ package bootstrap
 
 import (
 	"errors"
+	"fmt"
 
 	"go.uber.org/zap"
 
@@ -79,14 +80,14 @@ func InitializeIntegrationServices(
 		Logger:        logger,
 	})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("init config service: %w", err)
 	}
 	zapLogger.Infow("Config service initialized (validate → generate → write → publish)")
 
 	// 4. Credential Service - initialize here since we have encryption service
 	credentialService, err := credentials.NewService(encryptionService)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("init credential service: %w", err)
 	}
 	zapLogger.Infow("Credential service initialized (encrypted storage)")
 

@@ -220,6 +220,13 @@ func (s *UpdateScheduler) checkInstanceForUpdate(instance *ent.ServiceInstance) 
 		return
 	}
 
+	if updateInfo == nil {
+		s.logger.Error("unexpected nil value for updateInfo",
+			zap.String("instance_id", instance.ID),
+			zap.String("feature_id", instance.FeatureID))
+		return
+	}
+
 	s.logger.Info("Update available",
 		zap.String("instance_id", instance.ID),
 		zap.String("feature_id", instance.FeatureID),

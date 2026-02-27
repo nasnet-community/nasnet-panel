@@ -141,7 +141,7 @@ export function DnsStaticEntryForm({
   );
 
   return (
-    <Card>
+    <Card className="bg-card category-networking">
       <form onSubmit={form.handleSubmit(handleSubmit)}>
         <CardHeader>
           <CardTitle>
@@ -253,7 +253,7 @@ export function DnsStaticEntryForm({
           </div>
         </CardContent>
 
-        <CardFooter className="flex gap-component-sm justify-end">
+        <CardFooter className="flex gap-component-md justify-end">
           <Button
             type="button"
             variant="outline"

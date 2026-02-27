@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/remove-egress-vlan",
+  "title": "removeEgressVLAN",
+  "description": "Remove an egress VLAN and clean up all associated resources.",
+  "source": "@site/docs/api/operations/mutations/remove-egress-vlan.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/remove-egress-vlan",
+  "permalink": "/api/operations/mutations/remove-egress-vlan",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "remove-egress-vlan",
+    "title": "removeEgressVLAN"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "removeDeviceRouting",
+    "permalink": "/api/operations/mutations/remove-device-routing"
+  },
+  "next": {
+    "title": "removeIngressFromBridge",
+    "permalink": "/api/operations/mutations/remove-ingress-from-bridge"
+  }
+}

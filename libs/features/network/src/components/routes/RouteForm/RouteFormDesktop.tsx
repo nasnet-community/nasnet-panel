@@ -80,6 +80,7 @@ function RouteFormDesktopComponent({
             <Input
               id="destination"
               placeholder="192.168.1.0/24 or 0.0.0.0/0"
+              className="font-mono text-foreground"
               {...register('destination')}
               aria-invalid={errors.destination ? 'true' : 'false'}
               aria-describedby={errors.destination ? 'destination-error' : 'destination-help'}
@@ -104,6 +105,7 @@ function RouteFormDesktopComponent({
             <Input
               id="gateway"
               placeholder="192.168.1.1"
+              className="font-mono text-foreground"
               {...register('gateway')}
               aria-invalid={errors.gateway ? 'true' : 'false'}
               aria-describedby={errors.gateway ? 'gateway-error' : 'gateway-help'}
@@ -144,7 +146,7 @@ function RouteFormDesktopComponent({
             )}
 
             {!reachabilityInfo.checking && reachabilityInfo.reachable === false && (
-              <div role="alert" className="rounded-lg border border-warning/50 bg-warning/10 p-component-sm text-sm">
+              <div role="alert" className="rounded-lg border border-warning/50 bg-warning/10 p-component-sm text-sm text-foreground">
                 <div className="flex gap-component-sm">
                   <AlertTriangle className="h-4 w-4 text-warning shrink-0 mt-0.5" aria-hidden="true" />
                   <div className="space-y-component-sm">

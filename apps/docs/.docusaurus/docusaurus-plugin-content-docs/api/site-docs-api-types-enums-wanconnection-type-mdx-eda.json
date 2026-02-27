@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/wanconnection-type",
+  "title": "WANConnectionType",
+  "description": "WAN connection type classification",
+  "source": "@site/docs/api/types/enums/wanconnection-type.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/wanconnection-type",
+  "permalink": "/api/types/enums/wanconnection-type",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "wanconnection-type",
+    "title": "WANConnectionType"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "WANClassification",
+    "permalink": "/api/types/enums/wanclassification"
+  },
+  "next": {
+    "title": "WANEventType",
+    "permalink": "/api/types/enums/wanevent-type"
+  }
+}

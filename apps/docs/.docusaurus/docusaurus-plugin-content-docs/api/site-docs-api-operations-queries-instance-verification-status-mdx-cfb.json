@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/instance-verification-status",
+  "title": "instanceVerificationStatus",
+  "description": "Get verification status for all instances on a router.",
+  "source": "@site/docs/api/operations/queries/instance-verification-status.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/instance-verification-status",
+  "permalink": "/api/operations/queries/instance-verification-status",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "instance-verification-status",
+    "title": "instanceVerificationStatus"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "instanceUpdateInfo",
+    "permalink": "/api/operations/queries/instance-update-info"
+  },
+  "next": {
+    "title": "interfaceStatsHistory",
+    "permalink": "/api/operations/queries/interface-stats-history"
+  }
+}

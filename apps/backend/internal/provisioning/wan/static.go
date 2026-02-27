@@ -21,7 +21,8 @@ func (s *Service) provisionStatic(
 ) (*ProvisionResult, error) {
 
 	static := link.ConnectionConfig.Static
-	iface := link.InterfaceConfig.InterfaceName
+	// Use the final virtual interface (MACVLAN/VLAN) not the raw physical interface
+	iface := GetWANInterface(link)
 
 	// 1. Add IP address
 	ipArgs := map[string]string{

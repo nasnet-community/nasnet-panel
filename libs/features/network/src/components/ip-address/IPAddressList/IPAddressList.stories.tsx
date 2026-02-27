@@ -101,7 +101,7 @@ function StatefulList({
   const [sortOptions, setSortOptions] = useState<IPAddressSortOptions>(defaultSort);
 
   return (
-    <div className="p-6 bg-background min-h-screen">
+    <div className="p-component-lg bg-background min-h-screen">
       <IPAddressList
         ipAddresses={addresses}
         loading={loading}

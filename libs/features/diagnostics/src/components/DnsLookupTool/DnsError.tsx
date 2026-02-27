@@ -57,13 +57,13 @@ export const DnsError = memo(function DnsError({ result, className }: DnsErrorPr
   };
 
   return (
-    <div className={cn('space-y-4', className)}>
+    <div className={cn('space-y-component-md', className)}>
       <Alert variant="destructive" role="alert" aria-live="assertive">
-        <div className="flex items-start gap-3">
+        <div className="flex items-start gap-component-sm">
           <span className="text-2xl flex-shrink-0" aria-hidden="true">
             {getIcon()}
           </span>
-          <div className="flex-1 space-y-2">
+          <div className="flex-1 space-y-component-sm">
             <AlertDescription className="font-medium">{errorMessage}</AlertDescription>
             <p className="text-sm opacity-90">{getSuggestion()}</p>
           </div>
@@ -71,24 +71,24 @@ export const DnsError = memo(function DnsError({ result, className }: DnsErrorPr
       </Alert>
 
       {/* Query Details */}
-      <div className="p-4 bg-muted/50 rounded-lg space-y-2">
-        <h4 className="text-sm font-semibold">Query Details</h4>
-        <div className="grid grid-cols-2 gap-2 text-sm">
+      <div className="p-component-md bg-muted/50 rounded-lg space-y-component-sm">
+        <h4 className="text-sm font-semibold font-display text-category-networking">Query Details</h4>
+        <div className="grid grid-cols-2 gap-component-sm text-sm">
           <div>
             <span className="text-muted-foreground">Hostname:</span>
-            <span className="ml-2 font-mono">{result.hostname}</span>
+            <span className="ml-component-sm font-mono">{result.hostname}</span>
           </div>
           <div>
             <span className="text-muted-foreground">Record Type:</span>
-            <span className="ml-2 font-mono">{result.recordType}</span>
+            <span className="ml-component-sm font-mono">{result.recordType}</span>
           </div>
           <div>
             <span className="text-muted-foreground">Server:</span>
-            <span className="ml-2 font-mono">{result.server}</span>
+            <span className="ml-component-sm font-mono">{result.server}</span>
           </div>
           <div>
             <span className="text-muted-foreground">Status:</span>
-            <span className="ml-2 font-mono text-error">{result.status}</span>
+            <span className="ml-component-sm font-mono text-error">{result.status}</span>
           </div>
         </div>
       </div>

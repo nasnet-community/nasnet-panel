@@ -189,7 +189,7 @@ func (r *EntSessionRepository) GetByID(ctx context.Context, id string) (*Session
 		if ent.IsNotFound(err) {
 			return nil, ErrSessionNotFound
 		}
-		return nil, err
+		return nil, fmt.Errorf("get session by ID %q: %w", id, err)
 	}
 	return entSessionToSession(s), nil
 }
@@ -203,7 +203,7 @@ func (r *EntSessionRepository) GetByTokenID(ctx context.Context, tokenID string)
 		if ent.IsNotFound(err) {
 			return nil, ErrSessionNotFound
 		}
-		return nil, err
+		return nil, fmt.Errorf("get session by token ID %q: %w", tokenID, err)
 	}
 	return entSessionToSession(s), nil
 }

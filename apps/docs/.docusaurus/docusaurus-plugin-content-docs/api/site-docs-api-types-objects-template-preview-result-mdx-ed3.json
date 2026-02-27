@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/template-preview-result",
+  "title": "TemplatePreviewResult",
+  "description": "Result of template preview operation.",
+  "source": "@site/docs/api/types/objects/template-preview-result.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/template-preview-result",
+  "permalink": "/api/types/objects/template-preview-result",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "template-preview-result",
+    "title": "TemplatePreviewResult"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "TemplatePreviewPayload",
+    "permalink": "/api/types/objects/template-preview-payload"
+  },
+  "next": {
+    "title": "TemplatePreview",
+    "permalink": "/api/types/objects/template-preview"
+  }
+}

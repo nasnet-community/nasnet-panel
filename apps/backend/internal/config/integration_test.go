@@ -264,11 +264,11 @@ func TestAllGenerators_InvalidIPFormat(t *testing.T) {
 	}
 
 	invalidIPs := []string{
-		"256.256.256.256",    // Out of range
-		"192.168.1",          // Incomplete
-		"192.168.1.1.1",      // Too many octets
-		"not-an-ip",          // Not an IP
-		"192.168.1.a",        // Non-numeric
+		"256.256.256.256", // Out of range
+		"192.168.1",       // Incomplete
+		"192.168.1.1.1",   // Too many octets
+		"not-an-ip",       // Not an IP
+		"192.168.1.a",     // Non-numeric
 	}
 
 	for _, gen := range generators {

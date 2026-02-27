@@ -1,0 +1,24 @@
+{
+  "id": "feature-minor",
+  "title": "Feature: Wireless, Router Discovery, and Configuration Import",
+  "description": "This document covers three focused feature modules: the Wireless library (libs/features/wireless), the Router Discovery library (libs/features/router-discovery), and the Configuration Import library (libs/features/configuration-import). All three are consumed primarily by apps/connect/src/ and follow the same Layer 3 domain component architecture as the other feature libraries.",
+  "source": "@site/../../libs/features/docs/feature-minor.md",
+  "sourceDirName": ".",
+  "slug": "/feature-minor",
+  "permalink": "/docs/features/feature-minor",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/features/docs/feature-minor.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Feature: Logs (libs/features/logs)",
+    "permalink": "/docs/features/feature-logs"
+  },
+  "next": {
+    "title": "Feature: Network (libs/features/network)",
+    "permalink": "/docs/features/feature-network"
+  }
+}

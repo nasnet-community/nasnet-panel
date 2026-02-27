@@ -24,7 +24,7 @@
     "check": "nx run-many -t typecheck lint --parallel=false",
     "check:all": "nx run-many -t typecheck lint --all --parallel=false --verbose",
     "check:frontend": "node scripts/check-frontend.mjs",
-    "check:backend": "nx run backend:lint && nx run backend:typecheck && nx run backend:build:check",
+    "check:backend": "node scripts/check-backend.mjs --",
     "check:storybook": "nx run-many -t build-storybook",
     "docker:local": "nx run backend:docker:build-local",
     "docker:export": "nx run backend:docker:export-tar",
@@ -46,18 +46,28 @@
     "g:resolver": "nx generate @nasnet/tools:resolver",
     "tokens:build": "node libs/ui/tokens/build.js",
     "tokens:watch": "node libs/ui/tokens/build.js --watch",
+    "vulncheck": "npx nx run backend:vulncheck",
+    "codegen:wire": "npx nx run backend:wire",
     "codegen": "npm run codegen:ts && npm run codegen:go",
     "codegen:ts": "graphql-codegen --config codegen.ts",
     "codegen:ent": "cd apps/backend/internal/ent-schema && go generate ./...",
     "codegen:gqlgen": "cd apps/backend && go generate ./graph/...",
-    "codegen:go": "npm run codegen:ent && npm run codegen:gqlgen",
-    "codegen:check": "npm run codegen && git diff --exit-code libs/api-client/generated/ apps/backend/graph/ apps/backend/generated/ent/",
+    "codegen:go": "npm run codegen:ent && npm run codegen:gqlgen && npm run codegen:wire",
+    "codegen:check": "npm run codegen && git diff --exit-code libs/api-client/generated/ apps/backend/graph/ apps/backend/generated/ent/ apps/backend/internal/bootstrap/",
     "i18n:extract": "i18next 'apps/connect/src/**/*.{ts,tsx}' 'libs/ui/patterns/src/**/*.{ts,tsx}' -c i18next-parser.config.js",
     "i18n:check": "i18next 'apps/connect/src/**/*.{ts,tsx}' 'libs/ui/patterns/src/**/*.{ts,tsx}' -c i18next-parser.config.js --fail-on-update",
-    "i18n:sync": "npm run i18n:extract && cp libs/core/i18n/src/locales/en/*.json apps/connect/public/locales/en/ && cp libs/core/i18n/src/locales/fa/*.json apps/connect/public/locales/fa/"
+    "i18n:sync": "npm run i18n:extract && cp libs/core/i18n/src/locales/en/*.json apps/connect/public/locales/en/ && cp libs/core/i18n/src/locales/fa/*.json apps/connect/public/locales/fa/",
+    "docs:dev": "nx serve docs",
+    "docs:build": "nx build docs",
+    "docs:deploy:build": "nx run-many -t build-storybook && nx build docs",
+    "docs:nx-graph": "npx nx graph --file=dist/nx-graph/index.html",
+    "release": "npx nx release",
+    "release:dry-run": "npx nx release --dry-run",
+    "release:changelog": "npx nx release changelog"
   },
   "private": true,
   "devDependencies": {
+    "ajv": "^8.17.1",
     "@axe-core/react": "^4.11.0",
     "@builder.io/qwik": "^1.17.1",
     "@builder.io/qwik-city": "^1.17.1",
@@ -236,5 +246,14 @@
     "xstate": "^5.26.0",
     "zod": "^3.25.76",
     "zustand": "^4.5.7"
+  },
+  "overrides": {
+    "ajv": "^8.17.1",
+    "eslint": {
+      "ajv": "^6.12.4"
+    },
+    "@eslint/eslintrc": {
+      "ajv": "^6.12.4"
+    }
   }
 }

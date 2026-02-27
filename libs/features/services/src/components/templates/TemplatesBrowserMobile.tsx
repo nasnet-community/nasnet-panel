@@ -79,7 +79,7 @@ function TemplatesBrowserMobileComponent({
             <Button
               variant="outline"
               size="default"
-              className="min-h-[44px] min-w-[44px] px-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className="min-h-[44px] min-w-[44px] px-3"
               aria-label={hasActiveFilters ? 'Open filters (filters active)' : 'Open filters'}
             >
               <Filter className="h-4 w-4" aria-hidden="true" />
@@ -117,7 +117,7 @@ function TemplatesBrowserMobileComponent({
               variant="outline"
               size="sm"
               onClick={handleRetry}
-              className="mt-component-md min-h-[44px] min-w-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className="mt-component-md min-h-[44px]"
             >
               Retry
             </Button>

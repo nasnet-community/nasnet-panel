@@ -142,7 +142,7 @@ func (t *AdGuardWebUITest) Run(ctx context.Context) DiagnosticResult {
 		},
 	}
 
-	resp, err := client.Do(req)
+	resp, err := client.Do(req) //nolint:gosec // G704: URL is constructed from trusted configuration
 	if err != nil {
 		return t.newResult(
 			DiagnosticStatusFail,
@@ -220,7 +220,7 @@ func (t *AdGuardAPITest) Run(ctx context.Context) DiagnosticResult {
 		Timeout: 5 * time.Second,
 	}
 
-	resp, err := client.Do(req)
+	resp, err := client.Do(req) //nolint:gosec // G704: URL is constructed from trusted configuration
 	if err != nil {
 		return t.newResult(
 			DiagnosticStatusFail,

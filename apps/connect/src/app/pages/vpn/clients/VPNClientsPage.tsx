@@ -363,14 +363,14 @@ export const VPNClientsPage = React.memo(function VPNClientsPage() {
   };
 
   return (
-    <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-component-lg">
+    <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-component-lg animate-fade-in-up">
       <div className="max-w-6xl mx-auto space-y-component-lg">
         {/* Header */}
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-component-md">
             <BackButton to={routerId ? `/router/${routerId}/vpn` : '/vpn'} />
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1">
+              <h1 className="text-2xl sm:text-3xl font-display font-bold text-foreground mb-1">
                 {t('clients.title')}
               </h1>
               <p className="text-sm text-muted-foreground">
@@ -462,7 +462,7 @@ function EmptyState({ protocol, onAdd }: EmptyStateProps) {
   return (
     <div className="text-center py-component-lg bg-muted/30 rounded-card-sm">
       <ProtocolIconBadge protocol={protocol} variant="lg" className="mx-auto mb-4" />
-      <h3 className="text-lg font-semibold text-foreground mb-2">
+      <h3 className="text-lg font-display font-semibold text-foreground mb-2">
         {t('clients.noClientsConfigured', { protocol: getProtocolLabel(protocol) })}
       </h3>
       <p className="text-sm text-muted-foreground mb-4">

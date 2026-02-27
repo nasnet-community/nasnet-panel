@@ -1,0 +1,28 @@
+{
+  "id": "intro",
+  "title": "Introduction",
+  "description": "The @nasnet/core library is the shared foundation for the NasNetConnect frontend. It provides type-safe constants, shared TypeScript interfaces, utility functions, and React form/validation infrastructure used by all features.",
+  "source": "@site/../../libs/core/docs/intro.md",
+  "sourceDirName": ".",
+  "slug": "/intro",
+  "permalink": "/docs/core/intro",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/core/docs/intro.md",
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 1,
+  "frontMatter": {
+    "sidebar_position": 1,
+    "title": "Introduction"
+  },
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Core Library Documentation",
+    "permalink": "/docs/core/"
+  },
+  "next": {
+    "title": "Error Handling Patterns",
+    "permalink": "/docs/core/guides/error-handling-patterns"
+  }
+}

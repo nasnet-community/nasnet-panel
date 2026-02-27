@@ -1,0 +1,26 @@
+{
+  "id": "api/types/scalars/size",
+  "title": "Size",
+  "description": "Size in bytes with optional unit (e.g., \"1024\", \"1k\", \"1M\", \"1G\")",
+  "source": "@site/docs/api/types/scalars/size.mdx",
+  "sourceDirName": "api/types/scalars",
+  "slug": "/api/types/scalars/size",
+  "permalink": "/api/types/scalars/size",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "size",
+    "title": "Size"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "Port",
+    "permalink": "/api/types/scalars/port"
+  },
+  "next": {
+    "title": "String",
+    "permalink": "/api/types/scalars/string"
+  }
+}

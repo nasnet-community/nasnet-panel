@@ -1,0 +1,28 @@
+{
+  "id": "quick-start",
+  "title": "Quick Start",
+  "description": "This guide walks through everything you need to start building features with the NasNetConnect UI",
+  "source": "@site/../../libs/ui/docs/quick-start.md",
+  "sourceDirName": ".",
+  "slug": "/quick-start",
+  "permalink": "/docs/ui/quick-start",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/ui/docs/quick-start.md",
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 2,
+  "frontMatter": {
+    "sidebar_position": 2,
+    "title": "Quick Start"
+  },
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Introduction",
+    "permalink": "/docs/ui/intro"
+  },
+  "next": {
+    "title": "Multi-Package Flows",
+    "permalink": "/docs/ui/multi-package-flows"
+  }
+}

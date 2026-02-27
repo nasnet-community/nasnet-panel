@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/update-all-instances",
+  "title": "updateAllInstances",
+  "description": "Update all instances that have critical updates available.",
+  "source": "@site/docs/api/operations/mutations/update-all-instances.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/update-all-instances",
+  "permalink": "/api/operations/mutations/update-all-instances",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "update-all-instances",
+    "title": "updateAllInstances"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "updateAlertRule",
+    "permalink": "/api/operations/mutations/update-alert-rule"
+  },
+  "next": {
+    "title": "updateBridgePort",
+    "permalink": "/api/operations/mutations/update-bridge-port"
+  }
+}

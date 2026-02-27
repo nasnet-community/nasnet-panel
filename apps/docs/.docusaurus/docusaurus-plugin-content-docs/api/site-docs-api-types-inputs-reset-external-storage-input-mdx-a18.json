@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/reset-external-storage-input",
+  "title": "ResetExternalStorageInput",
+  "description": "Input for resetting external storage configuration.",
+  "source": "@site/docs/api/types/inputs/reset-external-storage-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/reset-external-storage-input",
+  "permalink": "/api/types/inputs/reset-external-storage-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "reset-external-storage-input",
+    "title": "ResetExternalStorageInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "RemoveDependencyInput",
+    "permalink": "/api/types/inputs/remove-dependency-input"
+  },
+  "next": {
+    "title": "ResourceRelationshipsInput",
+    "permalink": "/api/types/inputs/resource-relationships-input"
+  }
+}

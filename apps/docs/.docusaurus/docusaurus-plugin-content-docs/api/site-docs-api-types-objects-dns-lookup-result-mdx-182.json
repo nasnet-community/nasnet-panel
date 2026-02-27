@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/dns-lookup-result",
+  "title": "DnsLookupResult",
+  "description": "Result of a DNS lookup operation",
+  "source": "@site/docs/api/types/objects/dns-lookup-result.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/dns-lookup-result",
+  "permalink": "/api/types/objects/dns-lookup-result",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "dns-lookup-result",
+    "title": "DnsLookupResult"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "DnsCacheStats",
+    "permalink": "/api/types/objects/dns-cache-stats"
+  },
+  "next": {
+    "title": "DnsRecord",
+    "permalink": "/api/types/objects/dns-record"
+  }
+}

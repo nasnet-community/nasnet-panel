@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/bulk-assign-routing-input",
+  "title": "BulkAssignRoutingInput",
+  "description": "Input for bulk device routing assignment.",
+  "source": "@site/docs/api/types/inputs/bulk-assign-routing-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/bulk-assign-routing-input",
+  "permalink": "/api/types/inputs/bulk-assign-routing-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "bulk-assign-routing-input",
+    "title": "BulkAssignRoutingInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "BulkAddressInput",
+    "permalink": "/api/types/inputs/bulk-address-input"
+  },
+  "next": {
+    "title": "ChainHopInput",
+    "permalink": "/api/types/inputs/chain-hop-input"
+  }
+}

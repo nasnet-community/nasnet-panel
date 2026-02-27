@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/bridge-resource",
+  "title": "BridgeResource",
+  "description": "Bridge resource (part of LANNetwork)",
+  "source": "@site/docs/api/types/objects/bridge-resource.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/bridge-resource",
+  "permalink": "/api/types/objects/bridge-resource",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "bridge-resource",
+    "title": "BridgeResource"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "BridgePort",
+    "permalink": "/api/types/objects/bridge-port"
+  },
+  "next": {
+    "title": "BridgeStatus",
+    "permalink": "/api/types/objects/bridge-status"
+  }
+}

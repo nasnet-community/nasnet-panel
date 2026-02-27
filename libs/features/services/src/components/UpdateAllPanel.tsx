@@ -210,13 +210,13 @@ export const UpdateAllPanel = React.memo(function UpdateAllPanel(props: UpdateAl
           </div>
         </CardHeader>
 
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-component-lg">
           {/* Severity breakdown */}
           {(updateCounts.SECURITY > 0 ||
             updateCounts.MAJOR > 0 ||
             updateCounts.MINOR > 0 ||
             updateCounts.PATCH > 0) && (
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-component-md">
               {updateCounts.SECURITY > 0 && (
                 <Badge className={SEVERITY_COLORS.SECURITY}>
                   <Icon icon={ShieldAlert} className="h-3 w-3 mr-1" aria-hidden="true" />
@@ -258,7 +258,7 @@ export const UpdateAllPanel = React.memo(function UpdateAllPanel(props: UpdateAl
           )}
 
           {/* Update list (first 5) */}
-          <div className="space-y-2">
+          <div className="space-y-component-sm">
             {sortedUpdates.slice(0, 5).map((update) => {
               const isUpdating = updatingInstances[update.instanceId];
               const progress = updateProgress[update.instanceId] ?? 0;
@@ -269,10 +269,10 @@ export const UpdateAllPanel = React.memo(function UpdateAllPanel(props: UpdateAl
               return (
                 <div
                   key={update.instanceId}
-                  className="flex items-center justify-between p-3 rounded-md bg-muted/50"
+                  className="flex items-center justify-between p-component-md rounded-md bg-muted/50"
                 >
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
+                    <div className="flex items-center gap-component-sm mb-component-sm">
                       <SeverityIcon className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
                       <span className="font-medium text-sm truncate">
                         {update.instanceName}
@@ -285,7 +285,7 @@ export const UpdateAllPanel = React.memo(function UpdateAllPanel(props: UpdateAl
                     {isUpdating && (
                       <Progress
                         value={progress}
-                        className="h-1.5 mt-2"
+                        className="h-1.5 mt-component-sm"
                         aria-label={`Update progress for ${update.instanceName}: ${progress}%`}
                         aria-valuenow={progress}
                         aria-valuemin={0}
@@ -298,7 +298,7 @@ export const UpdateAllPanel = React.memo(function UpdateAllPanel(props: UpdateAl
                       variant="ghost"
                       size="sm"
                       onClick={() => handleUpdate(update.instanceId)}
-                      className="ml-2 min-h-[44px] min-w-[44px]"
+                      className="ml-component-md min-h-[44px] min-w-[44px]"
                       aria-label={`Update ${update.instanceName} to version ${update.latestVersion}`}
                     >
                       Update

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/vlanallocation-status",
+  "title": "VLANAllocationStatus",
+  "description": "VLANAllocationStatus represents the lifecycle state of a VLAN allocation.",
+  "source": "@site/docs/api/types/enums/vlanallocation-status.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/vlanallocation-status",
+  "permalink": "/api/types/enums/vlanallocation-status",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "vlanallocation-status",
+    "title": "VLANAllocationStatus"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "VirtualInterfaceStatus",
+    "permalink": "/api/types/enums/virtual-interface-status"
+  },
+  "next": {
+    "title": "WANClassification",
+    "permalink": "/api/types/enums/wanclassification"
+  }
+}

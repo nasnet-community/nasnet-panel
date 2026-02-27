@@ -68,10 +68,13 @@ func (f *APIFormatter) Format(cmd *translator.CanonicalCommand) ([]byte, error) 
 	}
 
 	// Add enable/disable parameter
-	if cmd.Action == translator.ActionEnable {
+	switch cmd.Action {
+	case translator.ActionEnable:
 		apiCmd.Args = append(apiCmd.Args, "=disabled=no")
-	} else if cmd.Action == translator.ActionDisable {
+	case translator.ActionDisable:
 		apiCmd.Args = append(apiCmd.Args, "=disabled=yes")
+	case translator.ActionGet, translator.ActionPrint, translator.ActionAdd,
+		translator.ActionSet, translator.ActionRemove, translator.ActionMove:
 	}
 
 	// Add filters for print operations
@@ -115,9 +118,8 @@ func (f *APIFormatter) actionToVerb(action translator.Action) string {
 		return verbSet // Disable is set with disabled=yes
 	case translator.ActionMove:
 		return "move"
-	default:
-		return string(action) // fallback to raw action string for unknown custom RouterOS actions
 	}
+	return string(action) // fallback to raw action string for unknown custom RouterOS actions
 }
 
 // formatFilter converts a filter to API query format.
@@ -350,6 +352,7 @@ func (f *APIFormatter) buildRawResponse(state *rawParseState) *translator.Canoni
 		}
 	}
 
+	// Default: return nil for empty response
 	return nil
 }
 
@@ -366,13 +369,12 @@ func (f *APIFormatter) parseRawResponse(response []byte) (*translator.CanonicalR
 func (f *APIFormatter) categorizeError(category, message string) translator.ErrorCategory {
 	// Check message first for specific error patterns
 	lowerMsg := strings.ToLower(message)
-	if strings.Contains(lowerMsg, "not found") || strings.Contains(lowerMsg, "no such item") {
+	switch {
+	case strings.Contains(lowerMsg, "not found") || strings.Contains(lowerMsg, "no such item"):
 		return translator.ErrorCategoryNotFound
-	}
-	if strings.Contains(lowerMsg, "already") || strings.Contains(lowerMsg, "duplicate") {
+	case strings.Contains(lowerMsg, "already") || strings.Contains(lowerMsg, "duplicate"):
 		return translator.ErrorCategoryConflict
-	}
-	if strings.Contains(lowerMsg, "invalid") || strings.Contains(lowerMsg, "bad") {
+	case strings.Contains(lowerMsg, "invalid") || strings.Contains(lowerMsg, "bad"):
 		return translator.ErrorCategoryValidation
 	}
 

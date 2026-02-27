@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/gretunnel-config",
+  "title": "GRETunnelConfig",
+  "description": "GRE tunnel configuration",
+  "source": "@site/docs/api/types/objects/gretunnel-config.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/gretunnel-config",
+  "permalink": "/api/types/objects/gretunnel-config",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "gretunnel-config",
+    "title": "GRETunnelConfig"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "GenerateConfigQRPayload",
+    "permalink": "/api/types/objects/generate-config-qrpayload"
+  },
+  "next": {
+    "title": "GRETunnelDeployment",
+    "permalink": "/api/types/objects/gretunnel-deployment"
+  }
+}

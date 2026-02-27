@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/wan-connection-history",
+  "title": "wanConnectionHistory",
+  "description": "Get connection history for a WAN interface",
+  "source": "@site/docs/api/operations/queries/wan-connection-history.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/wan-connection-history",
+  "permalink": "/api/operations/queries/wan-connection-history",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "wan-connection-history",
+    "title": "wanConnectionHistory"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "vlans",
+    "permalink": "/api/operations/queries/vlans"
+  },
+  "next": {
+    "title": "wanInterface",
+    "permalink": "/api/operations/queries/wan-interface"
+  }
+}

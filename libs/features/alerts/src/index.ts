@@ -69,19 +69,36 @@ export type { NtfyChannelFormMobileProps } from './components/ChannelForms/NtfyC
 // Alert Rule Template Components (NAS-18.12)
 export {
   AlertTemplateBrowser,
+  AlertTemplateBrowserNew,
+  AlertTemplateBrowserDesktop,
+  AlertTemplateBrowserMobile,
   AlertTemplateDetailPanel,
+  AlertTemplateVariableInputForm,
   AlertTemplateApplyDialog,
   SaveTemplateDialog,
   ImportTemplateDialog,
   ExportTemplateDialog,
+  useTemplateBrowser,
 } from './components/alert-templates';
 export type {
   AlertTemplateBrowserProps,
+  AlertTemplateBrowserNewProps,
+  AlertTemplateBrowserDesktopProps,
+  AlertTemplateBrowserMobileProps,
   AlertTemplateDetailPanelProps,
+  AlertTemplateVariableInputFormProps,
+  VariableValues,
   AlertTemplateApplyDialogProps,
   SaveTemplateDialogProps,
   ImportTemplateDialogProps,
   ExportTemplateDialogProps,
+  UseTemplateBrowserOptions,
+  UseTemplateBrowserReturn,
+  TemplateFilter,
+  TemplateSort,
+  TemplateSortField,
+  SortDirection,
+  TemplateSelection,
 } from './components/alert-templates';
 
 // Pages

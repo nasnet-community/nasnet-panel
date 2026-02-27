@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/lannetwork-runtime",
+  "title": "LANNetworkRuntime",
+  "description": "LAN Network runtime state",
+  "source": "@site/docs/api/types/objects/lannetwork-runtime.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/lannetwork-runtime",
+  "permalink": "/api/types/objects/lannetwork-runtime",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "lannetwork-runtime",
+    "title": "LANNetworkRuntime"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "LANNetworkDeployment",
+    "permalink": "/api/types/objects/lannetwork-deployment"
+  },
+  "next": {
+    "title": "LANNetwork",
+    "permalink": "/api/types/objects/lannetwork"
+  }
+}

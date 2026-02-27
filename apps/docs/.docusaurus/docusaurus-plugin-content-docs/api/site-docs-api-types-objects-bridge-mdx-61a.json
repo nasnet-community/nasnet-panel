@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/bridge",
+  "title": "Bridge",
+  "description": "No description",
+  "source": "@site/docs/api/types/objects/bridge.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/bridge",
+  "permalink": "/api/types/objects/bridge",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "bridge",
+    "title": "Bridge"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "BridgeVlan",
+    "permalink": "/api/types/objects/bridge-vlan"
+  },
+  "next": {
+    "title": "BulkAlertPayload",
+    "permalink": "/api/types/objects/bulk-alert-payload"
+  }
+}

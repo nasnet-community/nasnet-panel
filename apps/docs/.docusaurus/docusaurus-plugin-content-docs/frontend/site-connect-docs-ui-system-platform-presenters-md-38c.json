@@ -1,0 +1,24 @@
+{
+  "id": "ui-system/platform-presenters",
+  "title": "Platform Presenters Pattern",
+  "description": "NasNetConnect uses a Headless + Platform Presenters architecture as the core responsive design strategy. This is not standard CSS-only responsive design — it is a deliberate component architecture that separates business logic from rendering, then renders entirely different component trees per platform.",
+  "source": "@site/../connect/docs/ui-system/platform-presenters.md",
+  "sourceDirName": "ui-system",
+  "slug": "/ui-system/platform-presenters",
+  "permalink": "/docs/frontend/ui-system/platform-presenters",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../connect/docs/ui-system/platform-presenters.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Patterns Catalog",
+    "permalink": "/docs/frontend/ui-system/patterns-catalog"
+  },
+  "next": {
+    "title": "Primitives Catalog",
+    "permalink": "/docs/frontend/ui-system/primitives-catalog"
+  }
+}

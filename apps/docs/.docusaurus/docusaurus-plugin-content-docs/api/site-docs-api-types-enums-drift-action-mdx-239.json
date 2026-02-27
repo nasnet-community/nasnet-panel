@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/drift-action",
+  "title": "DriftAction",
+  "description": "Actions to resolve drift",
+  "source": "@site/docs/api/types/enums/drift-action.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/drift-action",
+  "permalink": "/api/types/enums/drift-action",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "drift-action",
+    "title": "DriftAction"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "DnsServerStatus",
+    "permalink": "/api/types/enums/dns-server-status"
+  },
+  "next": {
+    "title": "EgressVLANStatus",
+    "permalink": "/api/types/enums/egress-vlanstatus"
+  }
+}

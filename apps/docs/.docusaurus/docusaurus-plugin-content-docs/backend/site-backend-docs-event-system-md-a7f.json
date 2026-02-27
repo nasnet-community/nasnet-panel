@@ -1,0 +1,24 @@
+{
+  "id": "event-system",
+  "title": "Event System",
+  "description": "Typed, priority-based event bus built on Watermill GoChannel, connecting all backend subsystems through decoupled publish-subscribe communication.",
+  "source": "@site/../backend/docs/event-system.md",
+  "sourceDirName": ".",
+  "slug": "/event-system",
+  "permalink": "/docs/backend/event-system",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../backend/docs/event-system.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Error Handling & Structured Logging",
+    "permalink": "/docs/backend/error-handling"
+  },
+  "next": {
+    "title": "Feature Marketplace",
+    "permalink": "/docs/backend/feature-marketplace"
+  }
+}

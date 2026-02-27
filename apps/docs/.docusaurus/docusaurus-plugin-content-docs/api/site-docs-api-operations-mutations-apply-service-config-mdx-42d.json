@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/apply-service-config",
+  "title": "applyServiceConfig",
+  "description": "Apply configuration to a service instance.",
+  "source": "@site/docs/api/operations/mutations/apply-service-config.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/apply-service-config",
+  "permalink": "/api/operations/mutations/apply-service-config",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "apply-service-config",
+    "title": "applyServiceConfig"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "applyResource",
+    "permalink": "/api/operations/mutations/apply-resource"
+  },
+  "next": {
+    "title": "applyServiceImport",
+    "permalink": "/api/operations/mutations/apply-service-import"
+  }
+}

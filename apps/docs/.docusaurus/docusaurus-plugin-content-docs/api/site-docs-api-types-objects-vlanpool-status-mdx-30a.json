@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/vlanpool-status",
+  "title": "VLANPoolStatus",
+  "description": "VLANPoolStatus represents the current state of the VLAN pool for a router.",
+  "source": "@site/docs/api/types/objects/vlanpool-status.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/vlanpool-status",
+  "permalink": "/api/types/objects/vlanpool-status",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "vlanpool-status",
+    "title": "VLANPoolStatus"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "VLANAllocation",
+    "permalink": "/api/types/objects/vlanallocation"
+  },
+  "next": {
+    "title": "VPNTunnelInfo",
+    "permalink": "/api/types/objects/vpntunnel-info"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/port-forwards",
+  "title": "portForwards",
+  "description": "Get all port forwards (high-level view).",
+  "source": "@site/docs/api/operations/queries/port-forwards.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/port-forwards",
+  "permalink": "/api/operations/queries/port-forwards",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "port-forwards",
+    "title": "portForwards"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "portAllocations",
+    "permalink": "/api/operations/queries/port-allocations"
+  },
+  "next": {
+    "title": "portKnockLog",
+    "permalink": "/api/operations/queries/port-knock-log"
+  }
+}

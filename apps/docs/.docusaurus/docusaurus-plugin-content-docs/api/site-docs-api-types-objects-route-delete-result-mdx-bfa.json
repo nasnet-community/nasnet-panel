@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/route-delete-result",
+  "title": "RouteDeleteResult",
+  "description": "Result of a route deletion with impact analysis",
+  "source": "@site/docs/api/types/objects/route-delete-result.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/route-delete-result",
+  "permalink": "/api/types/objects/route-delete-result",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "route-delete-result",
+    "title": "RouteDeleteResult"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "RollbackStep",
+    "permalink": "/api/types/objects/rollback-step"
+  },
+  "next": {
+    "title": "RouteImpactAnalysis",
+    "permalink": "/api/types/objects/route-impact-analysis"
+  }
+}

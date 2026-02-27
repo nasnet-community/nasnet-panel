@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/update-bridge-port-input",
+  "title": "UpdateBridgePortInput",
+  "description": "No description",
+  "source": "@site/docs/api/types/inputs/update-bridge-port-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/update-bridge-port-input",
+  "permalink": "/api/types/inputs/update-bridge-port-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "update-bridge-port-input",
+    "title": "UpdateBridgePortInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "UpdateBridgeInput",
+    "permalink": "/api/types/inputs/update-bridge-input"
+  },
+  "next": {
+    "title": "UpdateChangeSetItemInput",
+    "permalink": "/api/types/inputs/update-change-set-item-input"
+  }
+}

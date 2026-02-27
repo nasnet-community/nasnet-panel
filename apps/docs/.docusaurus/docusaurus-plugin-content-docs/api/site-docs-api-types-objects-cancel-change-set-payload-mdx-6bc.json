@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/cancel-change-set-payload",
+  "title": "CancelChangeSetPayload",
+  "description": "No description",
+  "source": "@site/docs/api/types/objects/cancel-change-set-payload.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/cancel-change-set-payload",
+  "permalink": "/api/types/objects/cancel-change-set-payload",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "cancel-change-set-payload",
+    "title": "CancelChangeSetPayload"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "BulkRoutingResult",
+    "permalink": "/api/types/objects/bulk-routing-result"
+  },
+  "next": {
+    "title": "CancelScanPayload",
+    "permalink": "/api/types/objects/cancel-scan-payload"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "id": "graphql-api",
+  "title": "GraphQL API Layer",
+  "description": "Schema-first GraphQL API with domain-organized resolvers, custom directives, and DataLoader batching.",
+  "source": "@site/../backend/docs/graphql-api.md",
+  "sourceDirName": ".",
+  "slug": "/graphql-api",
+  "permalink": "/docs/backend/graphql-api",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../backend/docs/graphql-api.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Getting Started",
+    "permalink": "/docs/backend/getting-started"
+  },
+  "next": {
+    "title": "NasNet Backend — Master Index",
+    "permalink": "/docs/backend/"
+  }
+}

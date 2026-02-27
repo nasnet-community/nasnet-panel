@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/gateway-status",
+  "title": "gatewayStatus",
+  "description": "Get gateway status for a service instance.",
+  "source": "@site/docs/api/operations/queries/gateway-status.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/gateway-status",
+  "permalink": "/api/operations/queries/gateway-status",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "gateway-status",
+    "title": "gatewayStatus"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "egressVLANs",
+    "permalink": "/api/operations/queries/egress-vlans"
+  },
+  "next": {
+    "title": "health",
+    "permalink": "/api/operations/queries/health"
+  }
+}

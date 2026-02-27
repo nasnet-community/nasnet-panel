@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/assign-device-routing",
+  "title": "assignDeviceRouting",
+  "description": "Assign a device to route through a specific service instance.",
+  "source": "@site/docs/api/operations/mutations/assign-device-routing.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/assign-device-routing",
+  "permalink": "/api/operations/mutations/assign-device-routing",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "assign-device-routing",
+    "title": "assignDeviceRouting"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "archiveResource",
+    "permalink": "/api/operations/mutations/archive-resource"
+  },
+  "next": {
+    "title": "autoScanGateways",
+    "permalink": "/api/operations/mutations/auto-scan-gateways"
+  }
+}

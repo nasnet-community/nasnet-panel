@@ -37,7 +37,7 @@ func (d *CircuitBreakerDiagnostics) CheckWAN(ctx context.Context, wanInterface s
 
 	result, err := d.routerPort.ExecuteCommand(ctx, cmd)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to check WAN status: %w", err)
 	}
 
 	if len(result.Data) == 0 {
@@ -90,7 +90,7 @@ func (d *CircuitBreakerDiagnostics) CheckNAT(ctx context.Context, wanInterface s
 
 	result, err := d.routerPort.ExecuteCommand(ctx, cmd)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to check NAT configuration: %w", err)
 	}
 
 	if len(result.Data) == 0 {
@@ -145,6 +145,7 @@ func (d *CircuitBreakerDiagnostics) CheckGateway(ctx context.Context, gateway st
 
 	result, err := d.routerPort.ExecuteCommand(ctx, cmd)
 	if err != nil {
+		wrappedErr := fmt.Errorf("failed to ping gateway: %w", err)
 		return &StepResult{
 			Success:         false,
 			Message:         "Gateway is unreachable",
@@ -152,7 +153,7 @@ func (d *CircuitBreakerDiagnostics) CheckGateway(ctx context.Context, gateway st
 			Details:         err.Error(),
 			ExecutionTimeMs: int(time.Since(startTime).Milliseconds()),
 			Target:          gateway,
-		}, err
+		}, wrappedErr
 	}
 
 	// Parse ping result - check if packets were received
@@ -193,13 +194,14 @@ func (d *CircuitBreakerDiagnostics) CheckInternet(ctx context.Context) (*StepRes
 
 	result, err := d.routerPort.ExecuteCommand(ctx, cmd)
 	if err != nil {
+		wrappedErr := fmt.Errorf("failed to check internet connectivity: %w", err)
 		return &StepResult{
 			Success:         false,
 			Message:         "Cannot reach the internet",
 			IssueCode:       "NO_INTERNET",
 			ExecutionTimeMs: int(time.Since(startTime).Milliseconds()),
 			Target:          target,
-		}, err
+		}, wrappedErr
 	}
 
 	// Parse ping result - check if packets were received

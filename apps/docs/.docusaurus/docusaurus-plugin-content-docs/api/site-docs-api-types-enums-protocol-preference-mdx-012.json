@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/protocol-preference",
+  "title": "ProtocolPreference",
+  "description": "User preference for which protocol to use when connecting to a router.",
+  "source": "@site/docs/api/types/enums/protocol-preference.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/protocol-preference",
+  "permalink": "/api/types/enums/protocol-preference",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "protocol-preference",
+    "title": "ProtocolPreference"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "PortProtocol",
+    "permalink": "/api/types/enums/port-protocol"
+  },
+  "next": {
+    "title": "Protocol",
+    "permalink": "/api/types/enums/protocol"
+  }
+}

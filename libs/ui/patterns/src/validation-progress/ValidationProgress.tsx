@@ -161,38 +161,38 @@ export const ValidationProgress = React.memo(function ValidationProgress({
       <div
         className={cn(
           'flex items-center justify-between',
-          compact ? 'px-2 py-1.5' : 'px-3 py-2'
+          compact ? 'px-3 py-1.5' : 'px-3 py-2'
         )}
         aria-live="polite"
       >
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           {isComplete ? (
             isValid ? (
               <>
-                <CheckCircle2 className="h-5 w-5 text-success" />
-                <span className="font-medium text-sm text-success">
+                <CheckCircle2 className="h-5 w-5 text-success flex-shrink-0" />
+                <span className="font-medium text-sm text-foreground">
                   Validation Passed
                 </span>
               </>
             ) : (
               <>
-                <XCircle className="h-5 w-5 text-error" />
-                <span className="font-medium text-sm text-error">
+                <XCircle className="h-5 w-5 text-error flex-shrink-0" />
+                <span className="font-medium text-sm text-foreground">
                   Validation Failed
                 </span>
               </>
             )
           ) : summary.running > 0 ? (
             <>
-              <Loader2 className="h-5 w-5 text-primary animate-spin" />
-              <span className="font-medium text-sm text-primary">
+              <Loader2 className="h-5 w-5 text-primary animate-spin flex-shrink-0" />
+              <span className="font-medium text-sm text-foreground">
                 Validating...
               </span>
             </>
           ) : (
             <>
-              <Clock className="h-5 w-5 text-muted-foreground" />
-              <span className="font-medium text-sm text-muted-foreground">
+              <Clock className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+              <span className="font-medium text-sm text-foreground">
                 Ready to validate
               </span>
             </>
@@ -221,7 +221,7 @@ export const ValidationProgress = React.memo(function ValidationProgress({
 
       {/* Progress bar */}
       <div
-        className="h-1.5 bg-muted rounded-full overflow-hidden mx-3"
+        className="h-1 bg-muted rounded-full overflow-hidden mx-3 mt-2"
         role="progressbar"
         aria-label="Validation progress"
         aria-valuemin={0}
@@ -230,7 +230,7 @@ export const ValidationProgress = React.memo(function ValidationProgress({
       >
         <motion.div
           className={cn(
-            'h-full rounded-full',
+            'h-full rounded-full transition-colors',
             summary.failed > 0 ? 'bg-error' :
             isComplete ? 'bg-success' :
             'bg-primary'
@@ -244,7 +244,7 @@ export const ValidationProgress = React.memo(function ValidationProgress({
       </div>
 
       {/* Stages list */}
-      <div className={cn('space-y-0', compact ? 'pt-1' : 'pt-2')}>
+      <div className={cn('space-y-3', compact ? 'pt-2' : 'pt-3')}>
         {stages.map((result, index) => (
           <ValidationStage
             key={result.stage}
@@ -263,19 +263,22 @@ export const ValidationProgress = React.memo(function ValidationProgress({
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           className={cn(
-            'rounded-lg border p-3 mt-2 mx-3',
-            summary.totalErrors > 0 ? 'bg-error/5 border-error/20' : 'bg-warning/5 border-warning/20'
+            'rounded-[var(--semantic-radius-card)] border p-3 mt-3 mx-3',
+            summary.totalErrors > 0 ? 'bg-error-light border-error/20' : 'bg-warning-light border-warning/20'
           )}
         >
-          <p className="text-sm font-medium">
+          <p className={cn(
+            'text-sm font-medium',
+            summary.totalErrors > 0 ? 'text-error-dark' : 'text-warning-dark'
+          )}>
             {summary.totalErrors > 0 && (
-              <span className="text-error">
+              <span>
                 {summary.totalErrors} error{summary.totalErrors !== 1 ? 's' : ''}
               </span>
             )}
             {summary.totalErrors > 0 && summary.totalWarnings > 0 && ' and '}
             {summary.totalWarnings > 0 && (
-              <span className="text-warning">
+              <span>
                 {summary.totalWarnings} warning{summary.totalWarnings !== 1 ? 's' : ''}
               </span>
             )}

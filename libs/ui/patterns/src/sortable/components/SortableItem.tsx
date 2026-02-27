@@ -93,16 +93,16 @@ const SortableItemInner: React.FC<SortableItemProps> = ({
       style={style}
       className={cn(
         'relative',
-        'rounded-lg',
+        'rounded-[var(--semantic-radius-card)]',
         'transition-shadow duration-200',
         // Dragging styles
         isDragging && [
-          'opacity-50',
+          'opacity-90',
           'shadow-lg',
-          'ring-2 ring-primary ring-offset-2',
+          'ring-2 ring-primary',
         ],
         // Over styles (when another item is being dragged over this one)
-        isOverItem && 'ring-2 ring-primary/50',
+        isOverItem && 'ring-2 ring-primary/30',
         // Selected styles
         isSelected && !isDragging && 'ring-2 ring-primary/30 bg-primary/5',
         // Disabled styles
@@ -119,7 +119,7 @@ const SortableItemInner: React.FC<SortableItemProps> = ({
       {/* Item content wrapper */}
       <div
         className={cn(
-          'flex items-center gap-2',
+          'flex items-center gap-component-md',
           context?.showDragHandle && 'pl-0',
         )}
       >
@@ -154,6 +154,7 @@ const SortableItemInner: React.FC<SortableItemProps> = ({
         <div
           className={cn(
             'flex-1 min-w-0',
+            'text-foreground',
             // If no drag handle, make entire item draggable
             !context?.showDragHandle && 'cursor-grab active:cursor-grabbing',
           )}

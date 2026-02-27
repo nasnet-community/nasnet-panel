@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/connection-attempt",
+  "title": "ConnectionAttempt",
+  "description": "Record of a single protocol connection attempt",
+  "source": "@site/docs/api/types/objects/connection-attempt.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/connection-attempt",
+  "permalink": "/api/types/objects/connection-attempt",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "connection-attempt",
+    "title": "ConnectionAttempt"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ConnectRouterPayload",
+    "permalink": "/api/types/objects/connect-router-payload"
+  },
+  "next": {
+    "title": "ConnectionDetails",
+    "permalink": "/api/types/objects/connection-details"
+  }
+}

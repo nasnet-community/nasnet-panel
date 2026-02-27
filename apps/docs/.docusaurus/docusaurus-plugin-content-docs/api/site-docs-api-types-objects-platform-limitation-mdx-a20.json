@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/platform-limitation",
+  "title": "PlatformLimitation",
+  "description": "A platform-specific limitation",
+  "source": "@site/docs/api/types/objects/platform-limitation.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/platform-limitation",
+  "permalink": "/api/types/objects/platform-limitation",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "platform-limitation",
+    "title": "PlatformLimitation"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "PlatformInfo",
+    "permalink": "/api/types/objects/platform-info"
+  },
+  "next": {
+    "title": "PortAllocation",
+    "permalink": "/api/types/objects/port-allocation"
+  }
+}

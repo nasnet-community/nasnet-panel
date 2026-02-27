@@ -92,10 +92,10 @@ func ValidateDNSName(hostname string) error {
 	}
 	// Basic DNS validation - alphanumeric, hyphens, dots
 	for _, char := range hostname {
-		if !((char >= 'a' && char <= 'z') ||
-			(char >= 'A' && char <= 'Z') ||
-			(char >= '0' && char <= '9') ||
-			char == '-' || char == '.') {
+		if (char < 'a' || char > 'z') &&
+			(char < 'A' || char > 'Z') &&
+			(char < '0' || char > '9') &&
+			char != '-' && char != '.' {
 
 			return fmt.Errorf("invalid character in hostname: %c", char)
 		}

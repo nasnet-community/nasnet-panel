@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/fix-confidence",
+  "title": "FixConfidence",
+  "description": "Confidence level for a fix suggestion",
+  "source": "@site/docs/api/types/enums/fix-confidence.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/fix-confidence",
+  "permalink": "/api/types/enums/fix-confidence",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "fix-confidence",
+    "title": "FixConfidence"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "FixApplicationStatus",
+    "permalink": "/api/types/enums/fix-application-status"
+  },
+  "next": {
+    "title": "FrameTypes",
+    "permalink": "/api/types/enums/frame-types"
+  }
+}

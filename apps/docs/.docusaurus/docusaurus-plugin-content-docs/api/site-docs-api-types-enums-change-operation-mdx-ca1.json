@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/change-operation",
+  "title": "ChangeOperation",
+  "description": "Type of operation to perform on a resource",
+  "source": "@site/docs/api/types/enums/change-operation.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/change-operation",
+  "permalink": "/api/types/enums/change-operation",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "change-operation",
+    "title": "ChangeOperation"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "Capability",
+    "permalink": "/api/types/enums/capability"
+  },
+  "next": {
+    "title": "ChangeSetItemStatus",
+    "permalink": "/api/types/enums/change-set-item-status"
+  }
+}

@@ -10,7 +10,7 @@ import (
 // GetBridgePorts retrieves all ports for a bridge.
 func (s *Service) GetBridgePorts(ctx context.Context, bridgeID string) ([]*PortData, error) {
 	if err := s.EnsureConnected(ctx); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("ensure connected: %w", err)
 	}
 
 	result, err := s.Port().ExecuteCommand(ctx, router.Command{
@@ -33,7 +33,7 @@ func (s *Service) GetBridgePorts(ctx context.Context, bridgeID string) ([]*PortD
 // AddBridgePort adds an interface to a bridge.
 func (s *Service) AddBridgePort(ctx context.Context, bridgeID string, input *AddBridgePortInput) (*PortData, string, error) {
 	if err := s.EnsureConnected(ctx); err != nil {
-		return nil, "", err
+		return nil, "", fmt.Errorf("ensure connected: %w", err)
 	}
 
 	args := map[string]string{
@@ -99,7 +99,7 @@ func (s *Service) UpdateBridgePort(ctx context.Context, portID string, input *Up
 	}
 
 	if connErr := s.EnsureConnected(ctx); connErr != nil {
-		return nil, "", connErr
+		return nil, "", fmt.Errorf("ensure connected: %w", connErr)
 	}
 
 	args := make(map[string]string)
@@ -182,7 +182,7 @@ func (s *Service) RemoveBridgePort(ctx context.Context, portID string) (string, 
 	}
 
 	if connErr := s.EnsureConnected(ctx); connErr != nil {
-		return "", connErr
+		return "", fmt.Errorf("ensure connected: %w", connErr)
 	}
 
 	_, execErr := s.Port().ExecuteCommand(ctx, router.Command{
@@ -205,22 +205,20 @@ func (s *Service) RemoveBridgePort(ctx context.Context, portID string) (string, 
 // GetAvailableInterfaces returns interfaces that are not currently in any bridge.
 func (s *Service) GetAvailableInterfaces(ctx context.Context, routerID string) ([]string, error) {
 	if err := s.EnsureConnected(ctx); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("ensure connected: %w", err)
 	}
 
-	_, err := s.Port().ExecuteCommand(ctx, router.Command{
+	if _, err := s.Port().ExecuteCommand(ctx, router.Command{
 		Path:   "/interface",
 		Action: "print",
-	})
-	if err != nil {
+	}); err != nil {
 		return nil, fmt.Errorf("failed to fetch interfaces: %w", err)
 	}
 
-	_, err = s.Port().ExecuteCommand(ctx, router.Command{
+	if _, err := s.Port().ExecuteCommand(ctx, router.Command{
 		Path:   "/interface/bridge/port",
 		Action: "print",
-	})
-	if err != nil {
+	}); err != nil {
 		return nil, fmt.Errorf("failed to fetch bridge ports: %w", err)
 	}
 

@@ -66,10 +66,10 @@ func (m *Manager) reconnectLoop(ctx context.Context, conn *Connection) {
 		cbResult, err := conn.CircuitBreaker.ExecuteWithContext(ctx, func(ctx context.Context) (any, error) {
 			client, err := m.clientFactory.CreateClient(ctx, conn.Config())
 			if err != nil {
-				return nil, err
+				return nil, fmt.Errorf("create router client: %w", err)
 			}
 			if err := client.Connect(ctx); err != nil {
-				return nil, err
+				return nil, fmt.Errorf("connect to router: %w", err)
 			}
 			return client, nil
 		})
@@ -105,10 +105,11 @@ func (m *Manager) reconnectLoop(ctx context.Context, conn *Connection) {
 			})
 			m.publishStatusChange(ctx, routerID, StateReconnecting, StateDisconnected, "manual")
 		} else {
+			wrappedErr := fmt.Errorf("reconnect: %w", err)
 			conn.UpdateStatus(func(status *Status) {
-				_ = status.SetError(err.Error()) //nolint:errcheck // status transition is best-effort after permanent reconnection failure
+				_ = status.SetError(wrappedErr.Error()) //nolint:errcheck // status transition is best-effort after permanent reconnection failure
 			})
-			m.publishStatusChange(ctx, routerID, StateReconnecting, StateError, err.Error())
+			m.publishStatusChange(ctx, routerID, StateReconnecting, StateError, wrappedErr.Error())
 		}
 		return
 	}

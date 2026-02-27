@@ -49,7 +49,8 @@ func NewNtfyChannel(config NtfyConfig) *NtfyChannel {
 					if err != nil {
 						return nil, fmt.Errorf("invalid address format: %w", err)
 					}
-					ips, err := net.LookupHost(host)
+					resolver := &net.Resolver{}
+					ips, err := resolver.LookupHost(ctx, host)
 					if err != nil {
 						return nil, fmt.Errorf("failed to resolve hostname: %w", err)
 					}
@@ -78,7 +79,7 @@ func (n *NtfyChannel) Name() string { return "ntfy" }
 
 // Send delivers a notification via ntfy.sh.
 func (n *NtfyChannel) Send(ctx context.Context, notification notifications.Notification) error {
-	if err := n.validateServerURL(n.config.ServerURL); err != nil {
+	if err := n.validateServerURL(n.config.ServerURL); err != nil { //nolint:contextcheck // validation does not require context
 		return fmt.Errorf("invalid ntfy server URL: %w", err)
 	}
 
@@ -101,7 +102,7 @@ func (n *NtfyChannel) Send(ctx context.Context, notification notifications.Notif
 		req.Header.Set("Authorization", "Bearer "+n.config.Token)
 	}
 
-	resp, err := n.client.Do(req)
+	resp, err := n.client.Do(req) //nolint:gosec // G704: URL is constructed from trusted configuration
 	if err != nil {
 		return n.classifyClientError(ctx, err)
 	}
@@ -202,7 +203,8 @@ func (n *NtfyChannel) validateServerURL(urlStr string) error {
 	if hostname == "localhost" || hostname == "127.0.0.1" || hostname == "::1" {
 		return fmt.Errorf("localhost URLs are not allowed")
 	}
-	ips, err := net.LookupHost(hostname)
+	resolver := &net.Resolver{}
+	ips, err := resolver.LookupHost(context.Background(), hostname)
 	if err != nil {
 		return fmt.Errorf("failed to resolve hostname: %w", err)
 	}

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/wire-guard-peer",
+  "title": "WireGuardPeer",
+  "description": "WireGuard Peer resource implementing 8-layer model",
+  "source": "@site/docs/api/types/objects/wire-guard-peer.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/wire-guard-peer",
+  "permalink": "/api/types/objects/wire-guard-peer",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "wire-guard-peer",
+    "title": "WireGuardPeer"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "WireGuardPeerRuntime",
+    "permalink": "/api/types/objects/wire-guard-peer-runtime"
+  },
+  "next": {
+    "title": "WireGuardRuntime",
+    "permalink": "/api/types/objects/wire-guard-runtime"
+  }
+}

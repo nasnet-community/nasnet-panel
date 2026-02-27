@@ -56,8 +56,8 @@ function QuietHoursConfigMobileComponent({
 
   return (
     <Card className={cn('w-full border-0 shadow-none', className)}>
-      <CardHeader className="pb-4">
-        <CardTitle className="flex items-center gap-2 text-xl">
+      <CardHeader className="pb-component-md">
+        <CardTitle className="flex items-center gap-component-sm text-xl">
           <Moon className="h-6 w-6" aria-hidden="true" />
           {t('quietHours.title')}
         </CardTitle>
@@ -77,7 +77,7 @@ function QuietHoursConfigMobileComponent({
           />
 
           {/* Duration display */}
-          <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 p-component-sm rounded-[var(--semantic-radius-button)]">
+          <div className="flex items-center gap-component-sm text-sm text-muted-foreground bg-muted/50 p-component-sm rounded-[var(--semantic-radius-button)]">
             <Clock className="h-5 w-5" aria-hidden="true" />
             <span>
               {t('quietHours.duration')}: <strong className="text-foreground">{duration}</strong>
@@ -116,11 +116,11 @@ function QuietHoursConfigMobileComponent({
 
         {/* Bypass Critical Alerts */}
         <div className="space-y-component-sm pb-component-md border-b border-border">
-          <div className="flex items-start justify-between gap-4">
-            <div className="space-y-1 flex-1">
+          <div className="flex items-start justify-between gap-component-lg">
+            <div className="space-y-component-xs flex-1">
               <Label
                 htmlFor="bypass-critical-mobile"
-                className="text-base font-medium flex items-center gap-2"
+                className="text-base font-medium flex items-center gap-component-sm"
               >
                 <Shield className="h-5 w-5" aria-hidden="true" />
                 {t('quietHours.bypassCritical')}
@@ -135,7 +135,7 @@ function QuietHoursConfigMobileComponent({
               onCheckedChange={handleBypassCriticalChange}
               disabled={disabled}
               aria-label={t('quietHours.bypassCritical')}
-              className="mt-1"
+              className="mt-component-xs"
             />
           </div>
         </div>
@@ -144,7 +144,7 @@ function QuietHoursConfigMobileComponent({
         {!isValid && Object.keys(errors).length > 0 && (
           <Alert variant="destructive" role="alert">
             <AlertDescription>
-              <ul className="list-disc list-inside space-y-1 text-sm">
+              <ul className="list-disc list-inside space-y-component-xs text-sm">
                 {Object.entries(errors).map(([field, message]) => (
                   <li key={field}>{message}</li>
                 ))}

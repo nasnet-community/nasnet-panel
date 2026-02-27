@@ -161,6 +161,135 @@ func (va *VLANAllocator) AllocateVLAN(ctx context.Context, req AllocateVLANReque
 	}, nil
 }
 
+// AllocateVLANWithPurpose allocates a VLAN from a purpose-specific sub-pool.
+// When purpose == "ingress": allocates from DefaultIngressPoolStart-DefaultIngressPoolEnd (100-149).
+// When purpose == "egress": allocates from DefaultEgressPoolStart-DefaultEgressPoolEnd (150-199).
+// When purpose == "" (legacy): uses the full poolStart-poolEnd range (existing behavior).
+//
+// Thread-safe: Uses write lock for entire allocation process.
+func (va *VLANAllocator) AllocateVLANWithPurpose(ctx context.Context, req AllocateVLANRequest, purpose string) (*AllocateVLANResponse, error) {
+	if req.RouterID == "" || req.InstanceID == "" || req.ServiceType == "" {
+		return nil, fmt.Errorf("%w: router_id, instance_id, and service_type are required", ErrInvalidRequest)
+	}
+
+	// Determine pool bounds based on purpose
+	var rangeStart, rangeEnd int
+	switch purpose {
+	case "ingress":
+		rangeStart = DefaultIngressPoolStart
+		rangeEnd = DefaultIngressPoolEnd
+	case "egress":
+		rangeStart = DefaultEgressPoolStart
+		rangeEnd = DefaultEgressPoolEnd
+	default:
+		// Legacy/empty purpose: use full pool range
+		return va.AllocateVLAN(ctx, req)
+	}
+
+	va.mu.Lock()
+	defer va.mu.Unlock()
+
+	// Find next available VLAN within the purpose-specific range
+	vlanID, err := va.findNextAvailableVLANInRange(ctx, req.RouterID, rangeStart, rangeEnd)
+	if err != nil {
+		return nil, err
+	}
+
+	// Generate subnet from template
+	subnet := va.generateSubnet(vlanID)
+
+	// Create allocation in database (unique constraint on router_id+vlan_id prevents races)
+	allocation, err := va.store.VLANAllocation().Create().
+		SetID(ulid.NewString()).
+		SetRouterID(req.RouterID).
+		SetVlanID(vlanID).
+		SetInstanceID(req.InstanceID).
+		SetServiceType(req.ServiceType).
+		SetSubnet(subnet).
+		SetStatus("allocated").
+		Save(ctx)
+
+	if err != nil {
+		if ent.IsConstraintError(err) {
+			va.logger.Warn("vlan allocation race condition detected, retrying",
+				"router_id", req.RouterID,
+				"vlan_id", vlanID,
+				"purpose", purpose)
+			return nil, fmt.Errorf("vlan allocation conflict (race condition), please retry: %w", err)
+		}
+		return nil, fmt.Errorf("failed to allocate vlan %d: %w", vlanID, err)
+	}
+
+	// Update cache
+	cacheKey := va.cacheKey(req.RouterID, vlanID)
+	va.cache[cacheKey] = allocation
+
+	va.logger.Info("vlan allocated with purpose",
+		"router_id", req.RouterID,
+		"instance_id", req.InstanceID,
+		"service_type", req.ServiceType,
+		"vlan_id", vlanID,
+		"subnet", subnet,
+		"purpose", purpose)
+
+	// Check pool utilization and emit warning event if needed
+	va.checkAndEmitPoolWarningUnsafe(ctx, req.RouterID)
+
+	return &AllocateVLANResponse{
+		AllocationID: allocation.GetID(),
+		VlanID:       vlanID,
+		Subnet:       subnet,
+	}, nil
+}
+
+// findNextAvailableVLANInRange finds the next available VLAN ID within a specific range.
+// It uses the same checks as findNextAvailableVLANUnsafe but scans only [rangeStart, rangeEnd].
+// Caller must hold the write lock (mu.Lock).
+func (va *VLANAllocator) findNextAvailableVLANInRange(ctx context.Context, routerID string, rangeStart, rangeEnd int) (int, error) {
+	for vlanID := rangeStart; vlanID <= rangeEnd; vlanID++ {
+		// Skip reserved VLAN IDs 1 and 4094 per IEEE 802.1Q standard
+		if vlanID == 1 || vlanID == 4094 {
+			continue
+		}
+
+		// Check cache (fast path)
+		cacheKey := va.cacheKey(routerID, vlanID)
+		if _, exists := va.cache[cacheKey]; exists {
+			continue
+		}
+
+		// Double-check database (cache might be stale)
+		exists, err := va.store.VLANAllocation().Query().
+			Where(
+				vlanallocation.RouterIDEQ(routerID),
+				vlanallocation.VlanIDEQ(vlanID),
+				vlanallocation.StatusEQ("allocated"),
+			).
+			Exist(ctx)
+
+		if err != nil {
+			va.logger.Error("failed to check vlan availability in database",
+				"router_id", routerID,
+				"vlan_id", vlanID,
+				"error", err)
+			continue // Skip this VLAN on error (fail-safe)
+		}
+
+		if exists {
+			continue
+		}
+
+		// Check router for conflicts using VlanService
+		if va.isVLANConflictOnRouter(ctx, routerID, vlanID) {
+			continue
+		}
+
+		return vlanID, nil
+	}
+
+	return 0, fmt.Errorf("%w: no available VLANs in range %d-%d", ErrPoolExhausted, rangeStart, rangeEnd)
+}
+
 // ReleaseVLAN releases a VLAN allocation.
 // Updates the database status to "released" and removes it from the cache.
 // Note: Router VLAN interface cleanup is handled separately in Story 8.2 Interface Factory.

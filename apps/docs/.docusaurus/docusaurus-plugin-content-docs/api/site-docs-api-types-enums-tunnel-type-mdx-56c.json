@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/tunnel-type",
+  "title": "TunnelType",
+  "description": "Network tunnel types supported by MikroTik RouterOS",
+  "source": "@site/docs/api/types/enums/tunnel-type.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/tunnel-type",
+  "permalink": "/api/types/enums/tunnel-type",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "tunnel-type",
+    "title": "TunnelType"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "TunnelStatus",
+    "permalink": "/api/types/enums/tunnel-status"
+  },
+  "next": {
+    "title": "UpdateSeverity",
+    "permalink": "/api/types/enums/update-severity"
+  }
+}

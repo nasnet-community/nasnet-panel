@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/subscriptions/port-mirror-changed",
+  "title": "portMirrorChanged",
+  "description": "Subscribe to port mirror status changes",
+  "source": "@site/docs/api/operations/subscriptions/port-mirror-changed.mdx",
+  "sourceDirName": "api/operations/subscriptions",
+  "slug": "/api/operations/subscriptions/port-mirror-changed",
+  "permalink": "/api/operations/subscriptions/port-mirror-changed",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "port-mirror-changed",
+    "title": "portMirrorChanged"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "killSwitchChanged",
+    "permalink": "/api/operations/subscriptions/kill-switch-changed"
+  },
+  "next": {
+    "title": "provisioningSessionChanged",
+    "permalink": "/api/operations/subscriptions/provisioning-session-changed"
+  }
+}

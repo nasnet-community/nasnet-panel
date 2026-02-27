@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/router-platform",
+  "title": "RouterPlatform",
+  "description": "Supported router platforms",
+  "source": "@site/docs/api/types/enums/router-platform.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/router-platform",
+  "permalink": "/api/types/enums/router-platform",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "router-platform",
+    "title": "RouterPlatform"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "RouteType",
+    "permalink": "/api/types/enums/route-type"
+  },
+  "next": {
+    "title": "RoutingMode",
+    "permalink": "/api/types/enums/routing-mode"
+  }
+}

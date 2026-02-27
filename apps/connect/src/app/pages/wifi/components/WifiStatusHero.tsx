@@ -84,26 +84,26 @@ export const WifiStatusHero = React.memo(function WifiStatusHero({ interfaces, c
   }
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-component-sm md:gap-component-md">
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-component-sm md:gap-component-md category-hero-wifi rounded-card-lg shadow-md p-component-md md:p-component-lg">
       {/* Connected Clients */}
-      <div className="bg-card rounded-card-sm p-component-sm md:p-component-md border border-border">
+      <div className="bg-card rounded-card-sm p-component-sm md:p-component-md border border-border shadow-sm">
         <div className="flex items-center gap-component-xs mb-component-xs">
           <Users className="w-3.5 h-3.5 text-info" aria-hidden="true" />
           <p className="text-muted-foreground text-xs uppercase tracking-wide">{t('status.clients')}</p>
         </div>
-        <p className="text-xl md:text-2xl font-bold font-display text-foreground">{totalClients}</p>
+        <p className="text-xl md:text-2xl font-bold font-display text-foreground font-mono">{totalClients}</p>
         <p className="text-xs text-muted-foreground mt-component-xs">{t('status.connectedDevices')}</p>
       </div>
 
       {/* Active Interfaces */}
-      <div className="bg-card rounded-card-sm p-component-sm md:p-component-md border border-border">
+      <div className="bg-card rounded-card-sm p-component-sm md:p-component-md border border-border shadow-sm">
         <div className="flex items-center gap-component-xs mb-component-xs">
           <Wifi className="w-3.5 h-3.5 text-success" aria-hidden="true" />
           <p className="text-muted-foreground text-xs uppercase tracking-wide">{t('status.active')}</p>
         </div>
         <p className="text-xl md:text-2xl font-bold font-display text-foreground">
           {activeInterfaces.length}
-          <span className="text-muted-foreground text-sm font-normal ml-component-sm">/{interfaces.length}</span>
+          <span className="text-muted-foreground text-sm font-normal ml-component-sm font-mono">/{interfaces.length}</span>
         </p>
         <div className="w-full bg-muted rounded-full h-1.5 mt-component-sm" role="progressbar" aria-valuenow={activePercent} aria-valuemin={0} aria-valuemax={100} aria-label="Active interfaces">
           <div
@@ -114,7 +114,7 @@ export const WifiStatusHero = React.memo(function WifiStatusHero({ interfaces, c
       </div>
 
       {/* Signal Quality */}
-      <div className="bg-card rounded-card-sm p-component-sm md:p-component-md border border-border">
+      <div className="bg-card rounded-card-sm p-component-sm md:p-component-md border border-border shadow-sm">
         <div className="flex items-center gap-component-xs mb-component-xs">
           <Signal className="w-3.5 h-3.5 text-warning" aria-hidden="true" />
           <p className="text-muted-foreground text-xs uppercase tracking-wide">{t('status.signal')}</p>
@@ -138,20 +138,20 @@ export const WifiStatusHero = React.memo(function WifiStatusHero({ interfaces, c
       </div>
 
       {/* Frequency Bands */}
-      <div className="bg-card rounded-card-sm p-component-sm md:p-component-md border border-border">
+      <div className="bg-card rounded-card-sm p-component-sm md:p-component-md border border-border shadow-sm">
         <div className="flex items-center gap-component-xs mb-component-xs">
           <Radio className="w-3.5 h-3.5 text-info" aria-hidden="true" />
           <p className="text-muted-foreground text-xs uppercase tracking-wide">{t('status.bands')}</p>
         </div>
         <div className="flex flex-wrap gap-component-xs mt-component-xs">
           {bandCounts['2.4GHz'] > 0 && (
-            <span className="px-component-xs py-component-xs text-xs font-medium rounded-md bg-info/10 text-info">2.4G</span>
+            <span className="px-component-xs py-component-xs text-xs font-medium rounded-md bg-info/10 text-info font-mono">2.4G</span>
           )}
           {bandCounts['5GHz'] > 0 && (
-            <span className="px-component-xs py-component-xs text-xs font-medium rounded-md bg-warning/10 text-warning">5G</span>
+            <span className="px-component-xs py-component-xs text-xs font-medium rounded-md bg-warning/10 text-warning font-mono">5G</span>
           )}
           {bandCounts['6GHz'] > 0 && (
-            <span className="px-component-xs py-component-xs text-xs font-medium rounded-md bg-error/10 text-error">6G</span>
+            <span className="px-component-xs py-component-xs text-xs font-medium rounded-md bg-error/10 text-error font-mono">6G</span>
           )}
           {interfaces.length === 0 && <span className="text-xs text-muted-foreground">{t('status.noInterfaces')}</span>}
         </div>

@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/port-mirrors",
+  "title": "portMirrors",
+  "description": "Get all port mirror configurations on a router",
+  "source": "@site/docs/api/operations/queries/port-mirrors.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/port-mirrors",
+  "permalink": "/api/operations/queries/port-mirrors",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "port-mirrors",
+    "title": "portMirrors"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "portMirror",
+    "permalink": "/api/operations/queries/port-mirror"
+  },
+  "next": {
+    "title": "previewAlertRuleTemplate",
+    "permalink": "/api/operations/queries/preview-alert-rule-template"
+  }
+}

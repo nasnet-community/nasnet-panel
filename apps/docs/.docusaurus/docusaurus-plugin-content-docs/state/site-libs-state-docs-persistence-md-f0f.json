@@ -1,0 +1,28 @@
+{
+  "id": "persistence",
+  "title": "Persistence",
+  "description": "This document maps all localStorage keys used by @nasnet/state stores and machines, custom",
+  "source": "@site/../../libs/state/docs/persistence.md",
+  "sourceDirName": ".",
+  "slug": "/persistence",
+  "permalink": "/docs/state/persistence",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/state/docs/persistence.md",
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 3,
+  "frontMatter": {
+    "sidebar_position": 3,
+    "title": "Persistence"
+  },
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Architecture",
+    "permalink": "/docs/state/architecture"
+  },
+  "next": {
+    "title": "Performance",
+    "permalink": "/docs/state/performance"
+  }
+}

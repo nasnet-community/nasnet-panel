@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/stp-protocol",
+  "title": "StpProtocol",
+  "description": "No description",
+  "source": "@site/docs/api/types/enums/stp-protocol.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/stp-protocol",
+  "permalink": "/api/types/enums/stp-protocol",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "stp-protocol",
+    "title": "StpProtocol"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "StpPortState",
+    "permalink": "/api/types/enums/stp-port-state"
+  },
+  "next": {
+    "title": "SuggestionSeverity",
+    "permalink": "/api/types/enums/suggestion-severity"
+  }
+}

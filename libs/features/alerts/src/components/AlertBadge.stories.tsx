@@ -230,7 +230,7 @@ export const ZeroAlerts: Story = {
   decorators: [
     (Story) => (
       <MockedProvider mocks={createAlertsMock(0)} addTypename={false}>
-        <div className="relative inline-flex items-center gap-2 p-4 border border-dashed border-muted-foreground/30 rounded-md text-sm text-muted-foreground">
+        <div className="relative inline-flex items-center gap-component-sm p-component-md border border-dashed border-muted-foreground/30 rounded-md text-sm text-muted-foreground">
           Bell icon (badge renders nothing here)
           <Story />
         </div>

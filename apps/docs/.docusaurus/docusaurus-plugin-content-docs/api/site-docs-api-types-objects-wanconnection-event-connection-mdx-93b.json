@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/wanconnection-event-connection",
+  "title": "WANConnectionEventConnection",
+  "description": "Connection history pagination",
+  "source": "@site/docs/api/types/objects/wanconnection-event-connection.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/wanconnection-event-connection",
+  "permalink": "/api/types/objects/wanconnection-event-connection",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "wanconnection-event-connection",
+    "title": "WANConnectionEventConnection"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "VXLANTunnel",
+    "permalink": "/api/types/objects/vxlantunnel"
+  },
+  "next": {
+    "title": "WANConnectionEventEdge",
+    "permalink": "/api/types/objects/wanconnection-event-edge"
+  }
+}

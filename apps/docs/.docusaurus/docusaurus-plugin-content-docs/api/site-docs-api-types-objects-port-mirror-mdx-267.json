@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/port-mirror",
+  "title": "PortMirror",
+  "description": "A port mirror configuration for traffic monitoring and analysis",
+  "source": "@site/docs/api/types/objects/port-mirror.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/port-mirror",
+  "permalink": "/api/types/objects/port-mirror",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "port-mirror",
+    "title": "PortMirror"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "PortMirrorStats",
+    "permalink": "/api/types/objects/port-mirror-stats"
+  },
+  "next": {
+    "title": "PortStatus",
+    "permalink": "/api/types/objects/port-status"
+  }
+}

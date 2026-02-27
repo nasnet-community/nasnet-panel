@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/provisioning-session-connection",
+  "title": "ProvisioningSessionConnection",
+  "description": "Connection type for paginated provisioning sessions",
+  "source": "@site/docs/api/types/objects/provisioning-session-connection.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/provisioning-session-connection",
+  "permalink": "/api/types/objects/provisioning-session-connection",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "provisioning-session-connection",
+    "title": "ProvisioningSessionConnection"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ProvisioningProgressEvent",
+    "permalink": "/api/types/objects/provisioning-progress-event"
+  },
+  "next": {
+    "title": "ProvisioningSessionEdge",
+    "permalink": "/api/types/objects/provisioning-session-edge"
+  }
+}

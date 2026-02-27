@@ -88,24 +88,24 @@ export const AppHeader = React.memo(function AppHeader() {
     : t('app.name');
 
   return (
-    <div className="flex h-full items-center justify-between px-component-md py-3">
+    <div className="brand-gradient-subtle brand-accent-line flex h-full items-center justify-between px-component-md py-3">
       {/* Left: Brand + Status */}
       <div className="flex items-center gap-3">
         {/* Logo */}
-        <img 
-          src="/favicon.png" 
-          alt="NasNet" 
-          className="w-8 h-8 rounded-lg shadow-sm"
+        <img
+          src="/favicon.png"
+          alt="NasNet"
+          className="ring-2 ring-primary/30 w-8 h-8 rounded-lg shadow-sm"
         />
 
         {/* App/Router Info */}
         <div>
-          <p className="text-sm font-medium text-foreground">
+          <p className="font-display text-sm font-medium text-foreground">
             {displayName}
           </p>
           <p className={`text-xs flex items-center gap-1.5 ${statusConfig.textClass}`}>
-            <span 
-              className={`w-1.5 h-1.5 rounded-full ${statusConfig.dotClass}`} 
+            <span
+              className={`w-2 h-2 rounded-full ${statusConfig.dotClass}`}
               aria-hidden="true"
             />
             {statusConfig.text}

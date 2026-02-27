@@ -98,7 +98,7 @@ export const InterfaceFilter = memo<InterfaceFilterProps>(
         <SelectContent>
           {/* All interfaces option */}
           <SelectItem value="all">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-component-sm">
               <Network className="h-4 w-4" aria-hidden="true" />
               <span>All interfaces</span>
             </div>
@@ -115,7 +115,7 @@ export const InterfaceFilter = memo<InterfaceFilterProps>(
           {interfaces && interfaces.length > 0 ? (
             interfaces.map((iface) => (
               <SelectItem key={iface.id} value={iface.id}>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-component-sm">
                   {getInterfaceIcon(iface.type)}
                   <span>{iface.name}</span>
                   {iface.type && (

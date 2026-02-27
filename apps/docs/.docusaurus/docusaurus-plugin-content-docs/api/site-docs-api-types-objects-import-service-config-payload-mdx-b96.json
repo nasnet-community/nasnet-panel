@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/import-service-config-payload",
+  "title": "ImportServiceConfigPayload",
+  "description": "Payload for import service configuration mutation.",
+  "source": "@site/docs/api/types/objects/import-service-config-payload.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/import-service-config-payload",
+  "permalink": "/api/types/objects/import-service-config-payload",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "import-service-config-payload",
+    "title": "ImportServiceConfigPayload"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ImpactAnalysis",
+    "permalink": "/api/types/objects/impact-analysis"
+  },
+  "next": {
+    "title": "ImportValidationError",
+    "permalink": "/api/types/objects/import-validation-error"
+  }
+}

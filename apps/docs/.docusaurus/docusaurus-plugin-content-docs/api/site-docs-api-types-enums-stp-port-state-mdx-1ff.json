@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/stp-port-state",
+  "title": "StpPortState",
+  "description": "No description",
+  "source": "@site/docs/api/types/enums/stp-port-state.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/stp-port-state",
+  "permalink": "/api/types/enums/stp-port-state",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "stp-port-state",
+    "title": "StpPortState"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "StpPortRole",
+    "permalink": "/api/types/enums/stp-port-role"
+  },
+  "next": {
+    "title": "StpProtocol",
+    "permalink": "/api/types/enums/stp-protocol"
+  }
+}

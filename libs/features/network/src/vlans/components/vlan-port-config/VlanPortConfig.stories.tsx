@@ -71,7 +71,7 @@ export const AccessMode: Story = {
   decorators: [
     (Story) => (
       <MockedProvider mocks={mockMutation} addTypename={false}>
-        <div className="min-h-screen flex items-center justify-center p-6">
+        <div className="min-h-screen flex items-center justify-center p-component-lg">
           <Story />
         </div>
       </MockedProvider>
@@ -98,7 +98,7 @@ export const TrunkMode: Story = {
   decorators: [
     (Story) => (
       <MockedProvider mocks={mockMutation} addTypename={false}>
-        <div className="min-h-screen flex items-center justify-center p-6">
+        <div className="min-h-screen flex items-center justify-center p-component-lg">
           <Story />
         </div>
       </MockedProvider>
@@ -124,7 +124,7 @@ export const TrunkModeNoNative: Story = {
   decorators: [
     (Story) => (
       <MockedProvider mocks={mockMutation} addTypename={false}>
-        <div className="min-h-screen flex items-center justify-center p-6">
+        <div className="min-h-screen flex items-center justify-center p-component-lg">
           <Story />
         </div>
       </MockedProvider>
@@ -146,7 +146,7 @@ export const Empty: Story = {
   decorators: [
     (Story) => (
       <MockedProvider mocks={mockMutation} addTypename={false}>
-        <div className="min-h-screen flex items-center justify-center p-6">
+        <div className="min-h-screen flex items-center justify-center p-component-lg">
           <Story />
         </div>
       </MockedProvider>
@@ -181,7 +181,7 @@ export const WithPreview: Story = {
   decorators: [
     (Story) => (
       <MockedProvider mocks={mockMutation} addTypename={false}>
-        <div className="min-h-screen flex items-center justify-center p-6">
+        <div className="min-h-screen flex items-center justify-center p-component-lg">
           <Story />
         </div>
       </MockedProvider>
@@ -210,7 +210,7 @@ export const ManyVlans: Story = {
   decorators: [
     (Story) => (
       <MockedProvider mocks={mockMutation} addTypename={false}>
-        <div className="min-h-screen flex items-center justify-center p-6">
+        <div className="min-h-screen flex items-center justify-center p-component-lg">
           <Story />
         </div>
       </MockedProvider>

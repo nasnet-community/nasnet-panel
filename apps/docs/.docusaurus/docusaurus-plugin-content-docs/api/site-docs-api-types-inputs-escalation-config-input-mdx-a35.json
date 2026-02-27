@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/escalation-config-input",
+  "title": "EscalationConfigInput",
+  "description": "Escalation configuration input (NAS-18.9)",
+  "source": "@site/docs/api/types/inputs/escalation-config-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/escalation-config-input",
+  "permalink": "/api/types/inputs/escalation-config-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "escalation-config-input",
+    "title": "EscalationConfigInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "EmailConfigInput",
+    "permalink": "/api/types/inputs/email-config-input"
+  },
+  "next": {
+    "title": "ExportAsTemplateInput",
+    "permalink": "/api/types/inputs/export-as-template-input"
+  }
+}

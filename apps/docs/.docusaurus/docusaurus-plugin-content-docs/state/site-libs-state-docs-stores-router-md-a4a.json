@@ -1,0 +1,28 @@
+{
+  "id": "stores/router",
+  "title": "Router Store (useRouterStore)",
+  "description": "Deep-dive into router discovery, management, and selection state.",
+  "source": "@site/../../libs/state/docs/stores/router.md",
+  "sourceDirName": "stores",
+  "slug": "/stores/router",
+  "permalink": "/docs/state/stores/router",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/state/docs/stores/router.md",
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 2,
+  "frontMatter": {
+    "sidebar_position": 2,
+    "title": "Router Store (useRouterStore)"
+  },
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Wizard Machine (Multi-Step Flows)",
+    "permalink": "/docs/state/machines/wizard"
+  },
+  "next": {
+    "title": "Hooks & Utility Functions",
+    "permalink": "/docs/state/stores/hooks-utilities"
+  }
+}

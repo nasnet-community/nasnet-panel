@@ -105,7 +105,7 @@ export const MultiSelect = React.memo(function MultiSelect({
   );
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-component-sm">
       <Popover open={isOpen} onOpenChange={setIsOpen}>
         <PopoverTrigger asChild>
           <Button
@@ -128,14 +128,14 @@ export const MultiSelect = React.memo(function MultiSelect({
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-full p-0">
-          <div className="max-h-60 overflow-auto p-1">
+          <div className="max-h-60 overflow-auto p-component-xs">
             {normalizedOptions.map(({ value: optionValue, label: optionLabel }) => {
               const isSelected = value.includes(optionValue);
               return (
                 <div
                   key={optionValue}
                   className={cn(
-                    'flex items-center space-x-2 rounded-sm px-2 py-1.5 cursor-pointer hover:bg-accent',
+                    'flex items-center gap-component-xs rounded-sm px-component-sm py-component-sm cursor-pointer hover:bg-accent',
                     isSelected && 'bg-accent'
                   )}
                   onClick={() => handleToggle(optionValue)}
@@ -156,15 +156,15 @@ export const MultiSelect = React.memo(function MultiSelect({
       </Popover>
 
       {value.length > 0 && (
-        <div className="flex flex-wrap gap-1" role="region" aria-label="Selected items">
+        <div className="flex flex-wrap gap-component-xs" role="region" aria-label="Selected items">
           {value.map((v) => (
-            <Badge key={v} variant="secondary" className="gap-1 pr-1">
+            <Badge key={v} variant="secondary" className="gap-component-xs pr-component-xs bg-category-vpn/10 text-category-vpn">
               <span className="max-w-[200px] truncate">{getLabel(v)}</span>
               <button
                 type="button"
                 onClick={() => handleRemove(v)}
                 disabled={disabled}
-                className="ml-1 rounded-full p-0.5 hover:bg-destructive/20 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                className="ml-1 rounded-full p-0.5 hover:bg-error/20 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 aria-label={`Remove ${getLabel(v)}`}
               >
                 <X className="h-3 w-3" aria-hidden="true" />

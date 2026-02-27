@@ -79,7 +79,7 @@ type CommandError struct {
 type JobRequest struct {
 	RouterIP        string   `json:"router_ip"`
 	Username        string   `json:"username"`
-	Password        string   `json:"password"`
+	Password        string   `json:"password"` //nolint:gosec // G117: password field required for authentication
 	UseTLS          bool     `json:"use_tls"`
 	Protocol        string   `json:"protocol"`
 	SSHPrivateKey   string   `json:"ssh_private_key"`

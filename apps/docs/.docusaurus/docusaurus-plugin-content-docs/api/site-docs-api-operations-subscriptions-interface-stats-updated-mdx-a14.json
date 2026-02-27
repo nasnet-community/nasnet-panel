@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/subscriptions/interface-stats-updated",
+  "title": "interfaceStatsUpdated",
+  "description": "Subscribe to real-time interface statistics updates",
+  "source": "@site/docs/api/operations/subscriptions/interface-stats-updated.mdx",
+  "sourceDirName": "api/operations/subscriptions",
+  "slug": "/api/operations/subscriptions/interface-stats-updated",
+  "permalink": "/api/operations/subscriptions/interface-stats-updated",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "interface-stats-updated",
+    "title": "interfaceStatsUpdated"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "instanceStatusChanged",
+    "permalink": "/api/operations/subscriptions/instance-status-changed"
+  },
+  "next": {
+    "title": "interfaceStatusChanged",
+    "permalink": "/api/operations/subscriptions/interface-status-changed"
+  }
+}

@@ -265,7 +265,6 @@ func TestIsolationVerifier_VerifyIPBinding(t *testing.T) {
 
 // TestIsolationVerifier_VerifyDirectory tests Layer 2: Directory validation
 func TestIsolationVerifier_VerifyDirectory(t *testing.T) {
-	ctx := context.Background()
 	logger := zap.NewNop()
 
 	t.Run("success with valid binary path", func(t *testing.T) {
@@ -292,7 +291,7 @@ func TestIsolationVerifier_VerifyDirectory(t *testing.T) {
 			BinaryPath: binaryPath,
 		}
 
-		err := verifier.verifyDirectory(ctx, instance)
+		err := verifier.verifyDirectory(instance)
 		if err != nil {
 			t.Fatalf("expected no error, got %v", err)
 		}
@@ -315,7 +314,7 @@ func TestIsolationVerifier_VerifyDirectory(t *testing.T) {
 			BinaryPath: filepath.Join(baseDir, "nonexistent", "binary"),
 		}
 
-		err := verifier.verifyDirectory(ctx, instance)
+		err := verifier.verifyDirectory(instance)
 		if err == nil {
 			t.Fatal("expected error when binary does not exist")
 		}
@@ -345,7 +344,7 @@ func TestIsolationVerifier_VerifyDirectory(t *testing.T) {
 			BinaryPath: outsidePath,
 		}
 
-		err := verifier.verifyDirectory(ctx, instance)
+		err := verifier.verifyDirectory(instance)
 		if err == nil {
 			t.Fatal("expected error when path is outside allowed directory")
 		}
@@ -379,7 +378,7 @@ func TestIsolationVerifier_VerifyDirectory(t *testing.T) {
 			BinaryPath: binaryPath,
 		}
 
-		err := verifier.verifyDirectory(ctx, instance)
+		err := verifier.verifyDirectory(instance)
 		if err == nil {
 			t.Fatal("expected error when directory has insecure permissions")
 		}

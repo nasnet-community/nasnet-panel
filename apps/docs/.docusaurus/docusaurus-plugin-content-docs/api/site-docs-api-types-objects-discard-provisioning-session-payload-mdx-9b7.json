@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/discard-provisioning-session-payload",
+  "title": "DiscardProvisioningSessionPayload",
+  "description": "Payload for discarding a provisioning session",
+  "source": "@site/docs/api/types/objects/discard-provisioning-session-payload.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/discard-provisioning-session-payload",
+  "permalink": "/api/types/objects/discard-provisioning-session-payload",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "discard-provisioning-session-payload",
+    "title": "DiscardProvisioningSessionPayload"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "DigestSummary",
+    "permalink": "/api/types/objects/digest-summary"
+  },
+  "next": {
+    "title": "DisconnectRouterPayload",
+    "permalink": "/api/types/objects/disconnect-router-payload"
+  }
+}

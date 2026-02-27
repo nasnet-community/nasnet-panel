@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/detect-orphaned-vlans",
+  "title": "detectOrphanedVLANs",
+  "description": "Detect orphaned VLAN allocations for a router.",
+  "source": "@site/docs/api/operations/queries/detect-orphaned-vlans.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/detect-orphaned-vlans",
+  "permalink": "/api/operations/queries/detect-orphaned-vlans",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "detect-orphaned-vlans",
+    "title": "detectOrphanedVLANs"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "detectOrphanedPorts",
+    "permalink": "/api/operations/queries/detect-orphaned-ports"
+  },
+  "next": {
+    "title": "detectWanInterface",
+    "permalink": "/api/operations/queries/detect-wan-interface"
+  }
+}

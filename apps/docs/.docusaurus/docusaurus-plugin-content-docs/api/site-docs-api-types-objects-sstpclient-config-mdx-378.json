@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/sstpclient-config",
+  "title": "SSTPClientConfig",
+  "description": "SSTP client configuration",
+  "source": "@site/docs/api/types/objects/sstpclient-config.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/sstpclient-config",
+  "permalink": "/api/types/objects/sstpclient-config",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "sstpclient-config",
+    "title": "SSTPClientConfig"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "SoftwareInfo",
+    "permalink": "/api/types/objects/software-info"
+  },
+  "next": {
+    "title": "SSTPClient",
+    "permalink": "/api/types/objects/sstpclient"
+  }
+}

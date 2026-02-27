@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/rollback-change-set-payload",
+  "title": "RollbackChangeSetPayload",
+  "description": "No description",
+  "source": "@site/docs/api/types/objects/rollback-change-set-payload.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/rollback-change-set-payload",
+  "permalink": "/api/types/objects/rollback-change-set-payload",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "rollback-change-set-payload",
+    "title": "RollbackChangeSetPayload"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ReverifyPayload",
+    "permalink": "/api/types/objects/reverify-payload"
+  },
+  "next": {
+    "title": "RollbackStep",
+    "permalink": "/api/types/objects/rollback-step"
+  }
+}

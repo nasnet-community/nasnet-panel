@@ -1,0 +1,24 @@
+{
+  "id": "application-bootstrap",
+  "title": "Application Bootstrap",
+  "description": "How NasNet initializes from a blank slate to a fully-running system — the wiring of 13 service",
+  "source": "@site/../backend/docs/application-bootstrap.md",
+  "sourceDirName": ".",
+  "slug": "/application-bootstrap",
+  "permalink": "/docs/backend/application-bootstrap",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../backend/docs/application-bootstrap.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Alert System",
+    "permalink": "/docs/backend/alert-system"
+  },
+  "next": {
+    "title": "Build and Deploy",
+    "permalink": "/docs/backend/build-and-deploy"
+  }
+}

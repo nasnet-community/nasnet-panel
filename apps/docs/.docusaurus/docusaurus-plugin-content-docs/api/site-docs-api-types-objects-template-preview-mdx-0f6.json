@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/template-preview",
+  "title": "TemplatePreview",
+  "description": "Template preview result",
+  "source": "@site/docs/api/types/objects/template-preview.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/template-preview",
+  "permalink": "/api/types/objects/template-preview",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "template-preview",
+    "title": "TemplatePreview"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "TemplatePreviewResult",
+    "permalink": "/api/types/objects/template-preview-result"
+  },
+  "next": {
+    "title": "TemplateRule",
+    "permalink": "/api/types/objects/template-rule"
+  }
+}

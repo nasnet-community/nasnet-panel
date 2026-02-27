@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/template-validation-info",
+  "title": "TemplateValidationInfo",
+  "description": "Template validation information",
+  "source": "@site/docs/api/types/objects/template-validation-info.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/template-validation-info",
+  "permalink": "/api/types/objects/template-validation-info",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "template-validation-info",
+    "title": "TemplateValidationInfo"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "TemplateRule",
+    "permalink": "/api/types/objects/template-rule"
+  },
+  "next": {
+    "title": "TemplateVariable",
+    "permalink": "/api/types/objects/template-variable"
+  }
+}

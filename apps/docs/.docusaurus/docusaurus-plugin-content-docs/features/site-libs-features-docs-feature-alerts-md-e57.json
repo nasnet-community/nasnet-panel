@@ -1,0 +1,24 @@
+{
+  "id": "feature-alerts",
+  "title": "Feature Module: Alerts (libs/features/alerts)",
+  "description": "1. Overview",
+  "source": "@site/../../libs/features/docs/feature-alerts.md",
+  "sourceDirName": ".",
+  "slug": "/feature-alerts",
+  "permalink": "/docs/features/feature-alerts",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/features/docs/feature-alerts.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Error Handling Architecture",
+    "permalink": "/docs/features/error-handling"
+  },
+  "next": {
+    "title": "Feature: Dashboard (libs/features/dashboard)",
+    "permalink": "/docs/features/feature-dashboard"
+  }
+}

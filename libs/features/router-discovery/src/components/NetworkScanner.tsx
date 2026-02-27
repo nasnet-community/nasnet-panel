@@ -129,7 +129,7 @@ export const NetworkScanner = memo(function NetworkScanner({
               onChange={(e) => setSubnet(e.target.value)}
               disabled={isScanning}
               placeholder="192.168.88.0/24"
-              className={cn('flex-1 px-component-sm py-component-sm border rounded-[var(--semantic-radius-button)] shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-card text-foreground disabled:opacity-50', 'border-border')}
+              className={cn('flex-1 px-component-sm py-component-sm border rounded-[var(--semantic-radius-button)] shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-card text-foreground disabled:opacity-50 font-mono', 'border-border')}
               aria-describedby="subnet-help"
             />
             <button
@@ -154,7 +154,7 @@ export const NetworkScanner = memo(function NetworkScanner({
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="p-4 bg-error/10 border border-error/20 rounded-md"
+            className="p-component-md bg-error/10 border border-error/20 rounded-md"
             role="alert"
           >
             <div className="flex">
@@ -202,7 +202,7 @@ export const NetworkScanner = memo(function NetworkScanner({
                   Scanning Network...
                 </h3>
                 <div className="flex items-center gap-component-sm">
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary" aria-hidden="true" />
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary" role="status" aria-hidden="true" />
                   <span className="text-sm font-medium text-muted-foreground">
                     {scanProgress.scannedHosts} / {scanProgress.totalHosts}
                   </span>
@@ -311,7 +311,7 @@ export const NetworkScanner = memo(function NetworkScanner({
 
       {/* No Results Message */}
       {!isScanning && scanResults.length === 0 && !error && scanProgress && (
-        <div className="text-center py-8 text-muted-foreground" role="status">
+        <div className="text-center py-component-xl text-muted-foreground" role="status">
           <svg
             className="mx-auto h-12 w-12 text-muted-foreground"
             fill="none"

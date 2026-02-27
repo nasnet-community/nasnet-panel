@@ -256,7 +256,7 @@ func ParseInt(s string) (int, error) {
 	}
 	var val int
 	if _, err := fmt.Sscanf(s, "%d", &val); err != nil {
-		return 0, err
+		return 0, fmt.Errorf("parse integer: %w", err)
 	}
 	return val, nil
 }
@@ -362,7 +362,7 @@ func ParseRouterOSDuration(s string) (time.Duration, error) {
 			val := 0
 			if current != "" {
 				if _, err := fmt.Sscanf(current, "%d", &val); err != nil {
-					return 0, err
+					return 0, fmt.Errorf("parse duration component: %w", err)
 				}
 				current = ""
 			}

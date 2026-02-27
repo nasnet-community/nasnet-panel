@@ -1,0 +1,28 @@
+{
+  "id": "notifications-webhooks",
+  "title": "Notifications and Webhooks — Alert Delivery Integration",
+  "description": "This document covers the webhook management system that integrates with the alerts feature. Webhooks",
+  "source": "@site/../../libs/api-client/docs/notifications-webhooks.md",
+  "sourceDirName": ".",
+  "slug": "/notifications-webhooks",
+  "permalink": "/docs/api-client/notifications-webhooks",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/api-client/docs/notifications-webhooks.md",
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 14,
+  "frontMatter": {
+    "sidebar_position": 14,
+    "title": "Notifications and Webhooks — Alert Delivery Integration"
+  },
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "TanStack Query Modules — REST-Only Endpoints",
+    "permalink": "/docs/api-client/tanstack-query-modules"
+  },
+  "next": {
+    "title": "Domain Query Hooks",
+    "permalink": "/docs/api-client/domain-query-hooks"
+  }
+}

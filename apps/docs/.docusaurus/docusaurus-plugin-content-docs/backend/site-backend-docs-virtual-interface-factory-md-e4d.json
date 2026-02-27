@@ -1,0 +1,20 @@
+{
+  "id": "virtual-interface-factory",
+  "title": "Virtual Interface Factory (VIF)",
+  "description": "Transforms service instances into routable VLAN-isolated network interfaces on MikroTik routers, enabling per-device traffic steering through services like Tor, sing-box, and Xray.",
+  "source": "@site/../backend/docs/virtual-interface-factory.md",
+  "sourceDirName": ".",
+  "slug": "/virtual-interface-factory",
+  "permalink": "/docs/backend/virtual-interface-factory",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../backend/docs/virtual-interface-factory.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Validation Pipeline",
+    "permalink": "/docs/backend/validation-pipeline"
+  }
+}

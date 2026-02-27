@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/webhook-delivery-stats",
+  "title": "WebhookDeliveryStats",
+  "description": "Webhook delivery statistics",
+  "source": "@site/docs/api/types/objects/webhook-delivery-stats.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/webhook-delivery-stats",
+  "permalink": "/api/types/objects/webhook-delivery-stats",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "webhook-delivery-stats",
+    "title": "WebhookDeliveryStats"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "WANMutationResult",
+    "permalink": "/api/types/objects/wanmutation-result"
+  },
+  "next": {
+    "title": "WebhookPayload",
+    "permalink": "/api/types/objects/webhook-payload"
+  }
+}

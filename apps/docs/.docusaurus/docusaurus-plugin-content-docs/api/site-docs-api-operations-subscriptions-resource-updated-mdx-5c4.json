@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/subscriptions/resource-updated",
+  "title": "resourceUpdated",
+  "description": "Subscribe to resource updates (create, update, delete)",
+  "source": "@site/docs/api/operations/subscriptions/resource-updated.mdx",
+  "sourceDirName": "api/operations/subscriptions",
+  "slug": "/api/operations/subscriptions/resource-updated",
+  "permalink": "/api/operations/subscriptions/resource-updated",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "resource-updated",
+    "title": "resourceUpdated"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "resourceStateChanged",
+    "permalink": "/api/operations/subscriptions/resource-state-changed"
+  },
+  "next": {
+    "title": "resourceUsageChanged",
+    "permalink": "/api/operations/subscriptions/resource-usage-changed"
+  }
+}

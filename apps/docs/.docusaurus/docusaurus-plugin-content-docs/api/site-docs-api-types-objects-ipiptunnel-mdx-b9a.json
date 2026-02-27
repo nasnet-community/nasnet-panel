@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/ipiptunnel",
+  "title": "IPIPTunnel",
+  "description": "IPIP Tunnel resource implementing 8-layer model",
+  "source": "@site/docs/api/types/objects/ipiptunnel.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/ipiptunnel",
+  "permalink": "/api/types/objects/ipiptunnel",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "ipiptunnel",
+    "title": "IPIPTunnel"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "IPIPTunnelRuntime",
+    "permalink": "/api/types/objects/ipiptunnel-runtime"
+  },
+  "next": {
+    "title": "IpsecProfile",
+    "permalink": "/api/types/objects/ipsec-profile"
+  }
+}

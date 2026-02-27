@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/service-status",
+  "title": "ServiceStatus",
+  "description": "Service operational status",
+  "source": "@site/docs/api/types/enums/service-status.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/service-status",
+  "permalink": "/api/types/enums/service-status",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "service-status",
+    "title": "ServiceStatus"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ServiceInstanceStatus",
+    "permalink": "/api/types/enums/service-instance-status"
+  },
+  "next": {
+    "title": "ServiceTemplateCategory",
+    "permalink": "/api/types/enums/service-template-category"
+  }
+}

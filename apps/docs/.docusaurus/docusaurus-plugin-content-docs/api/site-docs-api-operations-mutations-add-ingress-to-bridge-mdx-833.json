@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/add-ingress-to-bridge",
+  "title": "addIngressToBridge",
+  "description": "Add an ingress VLAN to a router bridge.",
+  "source": "@site/docs/api/operations/mutations/add-ingress-to-bridge.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/add-ingress-to-bridge",
+  "permalink": "/api/operations/mutations/add-ingress-to-bridge",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "add-ingress-to-bridge",
+    "title": "addIngressToBridge"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "addDependency",
+    "permalink": "/api/operations/mutations/add-dependency"
+  },
+  "next": {
+    "title": "addProvisioningResource",
+    "permalink": "/api/operations/mutations/add-provisioning-resource"
+  }
+}

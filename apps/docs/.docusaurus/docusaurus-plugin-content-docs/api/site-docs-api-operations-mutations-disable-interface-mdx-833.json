@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/disable-interface",
+  "title": "disableInterface",
+  "description": "Disable an interface",
+  "source": "@site/docs/api/operations/mutations/disable-interface.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/disable-interface",
+  "permalink": "/api/operations/mutations/disable-interface",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "disable-interface",
+    "title": "disableInterface"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "deprecateResource",
+    "permalink": "/api/operations/mutations/deprecate-resource"
+  },
+  "next": {
+    "title": "disablePortMirror",
+    "permalink": "/api/operations/mutations/disable-port-mirror"
+  }
+}

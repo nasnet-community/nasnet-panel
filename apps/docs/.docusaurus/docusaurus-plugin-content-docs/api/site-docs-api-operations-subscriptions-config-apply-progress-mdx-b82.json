@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/subscriptions/config-apply-progress",
+  "title": "configApplyProgress",
+  "description": "Subscribe to configuration apply progress",
+  "source": "@site/docs/api/operations/subscriptions/config-apply-progress.mdx",
+  "sourceDirName": "api/operations/subscriptions",
+  "slug": "/api/operations/subscriptions/config-apply-progress",
+  "permalink": "/api/operations/subscriptions/config-apply-progress",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "config-apply-progress",
+    "title": "configApplyProgress"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "circuitBreakerStateChanged",
+    "permalink": "/api/operations/subscriptions/circuit-breaker-state-changed"
+  },
+  "next": {
+    "title": "connectionHealth",
+    "permalink": "/api/operations/subscriptions/connection-health"
+  }
+}

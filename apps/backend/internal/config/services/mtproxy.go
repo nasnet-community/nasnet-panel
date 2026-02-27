@@ -125,7 +125,7 @@ func (g *MTProxyGenerator) Generate(instanceID string, config map[string]interfa
 func (g *MTProxyGenerator) Validate(config map[string]interface{}, bindIP string) error {
 	// Base validation (schema + bind IP)
 	if configErr := g.ValidateConfig(config, bindIP); configErr != nil {
-		return configErr
+		return fmt.Errorf("validate mtproxy config: %w", configErr)
 	}
 
 	// Validate secret format (32-character hex string)
@@ -136,7 +136,7 @@ func (g *MTProxyGenerator) Validate(config map[string]interface{}, bindIP string
 
 	// Validate hex characters
 	for _, char := range secret {
-		if !((char >= '0' && char <= '9') || (char >= 'a' && char <= 'f') || (char >= 'A' && char <= 'F')) {
+		if (char < '0' || char > '9') && (char < 'a' || char > 'f') && (char < 'A' || char > 'F') {
 			return fmt.Errorf("secret must contain only hexadecimal characters (0-9, a-f)")
 		}
 	}

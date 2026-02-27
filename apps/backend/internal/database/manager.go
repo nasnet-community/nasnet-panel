@@ -414,7 +414,7 @@ func (dm *Manager) Close() error {
 	}
 
 	if len(errs) > 0 {
-		return errors.Join(errs...)
+		return fmt.Errorf("close router database: %w", errors.Join(errs...))
 	}
 
 	return nil
@@ -466,7 +466,7 @@ func (dm *Manager) ForceCloseRouterDB(routerID string) error {
 func (dm *Manager) DeleteRouterDB(routerID string) error {
 	// Close if open
 	if err := dm.ForceCloseRouterDB(routerID); err != nil {
-		return err
+		return fmt.Errorf("delete router database close: %w", err)
 	}
 
 	// Delete file

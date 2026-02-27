@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/export-service-config-payload",
+  "title": "ExportServiceConfigPayload",
+  "description": "Payload for export service configuration mutation.",
+  "source": "@site/docs/api/types/objects/export-service-config-payload.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/export-service-config-payload",
+  "permalink": "/api/types/objects/export-service-config-payload",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "export-service-config-payload",
+    "title": "ExportServiceConfigPayload"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ExportConfigPayload",
+    "permalink": "/api/types/objects/export-config-payload"
+  },
+  "next": {
+    "title": "FailoverConfig",
+    "permalink": "/api/types/objects/failover-config"
+  }
+}

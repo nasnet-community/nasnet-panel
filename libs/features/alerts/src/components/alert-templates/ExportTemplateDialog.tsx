@@ -197,9 +197,9 @@ function ExportTemplateDialogComponent(props: ExportTemplateDialogProps) {
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="space-y-component-md">
           {/* JSON Preview */}
-          <div className="space-y-2">
+          <div className="space-y-component-sm">
             <Label htmlFor="json-preview">Template JSON</Label>
             <Textarea
               id="json-preview"
@@ -213,7 +213,7 @@ function ExportTemplateDialogComponent(props: ExportTemplateDialogProps) {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-2">
+          <div className="flex gap-component-sm">
             <Button
               type="button"
               variant="outline"

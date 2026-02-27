@@ -34,9 +34,10 @@ func (e *ServiceStateChangedEvent) Payload() ([]byte, error) { return json.Marsh
 
 func NewServiceStateChangedEvent(instanceID, serviceType, serviceName, fromStatus, toStatus, reason, errorMessage, source string) *ServiceStateChangedEvent {
 	priority := PriorityNormal
-	if toStatus == "failed" || toStatus == "crashed" {
+	switch toStatus {
+	case "failed", "crashed":
 		priority = PriorityImmediate
-	} else if toStatus == "running" || toStatus == "stopped" {
+	case "running", "stopped":
 		priority = PriorityCritical
 	}
 	return &ServiceStateChangedEvent{

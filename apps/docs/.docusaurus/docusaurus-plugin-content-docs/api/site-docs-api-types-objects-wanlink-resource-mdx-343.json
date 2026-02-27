@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/wanlink-resource",
+  "title": "WANLinkResource",
+  "description": "WAN Link resource implementing 8-layer model",
+  "source": "@site/docs/api/types/objects/wanlink-resource.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/wanlink-resource",
+  "permalink": "/api/types/objects/wanlink-resource",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "wanlink-resource",
+    "title": "WANLinkResource"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "WANLinkDeployment",
+    "permalink": "/api/types/objects/wanlink-deployment"
+  },
+  "next": {
+    "title": "WANLinkRuntime",
+    "permalink": "/api/types/objects/wanlink-runtime"
+  }
+}

@@ -29,7 +29,7 @@ export function DnsServerListDesktop({
   isLoading = false,
 }: DnsServerListProps) {
   return (
-    <div className="space-y-component-md">
+    <div className="space-y-component-md category-networking">
       {/* DNS Servers List with Drag-and-Drop */}
       {servers.length > 0 ? (
         <SortableListWithActions
@@ -66,7 +66,7 @@ export function DnsServerListDesktop({
         />
       ) : (
         // Empty state
-        <div className="p-component-lg text-center text-muted-foreground border border-dashed rounded-[var(--semantic-radius-button)]">
+        <div className="p-component-lg text-center text-muted-foreground border border-dashed rounded-[var(--semantic-radius-button)] category-networking">
           <Globe className="h-8 w-8 mx-auto mb-component-sm opacity-50" />
           <p className="text-sm">No DNS servers configured</p>
           <p className="text-xs mt-component-sm">

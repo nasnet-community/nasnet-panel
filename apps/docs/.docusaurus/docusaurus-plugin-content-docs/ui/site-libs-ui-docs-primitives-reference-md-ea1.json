@@ -1,0 +1,24 @@
+{
+  "id": "primitives-reference",
+  "title": "Primitives Reference (Layer 1)",
+  "description": "Layer 1 is the foundation of the NasNetConnect component architecture. These are the lowest-level building blocks",
+  "source": "@site/../../libs/ui/docs/primitives-reference.md",
+  "sourceDirName": ".",
+  "slug": "/primitives-reference",
+  "permalink": "/docs/ui/primitives-reference",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/ui/docs/primitives-reference.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Status & Data Display Patterns (Layer 2)",
+    "permalink": "/docs/ui/patterns-status-and-data"
+  },
+  "next": {
+    "title": "Shared Hooks Reference",
+    "permalink": "/docs/ui/shared-hooks"
+  }
+}

@@ -133,7 +133,7 @@ const RuleCard = memo(function RuleCard({ rule, maxBytes, onEdit, onDuplicate, o
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <div className="flex items-center gap-2 mb-1">
+            <div className="flex items-center gap-component-sm mb-component-xs">
               <span className="font-mono text-xs text-muted-foreground">#{rule.order}</span>
               <Badge variant="secondary" className="text-xs">
                 {rule.chain}
@@ -159,7 +159,7 @@ const RuleCard = memo(function RuleCard({ rule, maxBytes, onEdit, onDuplicate, o
 
         {/* Counters - Replaced with CounterCell */}
         <div
-          className="mb-3 cursor-pointer hover:bg-muted/50 p-2 -mx-2 rounded transition-colors"
+          className="mb-component-md cursor-pointer hover:bg-muted/50 p-component-sm -mx-component-sm rounded transition-colors"
           onClick={() => onShowStats(rule)}
           role="button"
           tabIndex={0}
@@ -178,13 +178,13 @@ const RuleCard = memo(function RuleCard({ rule, maxBytes, onEdit, onDuplicate, o
 
         {/* Comment */}
         {rule.comment && (
-          <div className="text-sm text-muted-foreground italic mb-3">
+          <div className="text-sm text-muted-foreground italic mb-component-md">
             {rule.comment}
           </div>
         )}
 
         {/* Actions */}
-        <div className="flex gap-2" role="group" aria-label="Filter rule actions">
+        <div className="flex gap-component-sm" role="group" aria-label="Filter rule actions">
           <Button
             variant="outline"
             size="sm"
@@ -192,7 +192,7 @@ const RuleCard = memo(function RuleCard({ rule, maxBytes, onEdit, onDuplicate, o
             className="flex-1 min-h-[44px] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             aria-label={`Edit filter rule ${rule.order}`}
           >
-            <Pencil className="h-4 w-4 mr-1" aria-hidden="true" />
+            <Pencil className="h-4 w-4 mr-component-xs" aria-hidden="true" />
             Edit
           </Button>
           <Button
@@ -208,7 +208,7 @@ const RuleCard = memo(function RuleCard({ rule, maxBytes, onEdit, onDuplicate, o
             variant="outline"
             size="sm"
             onClick={() => onDelete(rule)}
-            className="text-destructive hover:text-destructive/80 min-h-[44px] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className="text-error hover:text-error/80 min-h-[44px] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             aria-label={`Delete filter rule ${rule.order}`}
           >
             <Trash2 className="h-4 w-4" aria-hidden="true" />
@@ -362,7 +362,7 @@ export const FilterRulesTableMobile = memo(function FilterRulesTableMobile({ cla
   if (error) {
     return (
       <div className={cn('p-component-md rounded-[var(--semantic-radius-card)] bg-error/10 border border-error/20', className)} role="alert" aria-live="assertive">
-        <h3 className="font-semibold text-error mb-2">Error loading filter rules</h3>
+        <h3 className="font-semibold text-error mb-component-sm">Error loading filter rules</h3>
         <p className="text-sm text-error/80">{error.message}</p>
       </div>
     );
@@ -375,7 +375,7 @@ export const FilterRulesTableMobile = memo(function FilterRulesTableMobile({ cla
         <p className="font-medium">
           {chain ? `No rules in ${chain} chain` : 'No filter rules found'}
         </p>
-        <p className="text-sm mt-2">
+        <p className="text-sm mt-component-sm">
           {chain
             ? `Add the first rule to the ${chain} chain to get started.`
             : 'Create filter rules to manage traffic on your router.'}
@@ -425,9 +425,9 @@ export const FilterRulesTableMobile = memo(function FilterRulesTableMobile({ cla
               This action cannot be undone. The rule will be permanently removed from the firewall configuration.
             </DialogDescription>
           </DialogHeader>
-          <div className="py-4">
-            <p className="text-sm font-semibold mb-2">This will:</p>
-            <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+          <div className="py-component-lg">
+            <p className="text-sm font-semibold mb-component-sm">This will:</p>
+            <ul className="list-disc list-inside text-sm text-muted-foreground space-y-component-xs">
               <li>Remove the rule from the {deleteConfirmRule?.chain} chain</li>
               <li>Reorder subsequent rules automatically</li>
               <li>Take effect immediately on the router</li>

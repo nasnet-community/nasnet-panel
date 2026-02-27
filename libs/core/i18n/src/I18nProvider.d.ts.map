@@ -1,1 +1,0 @@
-{"version":3,"file":"I18nProvider.d.ts","sourceRoot":"","sources":["I18nProvider.tsx"],"names":[],"mappings":"AAAA;;;;;;;GAOG;AACH,OAAO,EAAY,KAAK,SAAS,EAAE,MAAM,OAAO,CAAC;AAMjD;;;;;GAKG;AACH,UAAU,iBAAiB;IACzB,QAAQ,EAAE,SAAS,CAAC;IACpB;;;OAGG;IACH,eAAe,CAAC,EAAE,SAAS,CAAC;CAC7B;AAED;;;;;;;;;;;;;;;;;;;GAmBG;AACH,wBAAgB,YAAY,CAAC,EAAE,QAAQ,EAAE,eAAsB,EAAE,EAAE,iBAAiB,2CAMnF"}

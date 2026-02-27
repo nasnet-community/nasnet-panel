@@ -123,7 +123,7 @@ export const DeviceScanDesktop = memo(function DeviceScanDesktop({
     <Card className={cn('p-component-lg space-y-component-lg', className)}>
       {/* Header */}
       <div className="space-y-2">
-        <h2 className="text-xl font-semibold font-display">Device Scan</h2>
+        <h2 className="text-xl font-semibold font-display text-category-networking">Device Scan</h2>
         <p className="text-sm text-muted-foreground">
           Discover all devices on your network using ARP scanning
         </p>

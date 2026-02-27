@@ -83,97 +83,66 @@ function NotificationCenterMobileComponent({
     <Sheet open={open} onOpenChange={onClose}>
       <SheetContent
         side="bottom"
-        className={cn('h-full flex flex-col gap-0 p-0', className)}
+        className={cn('h-full flex flex-col gap-0 p-0 bg-popover border-t border-border rounded-[var(--semantic-radius-card)]', className)}
       >
         {/* Header */}
-        <SheetHeader className="px-4 py-4 border-b border-border flex-shrink-0">
+        <div className="px-4 py-3 border-b border-border flex-shrink-0">
           <div className="flex items-center justify-between">
-            <SheetTitle className="text-lg font-semibold flex items-center gap-2">
+            <h3 className="text-sm font-semibold text-foreground">
               Notifications
               {unreadCount > 0 && (
                 <Badge variant="default" className="ml-2">
                   {unreadCount}
                 </Badge>
               )}
-            </SheetTitle>
+            </h3>
 
             <Button
               variant="ghost"
               size="icon"
               onClick={onClose}
               aria-label="Close notification center"
-              className="h-11 w-11" // 44px touch target
+              className="h-11 w-11"
             >
               <X className="w-5 h-5" />
             </Button>
           </div>
-
-          {/* Severity filter buttons - 44px height for touch targets */}
-          <div className="flex gap-2 mt-4 overflow-x-auto">
-            {SEVERITY_OPTIONS.map((option) => (
-              <Button
-                key={option.value}
-                variant={severityFilter === option.value ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setSeverityFilter(option.value)}
-                className="h-11 min-w-[80px] text-sm whitespace-nowrap" // 44px touch target
-              >
-                {option.label}
-              </Button>
-            ))}
-          </div>
-        </SheetHeader>
+        </div>
 
         {/* Notification list */}
-        <ScrollArea className="flex-1">
-          <div className="p-4 space-y-3 pb-24">
-            {/* Extra bottom padding for action bar */}
-            {filteredNotifications.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-16 text-center">
-                <div className="text-content-tertiary mb-3">
-                  <svg
-                    className="w-20 h-20 mx-auto"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={1.5}
-                      d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+        <ScrollArea className="flex-1 overflow-y-auto">
+          {filteredNotifications.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+              <p className="text-sm text-muted-foreground font-medium">
+                {severityFilter === 'ALL'
+                  ? 'No notifications'
+                  : `No ${severityFilter.toLowerCase()} notifications`}
+              </p>
+            </div>
+          ) : (
+            <ul className="py-0">
+              {filteredNotifications.map((notification: InAppNotification) => (
+                <li key={notification.id} className="border-b border-border last:border-b-0">
+                  <div className="px-4 py-3 min-h-[44px]">
+                    <NotificationItem
+                      notification={notification}
+                      onClick={handleNotificationClick}
                     />
-                  </svg>
-                </div>
-                <p className="text-base font-medium text-content-secondary">
-                  {severityFilter === 'ALL'
-                    ? 'No notifications'
-                    : `No ${severityFilter.toLowerCase()} notifications`}
-                </p>
-                <p className="text-sm text-content-tertiary mt-1">
-                  You're all caught up!
-                </p>
-              </div>
-            ) : (
-              filteredNotifications.map((notification: InAppNotification) => (
-                <NotificationItem
-                  key={notification.id}
-                  notification={notification}
-                  onClick={handleNotificationClick}
-                />
-              ))
-            )}
-          </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
         </ScrollArea>
 
         {/* Bottom action bar - fixed at bottom, 44px touch targets */}
         {filteredNotifications.length > 0 && (
-          <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-border bg-surface flex gap-3 flex-shrink-0">
+          <div className="p-4 border-t border-border bg-popover flex gap-3 flex-shrink-0">
             {unreadCount > 0 && (
               <Button
                 variant="outline"
                 onClick={handleMarkAllRead}
-                className="h-11 flex-1" // 44px touch target
+                className="h-11 flex-1"
               >
                 Mark all read
               </Button>
@@ -182,17 +151,10 @@ function NotificationCenterMobileComponent({
             <Button
               variant="outline"
               onClick={handleClearAll}
-              className="h-11 flex-1 text-semantic-error hover:text-semantic-error border-semantic-error/30" // 44px touch target
+              className="h-11 flex-1 text-error hover:text-error border-error/30"
             >
               Clear all
             </Button>
-          </div>
-        )}
-
-        {/* Footer info */}
-        {filteredNotifications.length > 0 && (
-          <div className="px-4 py-2 text-xs text-content-tertiary text-center flex-shrink-0">
-            Showing {filteredCount} notifications
           </div>
         )}
       </SheetContent>

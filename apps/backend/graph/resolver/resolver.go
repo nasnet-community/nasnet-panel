@@ -29,6 +29,8 @@ import (
 	"backend/internal/templates"
 	"backend/internal/traceroute"
 	"backend/internal/troubleshoot"
+	"backend/internal/vif"
+	"backend/internal/vif/ingress"
 	"backend/internal/vif/isolation"
 	"backend/internal/vif/routing"
 	"backend/internal/vif/traffic"
@@ -209,6 +211,12 @@ type Resolver struct {
 	// ProvisioningService coordinates all provisioning sub-services for router setup.
 	ProvisioningService *provsvc.Service
 
+	// BridgeOrchestrator coordinates creation and teardown of virtual interface bridges.
+	BridgeOrchestrator *vif.BridgeOrchestrator
+
+	// IngressService manages ingress VLAN sub-interfaces for routing mode operations.
+	IngressService *ingress.Service
+
 	// log is the logger instance for resolver operations.
 	log interface {
 		Errorw(msg string, keysAndValues ...interface{})
@@ -274,6 +282,8 @@ type Config struct {
 	ResourceLimiter          *resources.ResourceLimiter
 	ChainLatencyMeasurer     *routing.ChainLatencyMeasurer
 	ProvisioningService      *provsvc.Service
+	BridgeOrchestrator       *vif.BridgeOrchestrator
+	IngressService           *ingress.Service
 	Logger                   interface {
 		Errorw(msg string, keysAndValues ...interface{})
 		Infow(msg string, keysAndValues ...interface{})
@@ -346,6 +356,8 @@ func NewResolverWithConfig(cfg Config) *Resolver {
 		ResourceLimiter:          cfg.ResourceLimiter,
 		ChainLatencyMeasurer:     cfg.ChainLatencyMeasurer,
 		ProvisioningService:      cfg.ProvisioningService,
+		BridgeOrchestrator:       cfg.BridgeOrchestrator,
+		IngressService:           cfg.IngressService,
 		log:                      cfg.Logger,
 	}
 

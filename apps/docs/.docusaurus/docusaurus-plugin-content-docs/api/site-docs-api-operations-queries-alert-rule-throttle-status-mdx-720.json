@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/alert-rule-throttle-status",
+  "title": "alertRuleThrottleStatus",
+  "description": "Get throttle status for alert rules",
+  "source": "@site/docs/api/operations/queries/alert-rule-throttle-status.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/alert-rule-throttle-status",
+  "permalink": "/api/operations/queries/alert-rule-throttle-status",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "alert-rule-throttle-status",
+    "title": "alertRuleThrottleStatus"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "alertRuleTemplates",
+    "permalink": "/api/operations/queries/alert-rule-templates"
+  },
+  "next": {
+    "title": "alertRule",
+    "permalink": "/api/operations/queries/alert-rule"
+  }
+}

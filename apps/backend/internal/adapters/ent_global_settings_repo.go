@@ -2,6 +2,7 @@ package adapters
 
 import (
 	"context"
+	"fmt"
 
 	"backend/internal/network"
 
@@ -52,7 +53,7 @@ func (q *entGlobalSettingsQuery) Where(predicates ...interface{}) network.Global
 func (q *entGlobalSettingsQuery) Only(ctx context.Context) (network.GlobalSettingsEntity, error) {
 	setting, err := q.query.Only(ctx)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("query global settings: %w", err)
 	}
 	return &entGlobalSettingsEntity{setting: setting}, nil
 }
@@ -105,7 +106,7 @@ func (c *entGlobalSettingsCreate) SetRequiresRestart(requiresRestart bool) netwo
 func (c *entGlobalSettingsCreate) Save(ctx context.Context) (network.GlobalSettingsEntity, error) {
 	setting, err := c.create.Save(ctx)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("save global settings: %w", err)
 	}
 	return &entGlobalSettingsEntity{setting: setting}, nil
 }
@@ -132,7 +133,11 @@ func (u *entGlobalSettingsUpdate) SetValue(value map[string]interface{}) network
 }
 
 func (u *entGlobalSettingsUpdate) Save(ctx context.Context) (int, error) {
-	return u.update.Save(ctx)
+	count, err := u.update.Save(ctx)
+	if err != nil {
+		return 0, fmt.Errorf("save global settings: %w", err)
+	}
+	return count, nil
 }
 
 // entGlobalSettingsEntity wraps ent.GlobalSettings.

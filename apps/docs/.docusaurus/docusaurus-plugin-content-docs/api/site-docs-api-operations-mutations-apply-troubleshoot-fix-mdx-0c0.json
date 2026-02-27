@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/apply-troubleshoot-fix",
+  "title": "applyTroubleshootFix",
+  "description": "Apply a suggested fix for a failed diagnostic step",
+  "source": "@site/docs/api/operations/mutations/apply-troubleshoot-fix.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/apply-troubleshoot-fix",
+  "permalink": "/api/operations/mutations/apply-troubleshoot-fix",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "apply-troubleshoot-fix",
+    "title": "applyTroubleshootFix"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "applyServiceImport",
+    "permalink": "/api/operations/mutations/apply-service-import"
+  },
+  "next": {
+    "title": "archiveResource",
+    "permalink": "/api/operations/mutations/archive-resource"
+  }
+}

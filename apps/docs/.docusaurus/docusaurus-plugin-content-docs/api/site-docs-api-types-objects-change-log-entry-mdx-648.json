@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/change-log-entry",
+  "title": "ChangeLogEntry",
+  "description": "An entry in the change log",
+  "source": "@site/docs/api/types/objects/change-log-entry.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/change-log-entry",
+  "permalink": "/api/types/objects/change-log-entry",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "change-log-entry",
+    "title": "ChangeLogEntry"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ChainHop",
+    "permalink": "/api/types/objects/chain-hop"
+  },
+  "next": {
+    "title": "ChangeSetConflict",
+    "permalink": "/api/types/objects/change-set-conflict"
+  }
+}

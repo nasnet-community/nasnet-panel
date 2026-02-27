@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/dhcpserver-resource",
+  "title": "DHCPServerResource",
+  "description": "DHCP Server resource",
+  "source": "@site/docs/api/types/objects/dhcpserver-resource.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/dhcpserver-resource",
+  "permalink": "/api/types/objects/dhcpserver-resource",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "dhcpserver-resource",
+    "title": "DHCPServerResource"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "DhcpServer",
+    "permalink": "/api/types/objects/dhcp-server"
+  },
+  "next": {
+    "title": "DiagnosticReport",
+    "permalink": "/api/types/objects/diagnostic-report"
+  }
+}

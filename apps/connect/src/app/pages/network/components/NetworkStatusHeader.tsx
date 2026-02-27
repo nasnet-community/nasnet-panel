@@ -76,7 +76,7 @@ export const NetworkStatusHeader = React.memo(function NetworkStatusHeader({
   }
 
   return (
-    <div className="bg-card rounded-card-lg border border-border p-component-md">
+    <div className="bg-card rounded-card-lg border border-border p-component-md shadow-md category-header category-header-networking">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           <div className={cn(
@@ -112,7 +112,7 @@ export const NetworkStatusHeader = React.memo(function NetworkStatusHeader({
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-component-sm md:gap-component-md">
-        <div className="bg-muted rounded-card-lg p-component-sm">
+        <div className="bg-muted rounded-card-lg p-component-sm shadow-sm">
           <div className="flex items-center gap-1.5 mb-1">
             <Cpu className="w-3.5 h-3.5 text-info" />
             <p className="text-muted-foreground text-xs uppercase tracking-wide">{t('quickStats.cpu')}</p>
@@ -131,7 +131,7 @@ export const NetworkStatusHeader = React.memo(function NetworkStatusHeader({
           )}
         </div>
 
-        <div className="bg-muted rounded-card-lg p-component-sm">
+        <div className="bg-muted rounded-card-lg p-component-sm shadow-sm">
           <div className="flex items-center gap-1.5 mb-1">
             <HardDrive className="w-3.5 h-3.5 text-warning" />
             <p className="text-muted-foreground text-xs uppercase tracking-wide">{t('quickStats.memory')}</p>
@@ -155,7 +155,7 @@ export const NetworkStatusHeader = React.memo(function NetworkStatusHeader({
           )}
         </div>
 
-        <div className="bg-muted rounded-card-lg p-component-sm">
+        <div className="bg-muted rounded-card-lg p-component-sm shadow-sm">
           <div className="flex items-center gap-1.5 mb-1">
             <Clock className="w-3.5 h-3.5 text-success" />
             <p className="text-muted-foreground text-xs uppercase tracking-wide">{t('quickStats.uptime')}</p>
@@ -163,7 +163,7 @@ export const NetworkStatusHeader = React.memo(function NetworkStatusHeader({
           <p className="text-xl font-bold font-mono text-foreground">{uptimeFormatted}</p>
         </div>
 
-        <div className="bg-muted rounded-card-lg p-component-sm">
+        <div className="bg-muted rounded-card-lg p-component-sm shadow-sm">
           <div className="flex items-center gap-1.5 mb-1">
             <Wifi className="w-3.5 h-3.5 text-primary" />
             <p className="text-muted-foreground text-xs uppercase tracking-wide">{t('quickStats.interfaces')}</p>

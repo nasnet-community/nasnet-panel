@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/logout",
+  "title": "logout",
+  "description": "Invalidate current session and clear tokens",
+  "source": "@site/docs/api/operations/mutations/logout.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/logout",
+  "permalink": "/api/operations/mutations/logout",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "logout",
+    "title": "logout"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "login",
+    "permalink": "/api/operations/mutations/login"
+  },
+  "next": {
+    "title": "nextProvisioningStep",
+    "permalink": "/api/operations/mutations/next-provisioning-step"
+  }
+}

@@ -131,8 +131,8 @@ const WebhookConfigFormDesktopComponent = memo(function WebhookConfigFormDesktop
       <form onSubmit={handleSubmit} className={cn('space-y-component-lg', className)}>
         {/* Basic Configuration */}
         <div className="space-y-component-md">
-          <h3 className="text-lg font-semibold font-display flex items-center gap-component-sm">
-            <Webhook className="w-5 h-5" />
+          <h3 className="text-lg font-semibold flex items-center gap-component-sm">
+            <Webhook className="w-5 h-5 text-category-monitoring" />
             Basic Configuration
           </h3>
 
@@ -207,8 +207,8 @@ const WebhookConfigFormDesktopComponent = memo(function WebhookConfigFormDesktop
 
         {/* Authentication */}
         <div className="space-y-component-md">
-          <h3 className="text-lg font-semibold font-display flex items-center gap-component-sm">
-            <Shield className="w-5 h-5" />
+          <h3 className="text-lg font-semibold flex items-center gap-component-sm">
+            <Shield className="w-5 h-5 text-category-monitoring" />
             Authentication
           </h3>
 
@@ -280,8 +280,8 @@ const WebhookConfigFormDesktopComponent = memo(function WebhookConfigFormDesktop
 
         {/* Template Configuration */}
         <div className="space-y-component-md">
-          <h3 className="text-lg font-semibold font-display flex items-center gap-component-sm">
-            <Code className="w-5 h-5" />
+          <h3 className="text-lg font-semibold flex items-center gap-component-sm">
+            <Code className="w-5 h-5 text-category-monitoring" />
             Payload Template
           </h3>
 
@@ -343,12 +343,12 @@ const WebhookConfigFormDesktopComponent = memo(function WebhookConfigFormDesktop
 
         {/* Custom Headers */}
         <div className="space-y-component-md">
-          <h3 className="text-lg font-semibold font-display">Custom Headers</h3>
+          <h3 className="text-lg font-semibold">Custom Headers</h3>
 
           <div className="space-y-component-sm">
             {/* Existing Headers */}
             {Object.keys(headers).length > 0 && (
-              <div className="space-y-component-sm mb-4">
+              <div className="space-y-component-sm mb-component-md">
                 {Object.entries(headers).map(([key, value]) => (
                   <div key={key} className="flex items-center gap-component-sm p-component-sm bg-muted rounded-[var(--semantic-radius-button)]">
                     <code className="flex-1 text-sm font-mono">
@@ -373,13 +373,13 @@ const WebhookConfigFormDesktopComponent = memo(function WebhookConfigFormDesktop
                 placeholder="Header name"
                 value={newHeaderKey}
                 onChange={(e) => setNewHeaderKey(e.target.value)}
-                className="flex-1"
+                className="flex-1 font-mono"
               />
               <Input
                 placeholder="Header value"
                 value={newHeaderValue}
                 onChange={(e) => setNewHeaderValue(e.target.value)}
-                className="flex-1"
+                className="flex-1 font-mono"
               />
               <Button
                 type="button"
@@ -395,8 +395,8 @@ const WebhookConfigFormDesktopComponent = memo(function WebhookConfigFormDesktop
 
         {/* Advanced Settings */}
         <div className="space-y-component-md">
-          <h3 className="text-lg font-semibold font-display flex items-center gap-component-sm">
-            <Settings className="w-5 h-5" />
+          <h3 className="text-lg font-semibold flex items-center gap-component-sm">
+            <Settings className="w-5 h-5 text-category-monitoring" />
             Advanced Settings
           </h3>
 
@@ -455,7 +455,7 @@ const WebhookConfigFormDesktopComponent = memo(function WebhookConfigFormDesktop
               control={control}
               name="retryEnabled"
               render={({ field }) => (
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-component-sm">
                   <Checkbox
                     id="retryEnabled"
                     checked={field.value}
@@ -472,7 +472,7 @@ const WebhookConfigFormDesktopComponent = memo(function WebhookConfigFormDesktop
               control={control}
               name="enabled"
               render={({ field }) => (
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-component-sm">
                   <Checkbox
                     id="enabled"
                     checked={field.value}
@@ -490,7 +490,7 @@ const WebhookConfigFormDesktopComponent = memo(function WebhookConfigFormDesktop
         {/* Test Result */}
         {testResult && (
           <Alert variant={testResult.success ? 'default' : 'destructive'}>
-            <div className="flex items-start gap-2">
+            <div className="flex items-start gap-component-sm">
               {testResult.success ? (
                 <CheckCircle2 className="w-5 h-5 text-success" />
               ) : (
@@ -517,7 +517,7 @@ const WebhookConfigFormDesktopComponent = memo(function WebhookConfigFormDesktop
         )}
 
         {/* Form Actions */}
-        <div className="flex gap-component-md pt-4 border-t">
+        <div className="flex gap-component-md pt-component-md border-t border-border">
           <Button type="submit" disabled={!isValid || isSubmitting}>
             {isSubmitting ? 'Saving...' : isEditMode ? 'Update Webhook' : 'Create Webhook'}
           </Button>
@@ -547,11 +547,11 @@ const WebhookConfigFormDesktopComponent = memo(function WebhookConfigFormDesktop
 
           <div className="space-y-component-md">
             <div className="p-component-md bg-muted rounded-[var(--semantic-radius-card)]">
-              <code className="text-sm break-all font-mono">{signingSecret}</code>
+              <code className="text-sm break-all font-mono text-foreground">{signingSecret}</code>
             </div>
 
             <Button onClick={handleCopySecret} className="w-full">
-              <Copy className="w-4 h-4 mr-2" />
+              <Copy className="w-4 h-4 mr-component-sm" />
               {copied ? 'Copied!' : 'Copy to Clipboard'}
             </Button>
 

@@ -1,0 +1,24 @@
+{
+  "id": "operations/performance",
+  "title": "Performance Guide",
+  "description": "The apps/connect frontend operates under strict resource constraints driven by its deployment environment: a single Docker container running on a MikroTik router with limited CPU, RAM, and flash storage.",
+  "source": "@site/../connect/docs/operations/performance.md",
+  "sourceDirName": "operations",
+  "slug": "/operations/performance",
+  "permalink": "/docs/frontend/operations/performance",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../connect/docs/operations/performance.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Development Workflow",
+    "permalink": "/docs/frontend/operations/development-workflow"
+  },
+  "next": {
+    "title": "Storybook Guide",
+    "permalink": "/docs/frontend/operations/storybook"
+  }
+}

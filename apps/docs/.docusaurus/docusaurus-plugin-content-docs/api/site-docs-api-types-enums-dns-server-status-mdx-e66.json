@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/dns-server-status",
+  "title": "DnsServerStatus",
+  "description": "Status classification for DNS servers in benchmark",
+  "source": "@site/docs/api/types/enums/dns-server-status.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/dns-server-status",
+  "permalink": "/api/types/enums/dns-server-status",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "dns-server-status",
+    "title": "DnsServerStatus"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "DnsRecordType",
+    "permalink": "/api/types/enums/dns-record-type"
+  },
+  "next": {
+    "title": "DriftAction",
+    "permalink": "/api/types/enums/drift-action"
+  }
+}

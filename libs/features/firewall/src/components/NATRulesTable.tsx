@@ -193,8 +193,8 @@ export const NATRulesTable = memo(function NATRulesTable({ className, chain, onE
   // Loading state
   if (isLoading) {
     return (
-      <div className={`p-4 ${className || ''}`}>
-        <div className="animate-pulse space-y-4">
+      <div className={`p-component-md ${className || ''}`}>
+        <div className="animate-pulse space-y-component-md">
           <div className="h-10 bg-muted rounded" />
           <div className="h-16 bg-muted rounded" />
           <div className="h-16 bg-muted rounded" />
@@ -206,7 +206,7 @@ export const NATRulesTable = memo(function NATRulesTable({ className, chain, onE
   // Error state
   if (error) {
     return (
-      <div className={`p-4 text-error ${className || ''}`} role="alert">
+      <div className={`p-component-md text-error ${className || ''}`} role="alert">
         Error loading NAT rules: {error.message}
       </div>
     );
@@ -215,7 +215,7 @@ export const NATRulesTable = memo(function NATRulesTable({ className, chain, onE
   // Empty state
   if (!sortedRules || sortedRules.length === 0) {
     return (
-      <div className={`p-8 text-center text-muted-foreground ${className || ''}`}>
+      <div className={`p-component-lg text-center text-muted-foreground ${className || ''}`}>
         No NAT rules found {chain && chain !== 'all' ? `in ${chain} chain` : ''}
       </div>
     );
@@ -276,7 +276,7 @@ export const NATRulesTable = memo(function NATRulesTable({ className, chain, onE
                 <TableCell>
                   <NATActionBadge action={rule.action} />
                 </TableCell>
-                <TableCell className={cn(rule.disabled && 'line-through')}>
+                <TableCell className={cn('font-mono', rule.disabled && 'line-through')}>
                   {rule.protocol || '-'}
                 </TableCell>
                 <TableCell className={cn('font-mono text-xs', rule.disabled && 'line-through')}>
@@ -305,23 +305,23 @@ export const NATRulesTable = memo(function NATRulesTable({ className, chain, onE
                         className="h-8 w-8 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                         aria-label={`Actions for rule ${rule.order}`}
                       >
-                        <MoreVertical className="h-4 w-4" aria-hidden="true" />
+                        <MoreVertical className="h-4 w-4 text-category-firewall" aria-hidden="true" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem onClick={() => handleEdit(rule)}>
-                        <Edit className="h-4 w-4 mr-2" aria-hidden="true" />
+                        <Edit className="h-4 w-4 mr-component-sm" aria-hidden="true" />
                         Edit
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => handleToggle(rule.id, !rule.disabled)}>
                         {rule.disabled ? (
                           <>
-                            <Eye className="h-4 w-4 mr-2" aria-hidden="true" />
+                            <Eye className="h-4 w-4 mr-component-sm" aria-hidden="true" />
                             Enable
                           </>
                         ) : (
                           <>
-                            <EyeOff className="h-4 w-4 mr-2" aria-hidden="true" />
+                            <EyeOff className="h-4 w-4 mr-component-sm" aria-hidden="true" />
                             Disable
                           </>
                         )}
@@ -331,7 +331,7 @@ export const NATRulesTable = memo(function NATRulesTable({ className, chain, onE
                         onClick={() => handleDelete(rule.id)}
                         className="text-error"
                       >
-                        <Trash2 className="h-4 w-4 mr-2" aria-hidden="true" />
+                        <Trash2 className="h-4 w-4 mr-component-sm" aria-hidden="true" />
                         Delete
                       </DropdownMenuItem>
                     </DropdownMenuContent>

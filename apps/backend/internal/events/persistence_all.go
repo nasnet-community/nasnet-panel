@@ -61,7 +61,7 @@ func (s *MemoryEventStore) PersistEvent(ctx context.Context, event Event) error 
 	}
 	payload, err := event.Payload()
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to get event payload: %w", err)
 	}
 	if len(s.events) >= s.maxEvents {
 		s.evictOldest()
@@ -108,19 +108,19 @@ func (s *MemoryEventStore) MarkProcessed(ctx context.Context, id ulid.ULID) erro
 func (s *MemoryEventStore) ReplayEvents(ctx context.Context, handler EventHandler) error {
 	events, err := s.GetUnprocessedEvents(ctx)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to get unprocessed events: %w", err)
 	}
 	for _, event := range events {
 		select {
 		case <-ctx.Done():
-			return ctx.Err()
+			return fmt.Errorf("context done: %w", ctx.Err())
 		default:
 			if err := handler(ctx, event); err != nil {
 				s.logger.Error("failed to replay event", zap.String("event_id", event.GetID().String()), zap.Error(err))
 				continue
 			}
 			if err := s.MarkProcessed(ctx, event.GetID()); err != nil {
-				s.logger.Error("failed to mark event as processed", zap.String("event_id", event.GetID().String()), zap.Error(err))
+				s.logger.Error("failed to mark event as processed", zap.String("event_id", event.GetID().String()), zap.Error(fmt.Errorf("mark processed error: %w", err)))
 			}
 		}
 	}
@@ -182,7 +182,7 @@ func NewPersistentEventBus(bus EventBus, store EventStore) *PersistentEventBus {
 // Publish publishes an event and persists it if critical.
 func (pb *PersistentEventBus) Publish(ctx context.Context, event Event) error {
 	if err := pb.EventBus.Publish(ctx, event); err != nil {
-		return err
+		return fmt.Errorf("failed to publish event on bus: %w", err)
 	}
 	if ShouldImmediatelyPersist(event.GetType()) {
 		go pb.persistAsync(ctx, event)
@@ -205,9 +205,12 @@ func (pb *PersistentEventBus) persistAsync(ctx context.Context, event Event) {
 
 // ReplayUnprocessedEvents replays events on startup.
 func (pb *PersistentEventBus) ReplayUnprocessedEvents(ctx context.Context) error {
-	return pb.store.ReplayEvents(ctx, func(ctx context.Context, event Event) error {
+	if err := pb.store.ReplayEvents(ctx, func(ctx context.Context, event Event) error {
 		return pb.EventBus.Publish(ctx, event)
-	})
+	}); err != nil {
+		return fmt.Errorf("replay unprocessed events: %w", err)
+	}
+	return nil
 }
 
 // IsPersistenceFailing returns true if persistence is currently failing.
@@ -220,9 +223,12 @@ func (pb *PersistentEventBus) IsPersistenceFailing() bool {
 // Close closes both the event bus and the store.
 func (pb *PersistentEventBus) Close() error {
 	if err := pb.EventBus.Close(); err != nil {
-		return err
+		return fmt.Errorf("close event bus: %w", err)
 	}
-	return pb.store.Close()
+	if err := pb.store.Close(); err != nil {
+		return fmt.Errorf("close event store: %w", err)
+	}
+	return nil
 }
 
 // DailySync provides the daily sync functionality per ADR-013.

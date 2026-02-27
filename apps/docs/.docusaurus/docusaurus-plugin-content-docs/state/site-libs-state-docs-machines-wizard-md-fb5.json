@@ -1,0 +1,24 @@
+{
+  "id": "machines/wizard",
+  "title": "Wizard Machine (Multi-Step Flows)",
+  "description": "The Wizard Machine provides a reusable pattern for multi-step form wizards with per-step validation, session persistence, and recovery. It's ideal for complex setup flows like VPN configuration, device pairing, or service installation.",
+  "source": "@site/../../libs/state/docs/machines/wizard.md",
+  "sourceDirName": "machines",
+  "slug": "/machines/wizard",
+  "permalink": "/docs/state/machines/wizard",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/state/docs/machines/wizard.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "VPN Connection Machine (Feature Example)",
+    "permalink": "/docs/state/machines/vpn-connection"
+  },
+  "next": {
+    "title": "Router Store (useRouterStore)",
+    "permalink": "/docs/state/stores/router"
+  }
+}

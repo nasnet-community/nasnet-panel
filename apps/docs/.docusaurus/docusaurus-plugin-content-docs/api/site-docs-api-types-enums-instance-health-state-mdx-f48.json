@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/instance-health-state",
+  "title": "InstanceHealthState",
+  "description": "Health status enumeration for service instances",
+  "source": "@site/docs/api/types/enums/instance-health-state.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/instance-health-state",
+  "permalink": "/api/types/enums/instance-health-state",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "instance-health-state",
+    "title": "InstanceHealthState"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "IngressVLANStatus",
+    "permalink": "/api/types/enums/ingress-vlanstatus"
+  },
+  "next": {
+    "title": "InterfaceStatus",
+    "permalink": "/api/types/enums/interface-status"
+  }
+}

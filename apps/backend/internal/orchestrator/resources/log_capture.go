@@ -109,7 +109,7 @@ func NewLogCapture(cfg LogCaptureConfig) (*LogCapture, error) {
 
 	// Ensure log directory exists
 	if err := os.MkdirAll(cfg.LogDir, 0o755); err != nil {
-		return nil, fmt.Errorf("failed to create log directory: %w", err)
+		return nil, fmt.Errorf("failed to create log directory %s: %w", cfg.LogDir, err)
 	}
 
 	lc := &LogCapture{
@@ -187,7 +187,7 @@ func (lc *LogCapture) Write(p []byte) (n int, err error) {
 	// Write to file
 	n, err = lc.logFile.Write(p)
 	if err != nil {
-		return n, err
+		return n, fmt.Errorf("write to log file: %w", err)
 	}
 	lc.currentSize += int64(n)
 
@@ -328,7 +328,7 @@ func (lc *LogCapture) TailLogs(maxLines int) ([]LogEntry, error) {
 		if os.IsNotExist(err) {
 			return []LogEntry{}, nil
 		}
-		return nil, fmt.Errorf("failed to open log file: %w", err)
+		return nil, fmt.Errorf("open log file: %w", err)
 	}
 	defer file.Close()
 
@@ -348,7 +348,11 @@ func (lc *LogCapture) TailLogs(maxLines int) ([]LogEntry, error) {
 	if len(lines) > maxLines {
 		startIdx = len(lines) - maxLines
 	}
-	lines = lines[startIdx:]
+	if startIdx < len(lines) {
+		lines = lines[startIdx:]
+	} else {
+		lines = nil
+	}
 
 	// Parse log entries
 	entries := make([]LogEntry, 0, len(lines))

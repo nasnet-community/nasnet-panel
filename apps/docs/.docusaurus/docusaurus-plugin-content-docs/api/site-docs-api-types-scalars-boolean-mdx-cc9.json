@@ -1,0 +1,26 @@
+{
+  "id": "api/types/scalars/boolean",
+  "title": "Boolean",
+  "description": "The Boolean scalar type represents true or false.",
+  "source": "@site/docs/api/types/scalars/boolean.mdx",
+  "sourceDirName": "api/types/scalars",
+  "slug": "/api/types/scalars/boolean",
+  "permalink": "/api/types/scalars/boolean",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "boolean",
+    "title": "Boolean"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "Bandwidth",
+    "permalink": "/api/types/scalars/bandwidth"
+  },
+  "next": {
+    "title": "CIDR",
+    "permalink": "/api/types/scalars/cidr"
+  }
+}

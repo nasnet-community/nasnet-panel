@@ -56,7 +56,7 @@ function ResourceCardDesktopComponent<T extends BaseResource>(
   return (
     <Card
       className={cn(
-        'p-4 transition-colors hover:bg-muted/50 cursor-pointer',
+        'p-component-lg transition-shadow duration-200 hover:shadow-lg cursor-pointer',
         className
       )}
       onClick={handleClick}
@@ -82,7 +82,7 @@ function ResourceCardDesktopComponent<T extends BaseResource>(
 
             {/* Resource info */}
             <div className="min-w-0 flex-1">
-              <h3 className="font-medium truncate">{resource.name}</h3>
+              <h3 className="text-lg font-semibold text-foreground truncate">{resource.name}</h3>
               {resource.description && (
                 <p className="text-sm text-muted-foreground truncate">
                   {resource.description}

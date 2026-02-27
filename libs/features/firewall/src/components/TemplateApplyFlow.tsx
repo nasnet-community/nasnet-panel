@@ -206,7 +206,7 @@ export const TemplateApplyFlow = memo(function TemplateApplyFlow({
         {previewResult && (
           <div className="space-y-component-md">
             {/* Impact Analysis */}
-            <div className="rounded-[var(--semantic-radius-card)] border border-border bg-card p-component-md">
+            <div className="rounded-md border border-border bg-card p-component-md">
               <h3 className="mb-component-md text-lg font-display font-semibold">Impact Analysis</h3>
               <div className="grid gap-component-md sm:grid-cols-2">
                 <div>
@@ -291,7 +291,7 @@ export const TemplateApplyFlow = memo(function TemplateApplyFlow({
       <Dialog open={true} onOpenChange={(open: boolean) => !open && handleCancel()}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-warning">
+            <DialogTitle className="flex items-center gap-component-sm text-warning">
               <ShieldAlert className="h-6 w-6" aria-hidden="true" />
               High-Risk Operation
             </DialogTitle>
@@ -303,7 +303,7 @@ export const TemplateApplyFlow = memo(function TemplateApplyFlow({
           <ScrollArea className="max-h-96 pr-component-md">
             <div className="space-y-component-md">
               {/* Risk Indicators */}
-              <div className="rounded-[var(--semantic-radius-card)] border-2 border-warning bg-warning/10 p-component-md">
+              <div className="rounded-md border-2 border-warning bg-warning/10 p-component-md">
                 <h4 className="mb-component-md font-semibold">Risk Factors</h4>
                 <div className="space-y-component-sm">
                   {(previewResult?.impactAnalysis.newRulesCount ?? 0) > 10 && (
@@ -348,7 +348,7 @@ export const TemplateApplyFlow = memo(function TemplateApplyFlow({
               )}
 
               {/* Acknowledgment Checkbox */}
-              <div className="flex items-start space-x-3 rounded-[var(--semantic-radius-card)] border border-border bg-muted p-component-md">
+              <div className="flex items-start space-x-component-sm rounded-md border border-border bg-muted p-component-md">
                 <Checkbox
                   id="acknowledge-risks"
                   checked={isAcknowledged}
@@ -380,7 +380,7 @@ export const TemplateApplyFlow = memo(function TemplateApplyFlow({
               disabled={!isAcknowledged}
               aria-label="Acknowledge risks and apply template"
             >
-              <ShieldAlert className="mr-2 h-4 w-4" aria-hidden="true" />
+              <ShieldAlert className="mr-component-sm h-4 w-4" aria-hidden="true" />
               I Understand - Apply Template
             </Button>
           </DialogFooter>

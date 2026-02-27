@@ -2,6 +2,7 @@ package diagnostics
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"backend/internal/router"
@@ -40,7 +41,7 @@ func (d *DNSDiagnostics) CheckDNS(ctx context.Context) (*StepResult, error) {
 			IssueCode:       "DNS_FAILED",
 			ExecutionTimeMs: int(time.Since(startTime).Milliseconds()),
 			Target:          domain,
-		}, err
+		}, fmt.Errorf("dns diagnostic: %w", err)
 	}
 
 	return &StepResult{

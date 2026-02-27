@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/instance-health",
+  "title": "instanceHealth",
+  "description": "Get current health status for a service instance",
+  "source": "@site/docs/api/operations/queries/instance-health.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/instance-health",
+  "permalink": "/api/operations/queries/instance-health",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "instance-health",
+    "title": "instanceHealth"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "instanceConfig",
+    "permalink": "/api/operations/queries/instance-config"
+  },
+  "next": {
+    "title": "instanceIsolation",
+    "permalink": "/api/operations/queries/instance-isolation"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/check-vlan-id-available",
+  "title": "checkVlanIdAvailable",
+  "description": "Check if a VLAN ID is available on a parent interface",
+  "source": "@site/docs/api/operations/queries/check-vlan-id-available.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/check-vlan-id-available",
+  "permalink": "/api/operations/queries/check-vlan-id-available",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "check-vlan-id-available",
+    "title": "checkVlanIdAvailable"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "checkIpConflict",
+    "permalink": "/api/operations/queries/check-ip-conflict"
+  },
+  "next": {
+    "title": "circuitBreakerStatus",
+    "permalink": "/api/operations/queries/circuit-breaker-status"
+  }
+}

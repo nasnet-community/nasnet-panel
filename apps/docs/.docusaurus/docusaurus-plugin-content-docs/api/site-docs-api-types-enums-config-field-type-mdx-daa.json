@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/config-field-type",
+  "title": "ConfigFieldType",
+  "description": "Configuration field type for dynamic form generation",
+  "source": "@site/docs/api/types/enums/config-field-type.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/config-field-type",
+  "permalink": "/api/types/enums/config-field-type",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "config-field-type",
+    "title": "ConfigFieldType"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ConfigApplyStatus",
+    "permalink": "/api/types/enums/config-apply-status"
+  },
+  "next": {
+    "title": "ConfirmationSeverity",
+    "permalink": "/api/types/enums/confirmation-severity"
+  }
+}

@@ -54,11 +54,11 @@ export declare const RateLimitRuleSchema: z.ZodObject<{
     timeWindow: "per-second" | "per-minute" | "per-hour";
     isDisabled: boolean;
     id?: string | undefined;
+    bytes?: number | undefined;
     srcAddress?: string | undefined;
     srcAddressList?: string | undefined;
     comment?: string | undefined;
     packets?: number | undefined;
-    bytes?: number | undefined;
     addressList?: string | undefined;
     addressListTimeout?: string | undefined;
 }, {
@@ -66,11 +66,11 @@ export declare const RateLimitRuleSchema: z.ZodObject<{
     connectionLimit: number;
     timeWindow: "per-second" | "per-minute" | "per-hour";
     id?: string | undefined;
+    bytes?: number | undefined;
     srcAddress?: string | undefined;
     srcAddressList?: string | undefined;
     comment?: string | undefined;
     packets?: number | undefined;
-    bytes?: number | undefined;
     addressList?: string | undefined;
     addressListTimeout?: string | undefined;
     isDisabled?: boolean | undefined;
@@ -129,16 +129,16 @@ export declare const BlockedIPSchema: z.ZodObject<{
     timeout: z.ZodOptional<z.ZodString>;
     isDynamic: z.ZodBoolean;
 }, "strip", z.ZodTypeAny, {
-    address: string;
     list: string;
+    address: string;
     blockCount: number;
     isDynamic: boolean;
     timeout?: string | undefined;
     firstBlocked?: Date | undefined;
     lastBlocked?: Date | undefined;
 }, {
-    address: string;
     list: string;
+    address: string;
     blockCount: number;
     isDynamic: boolean;
     timeout?: string | undefined;
@@ -167,16 +167,16 @@ export declare const RateLimitStatsSchema: z.ZodObject<{
         timeout: z.ZodOptional<z.ZodString>;
         isDynamic: z.ZodBoolean;
     }, "strip", z.ZodTypeAny, {
-        address: string;
         list: string;
+        address: string;
         blockCount: number;
         isDynamic: boolean;
         timeout?: string | undefined;
         firstBlocked?: Date | undefined;
         lastBlocked?: Date | undefined;
     }, {
-        address: string;
         list: string;
+        address: string;
         blockCount: number;
         isDynamic: boolean;
         timeout?: string | undefined;
@@ -187,19 +187,19 @@ export declare const RateLimitStatsSchema: z.ZodObject<{
         hour: z.ZodString;
         count: z.ZodNumber;
     }, "strip", z.ZodTypeAny, {
-        hour: string;
         count: number;
+        hour: string;
     }, {
-        hour: string;
         count: number;
+        hour: string;
     }>, "many">>;
     lastUpdated: z.ZodDate;
 }, "strip", z.ZodTypeAny, {
     lastUpdated: Date;
     totalBlocked: number;
     topBlockedIPs: readonly {
-        address: string;
         list: string;
+        address: string;
         blockCount: number;
         isDynamic: boolean;
         timeout?: string | undefined;
@@ -207,15 +207,15 @@ export declare const RateLimitStatsSchema: z.ZodObject<{
         lastBlocked?: Date | undefined;
     }[];
     triggerEvents: readonly {
-        hour: string;
         count: number;
+        hour: string;
     }[];
 }, {
     lastUpdated: Date;
     totalBlocked: number;
     topBlockedIPs: readonly {
-        address: string;
         list: string;
+        address: string;
         blockCount: number;
         isDynamic: boolean;
         timeout?: string | undefined;
@@ -223,8 +223,8 @@ export declare const RateLimitStatsSchema: z.ZodObject<{
         lastBlocked?: Date | undefined;
     }[];
     triggerEvents: readonly {
-        hour: string;
         count: number;
+        hour: string;
     }[];
 }>;
 /**

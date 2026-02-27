@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/discovered-wan",
+  "title": "DiscoveredWAN",
+  "description": "A WAN interface discovered on the router via DHCP client, PPPoE, or VPN tunnel.",
+  "source": "@site/docs/api/types/objects/discovered-wan.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/discovered-wan",
+  "permalink": "/api/types/objects/discovered-wan",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "discovered-wan",
+    "title": "DiscoveredWAN"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "DiscoveredDevice",
+    "permalink": "/api/types/objects/discovered-device"
+  },
+  "next": {
+    "title": "DnsBenchmarkResult",
+    "permalink": "/api/types/objects/dns-benchmark-result"
+  }
+}

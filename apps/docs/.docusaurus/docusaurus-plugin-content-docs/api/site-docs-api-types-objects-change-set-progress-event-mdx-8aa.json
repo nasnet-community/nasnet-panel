@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/change-set-progress-event",
+  "title": "ChangeSetProgressEvent",
+  "description": "Progress event for real-time updates during apply",
+  "source": "@site/docs/api/types/objects/change-set-progress-event.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/change-set-progress-event",
+  "permalink": "/api/types/objects/change-set-progress-event",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "change-set-progress-event",
+    "title": "ChangeSetProgressEvent"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ChangeSetItem",
+    "permalink": "/api/types/objects/change-set-item"
+  },
+  "next": {
+    "title": "ChangeSetStatusEvent",
+    "permalink": "/api/types/objects/change-set-status-event"
+  }
+}

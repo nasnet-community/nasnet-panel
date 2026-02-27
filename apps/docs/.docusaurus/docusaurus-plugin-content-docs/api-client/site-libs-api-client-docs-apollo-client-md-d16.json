@@ -1,0 +1,28 @@
+{
+  "id": "apollo-client",
+  "title": "Apollo Client",
+  "description": "This document covers the complete Apollo Client infrastructure in libs/api-client/core/src/apollo/. The Apollo layer handles all GraphQL communication: queries, mutations, and real-time subscriptions via WebSocket. It provides an intelligent link chain, a carefully tuned normalized cache, offline-first cache persistence, and React provider integration for both production and test environments.",
+  "source": "@site/../../libs/api-client/docs/apollo-client.md",
+  "sourceDirName": ".",
+  "slug": "/apollo-client",
+  "permalink": "/docs/api-client/apollo-client",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/api-client/docs/apollo-client.md",
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 2,
+  "frontMatter": {
+    "sidebar_position": 2,
+    "title": "Apollo Client"
+  },
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "API Client — Overview",
+    "permalink": "/docs/api-client/intro"
+  },
+  "next": {
+    "title": "Axios HTTP Client",
+    "permalink": "/docs/api-client/axios-http-client"
+  }
+}

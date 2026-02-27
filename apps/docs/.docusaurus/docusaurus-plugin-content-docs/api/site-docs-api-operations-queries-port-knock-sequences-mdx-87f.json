@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/port-knock-sequences",
+  "title": "portKnockSequences",
+  "description": "Get all port knock sequences for a router.",
+  "source": "@site/docs/api/operations/queries/port-knock-sequences.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/port-knock-sequences",
+  "permalink": "/api/operations/queries/port-knock-sequences",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "port-knock-sequences",
+    "title": "portKnockSequences"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "portKnockSequence",
+    "permalink": "/api/operations/queries/port-knock-sequence"
+  },
+  "next": {
+    "title": "portMirror",
+    "permalink": "/api/operations/queries/port-mirror"
+  }
+}

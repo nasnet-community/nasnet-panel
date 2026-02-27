@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/validate-change-set-payload",
+  "title": "ValidateChangeSetPayload",
+  "description": "No description",
+  "source": "@site/docs/api/types/objects/validate-change-set-payload.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/validate-change-set-payload",
+  "permalink": "/api/types/objects/validate-change-set-payload",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "validate-change-set-payload",
+    "title": "ValidateChangeSetPayload"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "User",
+    "permalink": "/api/types/objects/user"
+  },
+  "next": {
+    "title": "ValidateProvisioningSessionPayload",
+    "permalink": "/api/types/objects/validate-provisioning-session-payload"
+  }
+}

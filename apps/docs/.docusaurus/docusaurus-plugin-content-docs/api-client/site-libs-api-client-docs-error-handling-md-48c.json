@@ -1,0 +1,28 @@
+{
+  "id": "error-handling",
+  "title": "Error Handling",
+  "description": "NasNetConnect's error handling is a multi-layer pipeline that transforms raw protocol errors into structured, user-friendly feedback. The system covers GraphQL errors from Apollo, network-level failures from both Apollo and Axios, component-level error display, and structured error logging with deduplication and batching. The entire pipeline is coordinated by three cooperating modules: the Apollo error link, the error message taxonomy, and the error logging utility — complemented by React hooks that bring structured errors into the component layer.",
+  "source": "@site/../../libs/api-client/docs/error-handling.md",
+  "sourceDirName": ".",
+  "slug": "/error-handling",
+  "permalink": "/docs/api-client/error-handling",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/api-client/docs/error-handling.md",
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 5,
+  "frontMatter": {
+    "sidebar_position": 5,
+    "title": "Error Handling"
+  },
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Authentication",
+    "permalink": "/docs/api-client/authentication"
+  },
+  "next": {
+    "title": "Offline-First Architecture",
+    "permalink": "/docs/api-client/offline-first"
+  }
+}

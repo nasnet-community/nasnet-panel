@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/delete-port-forward",
+  "title": "deletePortForward",
+  "description": "Delete a port forward (removes both NAT and filter rules).",
+  "source": "@site/docs/api/operations/mutations/delete-port-forward.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/delete-port-forward",
+  "permalink": "/api/operations/mutations/delete-port-forward",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "delete-port-forward",
+    "title": "deletePortForward"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "deleteNotificationChannelConfig",
+    "permalink": "/api/operations/mutations/delete-notification-channel-config"
+  },
+  "next": {
+    "title": "deletePortKnockSequence",
+    "permalink": "/api/operations/mutations/delete-port-knock-sequence"
+  }
+}

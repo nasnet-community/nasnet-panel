@@ -12,6 +12,7 @@ import (
 
 	"backend/generated/ent"
 	"backend/generated/ent/serviceinstance"
+	isolationpkg "backend/internal/isolation"
 	"backend/internal/orchestrator/isolation"
 	"backend/internal/orchestrator/supervisor"
 )
@@ -138,19 +139,27 @@ func (im *InstanceManager) startInstanceInternal(ctx context.Context, instanceID
 	}
 
 	// Create managed process
+	isolationConfig := &isolationpkg.ProcessIsolationConfig{
+		InstanceID: instanceID,
+		BindIP:     instance.BindIP,
+		Ports:      instance.Ports,
+	}
+
 	processConfig := supervisor.ProcessConfig{
-		ID:            instanceID,
-		Name:          instance.InstanceName,
-		Command:       instance.BinaryPath,
-		Args:          im.buildProcessArgs(manifest, instance),
-		Env:           im.buildProcessEnv(manifest, instance),
-		WorkDir:       filepath.Dir(instance.BinaryPath),
-		AutoRestart:   true,
-		ShutdownGrace: 10 * 1000000000, // 10 seconds in nanoseconds
-		EventBus:      im.publisher,
-		Logger:        im.logger.With(zap.String("instance_id", instanceID)),
-		RouterID:      instance.RouterID,
-		Ports:         instance.Ports,
+		ID:                instanceID,
+		Name:              instance.InstanceName,
+		Command:           instance.BinaryPath,
+		Args:              im.buildProcessArgs(manifest, instance),
+		Env:               im.buildProcessEnv(manifest, instance),
+		WorkDir:           filepath.Dir(instance.BinaryPath),
+		AutoRestart:       true,
+		ShutdownGrace:     10 * 1000000000, // 10 seconds in nanoseconds
+		EventBus:          im.publisher,
+		Logger:            im.logger.With(zap.String("instance_id", instanceID)),
+		RouterID:          instance.RouterID,
+		Ports:             instance.Ports,
+		IsolationStrategy: im.isolationStrategy,
+		IsolationConfig:   isolationConfig,
 	}
 
 	process := supervisor.NewManagedProcess(processConfig)
@@ -319,7 +328,10 @@ func (im *InstanceManager) waitForSOCKSReady(ctx context.Context, instance *ent.
 		case <-ctx.Done():
 			return fmt.Errorf("timeout waiting for SOCKS5 port %s: %w", socksAddrPort, ctx.Err())
 		case <-ticker.C:
-			conn, err := net.DialTimeout("tcp", socksAddrPort, 500*time.Millisecond)
+			dialCtx, cancel := context.WithTimeout(ctx, 500*time.Millisecond)
+			dialer := &net.Dialer{}
+			conn, err := dialer.DialContext(dialCtx, "tcp", socksAddrPort)
+			cancel()
 			if err == nil {
 				conn.Close()
 				im.logger.Info("SOCKS5 port is ready",

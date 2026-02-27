@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/feature-resource",
+  "title": "FeatureResource",
+  "description": "Marketplace Feature resource (Tor, AdGuard, sing-box, etc.)",
+  "source": "@site/docs/api/types/objects/feature-resource.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/feature-resource",
+  "permalink": "/api/types/objects/feature-resource",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "feature-resource",
+    "title": "FeatureResource"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "FeatureDeployment",
+    "permalink": "/api/types/objects/feature-deployment"
+  },
+  "next": {
+    "title": "FeatureRuntime",
+    "permalink": "/api/types/objects/feature-runtime"
+  }
+}

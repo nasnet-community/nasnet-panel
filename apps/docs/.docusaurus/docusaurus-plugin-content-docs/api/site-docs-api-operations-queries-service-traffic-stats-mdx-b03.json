@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/service-traffic-stats",
+  "title": "serviceTrafficStats",
+  "description": "Get traffic statistics for a service instance.",
+  "source": "@site/docs/api/operations/queries/service-traffic-stats.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/service-traffic-stats",
+  "permalink": "/api/operations/queries/service-traffic-stats",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "service-traffic-stats",
+    "title": "serviceTrafficStats"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "serviceTemplates",
+    "permalink": "/api/operations/queries/service-templates"
+  },
+  "next": {
+    "title": "storageConfig",
+    "permalink": "/api/operations/queries/storage-config"
+  }
+}

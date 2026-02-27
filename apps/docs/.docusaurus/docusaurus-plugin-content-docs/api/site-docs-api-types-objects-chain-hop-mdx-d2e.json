@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/chain-hop",
+  "title": "ChainHop",
+  "description": "A single hop in a multi-hop routing chain, referencing one VirtualInterface.",
+  "source": "@site/docs/api/types/objects/chain-hop.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/chain-hop",
+  "permalink": "/api/types/objects/chain-hop",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "chain-hop",
+    "title": "ChainHop"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "CapabilityEntry",
+    "permalink": "/api/types/objects/capability-entry"
+  },
+  "next": {
+    "title": "ChangeLogEntry",
+    "permalink": "/api/types/objects/change-log-entry"
+  }
+}

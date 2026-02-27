@@ -109,7 +109,7 @@ func executeDownloadRequest(ctx context.Context, cfg DownloadConfig) (*http.Resp
 		req.Header.Set("Range", fmt.Sprintf("bytes=%d-", cfg.ResumeFrom))
 	}
 
-	resp, err := client.Do(req)
+	resp, err := client.Do(req) //nolint:gosec // G704: URL is constructed from trusted configuration
 	if err != nil {
 		return nil, fmt.Errorf("download failed: %w", err)
 	}

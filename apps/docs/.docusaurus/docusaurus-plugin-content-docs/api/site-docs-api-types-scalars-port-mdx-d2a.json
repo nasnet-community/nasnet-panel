@@ -1,0 +1,26 @@
+{
+  "id": "api/types/scalars/port",
+  "title": "Port",
+  "description": "TCP/UDP port number (1-65535)",
+  "source": "@site/docs/api/types/scalars/port.mdx",
+  "sourceDirName": "api/types/scalars",
+  "slug": "/api/types/scalars/port",
+  "permalink": "/api/types/scalars/port",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "port",
+    "title": "Port"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "PortRange",
+    "permalink": "/api/types/scalars/port-range"
+  },
+  "next": {
+    "title": "Size",
+    "permalink": "/api/types/scalars/size"
+  }
+}

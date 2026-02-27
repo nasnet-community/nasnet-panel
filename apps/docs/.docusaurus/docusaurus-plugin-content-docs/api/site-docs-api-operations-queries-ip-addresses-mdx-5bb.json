@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/ip-addresses",
+  "title": "ipAddresses",
+  "description": "Get all IP addresses on a router with optional filtering",
+  "source": "@site/docs/api/operations/queries/ip-addresses.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/ip-addresses",
+  "permalink": "/api/operations/queries/ip-addresses",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "ip-addresses",
+    "title": "ipAddresses"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ipAddress",
+    "permalink": "/api/operations/queries/ip-address"
+  },
+  "next": {
+    "title": "ipsecProfiles",
+    "permalink": "/api/operations/queries/ipsec-profiles"
+  }
+}

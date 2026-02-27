@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/pppoe-client-input",
+  "title": "PppoeClientInput",
+  "description": "Input for creating/updating PPPoE client",
+  "source": "@site/docs/api/types/inputs/pppoe-client-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/pppoe-client-input",
+  "permalink": "/api/types/inputs/pppoe-client-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "pppoe-client-input",
+    "title": "PppoeClientInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "PortKnockSequenceInput",
+    "permalink": "/api/types/inputs/port-knock-sequence-input"
+  },
+  "next": {
+    "title": "PreviewNotificationTemplateInput",
+    "permalink": "/api/types/inputs/preview-notification-template-input"
+  }
+}

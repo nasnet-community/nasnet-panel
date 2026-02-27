@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/diagnostic-status",
+  "title": "DiagnosticStatus",
+  "description": "Diagnostic test status.",
+  "source": "@site/docs/api/types/enums/diagnostic-status.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/diagnostic-status",
+  "permalink": "/api/types/enums/diagnostic-status",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "diagnostic-status",
+    "title": "DiagnosticStatus"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "DependencyType",
+    "permalink": "/api/types/enums/dependency-type"
+  },
+  "next": {
+    "title": "DisconnectReason",
+    "permalink": "/api/types/enums/disconnect-reason"
+  }
+}

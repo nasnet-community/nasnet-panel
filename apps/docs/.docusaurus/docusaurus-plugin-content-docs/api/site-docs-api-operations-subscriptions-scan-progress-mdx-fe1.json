@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/subscriptions/scan-progress",
+  "title": "scanProgress",
+  "description": "Subscribe to real-time scan progress updates.",
+  "source": "@site/docs/api/operations/subscriptions/scan-progress.mdx",
+  "sourceDirName": "api/operations/subscriptions",
+  "slug": "/api/operations/subscriptions/scan-progress",
+  "permalink": "/api/operations/subscriptions/scan-progress",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "scan-progress",
+    "title": "scanProgress"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "routingChainChanged",
+    "permalink": "/api/operations/subscriptions/routing-chain-changed"
+  },
+  "next": {
+    "title": "scheduleChanged",
+    "permalink": "/api/operations/subscriptions/schedule-changed"
+  }
+}

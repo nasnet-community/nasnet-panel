@@ -1,6 +1,8 @@
 package bootstrap
 
 import (
+	"fmt"
+
 	"go.uber.org/zap"
 
 	"backend/generated/ent"
@@ -44,7 +46,7 @@ func InitializeTemplateSystem(
 		Logger:            logger,
 	})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("init templates: %w", err)
 	}
 	logger.Info("Service template service initialized")
 
@@ -63,7 +65,7 @@ func InitializeTemplateSystem(
 		Logger:            logger,
 	})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("init templates: %w", err)
 	}
 	logger.Info("Template installer initialized")
 
@@ -73,7 +75,7 @@ func InitializeTemplateSystem(
 		Logger: logger,
 	})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("init templates: %w", err)
 	}
 	logger.Info("Template exporter initialized")
 
@@ -84,7 +86,7 @@ func InitializeTemplateSystem(
 		Logger:    logger,
 	})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("init templates: %w", err)
 	}
 	logger.Info("Template importer initialized")
 	logger.Info("Service template system initialized successfully")

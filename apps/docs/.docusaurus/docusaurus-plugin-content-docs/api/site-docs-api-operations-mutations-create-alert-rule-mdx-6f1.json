@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/create-alert-rule",
+  "title": "createAlertRule",
+  "description": "Create a new alert rule",
+  "source": "@site/docs/api/operations/mutations/create-alert-rule.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/create-alert-rule",
+  "permalink": "/api/operations/mutations/create-alert-rule",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "create-alert-rule",
+    "title": "createAlertRule"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "createAddressListEntry",
+    "permalink": "/api/operations/mutations/create-address-list-entry"
+  },
+  "next": {
+    "title": "createBridgeVlan",
+    "permalink": "/api/operations/mutations/create-bridge-vlan"
+  }
+}

@@ -48,7 +48,7 @@ export const RouterHeader = React.memo(function RouterHeader({ routerId }: Route
   const statusLabel = isConnected ? t('panel.connected') : t('panel.disconnected');
 
   return (
-    <div className="bg-card shadow-md rounded-card-sm p-4 md:p-6 mb-4 md:mb-6">
+    <div className="bg-card shadow-md rounded-card-lg border border-border p-4 md:p-6 mb-4 md:mb-6 brand-accent-line">
       <div className="flex items-start gap-3 md:gap-4">
         {/* Back Button */}
         <BackButton to={ROUTES.ROUTER_LIST} ariaLabel={t('panel.backButton')} />

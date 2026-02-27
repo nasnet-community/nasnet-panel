@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/delete-tunnel",
+  "title": "deleteTunnel",
+  "description": "Delete a tunnel interface",
+  "source": "@site/docs/api/operations/mutations/delete-tunnel.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/delete-tunnel",
+  "permalink": "/api/operations/mutations/delete-tunnel",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "delete-tunnel",
+    "title": "deleteTunnel"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "deleteServiceTemplate",
+    "permalink": "/api/operations/mutations/delete-service-template"
+  },
+  "next": {
+    "title": "deleteVlan",
+    "permalink": "/api/operations/mutations/delete-vlan"
+  }
+}

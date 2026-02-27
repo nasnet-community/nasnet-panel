@@ -61,7 +61,7 @@ export const InterfaceList = React.memo(function InterfaceList({ interfaces, def
       />
 
       {!isCollapsed && (
-        <div className="grid gap-component-sm md:gap-component-md md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-component-sm md:gap-component-md md:grid-cols-2 lg:grid-cols-3 animate-fade-in-up stagger-children">
           {displayedInterfaces.map((iface) => (
             <InterfaceCard key={iface.id} interface={iface} />
           ))}

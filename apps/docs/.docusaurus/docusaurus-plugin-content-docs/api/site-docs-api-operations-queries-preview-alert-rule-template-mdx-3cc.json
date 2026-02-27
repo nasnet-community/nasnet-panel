@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/preview-alert-rule-template",
+  "title": "previewAlertRuleTemplate",
+  "description": "Preview an alert rule template with variable substitution",
+  "source": "@site/docs/api/operations/queries/preview-alert-rule-template.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/preview-alert-rule-template",
+  "permalink": "/api/operations/queries/preview-alert-rule-template",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "preview-alert-rule-template",
+    "title": "previewAlertRuleTemplate"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "portMirrors",
+    "permalink": "/api/operations/queries/port-mirrors"
+  },
+  "next": {
+    "title": "previewAlertTemplate",
+    "permalink": "/api/operations/queries/preview-alert-template"
+  }
+}

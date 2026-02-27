@@ -196,6 +196,6 @@ describe('PingStatistics', () => {
 
     // Find the lost packet value (1)
     const lostValue = screen.getAllByText('1')[0]; // First "1" is the lost count
-    expect(lostValue.parentElement).toHaveClass('text-destructive');
+    expect(lostValue.parentElement).toHaveClass('text-error');
   });
 });

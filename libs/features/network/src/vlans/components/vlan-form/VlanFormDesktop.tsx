@@ -70,11 +70,11 @@ function VlanFormDesktopContent({
       </CardHeader>
 
       <form onSubmit={onSubmit}>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-component-lg">
           {/* Name Field */}
-          <div className="space-y-2">
+          <div className="space-y-component-sm">
             <Label htmlFor="name">
-              Name <span className="text-destructive">*</span>
+              Name <span className="text-error">*</span>
             </Label>
             <Input
               id="name"
@@ -84,7 +84,7 @@ function VlanFormDesktopContent({
               aria-describedby={errors.name ? 'name-error' : undefined}
             />
             {errors.name && (
-              <p id="name-error" className="text-sm text-destructive">
+              <p id="name-error" className="text-sm text-error">
                 {errors.name.message}
               </p>
             )}
@@ -95,9 +95,9 @@ function VlanFormDesktopContent({
           </div>
 
           {/* VLAN ID Field */}
-          <div className="space-y-2">
+          <div className="space-y-component-sm">
             <Label htmlFor="vlanId">
-              VLAN ID <span className="text-destructive">*</span>
+              VLAN ID <span className="text-error">*</span>
             </Label>
             <div className="relative">
               <Input
@@ -118,12 +118,12 @@ function VlanFormDesktopContent({
               )}
             </div>
             {errors.vlanId && (
-              <p id="vlanId-error" className="text-sm text-destructive">
+              <p id="vlanId-error" className="text-sm text-error">
                 {errors.vlanId.message}
               </p>
             )}
             {!errors.vlanId && isDuplicateVlanId && (
-              <p className="text-sm text-destructive">
+              <p className="text-sm text-error">
                 This VLAN ID is already in use on the selected interface
               </p>
             )}
@@ -133,9 +133,9 @@ function VlanFormDesktopContent({
           </div>
 
           {/* Parent Interface Field */}
-          <div className="space-y-2">
+          <div className="space-y-component-sm">
             <Label htmlFor="interface">
-              Parent Interface <span className="text-destructive">*</span>
+              Parent Interface <span className="text-error">*</span>
             </Label>
             <InterfaceSelector
               routerId={routerId}
@@ -147,7 +147,7 @@ function VlanFormDesktopContent({
               aria-describedby={errors.interface ? 'interface-error' : undefined}
             />
             {errors.interface && (
-              <p id="interface-error" className="text-sm text-destructive">
+              <p id="interface-error" className="text-sm text-error">
                 {errors.interface.message}
               </p>
             )}
@@ -157,7 +157,7 @@ function VlanFormDesktopContent({
           </div>
 
           {/* MTU Field */}
-          <div className="space-y-2">
+          <div className="space-y-component-sm">
             <Label htmlFor="mtu">MTU (bytes)</Label>
             <Input
               id="mtu"
@@ -174,7 +174,7 @@ function VlanFormDesktopContent({
               aria-describedby={errors.mtu ? 'mtu-error' : undefined}
             />
             {errors.mtu && (
-              <p id="mtu-error" className="text-sm text-destructive">
+              <p id="mtu-error" className="text-sm text-error">
                 {errors.mtu.message}
               </p>
             )}
@@ -185,7 +185,7 @@ function VlanFormDesktopContent({
           </div>
 
           {/* Comment Field */}
-          <div className="space-y-2">
+          <div className="space-y-component-sm">
             <Label htmlFor="comment">Comment</Label>
             <Textarea
               id="comment"
@@ -198,7 +198,7 @@ function VlanFormDesktopContent({
               aria-describedby={errors.comment ? 'comment-error' : undefined}
             />
             {errors.comment && (
-              <p id="comment-error" className="text-sm text-destructive">
+              <p id="comment-error" className="text-sm text-error">
                 {errors.comment.message}
               </p>
             )}
@@ -208,7 +208,7 @@ function VlanFormDesktopContent({
           </div>
 
           {/* Disabled Toggle */}
-          <div className="flex items-center justify-between rounded-[var(--semantic-radius-card)] border p-4">
+          <div className="flex items-center justify-between rounded-[var(--semantic-radius-card)] border p-component-md">
             <div className="space-y-0.5">
               <Label htmlFor="disabled">Disabled</Label>
               <p className="text-sm text-muted-foreground">
@@ -249,7 +249,7 @@ function VlanFormDesktopContent({
           )}
         </CardContent>
 
-        <CardFooter className="flex justify-end gap-3">
+        <CardFooter className="flex justify-end gap-component-md">
           <Button type="button" variant="outline" onClick={onCancel} disabled={isLoading}>
             Cancel
           </Button>

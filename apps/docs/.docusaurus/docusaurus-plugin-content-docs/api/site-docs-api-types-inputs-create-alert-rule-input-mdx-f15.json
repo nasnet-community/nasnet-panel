@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/create-alert-rule-input",
+  "title": "CreateAlertRuleInput",
+  "description": "Input for creating an alert rule",
+  "source": "@site/docs/api/types/inputs/create-alert-rule-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/create-alert-rule-input",
+  "permalink": "/api/types/inputs/create-alert-rule-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "create-alert-rule-input",
+    "title": "CreateAlertRuleInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "CreateAddressListEntryInput",
+    "permalink": "/api/types/inputs/create-address-list-entry-input"
+  },
+  "next": {
+    "title": "CreateBridgeInput",
+    "permalink": "/api/types/inputs/create-bridge-input"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/notification-channel-configs",
+  "title": "notificationChannelConfigs",
+  "description": "List all notification channel configurations (optionally filtered by type)",
+  "source": "@site/docs/api/operations/queries/notification-channel-configs.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/notification-channel-configs",
+  "permalink": "/api/operations/queries/notification-channel-configs",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "notification-channel-configs",
+    "title": "notificationChannelConfigs"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "notificationChannelConfig",
+    "permalink": "/api/operations/queries/notification-channel-config"
+  },
+  "next": {
+    "title": "notificationLogs",
+    "permalink": "/api/operations/queries/notification-logs"
+  }
+}

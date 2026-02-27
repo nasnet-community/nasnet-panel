@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/topology-edge-style",
+  "title": "TopologyEdgeStyle",
+  "description": "Styling for topology edges",
+  "source": "@site/docs/api/types/objects/topology-edge-style.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/topology-edge-style",
+  "permalink": "/api/types/objects/topology-edge-style",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "topology-edge-style",
+    "title": "TopologyEdgeStyle"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "TLSStatus",
+    "permalink": "/api/types/objects/tlsstatus"
+  },
+  "next": {
+    "title": "TopologyEdge",
+    "permalink": "/api/types/objects/topology-edge"
+  }
+}

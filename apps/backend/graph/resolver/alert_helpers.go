@@ -1,6 +1,8 @@
 package resolver
 
 import (
+	"fmt"
+
 	"backend/generated/ent"
 	"backend/generated/ent/alertrule"
 	"backend/graph/model"
@@ -115,4 +117,21 @@ func convertAlertToModel(a *ent.Alert) *model.Alert {
 			ID: ruleID,
 		},
 	}
+}
+
+// stringifyValue converts any value to a string representation.
+// Handles strings, nil, objects with String() method, and fallback to fmt.Sprintf.
+func stringifyValue(v interface{}) string {
+	if s, ok := v.(string); ok {
+		return s
+	}
+	if v == nil {
+		return ""
+	}
+	// Use the type's String() method if available
+	if stringer, ok := v.(interface{ String() string }); ok {
+		return stringer.String()
+	}
+	// Fall back to fmt.Sprintf for other types
+	return fmt.Sprintf("%v", v)
 }

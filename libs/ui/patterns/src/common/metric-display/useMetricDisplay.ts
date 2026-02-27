@@ -89,7 +89,7 @@ function getValueClasses(variant: MetricVariant): string {
       return 'text-info';
     case 'default':
     default:
-      return 'text-slate-900 dark:text-slate-50';
+      return 'text-foreground';
   }
 }
 

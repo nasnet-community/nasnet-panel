@@ -129,7 +129,7 @@ export const AddressListExportDialog = memo(function AddressListExportDialog({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm" className={className}>
-          <Icon icon={Download} size={16} className="mr-2" label="" />
+          <Icon icon={Download} size={16} className="mr-component-sm" label="" />
           {triggerText}
         </Button>
       </DialogTrigger>
@@ -143,13 +143,13 @@ export const AddressListExportDialog = memo(function AddressListExportDialog({
 
         <div className="space-y-component-md">
           {/* Format Selection */}
-          <div className="space-y-component-sm">
+          <div className="space-y-component-sm gap-component-sm">
             <Label>Export Format</Label>
             <RadioGroup value={format} onValueChange={handleFormatChange}>
-              <div className="space-y-component-sm">
+              <div className="space-y-component-sm gap-component-sm">
                 {/* CSV Format */}
                 <div className={cn('flex items-start space-x-component-sm rounded-card-sm border p-component-md hover:bg-muted transition-colors')}>
-                  <RadioGroupItem value="csv" id="format-csv" className="mt-1" />
+                  <RadioGroupItem value="csv" id="format-csv" className="mt-component-xs" />
                   <div className="flex-1">
                     <label htmlFor="format-csv" className="cursor-pointer">
                       <div className="flex items-center gap-component-sm">
@@ -169,7 +169,7 @@ export const AddressListExportDialog = memo(function AddressListExportDialog({
 
                 {/* JSON Format */}
                 <div className={cn('flex items-start space-x-component-sm rounded-card-sm border p-component-md hover:bg-muted transition-colors')}>
-                  <RadioGroupItem value="json" id="format-json" className="mt-1" />
+                  <RadioGroupItem value="json" id="format-json" className="mt-component-xs" />
                   <div className="flex-1">
                     <label htmlFor="format-json" className="cursor-pointer">
                       <div className="flex items-center gap-component-sm">
@@ -189,7 +189,7 @@ export const AddressListExportDialog = memo(function AddressListExportDialog({
 
                 {/* RouterOS Script Format */}
                 <div className={cn('flex items-start space-x-component-sm rounded-card-sm border p-component-md hover:bg-muted transition-colors')}>
-                  <RadioGroupItem value="routeros" id="format-routeros" className="mt-1" />
+                  <RadioGroupItem value="routeros" id="format-routeros" className="mt-component-xs" />
                   <div className="flex-1">
                     <label htmlFor="format-routeros" className="cursor-pointer">
                       <div className="flex items-center gap-component-sm">
@@ -211,7 +211,7 @@ export const AddressListExportDialog = memo(function AddressListExportDialog({
           </div>
 
           {/* File Info */}
-          <div className="rounded-card-sm border p-component-md bg-muted/50">
+          <div className="rounded-md border p-component-md bg-muted/50">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium">Estimated Size</p>
@@ -231,9 +231,9 @@ export const AddressListExportDialog = memo(function AddressListExportDialog({
           </div>
 
           {/* Preview */}
-          <div className="space-y-component-sm">
+          <div className="space-y-component-sm gap-component-sm">
             <Label>Preview</Label>
-            <ScrollArea className="h-64 rounded-card-sm border p-component-md bg-muted/30">
+            <ScrollArea className="h-64 rounded-md border p-component-md bg-muted/30">
               <pre className="text-xs font-mono whitespace-pre-wrap">{preview}</pre>
             </ScrollArea>
             {preview.includes('...') && (
@@ -259,11 +259,11 @@ export const AddressListExportDialog = memo(function AddressListExportDialog({
           )}
 
           {/* Actions */}
-          <div className="flex justify-between gap-component-sm">
+          <div className="flex justify-between gap-component-md">
             <Button variant="outline" onClick={() => setOpen(false)}>
               Cancel
             </Button>
-            <div className="flex gap-component-sm">
+            <div className="flex gap-component-md">
               <Button
                 variant="outline"
                 onClick={handleCopy}

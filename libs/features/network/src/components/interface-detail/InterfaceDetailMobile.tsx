@@ -10,6 +10,7 @@ import {
   Separator,
   Skeleton,
 } from '@nasnet/ui/primitives';
+import { cn } from '@nasnet/ui/utils';
 import { InterfaceEditForm } from '../interface-edit';
 
 export interface InterfaceDetailMobileProps {
@@ -59,10 +60,10 @@ export const InterfaceDetailMobile = memo(function InterfaceDetailMobile({
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-      <DialogContent className="h-full max-w-full p-0 flex flex-col">
+      <DialogContent className="h-full max-w-full p-0 flex flex-col category-networking">
         {/* Header with back button */}
-        <DialogHeader className="p-4 border-b flex-shrink-0">
-          <div className="flex items-center gap-3">
+        <DialogHeader className="p-component-sm border-b flex-shrink-0">
+          <div className="flex items-center gap-component-sm">
             <Button
               variant="ghost"
               size="sm"
@@ -75,13 +76,13 @@ export const InterfaceDetailMobile = memo(function InterfaceDetailMobile({
             {loading ? (
               <Skeleton className="h-6 w-32" />
             ) : (
-              <DialogTitle>{iface?.name || 'Interface'}</DialogTitle>
+              <DialogTitle className="font-mono">{iface?.name || 'Interface'}</DialogTitle>
             )}
           </div>
         </DialogHeader>
 
         {/* Content */}
-        <div className="overflow-y-auto flex-1 p-4">
+        <div className="overflow-y-auto flex-1 p-component-sm">
           {loading && (
             <div className="space-y-component-md">
               <Skeleton className="h-20 w-full" />
@@ -91,7 +92,7 @@ export const InterfaceDetailMobile = memo(function InterfaceDetailMobile({
           )}
 
           {error && (
-            <div className="p-8 text-center" role="alert">
+            <div className="p-component-xl text-center" role="alert">
               <p className="text-error font-medium">Failed to load interface</p>
               <p className="text-sm text-muted-foreground mt-2">
                 {error.message || 'Unknown error'}
@@ -126,7 +127,7 @@ export const InterfaceDetailMobile = memo(function InterfaceDetailMobile({
 
               {/* Status section */}
               <div>
-                <h3 className="font-semibold mb-3">Status</h3>
+                <h3 className="font-semibold mb-component-sm">Status</h3>
                 <div className="space-y-component-sm">
                   <MobileInfoRow label="Running" value={iface.running ? 'Yes' : 'No'} />
                   {iface.macAddress && (
@@ -145,19 +146,19 @@ export const InterfaceDetailMobile = memo(function InterfaceDetailMobile({
 
               {/* Traffic section */}
               <div>
-                <h3 className="font-semibold mb-3">Traffic</h3>
+                <h3 className="font-semibold mb-component-sm">Traffic</h3>
                 <div className="grid grid-cols-2 gap-component-md">
                   <div className="border border-border rounded-[var(--semantic-radius-card)] p-component-md">
                     <h4 className="text-xs text-muted-foreground mb-1">TX Rate</h4>
-                    <p className="text-xl font-bold">{formatRate(iface.txRate || 0)}</p>
-                    <p className="text-xs text-muted-foreground mt-1">
+                    <p className="text-xl font-bold font-mono">{formatRate(iface.txRate || 0)}</p>
+                    <p className="text-xs text-muted-foreground mt-1 font-mono">
                       Total: {formatBytes(iface.txBytes || 0)}
                     </p>
                   </div>
                   <div className="border border-border rounded-[var(--semantic-radius-card)] p-component-md">
                     <h4 className="text-xs text-muted-foreground mb-1">RX Rate</h4>
-                    <p className="text-xl font-bold">{formatRate(iface.rxRate || 0)}</p>
-                    <p className="text-xs text-muted-foreground mt-1">
+                    <p className="text-xl font-bold font-mono">{formatRate(iface.rxRate || 0)}</p>
+                    <p className="text-xs text-muted-foreground mt-1 font-mono">
                       Total: {formatBytes(iface.rxBytes || 0)}
                     </p>
                   </div>
@@ -168,13 +169,13 @@ export const InterfaceDetailMobile = memo(function InterfaceDetailMobile({
 
               {/* Configuration section */}
               <div>
-                <h3 className="font-semibold mb-3">Configuration</h3>
+                <h3 className="font-semibold mb-component-sm">Configuration</h3>
                 <div className="space-y-component-sm">
                   <MobileInfoRow label="MTU" value={iface.mtu || 'Default'} />
                   {iface.ip && iface.ip.length > 0 && (
                     <div className="flex justify-between py-2">
                       <span className="text-sm text-muted-foreground">IP Addresses</span>
-                      <div className="text-sm text-right font-mono space-y-component-sm">
+                      <div className="text-sm text-right font-mono space-y-component-xs">
                         {iface.ip.map((addr: string) => (
                           <div key={addr} className="break-all">{addr}</div>
                         ))}
@@ -188,7 +189,7 @@ export const InterfaceDetailMobile = memo(function InterfaceDetailMobile({
                 <>
                   <Separator />
                   <div>
-                    <h3 className="font-semibold mb-3">Used By</h3>
+                    <h3 className="font-semibold mb-component-sm">Used By</h3>
                     <div className="flex flex-wrap gap-component-sm">
                       {iface.usedBy.map((usage: string) => (
                         <Badge key={usage} variant="outline">
@@ -218,7 +219,7 @@ export const InterfaceDetailMobile = memo(function InterfaceDetailMobile({
 
         {/* Footer with action button */}
         {!loading && !error && iface && !editMode && (
-          <div className="border-t p-4 flex-shrink-0">
+          <div className="border-t p-component-md flex-shrink-0">
             <Button
               className="w-full min-h-[44px]"
               onClick={() => setEditMode(true)}
@@ -250,10 +251,11 @@ const MobileInfoRow = memo(function MobileInfoRow({
   value: string | number;
   mono?: boolean;
 }) {
+  const isTechnicalData = label === 'MAC Address' || label === 'Link Partner' || label === 'Link Speed' || mono;
   return (
     <div className="flex justify-between py-2">
       <span className="text-sm text-muted-foreground">{label}</span>
-      <span className={`text-sm break-all ${mono ? 'font-mono' : ''}`}>{value}</span>
+      <span className={cn('text-sm break-all', isTechnicalData && 'font-mono')}>{value}</span>
     </div>
   );
 });

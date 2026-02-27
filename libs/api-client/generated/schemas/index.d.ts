@@ -52,15 +52,15 @@ export declare const dhcpServerConfigSchema: z.ZodObject<{
     name: string;
     disabled: boolean;
     interface: string;
-    gateway: string;
     addressPool: string;
+    gateway: string;
     leaseTime: string;
     dnsServers?: string[] | undefined;
 }, {
     name: string;
     interface: string;
-    gateway: string;
     addressPool: string;
+    gateway: string;
     leaseTime: string;
     disabled?: boolean | undefined;
     dnsServers?: string[] | undefined;

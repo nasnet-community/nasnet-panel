@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/address-lists",
+  "title": "addressLists",
+  "description": "Get all address lists with aggregated statistics.",
+  "source": "@site/docs/api/operations/queries/address-lists.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/address-lists",
+  "permalink": "/api/operations/queries/address-lists",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "address-lists",
+    "title": "addressLists"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "addressListEntries",
+    "permalink": "/api/operations/queries/address-list-entries"
+  },
+  "next": {
+    "title": "alertEscalations",
+    "permalink": "/api/operations/queries/alert-escalations"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "id": "i18n-accessibility/accessibility",
+  "title": "Accessibility",
+  "description": "NasNetConnect targets WCAG 2.1 Level AAA accessibility compliance. This is a non-negotiable constraint because MikroTik administrators use the UI across diverse environments — phones in server rooms, high-ambient-light conditions, assistive technologies. Every component must meet these requirements before shipping.",
+  "source": "@site/../connect/docs/i18n-accessibility/accessibility.md",
+  "sourceDirName": "i18n-accessibility",
+  "slug": "/i18n-accessibility/accessibility",
+  "permalink": "/docs/frontend/i18n-accessibility/accessibility",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../connect/docs/i18n-accessibility/accessibility.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Key Commands",
+    "permalink": "/docs/frontend/getting-started/key-commands"
+  },
+  "next": {
+    "title": "Internationalization (i18n)",
+    "permalink": "/docs/frontend/i18n-accessibility/i18n"
+  }
+}

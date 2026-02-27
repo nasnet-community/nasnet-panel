@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/protocol",
+  "title": "Protocol",
+  "description": "Protocol used for router communication",
+  "source": "@site/docs/api/types/enums/protocol.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/protocol",
+  "permalink": "/api/types/enums/protocol",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "protocol",
+    "title": "Protocol"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ProtocolPreference",
+    "permalink": "/api/types/enums/protocol-preference"
+  },
+  "next": {
+    "title": "ProvisioningApplyStatus",
+    "permalink": "/api/types/enums/provisioning-apply-status"
+  }
+}

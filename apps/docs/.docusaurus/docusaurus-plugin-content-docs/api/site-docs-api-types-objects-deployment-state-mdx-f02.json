@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/deployment-state",
+  "title": "DeploymentState",
+  "description": "Layer 3: What's actually on router after Apply-Confirm.",
+  "source": "@site/docs/api/types/objects/deployment-state.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/deployment-state",
+  "permalink": "/api/types/objects/deployment-state",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "deployment-state",
+    "title": "DeploymentState"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "DependencyStatus",
+    "permalink": "/api/types/objects/dependency-status"
+  },
+  "next": {
+    "title": "DeprecateResourcePayload",
+    "permalink": "/api/types/objects/deprecate-resource-payload"
+  }
+}

@@ -110,7 +110,7 @@ type PppoeClientInput struct {
 	Name            string
 	Interface       string
 	Username        string
-	Password        string
+	Password        string //nolint:gosec // G101: credential field required for PPPoE authentication
 	ServiceName     string
 	AddDefaultRoute bool
 	UsePeerDNS      bool
@@ -135,7 +135,7 @@ type LteModemInput struct {
 	APN            string
 	Pin            string
 	Username       string
-	Password       string
+	Password       string //nolint:gosec // G101: credential field required for LTE authentication
 	AuthProtocol   string
 	IsDefaultRoute bool
 	Enabled        bool

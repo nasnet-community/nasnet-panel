@@ -1,0 +1,26 @@
+{
+  "id": "api/types/interfaces/node",
+  "title": "Node",
+  "description": "Relay Node interface for global object identification",
+  "source": "@site/docs/api/types/interfaces/node.mdx",
+  "sourceDirName": "api/types/interfaces",
+  "slug": "/api/types/interfaces/node",
+  "permalink": "/api/types/interfaces/node",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "node",
+    "title": "Node"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "Edge",
+    "permalink": "/api/types/interfaces/edge"
+  },
+  "next": {
+    "title": "Resource",
+    "permalink": "/api/types/interfaces/resource"
+  }
+}

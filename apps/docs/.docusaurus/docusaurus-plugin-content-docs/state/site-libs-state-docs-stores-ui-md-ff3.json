@@ -1,0 +1,20 @@
+{
+  "id": "stores/ui",
+  "title": "UI Stores (Theme, Sidebar, UI, Modal, Notification, Help)",
+  "description": "Comprehensive guide to UI state management including theme, layout, modals, and notifications.",
+  "source": "@site/../../libs/state/docs/stores/ui.md",
+  "sourceDirName": "stores",
+  "slug": "/stores/ui",
+  "permalink": "/docs/state/stores/ui",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/state/docs/stores/ui.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "State Stores Overview",
+    "permalink": "/docs/state/stores/overview"
+  }
+}

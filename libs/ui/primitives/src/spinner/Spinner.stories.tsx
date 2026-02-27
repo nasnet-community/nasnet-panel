@@ -21,7 +21,7 @@ const meta: Meta<typeof Spinner> = {
   argTypes: {
     size: {
       control: 'select',
-      options: ['xs', 'sm', 'md', 'lg', 'xl'],
+      options: ['sm', 'md', 'lg', 'xl'],
       description: 'Size of the spinner',
     },
     label: {
@@ -41,13 +41,6 @@ type Story = StoryObj<typeof Spinner>;
 export const Default: Story = {
   args: {
     size: 'md',
-    label: 'Loading...',
-  },
-};
-
-export const ExtraSmall: Story = {
-  args: {
-    size: 'xs',
     label: 'Loading...',
   },
 };
@@ -77,24 +70,20 @@ export const AllSizes: Story = {
   render: () => (
     <div className="flex items-center gap-6">
       <div className="flex flex-col items-center gap-2">
-        <Spinner size="xs" />
-        <span className="text-xs text-muted-foreground">xs (12px)</span>
-      </div>
-      <div className="flex flex-col items-center gap-2">
         <Spinner size="sm" />
         <span className="text-xs text-muted-foreground">sm (16px)</span>
       </div>
       <div className="flex flex-col items-center gap-2">
         <Spinner size="md" />
-        <span className="text-xs text-muted-foreground">md (20px)</span>
+        <span className="text-xs text-muted-foreground">md (24px)</span>
       </div>
       <div className="flex flex-col items-center gap-2">
         <Spinner size="lg" />
-        <span className="text-xs text-muted-foreground">lg (24px)</span>
+        <span className="text-xs text-muted-foreground">lg (32px)</span>
       </div>
       <div className="flex flex-col items-center gap-2">
         <Spinner size="xl" />
-        <span className="text-xs text-muted-foreground">xl (32px)</span>
+        <span className="text-xs text-muted-foreground">xl (48px)</span>
       </div>
     </div>
   ),

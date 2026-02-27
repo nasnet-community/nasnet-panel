@@ -189,6 +189,8 @@ func run() {
 		pbrEngine:            prodSvcs.routing.PBREngine,
 		routingMatrixSvc:     prodSvcs.routing.RoutingMatrixSvc,
 		chainLatencyMeasurer: prodSvcs.routing.ChainLatencyMeasurer,
+		bridgeOrchestrator:   prodSvcs.vif.BridgeOrchestrator,
+		ingressService:       prodSvcs.vif.IngressService,
 		logger:               sugar,
 	})
 

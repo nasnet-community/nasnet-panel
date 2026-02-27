@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/reconnect-router-payload",
+  "title": "ReconnectRouterPayload",
+  "description": "No description",
+  "source": "@site/docs/api/types/objects/reconnect-router-payload.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/reconnect-router-payload",
+  "permalink": "/api/types/objects/reconnect-router-payload",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "reconnect-router-payload",
+    "title": "ReconnectRouterPayload"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "QuietHoursConfig",
+    "permalink": "/api/types/objects/quiet-hours-config"
+  },
+  "next": {
+    "title": "RefreshCapabilitiesPayload",
+    "permalink": "/api/types/objects/refresh-capabilities-payload"
+  }
+}

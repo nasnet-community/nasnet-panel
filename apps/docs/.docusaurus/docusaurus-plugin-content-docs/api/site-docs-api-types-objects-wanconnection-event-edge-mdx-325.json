@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/wanconnection-event-edge",
+  "title": "WANConnectionEventEdge",
+  "description": "No description",
+  "source": "@site/docs/api/types/objects/wanconnection-event-edge.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/wanconnection-event-edge",
+  "permalink": "/api/types/objects/wanconnection-event-edge",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "wanconnection-event-edge",
+    "title": "WANConnectionEventEdge"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "WANConnectionEventConnection",
+    "permalink": "/api/types/objects/wanconnection-event-connection"
+  },
+  "next": {
+    "title": "WANConnectionEvent",
+    "permalink": "/api/types/objects/wanconnection-event"
+  }
+}

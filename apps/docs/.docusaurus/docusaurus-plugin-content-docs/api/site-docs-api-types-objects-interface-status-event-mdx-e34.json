@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/interface-status-event",
+  "title": "InterfaceStatusEvent",
+  "description": "Event emitted when an interface status changes",
+  "source": "@site/docs/api/types/objects/interface-status-event.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/interface-status-event",
+  "permalink": "/api/types/objects/interface-status-event",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "interface-status-event",
+    "title": "InterfaceStatusEvent"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "InterfaceStats",
+    "permalink": "/api/types/objects/interface-stats"
+  },
+  "next": {
+    "title": "InterfaceTrafficEvent",
+    "permalink": "/api/types/objects/interface-traffic-event"
+  }
+}

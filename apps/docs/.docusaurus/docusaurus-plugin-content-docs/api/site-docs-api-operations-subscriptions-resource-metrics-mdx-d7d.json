@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/subscriptions/resource-metrics",
+  "title": "resourceMetrics",
+  "description": "Subscribe to real-time resource metrics updates",
+  "source": "@site/docs/api/operations/subscriptions/resource-metrics.mdx",
+  "sourceDirName": "api/operations/subscriptions",
+  "slug": "/api/operations/subscriptions/resource-metrics",
+  "permalink": "/api/operations/subscriptions/resource-metrics",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "resource-metrics",
+    "title": "resourceMetrics"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "provisioningSessionProgress",
+    "permalink": "/api/operations/subscriptions/provisioning-session-progress"
+  },
+  "next": {
+    "title": "resourceRuntime",
+    "permalink": "/api/operations/subscriptions/resource-runtime"
+  }
+}

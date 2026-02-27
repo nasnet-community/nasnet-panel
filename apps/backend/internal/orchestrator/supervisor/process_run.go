@@ -17,6 +17,8 @@ import (
 )
 
 // run is the main process management loop
+//
+//nolint:gocyclo,cyclop // process management state machine requires complex control flow
 func (mp *ManagedProcess) run(ctx context.Context) {
 	mp.logger.Debug("run() started", zap.String("process", mp.Name))
 	defer func() {
@@ -62,6 +64,15 @@ func (mp *ManagedProcess) run(ctx context.Context) {
 			mp.cmd = nil
 			mp.pid = 0
 			mp.mu.Unlock()
+
+			// Clean up isolation resources if strategy is available
+			if mp.isolationStrategy != nil {
+				if err := mp.isolationStrategy.Cleanup(ctx, mp.isolationConfig); err != nil {
+					mp.logger.Warn("failed to cleanup isolation resources",
+						zap.Error(err),
+						zap.String("process_id", mp.ID))
+				}
+			}
 
 			// Clean up cgroup if manager is available
 			if mp.cgroupManager != nil {
@@ -134,7 +145,14 @@ func (mp *ManagedProcess) startProcess() error {
 	cmd.Env = mp.Env
 	cmd.Dir = mp.WorkDir
 
-	setupProcessGroup(cmd)
+	// Use isolation strategy if available, otherwise fall back to standard process group setup
+	if mp.isolationStrategy != nil {
+		if err := mp.isolationStrategy.PrepareProcess(mp.ctx, cmd, mp.isolationConfig); err != nil {
+			return fmt.Errorf("failed to prepare process with isolation: %w", err)
+		}
+	} else {
+		setupProcessGroup(cmd)
+	}
 
 	if mp.logCapture != nil { //nolint:nestif // process log capture setup
 		stdout, err := cmd.StdoutPipe()
@@ -166,6 +184,16 @@ func (mp *ManagedProcess) startProcess() error {
 	mp.pid = cmd.Process.Pid
 	mp.startTime = time.Now()
 
+	// Call PostStart for isolation strategy
+	if mp.isolationStrategy != nil {
+		if err := mp.isolationStrategy.PostStart(mp.ctx, mp.pid, mp.isolationConfig); err != nil {
+			mp.logger.Warn("failed to run isolation PostStart",
+				zap.Error(err),
+				zap.String("process_id", mp.ID),
+				zap.Int("pid", mp.pid))
+		}
+	}
+
 	if mp.cgroupManager != nil {
 		if err := mp.cgroupManager.AssignProcess(mp.ID, mp.pid); err != nil {
 			mp.logger.Warn("failed to assign process to cgroup",
@@ -191,7 +219,7 @@ func (mp *ManagedProcess) stopProcess() {
 	mp.state = ProcessStateStopping
 
 	if err := mp.cmd.Process.Kill(); err != nil {
-		mp.logger.Warn("failed to kill process", zap.Error(err), zap.String("process", mp.Name))
+		mp.logger.Warn("failed to kill process", zap.Error(fmt.Errorf("kill failed: %w", err)), zap.String("process", mp.Name))
 	}
 }
 

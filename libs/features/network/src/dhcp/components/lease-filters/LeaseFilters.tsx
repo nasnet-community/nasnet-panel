@@ -177,7 +177,7 @@ export const LeaseFilters = React.memo(function LeaseFilters({ servers, classNam
 
           {/* Status Filter Badge */}
           {leaseStatusFilter !== 'all' && (
-            <div className="inline-flex items-center gap-component-xs rounded-pill bg-primary/10 px-2 py-1 text-sm">
+            <div className="inline-flex items-center gap-component-xs rounded-pill bg-primary/10 px-component-sm py-component-xs text-sm">
               <span className="text-primary font-mono">
                 Status: {LEASE_STATUS_OPTIONS.find(opt => opt.value === leaseStatusFilter)?.label}
               </span>
@@ -196,7 +196,7 @@ export const LeaseFilters = React.memo(function LeaseFilters({ servers, classNam
 
           {/* Server Filter Badge */}
           {leaseServerFilter !== 'all' && (
-            <div className="inline-flex items-center gap-component-xs rounded-pill bg-primary/10 px-2 py-1 text-sm">
+            <div className="inline-flex items-center gap-component-xs rounded-pill bg-primary/10 px-component-sm py-component-xs text-sm">
               <span className="text-primary font-mono">
                 Server: {servers.find(s => s.id === leaseServerFilter)?.name || leaseServerFilter}
               </span>

@@ -154,7 +154,7 @@ const MatchersSummary = memo(function MatchersSummary({ rule }: { rule: FilterRu
   return (
     <span className="text-sm font-mono">
       {matchers.slice(0, 2).join(', ')}
-      <Badge variant="outline" className="ml-2 text-xs">
+      <Badge variant="outline" className="ml-component-sm text-xs">
         +{matchers.length - 2} more
       </Badge>
     </span>
@@ -274,7 +274,7 @@ const SortableRow = memo(function SortableRow({ rule, maxBytes, onEdit, onDuplic
 
       {/* Actions */}
       <TableCell>
-        <div className="flex gap-1" role="group" aria-label="Rule actions">
+        <div className="flex gap-component-xs" role="group" aria-label="Rule actions">
           <Button
             variant="ghost"
             size="sm"
@@ -297,10 +297,10 @@ const SortableRow = memo(function SortableRow({ rule, maxBytes, onEdit, onDuplic
             variant="ghost"
             size="sm"
             onClick={() => onDelete(rule)}
-            className="hover:text-destructive focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className="hover:text-error focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             aria-label="Delete rule"
           >
-            <Trash2 className="h-4 w-4 text-destructive" aria-hidden="true" />
+            <Trash2 className="h-4 w-4 text-error" aria-hidden="true" />
           </Button>
         </div>
       </TableCell>
@@ -469,8 +469,8 @@ export const FilterRulesTableDesktop = memo(function FilterRulesTableDesktop({ c
   // Loading state
   if (isLoading) {
     return (
-      <div className={cn('p-4', className)} role="status" aria-live="polite">
-        <div className="space-y-4">
+      <div className={cn('p-component-md', className)} role="status" aria-live="polite">
+        <div className="space-y-component-lg">
           {/* Table header skeleton */}
           <div className="h-10 bg-muted rounded animate-pulse" />
           {/* Row skeletons */}
@@ -486,12 +486,12 @@ export const FilterRulesTableDesktop = memo(function FilterRulesTableDesktop({ c
   if (error) {
     return (
       <div
-        className={cn('p-6', className)}
+        className={cn('p-component-xl', className)}
         role="alert"
         aria-live="assertive"
       >
-        <div className="rounded-md bg-error/10 p-4 border border-error/20">
-          <h3 className="font-semibold text-error mb-2">Failed to load filter rules</h3>
+        <div className="rounded-md bg-error/10 p-component-md border border-error/20">
+          <h3 className="font-semibold text-error mb-component-sm">Failed to load filter rules</h3>
           <p className="text-sm text-error/80">
             {error.message || 'An error occurred while retrieving filter rules. Please check your connection and try again.'}
           </p>
@@ -503,8 +503,8 @@ export const FilterRulesTableDesktop = memo(function FilterRulesTableDesktop({ c
   // Empty state
   if (!rules || rules.length === 0) {
     return (
-      <div className={cn('p-8 text-center', className)}>
-        <div className="space-y-3">
+      <div className={cn('p-component-xl text-center', className)}>
+        <div className="space-y-component-md">
           <p className="text-muted-foreground font-medium">
             {chain ? `No rules in ${chain} chain` : 'No filter rules found'}
           </p>
@@ -592,9 +592,9 @@ export const FilterRulesTableDesktop = memo(function FilterRulesTableDesktop({ c
               This action cannot be undone. The rule will be permanently removed from the firewall configuration.
             </DialogDescription>
           </DialogHeader>
-          <div className="py-4">
-            <p className="text-sm font-semibold mb-2">This will:</p>
-            <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+          <div className="py-component-lg">
+            <p className="text-sm font-semibold mb-component-sm">This will:</p>
+            <ul className="list-disc list-inside text-sm text-muted-foreground space-y-component-xs">
               <li>Remove the rule from the <span className="font-mono">{deleteConfirmRule?.chain}</span> chain</li>
               <li>Reorder subsequent rules automatically</li>
               <li>Take effect immediately on the router</li>

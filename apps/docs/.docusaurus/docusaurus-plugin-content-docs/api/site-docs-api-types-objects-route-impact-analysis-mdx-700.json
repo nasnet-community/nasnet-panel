@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/route-impact-analysis",
+  "title": "RouteImpactAnalysis",
+  "description": "Analysis of the impact of deleting a route",
+  "source": "@site/docs/api/types/objects/route-impact-analysis.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/route-impact-analysis",
+  "permalink": "/api/types/objects/route-impact-analysis",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "route-impact-analysis",
+    "title": "RouteImpactAnalysis"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "RouteDeleteResult",
+    "permalink": "/api/types/objects/route-delete-result"
+  },
+  "next": {
+    "title": "RouteLookupCandidate",
+    "permalink": "/api/types/objects/route-lookup-candidate"
+  }
+}

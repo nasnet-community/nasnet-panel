@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/update-port-mirror",
+  "title": "updatePortMirror",
+  "description": "Update an existing port mirror configuration",
+  "source": "@site/docs/api/operations/mutations/update-port-mirror.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/update-port-mirror",
+  "permalink": "/api/operations/mutations/update-port-mirror",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "update-port-mirror",
+    "title": "updatePortMirror"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "updatePortKnockSequence",
+    "permalink": "/api/operations/mutations/update-port-knock-sequence"
+  },
+  "next": {
+    "title": "updateProvisioningNetworks",
+    "permalink": "/api/operations/mutations/update-provisioning-networks"
+  }
+}

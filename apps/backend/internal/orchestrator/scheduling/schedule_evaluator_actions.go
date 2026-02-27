@@ -13,6 +13,11 @@ import (
 
 // activateRouting activates a device routing assignment
 func (se *ScheduleEvaluator) activateRouting(ctx context.Context, routing *ent.DeviceRouting, schedule *ent.RoutingSchedule) {
+	if schedule == nil {
+		se.logger.Error("schedule is nil in activateRouting")
+		return
+	}
+
 	se.logger.Info("Activating device routing",
 		zap.String("routing_id", routing.ID),
 		zap.String("schedule_id", schedule.ID),

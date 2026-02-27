@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/subscriptions/interface-traffic",
+  "title": "interfaceTraffic",
+  "description": "Subscribe to interface traffic updates",
+  "source": "@site/docs/api/operations/subscriptions/interface-traffic.mdx",
+  "sourceDirName": "api/operations/subscriptions",
+  "slug": "/api/operations/subscriptions/interface-traffic",
+  "permalink": "/api/operations/subscriptions/interface-traffic",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "interface-traffic",
+    "title": "interfaceTraffic"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "interfaceStatusChanged",
+    "permalink": "/api/operations/subscriptions/interface-status-changed"
+  },
+  "next": {
+    "title": "ipAddressChanged",
+    "permalink": "/api/operations/subscriptions/ip-address-changed"
+  }
+}

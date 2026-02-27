@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/validate-format",
+  "title": "ValidateFormat",
+  "description": "Predefined validation formats for common data types",
+  "source": "@site/docs/api/types/enums/validate-format.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/validate-format",
+  "permalink": "/api/types/enums/validate-format",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "validate-format",
+    "title": "ValidateFormat"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "UserRole",
+    "permalink": "/api/types/enums/user-role"
+  },
+  "next": {
+    "title": "ValidationSeverity",
+    "permalink": "/api/types/enums/validation-severity"
+  }
+}

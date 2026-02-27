@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/change-set-item-status",
+  "title": "ChangeSetItemStatus",
+  "description": "Status of individual items within a change set",
+  "source": "@site/docs/api/types/enums/change-set-item-status.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/change-set-item-status",
+  "permalink": "/api/types/enums/change-set-item-status",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "change-set-item-status",
+    "title": "ChangeSetItemStatus"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ChangeOperation",
+    "permalink": "/api/types/enums/change-operation"
+  },
+  "next": {
+    "title": "ChangeSetStatus",
+    "permalink": "/api/types/enums/change-set-status"
+  }
+}

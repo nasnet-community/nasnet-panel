@@ -127,7 +127,7 @@ export function SyntaxHighlight({
     return (
       <pre className={cn('m-0 p-4', className)}>
         <code
-          className="block font-mono text-sm whitespace-pre text-foreground config-preview-syntax"
+          className="block font-mono text-sm whitespace-pre text-slate-50 config-preview-syntax"
           dangerouslySetInnerHTML={{ __html: highlightedHtml }}
         />
       </pre>
@@ -136,13 +136,13 @@ export function SyntaxHighlight({
 
   return (
     <pre className={cn('m-0 p-0', className)}>
-      <code className="block font-mono text-sm whitespace-pre text-foreground config-preview-syntax">
+      <code className="block font-mono text-sm whitespace-pre text-slate-50 config-preview-syntax">
         <table className="w-full border-collapse">
           <tbody>
             {lines.map((line, index) => (
-              <tr key={index} className="hover:bg-muted/30">
+              <tr key={index} className="hover:bg-slate-800/50">
                 <td
-                  className="pr-4 py-0.5 text-right select-none text-muted-foreground border-r border-border"
+                  className="pr-4 py-0.5 text-right select-none text-muted-foreground/50 border-r border-slate-700"
                   style={{ width: `${lineNumberWidth + 2}ch` }}
                 >
                   {startLineNumber + index}

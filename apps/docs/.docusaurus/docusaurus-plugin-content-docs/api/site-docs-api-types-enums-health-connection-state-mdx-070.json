@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/health-connection-state",
+  "title": "HealthConnectionState",
+  "description": "Connection status from health probe checks",
+  "source": "@site/docs/api/types/enums/health-connection-state.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/health-connection-state",
+  "permalink": "/api/types/enums/health-connection-state",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "health-connection-state",
+    "title": "HealthConnectionState"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "HealthCheckStatus",
+    "permalink": "/api/types/enums/health-check-status"
+  },
+  "next": {
+    "title": "HopStatus",
+    "permalink": "/api/types/enums/hop-status"
+  }
+}

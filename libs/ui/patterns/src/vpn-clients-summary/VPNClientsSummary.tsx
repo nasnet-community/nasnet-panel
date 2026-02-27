@@ -87,7 +87,7 @@ function VPNClientsSummaryComponent({
   const status = connectedCount > 0 ? 'connected' : 'disconnected';
   const statusColor = status === 'connected' ? 'text-success' : 'text-muted-foreground';
   const bgColor = status === 'connected'
-    ? 'bg-success/10 dark:bg-success/20'
+    ? 'bg-success-light dark:bg-success/20'
     : 'bg-muted';
 
   const handleToggleExpanded = useCallback(() => {
@@ -130,7 +130,7 @@ function VPNClientsSummaryComponent({
             {visibleClients.map((client) => (
               <div
                 key={client.id}
-                className="flex items-center gap-3 p-2 rounded-lg bg-muted/50 dark:bg-muted/20"
+                className="flex items-center gap-3 p-2 rounded-[var(--semantic-radius-input)] bg-muted/50 dark:bg-muted/20"
               >
                 <ProtocolIconBadge protocol={client.protocol} variant="sm" />
                 <div className="flex-1 min-w-0">

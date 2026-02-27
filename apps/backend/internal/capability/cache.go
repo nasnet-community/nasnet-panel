@@ -2,6 +2,7 @@ package capability
 
 import (
 	"context"
+	"fmt"
 	"sync"
 	"time"
 )
@@ -182,12 +183,12 @@ func (s *Service) Invalidate(routerID string) {
 func (s *Service) detectAndCache(ctx context.Context, routerID string, portGetter func(string) (RouterPort, error)) (*Capabilities, error) {
 	port, err := portGetter(routerID)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("capability cache: %w", err)
 	}
 
 	caps, err := s.detector.Detect(ctx, port)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("capability detection failed: %w", err)
 	}
 
 	s.cache.Set(routerID, caps)

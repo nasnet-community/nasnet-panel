@@ -30,7 +30,11 @@ func MakeRouterRequest(req *RouterProxyRequest, useHTTPS bool, logger *zap.Logge
 	logger.Debug("container to router request", zap.String("routerIP", req.RouterIP), zap.String("url", url))
 
 	portStr := map[bool]string{true: "443", false: "80"}[useHTTPS]
-	if conn, err := net.DialTimeout("tcp", req.RouterIP+":"+portStr, 5*time.Second); err == nil {
+	dialCtx, dialCancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer dialCancel()
+
+	dialer := &net.Dialer{}
+	if conn, err := dialer.DialContext(dialCtx, "tcp", req.RouterIP+":"+portStr); err == nil {
 		conn.Close()
 		logger.Debug("TCP connection to router successful", zap.String("routerIP", req.RouterIP))
 	} else {
@@ -79,7 +83,7 @@ func MakeRouterRequest(req *RouterProxyRequest, useHTTPS bool, logger *zap.Logge
 	logger.Debug("proxy request", zap.String("method", httpReq.Method), zap.String("url", url))
 
 	start := time.Now()
-	resp, err := client.Do(httpReq)
+	resp, err := client.Do(httpReq) //nolint:gosec // G704: URL is constructed from trusted configuration
 	elapsed := time.Since(start)
 
 	if err != nil { //nolint:nestif // error handling flow

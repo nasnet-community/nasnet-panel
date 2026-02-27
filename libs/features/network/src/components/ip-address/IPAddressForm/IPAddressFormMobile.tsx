@@ -123,7 +123,7 @@ function IPAddressFormMobileComponent(props: IPAddressFormProps) {
 
           {/* Subnet Calculations */}
           {subnetCalculations && !hasConflict && (
-            <Card className="bg-muted/50">
+            <Card className="bg-background border-border">
               <CardHeader className="pb-component-sm">
                 <CardTitle className="text-sm flex items-center gap-component-sm">
                   <CheckCircle className="h-4 w-4 text-success" />
@@ -133,23 +133,23 @@ function IPAddressFormMobileComponent(props: IPAddressFormProps) {
               <CardContent className="space-y-component-sm text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Network:</span>
-                  <code className="text-xs font-mono">{subnetCalculations.networkAddress}</code>
+                  <code className="text-xs font-mono text-foreground">{subnetCalculations.networkAddress}</code>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Broadcast:</span>
-                  <code className="text-xs font-mono">{subnetCalculations.broadcastAddress}</code>
+                  <code className="text-xs font-mono text-foreground">{subnetCalculations.broadcastAddress}</code>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Mask:</span>
-                  <code className="text-xs font-mono">{subnetCalculations.subnetMask}</code>
+                  <code className="text-xs font-mono text-foreground">{subnetCalculations.subnetMask}</code>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Hosts:</span>
-                  <span className="font-mono">{subnetCalculations.usableHostCount}</span>
+                  <span className="font-mono text-foreground">{subnetCalculations.usableHostCount}</span>
                 </div>
                 <div className="pt-component-sm">
                   <div className="text-muted-foreground mb-1">Range:</div>
-                  <code className="text-xs font-mono block">
+                  <code className="text-xs font-mono text-foreground block">
                     {subnetCalculations.firstUsableHost} -{' '}
                     {subnetCalculations.lastUsableHost}
                   </code>
@@ -226,7 +226,7 @@ function IPAddressFormMobileComponent(props: IPAddressFormProps) {
             control={form.control as any}
             name="disabled"
             render={({ field }) => (
-              <FormItem className="flex flex-row items-center justify-between rounded-[var(--semantic-radius-card)] border p-component-sm">
+              <FormItem className="flex flex-row items-center justify-between rounded-[var(--semantic-radius-card)] border border-border bg-card p-component-sm">
                 <div className="space-y-0.5">
                   <FormLabel>Disabled</FormLabel>
                   <FormDescription>

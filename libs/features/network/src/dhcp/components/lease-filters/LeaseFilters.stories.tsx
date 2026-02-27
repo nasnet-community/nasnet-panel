@@ -35,7 +35,7 @@ const meta: Meta<typeof LeaseFilters> = {
   },
   decorators: [
     (Story) => (
-      <div className="p-6 max-w-2xl">
+      <div className="p-component-lg max-w-2xl">
         <Story />
       </div>
     ),
@@ -96,9 +96,9 @@ export const WideLayout: Story = {
     servers: multipleServers,
   },
   decorators: [
-    (Story) => (
-      <div className="p-6 w-full max-w-4xl border rounded-lg bg-card">
-        <h3 className="text-sm font-semibold mb-4 text-foreground">
+    (Story: React.ComponentType) => (
+      <div className="p-component-lg w-full max-w-4xl border rounded-lg bg-card">
+        <h3 className="text-sm font-semibold mb-component-md text-foreground">
           DHCP Lease Filters
         </h3>
         <Story />
@@ -117,8 +117,8 @@ export const CompactCard: Story = {
     className: 'gap-2',
   },
   decorators: [
-    (Story) => (
-      <div className="p-4 w-80 border rounded-lg bg-card shadow-sm">
+    (Story: React.ComponentType) => (
+      <div className="p-component-sm w-80 border rounded-lg bg-card shadow-sm">
         <Story />
       </div>
     ),

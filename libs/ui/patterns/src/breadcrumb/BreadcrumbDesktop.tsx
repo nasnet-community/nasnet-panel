@@ -48,60 +48,60 @@ const BreadcrumbDesktop = React.memo(function BreadcrumbDesktop({
     <nav
       aria-label="Breadcrumb"
       dir={dir}
-      className={cn('flex items-center', className)}
+      className={cn('text-muted-foreground flex items-center gap-1.5 text-sm', className)}
     >
-      <ol className="flex items-center gap-inlineGap text-sm">
+      <ol className="flex items-center gap-1.5">
         {segments.map((segment, index) => (
-          <li key={segment.key} className="flex items-center">
+          <li
+            key={segment.key}
+            className="flex items-center"
+          >
             {/* Separator (except first item) */}
             {index > 0 && (
               <Icon
                 icon={SeparatorIcon}
-                className="mx-1 h-4 w-4 text-muted-foreground"
+                className="text-muted-foreground/50 h-4 w-4"
                 aria-hidden="true"
               />
             )}
 
             {/* Segment */}
-            {segment.isCurrent ? (
-              // Current page (not clickable)
-              <span
-                aria-current="page"
-                className="font-medium text-foreground"
-              >
-                {showHomeIcon && index === 0 ? (
-                  <span className="flex items-center gap-1.5">
-                    <Icon
-                      icon={Home}
-                      className="h-4 w-4"
-                      aria-hidden="true"
-                    />
-                    <span className="sr-only">{segment.label}</span>
-                  </span>
-                ) : (
-                  segment.label
-                )}
-              </span>
-            ) : (
-              // Clickable link
-              <Link
-                to={segment.path}
-                className="rounded px-2 -mx-2 h-9 flex items-center text-muted-foreground transition-colors hover:text-foreground hover:bg-accent focus:outline-none focus:ring-2 focus:ring-ring"
-              >
-                {showHomeIcon && index === 0 ? (
-                  <span className="flex items-center gap-1.5">
-                    <Icon
-                      icon={Home}
-                      className="h-4 w-4"
-                      aria-hidden="true"
-                    />
-                    <span className="sr-only">{segment.label}</span>
-                  </span>
-                ) : (
-                  segment.label
-                )}
-              </Link>
-            )}
+            {
+              segment.isCurrent ?
+                // Current page (not clickable)
+                <span
+                  aria-current="page"
+                  className="text-foreground font-medium"
+                >
+                  {showHomeIcon && index === 0 ?
+                    <span className="flex items-center gap-1.5">
+                      <Icon
+                        icon={Home}
+                        className="h-4 w-4"
+                        aria-hidden="true"
+                      />
+                      <span className="sr-only">{segment.label}</span>
+                    </span>
+                  : segment.label}
+                </span>
+                // Clickable link
+              : <Link
+                  to={segment.path}
+                  className="text-muted-foreground hover:text-foreground focus-visible:ring-ring flex cursor-pointer items-center rounded-sm px-2 transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2"
+                >
+                  {showHomeIcon && index === 0 ?
+                    <span className="flex items-center gap-1.5">
+                      <Icon
+                        icon={Home}
+                        className="h-4 w-4"
+                        aria-hidden="true"
+                      />
+                      <span className="sr-only">{segment.label}</span>
+                    </span>
+                  : segment.label}
+                </Link>
+
+            }
           </li>
         ))}
       </ol>

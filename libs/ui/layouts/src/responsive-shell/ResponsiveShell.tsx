@@ -281,17 +281,19 @@ export const ResponsiveShell = React.memo(
 
       // Render tablet/desktop layout
       return (
-        <AppShell
-          ref={ref}
-          header={header}
-          footer={footer}
-          banner={banner}
-          sidebar={enhancedSidebar}
-          sidebarCollapsed={effectiveCollapsed}
-          className={cn(motionClass, className)}
-        >
-          {children}
-        </AppShell>
+        <div className="bg-background min-h-screen">
+          <AppShell
+            ref={ref}
+            header={header}
+            footer={footer}
+            banner={banner}
+            sidebar={enhancedSidebar}
+            sidebarCollapsed={effectiveCollapsed}
+            className={cn(motionClass, className)}
+          >
+            {children}
+          </AppShell>
+        </div>
       );
     }
   )

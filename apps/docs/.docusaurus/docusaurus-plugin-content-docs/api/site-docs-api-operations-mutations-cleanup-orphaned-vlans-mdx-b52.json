@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/cleanup-orphaned-vlans",
+  "title": "cleanupOrphanedVLANs",
+  "description": "Clean up orphaned VLAN allocations for a router.",
+  "source": "@site/docs/api/operations/mutations/cleanup-orphaned-vlans.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/cleanup-orphaned-vlans",
+  "permalink": "/api/operations/mutations/cleanup-orphaned-vlans",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "cleanup-orphaned-vlans",
+    "title": "cleanupOrphanedVLANs"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "cleanupOrphanedPorts",
+    "permalink": "/api/operations/mutations/cleanup-orphaned-ports"
+  },
+  "next": {
+    "title": "configureBridgePortVlan",
+    "permalink": "/api/operations/mutations/configure-bridge-port-vlan"
+  }
+}

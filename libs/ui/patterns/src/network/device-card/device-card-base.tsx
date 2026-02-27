@@ -170,7 +170,12 @@ export function DeviceCardBase({
     return (
       <Card
         className={cn(
-          cardVariants({ interactive: !!onClick, selected: isSelected, compact: true }),
+          'group relative transition-all duration-200',
+          'bg-card border border-border rounded-[var(--semantic-radius-card)]',
+          !!onClick && 'cursor-pointer hover:bg-muted/50',
+          isSelected && 'bg-primary/10 border-primary/30',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
+          'p-component-sm',
           className
         )}
         role="article"
@@ -181,7 +186,7 @@ export function DeviceCardBase({
       >
         <div className="flex items-center gap-2">
           {/* Device icon */}
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted/50">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted border border-border">
             <Icon className="h-4 w-4 text-foreground" aria-hidden="true" />
           </div>
 
@@ -202,7 +207,13 @@ export function DeviceCardBase({
   return (
     <Card
       className={cn(
-        cardVariants({ interactive: !!onClick, selected: isSelected, compact: false }),
+        'group relative transition-all duration-200',
+        'bg-card border border-border rounded-[var(--semantic-radius-card)]',
+        'shadow-[var(--semantic-shadow-card)]',
+        !!onClick && 'cursor-pointer hover:shadow-lg transition-shadow duration-200',
+        isSelected && 'border-primary ring-2 ring-primary/20',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
+        'p-component-md',
         className
       )}
       role="article"
@@ -213,8 +224,8 @@ export function DeviceCardBase({
     >
       <div className="flex items-start gap-4">
         {/* Device icon container */}
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-muted/50">
-          <Icon className="h-6 w-6 text-foreground" aria-hidden="true" />
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted border border-border">
+          <Icon className="h-5 w-5 text-foreground" aria-hidden="true" />
         </div>
 
         {/* Content */}

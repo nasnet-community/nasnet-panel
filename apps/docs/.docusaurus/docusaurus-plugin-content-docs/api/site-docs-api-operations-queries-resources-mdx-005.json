@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/resources",
+  "title": "resources",
+  "description": "List resources for a router",
+  "source": "@site/docs/api/operations/queries/resources.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/resources",
+  "permalink": "/api/operations/queries/resources",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "resources",
+    "title": "resources"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "resource",
+    "permalink": "/api/operations/queries/resource"
+  },
+  "next": {
+    "title": "routeLookup",
+    "permalink": "/api/operations/queries/route-lookup"
+  }
+}

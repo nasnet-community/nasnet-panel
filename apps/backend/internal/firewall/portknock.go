@@ -299,22 +299,22 @@ func (s *PortKnockService) DetectSSHLockoutRisk(sequence PortKnockSequence) bool
 func (s *PortKnockService) GenerateKnockInstructions(sequence PortKnockSequence) string {
 	var instructions strings.Builder
 
-	instructions.WriteString(fmt.Sprintf("To access %s port %d:\n\n",
-		sequence.ProtectedProtocol, sequence.ProtectedPort))
+	fmt.Fprintf(&instructions, "To access %s port %d:\n\n",
+		sequence.ProtectedProtocol, sequence.ProtectedPort)
 
 	instructions.WriteString("Knock sequence:\n")
 	for i, kp := range sequence.KnockPorts {
-		instructions.WriteString(fmt.Sprintf("%d. Send %s packet to port %d\n",
-			i+1, strings.ToUpper(kp.Protocol), kp.Port))
+		fmt.Fprintf(&instructions, "%d. Send %s packet to port %d\n",
+			i+1, strings.ToUpper(kp.Protocol), kp.Port)
 	}
 
-	instructions.WriteString(fmt.Sprintf("\nTime between knocks: %s\n", sequence.KnockTimeout))
-	instructions.WriteString(fmt.Sprintf("Access granted for: %s\n\n", sequence.AccessTimeout))
+	fmt.Fprintf(&instructions, "\nTime between knocks: %s\n", sequence.KnockTimeout)
+	fmt.Fprintf(&instructions, "Access granted for: %s\n\n", sequence.AccessTimeout)
 
 	instructions.WriteString("Example using 'knock' command:\n")
 	instructions.WriteString("knock <router-ip>")
 	for _, kp := range sequence.KnockPorts {
-		instructions.WriteString(fmt.Sprintf(" %d", kp.Port))
+		fmt.Fprintf(&instructions, " %d", kp.Port)
 	}
 	instructions.WriteString("\n")
 

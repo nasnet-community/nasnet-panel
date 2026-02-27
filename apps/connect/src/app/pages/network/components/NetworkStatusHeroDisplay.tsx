@@ -68,7 +68,7 @@ export const NetworkStatusHeroDisplay = React.memo(function NetworkStatusHeroDis
   const cfg = STATUS_CONFIG[status];
 
   return (
-    <div className="flex flex-col gap-3 p-4 bg-card rounded-2xl border border-border">
+    <div className="flex flex-col gap-3 p-4 bg-card rounded-2xl border border-border shadow-md category-hero-networking">
       {/* Identity row */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -76,7 +76,7 @@ export const NetworkStatusHeroDisplay = React.memo(function NetworkStatusHeroDis
             N
           </div>
           <div>
-            <p className="text-foreground font-semibold text-sm leading-tight">{routerName}</p>
+            <p className="text-foreground font-semibold text-sm leading-tight font-display">{routerName}</p>
             {version && (
               <p className="text-muted-foreground text-xs">{t('status.routerOS')} {version}</p>
             )}
@@ -106,7 +106,7 @@ export const NetworkStatusHeroDisplay = React.memo(function NetworkStatusHeroDis
         {activeInterfaces !== undefined && totalInterfaces !== undefined && (
           <div>
             <p className="text-muted-foreground text-xs uppercase tracking-wide">{t('quickStats.interfaces')}</p>
-            <p className="text-foreground text-sm font-medium">
+            <p className="text-foreground text-sm font-medium font-mono">
               {activeInterfaces}
               <span className="text-muted-foreground">/{totalInterfaces}</span>
             </p>

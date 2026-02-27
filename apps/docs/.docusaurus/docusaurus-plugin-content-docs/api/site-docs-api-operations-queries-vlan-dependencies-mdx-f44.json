@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/vlan-dependencies",
+  "title": "vlanDependencies",
+  "description": "Get dependencies for a VLAN (IP addresses, DHCP, routes, etc.)",
+  "source": "@site/docs/api/operations/queries/vlan-dependencies.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/vlan-dependencies",
+  "permalink": "/api/operations/queries/vlan-dependencies",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "vlan-dependencies",
+    "title": "vlanDependencies"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "vlanAllocations",
+    "permalink": "/api/operations/queries/vlan-allocations"
+  },
+  "next": {
+    "title": "vlanPoolStatus",
+    "permalink": "/api/operations/queries/vlan-pool-status"
+  }
+}

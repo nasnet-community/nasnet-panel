@@ -97,21 +97,24 @@ export const UpdateIndicatorDesktop = React.memo<UpdateIndicatorProps>((props) =
             <PopoverTrigger asChild>
               <button
                 className={cn(
-                  'inline-flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
-                  'hover:bg-accent focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2',
-                  state.severityConfig?.bgColor,
+                  'inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium transition-colors',
+                  'rounded-lg hover:bg-muted cursor-pointer',
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
                   props.isUpdating && 'animate-pulse'
                 )}
                 aria-label={state.ariaLabel}
               >
                 <SeverityIcon className="h-4 w-4" aria-hidden="true" />
-                <span>
+                <span className="text-foreground">
                   {props.isUpdating
                     ? state.stageConfig?.label
                     : state.severityConfig?.label}
                 </span>
                 {!props.isUpdating && (
-                  <Badge variant="outline" className="ml-1">
+                  <Badge className={cn(
+                    'rounded-[var(--semantic-radius-badge)] px-2.5 py-0.5 text-xs font-medium ml-1',
+                    'bg-info-light text-info-dark'
+                  )}>
                     {state.latestVersionText}
                   </Badge>
                 )}

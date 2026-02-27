@@ -255,7 +255,7 @@ export const OverviewTab = React.memo(function OverviewTab() {
             <div className="flex justify-center mb-4">
               {getStatusIcon()}
             </div>
-            <h1 className="text-3xl md:text-4xl font-bold text-white">
+            <h1 className="text-3xl md:text-4xl font-bold font-display text-white">
               {statusMessage}
             </h1>
           </div>
@@ -276,7 +276,7 @@ export const OverviewTab = React.memo(function OverviewTab() {
 
           {/* Resource Monitor Section */}
           <div>
-            <h2 className="text-lg font-semibold mb-component-md px-component-sm">{t('overview.resourceMonitor')}</h2>
+            <h2 className="text-lg font-semibold font-display mb-component-md px-component-sm">{t('overview.resourceMonitor')}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-component-md">
               {/* System Information Card */}
               <SystemInfoCard
@@ -316,7 +316,7 @@ export const OverviewTab = React.memo(function OverviewTab() {
 
           {/* DHCP & Traffic Section */}
           <div>
-            <h2 className="text-lg font-semibold mb-component-md px-component-sm">{t('overview.networkActivity')}</h2>
+            <h2 className="text-lg font-semibold font-display mb-component-md px-component-sm">{t('overview.networkActivity')}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-component-md">
               {/* DHCP Summary */}
               <DHCPSummaryCard
@@ -338,7 +338,7 @@ export const OverviewTab = React.memo(function OverviewTab() {
 
           {/* VPN Clients Section */}
           <div>
-            <h2 className="text-lg font-semibold mb-component-md px-component-sm">{t('overview.vpnStatus')}</h2>
+            <h2 className="text-lg font-semibold font-display mb-component-md px-component-sm">{t('overview.vpnStatus')}</h2>
             <VPNClientsSummary
               connectedCount={vpnConnectedCount}
               clients={connectedVpnClients}
@@ -350,7 +350,7 @@ export const OverviewTab = React.memo(function OverviewTab() {
 
           {/* Hardware Details Section */}
           <div className="pb-component-lg">
-            <h2 className="text-lg font-semibold mb-component-md px-component-sm">{t('overview.hardware')}</h2>
+            <h2 className="text-lg font-semibold font-display mb-component-md px-component-sm">{t('overview.hardware')}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-component-md">
               <HardwareCard
                 data={hardwareData}

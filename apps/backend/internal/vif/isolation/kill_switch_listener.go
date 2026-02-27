@@ -54,7 +54,10 @@ func NewKillSwitchListener(
 // Start begins listening to health events.
 func (l *KillSwitchListener) Start() error {
 	// Subscribe to health changed events using EventHandler pattern
-	return l.eventBus.Subscribe(events.EventTypeHealthChanged, l.handleHealthEvent)
+	if err := l.eventBus.Subscribe(events.EventTypeHealthChanged, l.handleHealthEvent); err != nil {
+		return fmt.Errorf("kill switch listener: %w", err)
+	}
+	return nil
 }
 
 // handleHealthEvent processes a single health event and triggers kill switch actions.

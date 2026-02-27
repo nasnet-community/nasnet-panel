@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/device-routing-event",
+  "title": "DeviceRoutingEvent",
+  "description": "Device routing change event for subscriptions.",
+  "source": "@site/docs/api/types/objects/device-routing-event.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/device-routing-event",
+  "permalink": "/api/types/objects/device-routing-event",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "device-routing-event",
+    "title": "DeviceRoutingEvent"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "DeprecateResourcePayload",
+    "permalink": "/api/types/objects/deprecate-resource-payload"
+  },
+  "next": {
+    "title": "DeviceRoutingMatrixStats",
+    "permalink": "/api/types/objects/device-routing-matrix-stats"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/route",
+  "title": "route",
+  "description": "Get a specific route by ID",
+  "source": "@site/docs/api/operations/queries/route.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/route",
+  "permalink": "/api/operations/queries/route",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "route",
+    "title": "route"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "routeLookup",
+    "permalink": "/api/operations/queries/route-lookup"
+  },
+  "next": {
+    "title": "routerCapabilities",
+    "permalink": "/api/operations/queries/router-capabilities"
+  }
+}

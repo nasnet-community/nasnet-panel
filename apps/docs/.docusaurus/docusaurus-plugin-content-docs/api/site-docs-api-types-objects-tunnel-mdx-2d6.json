@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/tunnel",
+  "title": "Tunnel",
+  "description": "A network tunnel interface for connecting remote networks",
+  "source": "@site/docs/api/types/objects/tunnel.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/tunnel",
+  "permalink": "/api/types/objects/tunnel",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "tunnel",
+    "title": "Tunnel"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "TunnelTestResult",
+    "permalink": "/api/types/objects/tunnel-test-result"
+  },
+  "next": {
+    "title": "UpdateChangeSetItemPayload",
+    "permalink": "/api/types/objects/update-change-set-item-payload"
+  }
+}

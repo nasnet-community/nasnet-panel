@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/service-instance-payload",
+  "title": "ServiceInstancePayload",
+  "description": "Payload for service instance mutations.",
+  "source": "@site/docs/api/types/objects/service-instance-payload.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/service-instance-payload",
+  "permalink": "/api/types/objects/service-instance-payload",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "service-instance-payload",
+    "title": "ServiceInstancePayload"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ServiceInstanceHealth",
+    "permalink": "/api/types/objects/service-instance-health"
+  },
+  "next": {
+    "title": "ServiceInstance",
+    "permalink": "/api/types/objects/service-instance"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/configure-external-storage",
+  "title": "configureExternalStorage",
+  "description": "Configure external storage path for service binaries.",
+  "source": "@site/docs/api/operations/mutations/configure-external-storage.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/configure-external-storage",
+  "permalink": "/api/operations/mutations/configure-external-storage",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "configure-external-storage",
+    "title": "configureExternalStorage"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "configureDhcpWAN",
+    "permalink": "/api/operations/mutations/configure-dhcp-wan"
+  },
+  "next": {
+    "title": "configureHealthCheck",
+    "permalink": "/api/operations/mutations/configure-health-check"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/verification-event",
+  "title": "VerificationEvent",
+  "description": "Verification event for subscriptions.",
+  "source": "@site/docs/api/types/objects/verification-event.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/verification-event",
+  "permalink": "/api/types/objects/verification-event",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "verification-event",
+    "title": "VerificationEvent"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ValidationResult",
+    "permalink": "/api/types/objects/validation-result"
+  },
+  "next": {
+    "title": "VIFGuidanceStep",
+    "permalink": "/api/types/objects/vifguidance-step"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/acknowledge-alert",
+  "title": "acknowledgeAlert",
+  "description": "Acknowledge a single alert",
+  "source": "@site/docs/api/operations/mutations/acknowledge-alert.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/acknowledge-alert",
+  "permalink": "/api/operations/mutations/acknowledge-alert",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "acknowledge-alert",
+    "title": "acknowledgeAlert"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "Mutations",
+    "permalink": "/category/mutations"
+  },
+  "next": {
+    "title": "acknowledgeAlerts",
+    "permalink": "/api/operations/mutations/acknowledge-alerts"
+  }
+}

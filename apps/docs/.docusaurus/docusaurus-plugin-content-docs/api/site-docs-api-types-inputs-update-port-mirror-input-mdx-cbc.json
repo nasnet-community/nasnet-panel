@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/update-port-mirror-input",
+  "title": "UpdatePortMirrorInput",
+  "description": "Input for updating an existing port mirror configuration",
+  "source": "@site/docs/api/types/inputs/update-port-mirror-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/update-port-mirror-input",
+  "permalink": "/api/types/inputs/update-port-mirror-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "update-port-mirror-input",
+    "title": "UpdatePortMirrorInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "UpdateNotificationChannelConfigInput",
+    "permalink": "/api/types/inputs/update-notification-channel-config-input"
+  },
+  "next": {
+    "title": "UpdateResourceInput",
+    "permalink": "/api/types/inputs/update-resource-input"
+  }
+}

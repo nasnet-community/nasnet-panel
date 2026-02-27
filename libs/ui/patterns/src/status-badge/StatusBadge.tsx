@@ -20,24 +20,24 @@ import type { LeaseStatus, DHCPClientStatus } from '@nasnet/core/types';
 import { cn } from '@nasnet/ui/primitives';
 
 const badgeVariants = cva(
-  'inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ring-1 ring-inset transition-colors',
+  'inline-flex items-center gap-1.5 rounded-[var(--semantic-radius-badge)] px-2.5 py-0.5 text-xs font-medium transition-colors duration-150',
   {
     variants: {
       variant: {
-        // Lease statuses
-        bound: 'bg-success/10 text-success ring-success/20',
-        waiting: 'bg-warning/10 text-warning ring-warning/20',
-        offered: 'bg-info/10 text-info ring-info/20',
-        busy: 'bg-error/10 text-error ring-error/20',
+        // Lease statuses (online/bound)
+        bound: 'bg-success-light text-success-dark dark:bg-green-900/20 dark:text-green-400',
+        waiting: 'bg-warning-light text-warning-dark dark:bg-amber-900/20 dark:text-amber-400',
+        offered: 'bg-info-light text-info-dark dark:bg-sky-900/20 dark:text-sky-400',
+        busy: 'bg-error-light text-error-dark dark:bg-red-900/20 dark:text-red-400',
 
         // Client statuses
-        searching: 'bg-warning/10 text-warning ring-warning/20',
-        requesting: 'bg-info/10 text-info ring-info/20',
-        stopped: 'bg-muted text-muted-foreground ring-border',
+        searching: 'bg-warning-light text-warning-dark dark:bg-amber-900/20 dark:text-amber-400',
+        requesting: 'bg-info-light text-info-dark dark:bg-sky-900/20 dark:text-sky-400',
+        stopped: 'bg-muted text-muted-foreground',
 
         // Generic
-        static: 'bg-accent text-accent-foreground ring-border',
-        default: 'bg-muted text-muted-foreground ring-border',
+        static: 'bg-muted text-muted-foreground',
+        default: 'bg-muted text-muted-foreground',
       },
     },
     defaultVariants: {
@@ -56,15 +56,41 @@ export interface StatusBadgeProps
   status?: LeaseStatus | DHCPClientStatus | 'static';
   /** Optional custom label (overrides default status label) */
   label?: string;
+  /** Show animated dot indicator (for active/online states) */
+  showDot?: boolean;
 }
 
 const StatusBadgeBase = React.forwardRef<HTMLSpanElement, StatusBadgeProps>(
-  ({ className, status, variant, label, ...props }, ref) => {
+  ({ className, status, variant, label, showDot = false, ...props }, ref) => {
     // Map status to variant if status is provided
     const badgeVariant = status || variant || 'default';
 
     // Default label based on status
     const displayLabel = label || (status ? formatStatusLabel(status) : '');
+
+    // Determine dot color based on status
+    const getDotColor = (st: string) => {
+      switch (st) {
+        case 'bound':
+          return 'bg-success dark:bg-green-400';
+        case 'waiting':
+          return 'bg-warning dark:bg-amber-400';
+        case 'offered':
+          return 'bg-info dark:bg-sky-400';
+        case 'busy':
+          return 'bg-error dark:bg-red-400';
+        case 'searching':
+          return 'bg-warning dark:bg-amber-400';
+        case 'requesting':
+          return 'bg-info dark:bg-sky-400';
+        case 'stopped':
+          return 'bg-muted-foreground';
+        case 'static':
+          return 'bg-muted-foreground';
+        default:
+          return 'bg-muted-foreground';
+      }
+    };
 
     return (
       <span
@@ -74,6 +100,18 @@ const StatusBadgeBase = React.forwardRef<HTMLSpanElement, StatusBadgeProps>(
         className={cn(badgeVariants({ variant: badgeVariant as any }), className)}
         {...props}
       >
+        {showDot && (
+          <span
+            className={cn(
+              'h-2 w-2 rounded-full flex-shrink-0',
+              getDotColor(badgeVariant as string),
+              ['bound', 'waiting', 'offered', 'searching', 'requesting'].includes(badgeVariant as string)
+                ? 'animate-pulse'
+                : ''
+            )}
+            aria-hidden="true"
+          />
+        )}
         {displayLabel}
       </span>
     );

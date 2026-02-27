@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/knock-port",
+  "title": "KnockPort",
+  "description": "Single knock port in sequence.",
+  "source": "@site/docs/api/types/objects/knock-port.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/knock-port",
+  "permalink": "/api/types/objects/knock-port",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "knock-port",
+    "title": "KnockPort"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "KillSwitchStatus",
+    "permalink": "/api/types/objects/kill-switch-status"
+  },
+  "next": {
+    "title": "L2TPClientConfig",
+    "permalink": "/api/types/objects/l2-tpclient-config"
+  }
+}

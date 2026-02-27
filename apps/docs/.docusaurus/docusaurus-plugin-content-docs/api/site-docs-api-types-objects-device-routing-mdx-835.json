@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/device-routing",
+  "title": "DeviceRouting",
+  "description": "Device routing assignment.",
+  "source": "@site/docs/api/types/objects/device-routing.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/device-routing",
+  "permalink": "/api/types/objects/device-routing",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "device-routing",
+    "title": "DeviceRouting"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "DeviceRoutingMatrix",
+    "permalink": "/api/types/objects/device-routing-matrix"
+  },
+  "next": {
+    "title": "DeviceTrafficBreakdown",
+    "permalink": "/api/types/objects/device-traffic-breakdown"
+  }
+}

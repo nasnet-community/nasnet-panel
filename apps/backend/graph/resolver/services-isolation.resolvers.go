@@ -9,7 +9,7 @@ import (
 	"backend/generated/ent"
 	"backend/generated/ent/serviceinstance"
 	"backend/graph/model"
-	"backend/internal/errors"
+	"backend/internal/apperrors"
 	"context"
 	"time"
 )
@@ -17,25 +17,25 @@ import (
 // InstanceIsolation is the resolver for the instanceIsolation query field.
 // Returns complete isolation status including violations and resource limits.
 func (r *queryResolver) InstanceIsolation(ctx context.Context, routerID string, instanceID string) (*model.IsolationStatus, error) {
-	if r.Resolver.log != nil {
-		r.Resolver.log.Infow("InstanceIsolation query called",
+	if r.log != nil {
+		r.log.Infow("InstanceIsolation query called",
 			"routerID", routerID,
 			"instanceID", instanceID)
 	}
 
 	// Validate input
 	if routerID == "" {
-		return nil, errors.NewValidationError("routerID", routerID, "required")
+		return nil, apperrors.NewValidationError("routerID", routerID, "required")
 	}
 	if instanceID == "" {
-		return nil, errors.NewValidationError("instanceID", instanceID, "required")
+		return nil, apperrors.NewValidationError("instanceID", instanceID, "required")
 	}
 
 	// TODO: Add authorization check - verify user has permission to check isolation status
 
 	// Check if InstanceManager is available first (before dereferencing)
-	if r.Resolver.InstanceManager == nil {
-		return nil, errors.NewResourceError(errors.CodeResourceNotFound, "instance manager not configured", "manager", "instance")
+	if r.InstanceManager == nil {
+		return nil, apperrors.NewResourceError(apperrors.CodeResourceNotFound, "instance manager not configured", "manager", "instance")
 	}
 
 	// Load the service instance from database
@@ -45,14 +45,14 @@ func (r *queryResolver) InstanceIsolation(ctx context.Context, routerID string, 
 		Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return nil, errors.NewResourceError(errors.CodeResourceNotFound, "service instance not found", "instance", instanceID)
+			return nil, apperrors.NewResourceError(apperrors.CodeResourceNotFound, "service instance not found", "instance", instanceID)
 		}
-		if r.Resolver.log != nil {
-			r.Resolver.log.Errorw("failed to query service instance",
+		if r.log != nil {
+			r.log.Errorw("failed to query service instance",
 				"error", err,
 				"instanceID", instanceID)
 		}
-		return nil, errors.Wrap(err, errors.CodeCommandFailed, errors.CategoryProtocol, "failed to query service instance")
+		return nil, apperrors.Wrap(err, apperrors.CodeCommandFailed, apperrors.CategoryProtocol, "failed to query service instance")
 	}
 
 	// Initialize isolation status with empty violations
@@ -62,10 +62,10 @@ func (r *queryResolver) InstanceIsolation(ctx context.Context, routerID string, 
 	}
 
 	// Check if IsolationVerifier is available (safe null check after InstanceManager check)
-	isolationVerifier := r.Resolver.InstanceManager.IsolationVerifier()
+	isolationVerifier := r.InstanceManager.IsolationVerifier()
 	if isolationVerifier == nil {
-		if r.Resolver.log != nil {
-			r.Resolver.log.Infow("IsolationVerifier not available, returning empty status",
+		if r.log != nil {
+			r.log.Infow("IsolationVerifier not available, returning empty status",
 				"instanceID", instanceID)
 		}
 		// Return empty status with nil resource limits (verifier unavailable)
@@ -75,12 +75,12 @@ func (r *queryResolver) InstanceIsolation(ctx context.Context, routerID string, 
 	// Run isolation verification
 	report, err := isolationVerifier.VerifyPreStart(ctx, instance)
 	if err != nil {
-		if r.Resolver.log != nil {
-			r.Resolver.log.Errorw("failed to run isolation verification",
+		if r.log != nil {
+			r.log.Errorw("failed to run isolation verification",
 				"error", err,
 				"instanceID", instanceID)
 		}
-		return nil, errors.Wrap(err, errors.CodeCommandFailed, errors.CategoryProtocol, "failed to run isolation verification")
+		return nil, apperrors.Wrap(err, apperrors.CodeCommandFailed, apperrors.CategoryProtocol, "failed to run isolation verification")
 	}
 
 	// Convert violations to GraphQL model
@@ -97,7 +97,7 @@ func (r *queryResolver) InstanceIsolation(ctx context.Context, routerID string, 
 	isolationStatus.LastVerified = &now
 
 	// Get resource limits if ResourceLimiter is available
-	resourceLimiter := r.Resolver.InstanceManager.ResourceLimiter()
+	resourceLimiter := r.InstanceManager.ResourceLimiter()
 	if resourceLimiter != nil {
 		// TODO: Query actual cgroup limits from database or cgroup filesystem
 		// For MVP, use placeholder default. In production, retrieve from:
@@ -111,8 +111,8 @@ func (r *queryResolver) InstanceIsolation(ctx context.Context, routerID string, 
 		isolationStatus.ResourceLimits = resourceLimits
 	}
 
-	if r.Resolver.log != nil {
-		r.Resolver.log.Infow("isolation status retrieved",
+	if r.log != nil {
+		r.log.Infow("isolation status retrieved",
 			"instanceID", instanceID,
 			"violationCount", len(isolationStatus.Violations),
 			"passed", len(isolationStatus.Violations) == 0)

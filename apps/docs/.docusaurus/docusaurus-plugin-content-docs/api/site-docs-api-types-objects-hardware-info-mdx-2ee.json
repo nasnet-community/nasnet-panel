@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/hardware-info",
+  "title": "HardwareInfo",
+  "description": "Hardware information detected from router",
+  "source": "@site/docs/api/types/objects/hardware-info.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/hardware-info",
+  "permalink": "/api/types/objects/hardware-info",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "hardware-info",
+    "title": "HardwareInfo"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "GRETunnel",
+    "permalink": "/api/types/objects/gretunnel"
+  },
+  "next": {
+    "title": "HealthCheckResult",
+    "permalink": "/api/types/objects/health-check-result"
+  }
+}

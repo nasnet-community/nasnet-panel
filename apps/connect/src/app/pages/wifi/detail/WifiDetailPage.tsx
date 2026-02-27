@@ -107,7 +107,7 @@ export const WifiDetailPage = React.memo(function WifiDetailPage() {
         {/* Page header */}
         <div className="mb-component-lg">
           <h1 className="text-2xl font-display font-semibold text-foreground mb-component-sm">
-            {interfaceData.ssid || t('status.wirelessInterface')}
+            <span className="font-display font-semibold">{interfaceData.ssid || t('status.wirelessInterface')}</span>
           </h1>
           <p className="text-sm text-muted-foreground">
             {t('interfaces.detailedConfig', { name: interfaceData.name })}

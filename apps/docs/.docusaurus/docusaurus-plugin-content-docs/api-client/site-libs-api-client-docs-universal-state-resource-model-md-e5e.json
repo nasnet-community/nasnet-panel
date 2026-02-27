@@ -1,0 +1,28 @@
+{
+  "id": "universal-state-resource-model",
+  "title": "Universal State v2 Resource Model",
+  "description": "The Universal State v2 model is the core abstraction for every managed object in NasNetConnect.",
+  "source": "@site/../../libs/api-client/docs/universal-state-resource-model.md",
+  "sourceDirName": ".",
+  "slug": "/universal-state-resource-model",
+  "permalink": "/docs/api-client/universal-state-resource-model",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/api-client/docs/universal-state-resource-model.md",
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 7,
+  "frontMatter": {
+    "sidebar_position": 7,
+    "title": "Universal State v2 Resource Model"
+  },
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Offline-First Architecture",
+    "permalink": "/docs/api-client/offline-first"
+  },
+  "next": {
+    "title": "Change Set Pattern",
+    "permalink": "/docs/api-client/change-set-pattern"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/throttle-config",
+  "title": "ThrottleConfig",
+  "description": "Throttle configuration to prevent alert spam",
+  "source": "@site/docs/api/types/objects/throttle-config.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/throttle-config",
+  "permalink": "/api/types/objects/throttle-config",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "throttle-config",
+    "title": "ThrottleConfig"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "TestPortKnockResult",
+    "permalink": "/api/types/objects/test-port-knock-result"
+  },
+  "next": {
+    "title": "ThrottleGroupStatus",
+    "permalink": "/api/types/objects/throttle-group-status"
+  }
+}

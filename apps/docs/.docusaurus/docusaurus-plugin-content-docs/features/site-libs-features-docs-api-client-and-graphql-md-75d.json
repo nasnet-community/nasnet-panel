@@ -1,0 +1,24 @@
+{
+  "id": "api-client-and-graphql",
+  "title": "API Client and GraphQL",
+  "description": "This document covers the complete API client layer used by the libs/features/ modules to communicate with the NasNetConnect backend. The layer is built on Apollo Client 3 with a schema-first GraphQL design.",
+  "source": "@site/../../libs/features/docs/api-client-and-graphql.md",
+  "sourceDirName": ".",
+  "slug": "/api-client-and-graphql",
+  "permalink": "/docs/features/api-client-and-graphql",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/features/docs/api-client-and-graphql.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Introduction",
+    "permalink": "/docs/features/intro"
+  },
+  "next": {
+    "title": "Architecture Overview",
+    "permalink": "/docs/features/architecture-overview"
+  }
+}

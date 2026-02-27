@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/enable-port-mirror",
+  "title": "enablePortMirror",
+  "description": "Enable a port mirror configuration",
+  "source": "@site/docs/api/operations/mutations/enable-port-mirror.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/enable-port-mirror",
+  "permalink": "/api/operations/mutations/enable-port-mirror",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "enable-port-mirror",
+    "title": "enablePortMirror"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "enableInterface",
+    "permalink": "/api/operations/mutations/enable-interface"
+  },
+  "next": {
+    "title": "exportAlertRuleTemplate",
+    "permalink": "/api/operations/mutations/export-alert-rule-template"
+  }
+}

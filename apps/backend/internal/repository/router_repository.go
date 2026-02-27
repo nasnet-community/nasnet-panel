@@ -305,7 +305,11 @@ func (r *routerRepository) ListWithCapabilities(ctx context.Context, filter Rout
 	// Eager load secrets
 	query = query.WithSecrets()
 
-	return query.All(ctx)
+	result, err := query.All(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("list routers: %w", err)
+	}
+	return result, nil
 }
 
 // Delete removes a router and schedules cleanup of its router-{id}.db file.

@@ -111,6 +111,54 @@ func (_c *VirtualInterfaceCreate) SetNillableStatus(v *virtualinterface.Status) 
 	return _c
 }
 
+// SetRoutingMode sets the "routing_mode" field.
+func (_c *VirtualInterfaceCreate) SetRoutingMode(v virtualinterface.RoutingMode) *VirtualInterfaceCreate {
+	_c.mutation.SetRoutingMode(v)
+	return _c
+}
+
+// SetNillableRoutingMode sets the "routing_mode" field if the given value is not nil.
+func (_c *VirtualInterfaceCreate) SetNillableRoutingMode(v *virtualinterface.RoutingMode) *VirtualInterfaceCreate {
+	if v != nil {
+		_c.SetRoutingMode(*v)
+	}
+	return _c
+}
+
+// SetIngressVlanID sets the "ingress_vlan_id" field.
+func (_c *VirtualInterfaceCreate) SetIngressVlanID(v int) *VirtualInterfaceCreate {
+	_c.mutation.SetIngressVlanID(v)
+	return _c
+}
+
+// SetNillableIngressVlanID sets the "ingress_vlan_id" field if the given value is not nil.
+func (_c *VirtualInterfaceCreate) SetNillableIngressVlanID(v *int) *VirtualInterfaceCreate {
+	if v != nil {
+		_c.SetIngressVlanID(*v)
+	}
+	return _c
+}
+
+// SetEgressVlanIds sets the "egress_vlan_ids" field.
+func (_c *VirtualInterfaceCreate) SetEgressVlanIds(v []int) *VirtualInterfaceCreate {
+	_c.mutation.SetEgressVlanIds(v)
+	return _c
+}
+
+// SetContainerIP sets the "container_ip" field.
+func (_c *VirtualInterfaceCreate) SetContainerIP(v string) *VirtualInterfaceCreate {
+	_c.mutation.SetContainerIP(v)
+	return _c
+}
+
+// SetNillableContainerIP sets the "container_ip" field if the given value is not nil.
+func (_c *VirtualInterfaceCreate) SetNillableContainerIP(v *string) *VirtualInterfaceCreate {
+	if v != nil {
+		_c.SetContainerIP(*v)
+	}
+	return _c
+}
+
 // SetCreatedAt sets the "created_at" field.
 func (_c *VirtualInterfaceCreate) SetCreatedAt(v time.Time) *VirtualInterfaceCreate {
 	_c.mutation.SetCreatedAt(v)
@@ -220,6 +268,10 @@ func (_c *VirtualInterfaceCreate) defaults() {
 		v := virtualinterface.DefaultStatus
 		_c.mutation.SetStatus(v)
 	}
+	if _, ok := _c.mutation.RoutingMode(); !ok {
+		v := virtualinterface.DefaultRoutingMode
+		_c.mutation.SetRoutingMode(v)
+	}
 	if _, ok := _c.mutation.CreatedAt(); !ok {
 		v := virtualinterface.DefaultCreatedAt()
 		_c.mutation.SetCreatedAt(v)
@@ -305,6 +357,24 @@ func (_c *VirtualInterfaceCreate) check() error {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "VirtualInterface.status": %w`, err)}
 		}
 	}
+	if _, ok := _c.mutation.RoutingMode(); !ok {
+		return &ValidationError{Name: "routing_mode", err: errors.New(`ent: missing required field "VirtualInterface.routing_mode"`)}
+	}
+	if v, ok := _c.mutation.RoutingMode(); ok {
+		if err := virtualinterface.RoutingModeValidator(v); err != nil {
+			return &ValidationError{Name: "routing_mode", err: fmt.Errorf(`ent: validator failed for field "VirtualInterface.routing_mode": %w`, err)}
+		}
+	}
+	if v, ok := _c.mutation.IngressVlanID(); ok {
+		if err := virtualinterface.IngressVlanIDValidator(v); err != nil {
+			return &ValidationError{Name: "ingress_vlan_id", err: fmt.Errorf(`ent: validator failed for field "VirtualInterface.ingress_vlan_id": %w`, err)}
+		}
+	}
+	if v, ok := _c.mutation.ContainerIP(); ok {
+		if err := virtualinterface.ContainerIPValidator(v); err != nil {
+			return &ValidationError{Name: "container_ip", err: fmt.Errorf(`ent: validator failed for field "VirtualInterface.container_ip": %w`, err)}
+		}
+	}
 	if _, ok := _c.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "VirtualInterface.created_at"`)}
 	}
@@ -387,6 +457,22 @@ func (_c *VirtualInterfaceCreate) createSpec() (*VirtualInterface, *sqlgraph.Cre
 	if value, ok := _c.mutation.Status(); ok {
 		_spec.SetField(virtualinterface.FieldStatus, field.TypeEnum, value)
 		_node.Status = value
+	}
+	if value, ok := _c.mutation.RoutingMode(); ok {
+		_spec.SetField(virtualinterface.FieldRoutingMode, field.TypeEnum, value)
+		_node.RoutingMode = value
+	}
+	if value, ok := _c.mutation.IngressVlanID(); ok {
+		_spec.SetField(virtualinterface.FieldIngressVlanID, field.TypeInt, value)
+		_node.IngressVlanID = value
+	}
+	if value, ok := _c.mutation.EgressVlanIds(); ok {
+		_spec.SetField(virtualinterface.FieldEgressVlanIds, field.TypeJSON, value)
+		_node.EgressVlanIds = value
+	}
+	if value, ok := _c.mutation.ContainerIP(); ok {
+		_spec.SetField(virtualinterface.FieldContainerIP, field.TypeString, value)
+		_node.ContainerIP = value
 	}
 	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(virtualinterface.FieldCreatedAt, field.TypeTime, value)
@@ -603,6 +689,78 @@ func (u *VirtualInterfaceUpsert) UpdateStatus() *VirtualInterfaceUpsert {
 	return u
 }
 
+// SetRoutingMode sets the "routing_mode" field.
+func (u *VirtualInterfaceUpsert) SetRoutingMode(v virtualinterface.RoutingMode) *VirtualInterfaceUpsert {
+	u.Set(virtualinterface.FieldRoutingMode, v)
+	return u
+}
+
+// UpdateRoutingMode sets the "routing_mode" field to the value that was provided on create.
+func (u *VirtualInterfaceUpsert) UpdateRoutingMode() *VirtualInterfaceUpsert {
+	u.SetExcluded(virtualinterface.FieldRoutingMode)
+	return u
+}
+
+// SetIngressVlanID sets the "ingress_vlan_id" field.
+func (u *VirtualInterfaceUpsert) SetIngressVlanID(v int) *VirtualInterfaceUpsert {
+	u.Set(virtualinterface.FieldIngressVlanID, v)
+	return u
+}
+
+// UpdateIngressVlanID sets the "ingress_vlan_id" field to the value that was provided on create.
+func (u *VirtualInterfaceUpsert) UpdateIngressVlanID() *VirtualInterfaceUpsert {
+	u.SetExcluded(virtualinterface.FieldIngressVlanID)
+	return u
+}
+
+// AddIngressVlanID adds v to the "ingress_vlan_id" field.
+func (u *VirtualInterfaceUpsert) AddIngressVlanID(v int) *VirtualInterfaceUpsert {
+	u.Add(virtualinterface.FieldIngressVlanID, v)
+	return u
+}
+
+// ClearIngressVlanID clears the value of the "ingress_vlan_id" field.
+func (u *VirtualInterfaceUpsert) ClearIngressVlanID() *VirtualInterfaceUpsert {
+	u.SetNull(virtualinterface.FieldIngressVlanID)
+	return u
+}
+
+// SetEgressVlanIds sets the "egress_vlan_ids" field.
+func (u *VirtualInterfaceUpsert) SetEgressVlanIds(v []int) *VirtualInterfaceUpsert {
+	u.Set(virtualinterface.FieldEgressVlanIds, v)
+	return u
+}
+
+// UpdateEgressVlanIds sets the "egress_vlan_ids" field to the value that was provided on create.
+func (u *VirtualInterfaceUpsert) UpdateEgressVlanIds() *VirtualInterfaceUpsert {
+	u.SetExcluded(virtualinterface.FieldEgressVlanIds)
+	return u
+}
+
+// ClearEgressVlanIds clears the value of the "egress_vlan_ids" field.
+func (u *VirtualInterfaceUpsert) ClearEgressVlanIds() *VirtualInterfaceUpsert {
+	u.SetNull(virtualinterface.FieldEgressVlanIds)
+	return u
+}
+
+// SetContainerIP sets the "container_ip" field.
+func (u *VirtualInterfaceUpsert) SetContainerIP(v string) *VirtualInterfaceUpsert {
+	u.Set(virtualinterface.FieldContainerIP, v)
+	return u
+}
+
+// UpdateContainerIP sets the "container_ip" field to the value that was provided on create.
+func (u *VirtualInterfaceUpsert) UpdateContainerIP() *VirtualInterfaceUpsert {
+	u.SetExcluded(virtualinterface.FieldContainerIP)
+	return u
+}
+
+// ClearContainerIP clears the value of the "container_ip" field.
+func (u *VirtualInterfaceUpsert) ClearContainerIP() *VirtualInterfaceUpsert {
+	u.SetNull(virtualinterface.FieldContainerIP)
+	return u
+}
+
 // SetUpdatedAt sets the "updated_at" field.
 func (u *VirtualInterfaceUpsert) SetUpdatedAt(v time.Time) *VirtualInterfaceUpsert {
 	u.Set(virtualinterface.FieldUpdatedAt, v)
@@ -803,6 +961,90 @@ func (u *VirtualInterfaceUpsertOne) SetStatus(v virtualinterface.Status) *Virtua
 func (u *VirtualInterfaceUpsertOne) UpdateStatus() *VirtualInterfaceUpsertOne {
 	return u.Update(func(s *VirtualInterfaceUpsert) {
 		s.UpdateStatus()
+	})
+}
+
+// SetRoutingMode sets the "routing_mode" field.
+func (u *VirtualInterfaceUpsertOne) SetRoutingMode(v virtualinterface.RoutingMode) *VirtualInterfaceUpsertOne {
+	return u.Update(func(s *VirtualInterfaceUpsert) {
+		s.SetRoutingMode(v)
+	})
+}
+
+// UpdateRoutingMode sets the "routing_mode" field to the value that was provided on create.
+func (u *VirtualInterfaceUpsertOne) UpdateRoutingMode() *VirtualInterfaceUpsertOne {
+	return u.Update(func(s *VirtualInterfaceUpsert) {
+		s.UpdateRoutingMode()
+	})
+}
+
+// SetIngressVlanID sets the "ingress_vlan_id" field.
+func (u *VirtualInterfaceUpsertOne) SetIngressVlanID(v int) *VirtualInterfaceUpsertOne {
+	return u.Update(func(s *VirtualInterfaceUpsert) {
+		s.SetIngressVlanID(v)
+	})
+}
+
+// AddIngressVlanID adds v to the "ingress_vlan_id" field.
+func (u *VirtualInterfaceUpsertOne) AddIngressVlanID(v int) *VirtualInterfaceUpsertOne {
+	return u.Update(func(s *VirtualInterfaceUpsert) {
+		s.AddIngressVlanID(v)
+	})
+}
+
+// UpdateIngressVlanID sets the "ingress_vlan_id" field to the value that was provided on create.
+func (u *VirtualInterfaceUpsertOne) UpdateIngressVlanID() *VirtualInterfaceUpsertOne {
+	return u.Update(func(s *VirtualInterfaceUpsert) {
+		s.UpdateIngressVlanID()
+	})
+}
+
+// ClearIngressVlanID clears the value of the "ingress_vlan_id" field.
+func (u *VirtualInterfaceUpsertOne) ClearIngressVlanID() *VirtualInterfaceUpsertOne {
+	return u.Update(func(s *VirtualInterfaceUpsert) {
+		s.ClearIngressVlanID()
+	})
+}
+
+// SetEgressVlanIds sets the "egress_vlan_ids" field.
+func (u *VirtualInterfaceUpsertOne) SetEgressVlanIds(v []int) *VirtualInterfaceUpsertOne {
+	return u.Update(func(s *VirtualInterfaceUpsert) {
+		s.SetEgressVlanIds(v)
+	})
+}
+
+// UpdateEgressVlanIds sets the "egress_vlan_ids" field to the value that was provided on create.
+func (u *VirtualInterfaceUpsertOne) UpdateEgressVlanIds() *VirtualInterfaceUpsertOne {
+	return u.Update(func(s *VirtualInterfaceUpsert) {
+		s.UpdateEgressVlanIds()
+	})
+}
+
+// ClearEgressVlanIds clears the value of the "egress_vlan_ids" field.
+func (u *VirtualInterfaceUpsertOne) ClearEgressVlanIds() *VirtualInterfaceUpsertOne {
+	return u.Update(func(s *VirtualInterfaceUpsert) {
+		s.ClearEgressVlanIds()
+	})
+}
+
+// SetContainerIP sets the "container_ip" field.
+func (u *VirtualInterfaceUpsertOne) SetContainerIP(v string) *VirtualInterfaceUpsertOne {
+	return u.Update(func(s *VirtualInterfaceUpsert) {
+		s.SetContainerIP(v)
+	})
+}
+
+// UpdateContainerIP sets the "container_ip" field to the value that was provided on create.
+func (u *VirtualInterfaceUpsertOne) UpdateContainerIP() *VirtualInterfaceUpsertOne {
+	return u.Update(func(s *VirtualInterfaceUpsert) {
+		s.UpdateContainerIP()
+	})
+}
+
+// ClearContainerIP clears the value of the "container_ip" field.
+func (u *VirtualInterfaceUpsertOne) ClearContainerIP() *VirtualInterfaceUpsertOne {
+	return u.Update(func(s *VirtualInterfaceUpsert) {
+		s.ClearContainerIP()
 	})
 }
 
@@ -1175,6 +1417,90 @@ func (u *VirtualInterfaceUpsertBulk) SetStatus(v virtualinterface.Status) *Virtu
 func (u *VirtualInterfaceUpsertBulk) UpdateStatus() *VirtualInterfaceUpsertBulk {
 	return u.Update(func(s *VirtualInterfaceUpsert) {
 		s.UpdateStatus()
+	})
+}
+
+// SetRoutingMode sets the "routing_mode" field.
+func (u *VirtualInterfaceUpsertBulk) SetRoutingMode(v virtualinterface.RoutingMode) *VirtualInterfaceUpsertBulk {
+	return u.Update(func(s *VirtualInterfaceUpsert) {
+		s.SetRoutingMode(v)
+	})
+}
+
+// UpdateRoutingMode sets the "routing_mode" field to the value that was provided on create.
+func (u *VirtualInterfaceUpsertBulk) UpdateRoutingMode() *VirtualInterfaceUpsertBulk {
+	return u.Update(func(s *VirtualInterfaceUpsert) {
+		s.UpdateRoutingMode()
+	})
+}
+
+// SetIngressVlanID sets the "ingress_vlan_id" field.
+func (u *VirtualInterfaceUpsertBulk) SetIngressVlanID(v int) *VirtualInterfaceUpsertBulk {
+	return u.Update(func(s *VirtualInterfaceUpsert) {
+		s.SetIngressVlanID(v)
+	})
+}
+
+// AddIngressVlanID adds v to the "ingress_vlan_id" field.
+func (u *VirtualInterfaceUpsertBulk) AddIngressVlanID(v int) *VirtualInterfaceUpsertBulk {
+	return u.Update(func(s *VirtualInterfaceUpsert) {
+		s.AddIngressVlanID(v)
+	})
+}
+
+// UpdateIngressVlanID sets the "ingress_vlan_id" field to the value that was provided on create.
+func (u *VirtualInterfaceUpsertBulk) UpdateIngressVlanID() *VirtualInterfaceUpsertBulk {
+	return u.Update(func(s *VirtualInterfaceUpsert) {
+		s.UpdateIngressVlanID()
+	})
+}
+
+// ClearIngressVlanID clears the value of the "ingress_vlan_id" field.
+func (u *VirtualInterfaceUpsertBulk) ClearIngressVlanID() *VirtualInterfaceUpsertBulk {
+	return u.Update(func(s *VirtualInterfaceUpsert) {
+		s.ClearIngressVlanID()
+	})
+}
+
+// SetEgressVlanIds sets the "egress_vlan_ids" field.
+func (u *VirtualInterfaceUpsertBulk) SetEgressVlanIds(v []int) *VirtualInterfaceUpsertBulk {
+	return u.Update(func(s *VirtualInterfaceUpsert) {
+		s.SetEgressVlanIds(v)
+	})
+}
+
+// UpdateEgressVlanIds sets the "egress_vlan_ids" field to the value that was provided on create.
+func (u *VirtualInterfaceUpsertBulk) UpdateEgressVlanIds() *VirtualInterfaceUpsertBulk {
+	return u.Update(func(s *VirtualInterfaceUpsert) {
+		s.UpdateEgressVlanIds()
+	})
+}
+
+// ClearEgressVlanIds clears the value of the "egress_vlan_ids" field.
+func (u *VirtualInterfaceUpsertBulk) ClearEgressVlanIds() *VirtualInterfaceUpsertBulk {
+	return u.Update(func(s *VirtualInterfaceUpsert) {
+		s.ClearEgressVlanIds()
+	})
+}
+
+// SetContainerIP sets the "container_ip" field.
+func (u *VirtualInterfaceUpsertBulk) SetContainerIP(v string) *VirtualInterfaceUpsertBulk {
+	return u.Update(func(s *VirtualInterfaceUpsert) {
+		s.SetContainerIP(v)
+	})
+}
+
+// UpdateContainerIP sets the "container_ip" field to the value that was provided on create.
+func (u *VirtualInterfaceUpsertBulk) UpdateContainerIP() *VirtualInterfaceUpsertBulk {
+	return u.Update(func(s *VirtualInterfaceUpsert) {
+		s.UpdateContainerIP()
+	})
+}
+
+// ClearContainerIP clears the value of the "container_ip" field.
+func (u *VirtualInterfaceUpsertBulk) ClearContainerIP() *VirtualInterfaceUpsertBulk {
+	return u.Update(func(s *VirtualInterfaceUpsert) {
+		s.ClearContainerIP()
 	})
 }
 

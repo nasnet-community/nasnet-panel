@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/apply-resource-payload",
+  "title": "ApplyResourcePayload",
+  "description": "No description",
+  "source": "@site/docs/api/types/objects/apply-resource-payload.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/apply-resource-payload",
+  "permalink": "/api/types/objects/apply-resource-payload",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "apply-resource-payload",
+    "title": "ApplyResourcePayload"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ApplyProvisioningSessionPayload",
+    "permalink": "/api/types/objects/apply-provisioning-session-payload"
+  },
+  "next": {
+    "title": "ApplyServiceImportPayload",
+    "permalink": "/api/types/objects/apply-service-import-payload"
+  }
+}

@@ -221,9 +221,9 @@ export const TabNavigation = React.memo(function TabNavigation() {
                 className={cn(
                   'flex items-center gap-2 px-4 py-3 text-sm font-medium transition-all duration-200',
                   'border-b-2 border-transparent focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-                  'hover:text-primary',
+                  'hover:text-secondary',
                   isActive
-                    ? 'border-primary text-primary'
+                    ? 'border-secondary text-secondary font-semibold'
                     : 'text-muted-foreground'
                 )}
               >
@@ -261,7 +261,7 @@ export const TabNavigation = React.memo(function TabNavigation() {
                   'focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-h-[44px]',
                   'active:scale-95',
                   isActive
-                    ? 'text-primary'
+                    ? 'text-secondary font-semibold'
                     : 'text-muted-foreground'
                 )}
               >

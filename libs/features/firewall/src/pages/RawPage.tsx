@@ -74,13 +74,13 @@ const EmptyState = memo(function EmptyState({ chain, onAddRule, onBogonFilter }:
             : t('raw.emptyStates.noRules.description', 'RAW rules process packets before connection tracking for performance optimization.')}
         </CardDescription>
       </CardHeader>
-      <CardContent className="flex flex-col sm:flex-row gap-2 justify-center">
+      <CardContent className="flex flex-col sm:flex-row gap-component-sm justify-center">
         <Button onClick={onAddRule} aria-label={t('raw.buttons.addRule', 'Add RAW Rule')}>
-          <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
+          <Plus className="h-4 w-4 mr-component-sm" aria-hidden="true" />
           {t('raw.buttons.addRule', 'Add RAW Rule')}
         </Button>
         <Button variant="outline" onClick={onBogonFilter} aria-label={t('raw.buttons.bogonFilter', 'Bogon Filter')}>
-          <Shield className="h-4 w-4 mr-2" aria-hidden="true" />
+          <Shield className="h-4 w-4 mr-component-sm" aria-hidden="true" />
           {t('raw.buttons.bogonFilter', 'Bogon Filter')}
         </Button>
       </CardContent>
@@ -105,7 +105,7 @@ const PerformanceExplanation = memo(function PerformanceExplanation() {
       onOpenChange={setPerformanceSectionExpanded}
     >
       <Card className="mt-component-md">
-        <CardHeader className="pb-3">
+        <CardHeader className="pb-component-sm">
           <CollapsibleTrigger asChild>
             <button
               className="flex items-center justify-between w-full text-left hover:opacity-80 transition-opacity rounded-[var(--semantic-radius-button)] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
@@ -141,7 +141,7 @@ const PerformanceExplanation = memo(function PerformanceExplanation() {
 
             {/* Benefits */}
             <div>
-              <h4 className="font-semibold text-sm mb-2 flex items-center gap-component-sm font-display">
+              <h4 className="font-semibold text-sm mb-component-sm flex items-center gap-component-sm font-display">
                 <Info className="h-4 w-4 text-success" aria-hidden="true" />
                 {t('raw.performance.benefits.title', 'Key Benefits')}
               </h4>
@@ -154,7 +154,7 @@ const PerformanceExplanation = memo(function PerformanceExplanation() {
                     )}
                   </span>
                 </li>
-                <li className="flex gap-2">
+                <li className="flex gap-component-sm">
                   <span className="text-success">✓</span>
                   <span>
                     {t('raw.performance.benefits.items.0',
@@ -162,7 +162,7 @@ const PerformanceExplanation = memo(function PerformanceExplanation() {
                     )}
                   </span>
                 </li>
-                <li className="flex gap-2">
+                <li className="flex gap-component-sm">
                   <span className="text-success">✓</span>
                   <span>
                     {t('raw.performance.tips.tip_notrack',
@@ -170,7 +170,7 @@ const PerformanceExplanation = memo(function PerformanceExplanation() {
                     )}
                   </span>
                 </li>
-                <li className="flex gap-2">
+                <li className="flex gap-component-sm">
                   <span className="text-success">✓</span>
                   <span>
                     {t('raw.performance.benefits.items.4',
@@ -183,7 +183,7 @@ const PerformanceExplanation = memo(function PerformanceExplanation() {
 
             {/* Use Cases */}
             <div>
-              <h4 className="font-semibold text-sm mb-2 font-display">
+              <h4 className="font-semibold text-sm mb-component-sm font-display">
                 {t('raw.performance.useCases.title', 'Common Use Cases')}
               </h4>
               <ul className="space-y-component-sm text-sm text-muted-foreground list-disc list-inside">
@@ -197,7 +197,7 @@ const PerformanceExplanation = memo(function PerformanceExplanation() {
 
             {/* Warnings */}
             <div className="bg-warning/10 border border-warning rounded-[var(--semantic-radius-card)] p-component-md" role="alert">
-              <h4 className="font-semibold text-sm mb-2 flex items-center gap-component-sm text-warning font-display">
+              <h4 className="font-semibold text-sm mb-component-sm flex items-center gap-component-sm text-warning font-display">
                 <AlertTriangle className="h-4 w-4" aria-hidden="true" />
                 {t('raw.performance.warnings.title', 'Important Warnings')}
               </h4>
@@ -282,11 +282,11 @@ export function RawPage() {
           </div>
           <div className="flex flex-wrap gap-component-sm">
             <Button variant="outline" onClick={handleBogonFilter} aria-label={t('raw.buttons.bogonFilter', 'Bogon Filter')}>
-              <Shield className="h-4 w-4 mr-2" aria-hidden="true" />
+              <Shield className="h-4 w-4 mr-component-sm" aria-hidden="true" />
               {t('raw.buttons.bogonFilter', 'Bogon Filter')}
             </Button>
             <Button onClick={handleAddRule} aria-label={t('raw.buttons.addRule', 'Add Rule')}>
-              <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
+              <Plus className="h-4 w-4 mr-component-sm" aria-hidden="true" />
               {t('raw.buttons.addRule', 'Add Rule')}
             </Button>
           </div>
@@ -328,8 +328,8 @@ export function RawPage() {
             {chains.map((chain) => (
               <TabsContent key={chain} value={chain} className="p-component-md m-0 space-y-component-md">
                 {isLoading ? (
-                  <div className="space-y-4" role="status" aria-label={t('common:loading', { defaultValue: 'Loading' })}>
-                    <div className="animate-pulse space-y-4">
+                  <div className="space-y-component-md" role="status" aria-label={t('common:loading', { defaultValue: 'Loading' })}>
+                    <div className="animate-pulse space-y-component-md">
                       <div className="h-16 bg-muted rounded" />
                       <div className="h-16 bg-muted rounded" />
                     </div>

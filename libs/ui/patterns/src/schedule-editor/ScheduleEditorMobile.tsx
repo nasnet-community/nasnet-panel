@@ -85,11 +85,11 @@ export const ScheduleEditorMobile = memo(function ScheduleEditorMobile({
 
         <div className="flex-1 overflow-y-auto space-y-4 pb-20">
           {/* Live Preview */}
-          <Card className="p-4 bg-info/10 border-info/20">
+          <Card className="p-4 bg-info-light border border-info rounded-[var(--semantic-radius-card)]">
             <div className="flex items-start gap-3">
-              <Info className="h-5 w-5 text-info mt-0.5 flex-shrink-0" />
+              <Info className="h-5 w-5 text-info-dark mt-0.5 flex-shrink-0" />
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-info mb-1">Preview</p>
+                <p className="text-sm font-medium text-info-dark mb-1">Preview</p>
                 <p className="text-sm text-muted-foreground whitespace-pre-wrap">
                   {preview}
                 </p>
@@ -188,7 +188,7 @@ export const ScheduleEditorMobile = memo(function ScheduleEditorMobile({
                     {...field}
                     type="time"
                     value={field.value || ''}
-                    className="h-11 text-base"
+                    className="h-11 text-base font-mono"
                   />
                 )}
               />
@@ -208,7 +208,7 @@ export const ScheduleEditorMobile = memo(function ScheduleEditorMobile({
                     {...field}
                     type="time"
                     value={field.value || ''}
-                    className="h-11 text-base"
+                    className="h-11 text-base font-mono"
                   />
                 )}
               />
@@ -231,7 +231,7 @@ export const ScheduleEditorMobile = memo(function ScheduleEditorMobile({
                     {...field}
                     placeholder="America/New_York"
                     value={field.value || ''}
-                    className="h-11"
+                    className="h-11 font-mono"
                   />
                 )}
               />

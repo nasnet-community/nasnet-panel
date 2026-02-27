@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/firewall-template-result",
+  "title": "FirewallTemplateResult",
+  "description": "Result of template application.",
+  "source": "@site/docs/api/types/objects/firewall-template-result.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/firewall-template-result",
+  "permalink": "/api/types/objects/firewall-template-result",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "firewall-template-result",
+    "title": "FirewallTemplateResult"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "FirewallRule",
+    "permalink": "/api/types/objects/firewall-rule"
+  },
+  "next": {
+    "title": "FirewallTemplateVariable",
+    "permalink": "/api/types/objects/firewall-template-variable"
+  }
+}

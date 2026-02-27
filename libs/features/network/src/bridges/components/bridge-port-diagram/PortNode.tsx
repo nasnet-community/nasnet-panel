@@ -71,7 +71,7 @@ export const PortNode = memo(function PortNode({
       aria-label={`Port ${port.interface.name}`}
     >
       {/* Port Icon/Connector */}
-      <div className="flex h-10 w-10 items-center justify-center rounded-[var(--semantic-radius-button)] bg-primary/10 text-primary">
+      <div className="flex h-10 w-10 items-center justify-center rounded-[var(--semantic-radius-button)] bg-category-networking/10 text-category-networking">
         <svg
           width="24"
           height="24"
@@ -88,8 +88,8 @@ export const PortNode = memo(function PortNode({
       {/* Port Info */}
       <div className="flex-1 min-w-0">
         {/* Interface Name */}
-        <div className="flex items-center gap-2 mb-1">
-          <span className="font-medium text-sm truncate">{port.interface.name}</span>
+        <div className="flex items-center gap-component-sm mb-component-xs">
+          <span className="font-mono font-medium text-sm truncate">{port.interface.name}</span>
           {port.edge && (
             <Badge variant="info" className="text-xs">
               Edge
@@ -98,7 +98,7 @@ export const PortNode = memo(function PortNode({
         </div>
 
         {/* VLAN Info */}
-        <div className="flex flex-wrap items-center gap-1 text-xs text-muted-foreground">
+        <div className="flex flex-wrap items-center gap-component-xs text-xs text-muted-foreground">
           <span className="font-mono">PVID: <span className="font-mono">{port.pvid}</span></span>
 
           {port.taggedVlans && port.taggedVlans.length > 0 && (
@@ -118,7 +118,7 @@ export const PortNode = memo(function PortNode({
 
         {/* STP Info */}
         {port.role && port.state && (
-          <div className="flex items-center gap-1 mt-1">
+          <div className="flex items-center gap-component-xs mt-component-xs">
             <Badge variant={getRoleBadgeVariant(port.role)} className="text-xs">
               {port.role}
             </Badge>
@@ -126,14 +126,14 @@ export const PortNode = memo(function PortNode({
               {port.state}
             </Badge>
             {port.pathCost && (
-              <span className="text-xs text-muted-foreground">Cost: {port.pathCost}</span>
+              <span className="text-xs font-mono text-muted-foreground">Cost: {port.pathCost}</span>
             )}
           </div>
         )}
       </div>
 
       {/* Actions */}
-      <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+      <div className="flex items-center gap-component-xs opacity-0 transition-opacity group-hover:opacity-100">
         <Button
           variant="ghost"
           size="icon"
@@ -146,7 +146,7 @@ export const PortNode = memo(function PortNode({
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8 text-destructive hover:text-destructive"
+          className="h-8 w-8 text-error hover:text-error"
           onClick={handleRemoveClick}
           disabled={isRemoving}
           aria-label={`Remove ${port.interface.name} from bridge`}

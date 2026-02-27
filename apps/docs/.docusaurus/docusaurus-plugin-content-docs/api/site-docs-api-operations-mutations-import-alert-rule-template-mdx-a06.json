@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/import-alert-rule-template",
+  "title": "importAlertRuleTemplate",
+  "description": "Import an alert rule template from JSON",
+  "source": "@site/docs/api/operations/mutations/import-alert-rule-template.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/import-alert-rule-template",
+  "permalink": "/api/operations/mutations/import-alert-rule-template",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "import-alert-rule-template",
+    "title": "importAlertRuleTemplate"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "generateConfigQR",
+    "permalink": "/api/operations/mutations/generate-config-qr"
+  },
+  "next": {
+    "title": "importServiceConfig",
+    "permalink": "/api/operations/mutations/import-service-config"
+  }
+}

@@ -130,9 +130,11 @@ export const IPInputMobile = memo(function IPInputMobile({
           aria-describedby={inputAriaDescribedBy}
           className={cn(
             // 44px minimum height for touch targets (WCAG 2.5.5)
-            'h-11 min-h-[44px] text-base font-mono pr-10',
-            'focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-            hasError && 'border-destructive focus-visible:ring-destructive'
+            'h-11 min-h-[44px] text-base font-mono pr-10 w-full',
+            'bg-card border border-border text-foreground placeholder:text-muted-foreground',
+            'focus:border-primary focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0',
+            'transition-colors duration-150',
+            hasError && 'border-error focus:border-error focus-visible:ring-error'
           )}
         />
 
@@ -170,7 +172,7 @@ export const IPInputMobile = memo(function IPInputMobile({
           <p
             id={errorId}
             role="alert"
-            className="text-sm text-destructive"
+            className="text-xs text-error"
           >
             {error}
           </p>

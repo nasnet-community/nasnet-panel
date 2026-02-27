@@ -1,0 +1,14 @@
+# ============================================
+# ROUTING SCHEDULE SUBSCRIPTIONS
+# ============================================
+
+extend type Subscription {
+  """
+  Subscribe to schedule changes for a router.
+  Emits events when schedules are created, updated, deleted, or when activation state changes.
+  """
+  scheduleChanged(
+    """Router ID to subscribe to"""
+    routerID: ID!
+  ): ScheduleEvent!
+}

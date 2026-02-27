@@ -2,6 +2,7 @@ package bootstrap
 
 import (
 	"context"
+	"fmt"
 
 	"go.uber.org/zap"
 
@@ -13,6 +14,8 @@ import (
 	"backend/internal/orchestrator/supervisor"
 	"backend/internal/services"
 	"backend/internal/vif"
+	"backend/internal/vif/dhcp"
+	"backend/internal/vif/ingress"
 	"backend/internal/vif/isolation"
 
 	"backend/internal/events"
@@ -29,6 +32,7 @@ type VIFComponents struct {
 	InterfaceFactory   *vif.InterfaceFactory
 	GatewayManager     lifecycle.GatewayPort
 	BridgeOrchestrator *vif.BridgeOrchestrator
+	IngressService     *ingress.Service
 	KillSwitchManager  *isolation.KillSwitchManager
 }
 
@@ -61,7 +65,7 @@ func InitializeVIF(
 		Logger:      nil, // defaults to slog.Default() inside NewVLANAllocator
 	})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("init vif: %w", err)
 	}
 	logger.Info("DB-backed VLAN allocator initialized")
 
@@ -86,11 +90,20 @@ func InitializeVIF(
 		Logger:        logger,
 	})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("init vif: %w", err)
 	}
 	logger.Info("Gateway manager initialized")
 
-	// 5. Create BridgeOrchestrator
+	// 5a. Create DHCP Server (with adapter for dhcp.ProcessSupervisor interface)
+	dhcpSupervisor := supervisor.NewProcessSupervisor(supervisor.ProcessSupervisorConfig{Logger: logger})
+	dhcpServer := dhcp.NewServer(&dhcpProcessSupervisorAdapter{ps: dhcpSupervisor}, nil, logger) // InterfaceManager will be nil for now
+	logger.Info("DHCP server initialized")
+
+	// 5b. Create IngressService
+	ingressSvc := ingress.NewService(routerPort, dhcpServer, vlanAllocator, logger)
+	logger.Info("Ingress service initialized")
+
+	// 5c. Create BridgeOrchestrator
 	bridgeOrchestrator := vif.NewBridgeOrchestrator(vif.BridgeOrchestratorConfig{
 		InterfaceFactory: interfaceFactory,
 		GatewayManager:   gatewayManager,
@@ -98,6 +111,7 @@ func InitializeVIF(
 		Store:            systemDB,
 		EventBus:         eventBus,
 		RouterPort:       routerPort,
+		IngressService:   ingressSvc,
 	})
 	logger.Info("Bridge orchestrator initialized")
 
@@ -109,8 +123,7 @@ func InitializeVIF(
 	// 7. Create and start Kill Switch Listener
 	killSwitchListener := isolation.NewKillSwitchListener(systemDB, eventBus, publisher, killSwitchMgr, logger)
 	if err := killSwitchListener.Start(); err != nil {
-		logger.Warn("Kill switch listener failed to start", zap.Error(err))
-		// Non-fatal: listener failure shouldn't prevent VIF initialization
+		return nil, fmt.Errorf("init vif: %w", err)
 	}
 	logger.Info("Kill switch listener started")
 
@@ -120,6 +133,7 @@ func InitializeVIF(
 		InterfaceFactory:     interfaceFactory,
 		GatewayManager:       gatewayManager,
 		BridgeOrchestrator:   bridgeOrchestrator,
+		IngressService:       ingressSvc,
 		KillSwitchManager:    killSwitchMgr,
 	}, nil
 }
@@ -134,7 +148,7 @@ func (a *vifVlanServiceAdapter) ListVlans(ctx context.Context, routerID string, 
 	// network.VlanFilter is an empty struct; pass nil to the service (no filter applied)
 	vlans, err := a.svc.ListVlans(ctx, routerID, nil)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("init vif: %w", err)
 	}
 	result := make([]*network.Vlan, len(vlans))
 	for i, v := range vlans {
@@ -144,4 +158,43 @@ func (a *vifVlanServiceAdapter) ListVlans(ctx context.Context, routerID string, 
 		}
 	}
 	return result, nil
+}
+
+// dhcpProcessSupervisorAdapter adapts supervisor.ProcessSupervisor to dhcp.ProcessSupervisor.
+// The dhcp package defines its own simpler interface (Start/Stop/IsRunning by ID)
+// while the orchestrator supervisor manages full ManagedProcess objects.
+type dhcpProcessSupervisorAdapter struct {
+	ps *supervisor.ProcessSupervisor
+}
+
+func (a *dhcpProcessSupervisorAdapter) Start(id, cmd string, args []string) error {
+	mp := supervisor.NewManagedProcess(supervisor.ProcessConfig{
+		ID:          id,
+		Name:        id,
+		Command:     cmd,
+		Args:        args,
+		AutoRestart: true,
+	})
+	if err := a.ps.Add(mp); err != nil {
+		return fmt.Errorf("init vif: %w", err)
+	}
+	if err := a.ps.Start(context.Background(), id); err != nil {
+		return fmt.Errorf("start dhcp process: %w", err)
+	}
+	return nil
+}
+
+func (a *dhcpProcessSupervisorAdapter) Stop(id string) error {
+	if err := a.ps.Stop(context.Background(), id); err != nil {
+		return fmt.Errorf("init vif: %w", err)
+	}
+	return nil
+}
+
+func (a *dhcpProcessSupervisorAdapter) IsRunning(id string) bool {
+	mp, ok := a.ps.Get(id)
+	if !ok {
+		return false
+	}
+	return mp.State() == supervisor.ProcessStateRunning
 }

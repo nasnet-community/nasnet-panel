@@ -1,0 +1,24 @@
+{
+  "id": "build-and-deploy",
+  "title": "Build and Deploy",
+  "description": "Documents the multi-stage Docker build pipeline, binary compression, embedded frontend serving,",
+  "source": "@site/../backend/docs/build-and-deploy.md",
+  "sourceDirName": ".",
+  "slug": "/build-and-deploy",
+  "permalink": "/docs/backend/build-and-deploy",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../backend/docs/build-and-deploy.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Application Bootstrap",
+    "permalink": "/docs/backend/application-bootstrap"
+  },
+  "next": {
+    "title": "Config Generation",
+    "permalink": "/docs/backend/config-generation"
+  }
+}

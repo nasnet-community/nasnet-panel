@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/throttle-config-input",
+  "title": "ThrottleConfigInput",
+  "description": "Throttle configuration input",
+  "source": "@site/docs/api/types/inputs/throttle-config-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/throttle-config-input",
+  "permalink": "/api/types/inputs/throttle-config-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "throttle-config-input",
+    "title": "ThrottleConfigInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "TemplateRuleInput",
+    "permalink": "/api/types/inputs/template-rule-input"
+  },
+  "next": {
+    "title": "TracerouteInput",
+    "permalink": "/api/types/inputs/traceroute-input"
+  }
+}

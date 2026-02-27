@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/delete-ip-address",
+  "title": "deleteIpAddress",
+  "description": "Remove an IP address from an interface",
+  "source": "@site/docs/api/operations/mutations/delete-ip-address.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/delete-ip-address",
+  "permalink": "/api/operations/mutations/delete-ip-address",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "delete-ip-address",
+    "title": "deleteIpAddress"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "deleteInstance",
+    "permalink": "/api/operations/mutations/delete-instance"
+  },
+  "next": {
+    "title": "deleteNatRule",
+    "permalink": "/api/operations/mutations/delete-nat-rule"
+  }
+}

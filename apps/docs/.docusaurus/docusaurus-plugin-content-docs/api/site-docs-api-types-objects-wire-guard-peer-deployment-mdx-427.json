@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/wire-guard-peer-deployment",
+  "title": "WireGuardPeerDeployment",
+  "description": "WireGuard peer deployment state",
+  "source": "@site/docs/api/types/objects/wire-guard-peer-deployment.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/wire-guard-peer-deployment",
+  "permalink": "/api/types/objects/wire-guard-peer-deployment",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "wire-guard-peer-deployment",
+    "title": "WireGuardPeerDeployment"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "WireGuardPeerConfig",
+    "permalink": "/api/types/objects/wire-guard-peer-config"
+  },
+  "next": {
+    "title": "WireGuardPeerRuntime",
+    "permalink": "/api/types/objects/wire-guard-peer-runtime"
+  }
+}

@@ -250,7 +250,7 @@ export const TemplatesPage = memo(function TemplatesPage({ routerId, currentRule
           {/* Export All Custom Templates */}
           {customTemplates.length > 0 && (
             <Button variant="outline" onClick={handleExportAllCustom} aria-label={t('templates.buttons.exportCustom')}>
-              <Download className="mr-2 h-4 w-4" aria-hidden="true" />
+              <Download className="mr-component-sm h-4 w-4" aria-hidden="true" />
               {t('templates.buttons.exportCustom')} ({customTemplates.length})
             </Button>
           )}
@@ -261,7 +261,7 @@ export const TemplatesPage = memo(function TemplatesPage({ routerId, currentRule
             onImport={handleImportTemplate}
             trigger={
               <Button variant="outline" aria-label={t('templates.buttons.import')}>
-                <Upload className="mr-2 h-4 w-4" aria-hidden="true" />
+                <Upload className="mr-component-sm h-4 w-4" aria-hidden="true" />
                 {t('templates.buttons.import')}
               </Button>
             }
@@ -275,7 +275,7 @@ export const TemplatesPage = memo(function TemplatesPage({ routerId, currentRule
               onSave={handleSaveCustomTemplate}
               trigger={
                 <Button aria-label={t('templates.buttons.create')}>
-                  <Plus className="mr-2 h-4 w-4" aria-hidden="true" />
+                  <Plus className="mr-component-sm h-4 w-4" aria-hidden="true" />
                   {t('templates.buttons.create')}
                 </Button>
               }
@@ -329,7 +329,7 @@ export const TemplatesPage = memo(function TemplatesPage({ routerId, currentRule
                   onSave={handleSaveCustomTemplate}
                   trigger={
                     <Button aria-label={t('templates.buttons.createFirst')}>
-                      <Plus className="mr-2 h-4 w-4" aria-hidden="true" />
+                      <Plus className="mr-component-sm h-4 w-4" aria-hidden="true" />
                       {t('templates.buttons.createFirst')}
                     </Button>
                   }

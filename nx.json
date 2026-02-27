@@ -127,5 +127,16 @@
     "@nasnet/tools:library": {},
     "@nasnet/tools:resolver": {}
   },
-  "pluginsConfig": {}
+  "pluginsConfig": {},
+  "release": {
+    "version": {
+      "conventionalCommits": true
+    },
+    "changelog": {
+      "workspaceChangelog": {
+        "file": "CHANGELOG.md",
+        "createRelease": "github"
+      }
+    }
+  }
 }

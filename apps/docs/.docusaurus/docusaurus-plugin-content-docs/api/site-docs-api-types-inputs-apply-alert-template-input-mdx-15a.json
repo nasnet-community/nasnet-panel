@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/apply-alert-template-input",
+  "title": "ApplyAlertTemplateInput",
+  "description": "Input for applying an alert template",
+  "source": "@site/docs/api/types/inputs/apply-alert-template-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/apply-alert-template-input",
+  "permalink": "/api/types/inputs/apply-alert-template-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "apply-alert-template-input",
+    "title": "ApplyAlertTemplateInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "AlertRuleAlertTemplateVariableInput",
+    "permalink": "/api/types/inputs/alert-rule-alert-template-variable-input"
+  },
+  "next": {
+    "title": "ApplyServiceConfigInput",
+    "permalink": "/api/types/inputs/apply-service-config-input"
+  }
+}

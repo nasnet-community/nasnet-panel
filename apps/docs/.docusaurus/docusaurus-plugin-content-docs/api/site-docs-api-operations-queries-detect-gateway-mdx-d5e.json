@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/detect-gateway",
+  "title": "detectGateway",
+  "description": "Detect default gateway from DHCP client or static route",
+  "source": "@site/docs/api/operations/queries/detect-gateway.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/detect-gateway",
+  "permalink": "/api/operations/queries/detect-gateway",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "detect-gateway",
+    "title": "detectGateway"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "dependencyGraph",
+    "permalink": "/api/operations/queries/dependency-graph"
+  },
+  "next": {
+    "title": "detectISP",
+    "permalink": "/api/operations/queries/detect-isp"
+  }
+}

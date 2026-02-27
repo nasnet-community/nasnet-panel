@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/configure-update-schedule",
+  "title": "configureUpdateSchedule",
+  "description": "Configure update schedule and auto-apply policy for an instance.",
+  "source": "@site/docs/api/operations/mutations/configure-update-schedule.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/configure-update-schedule",
+  "permalink": "/api/operations/mutations/configure-update-schedule",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "configure-update-schedule",
+    "title": "configureUpdateSchedule"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "configureStaticWAN",
+    "permalink": "/api/operations/mutations/configure-static-wan"
+  },
+  "next": {
+    "title": "configureWANHealthCheck",
+    "permalink": "/api/operations/mutations/configure-wanhealth-check"
+  }
+}

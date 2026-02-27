@@ -143,7 +143,7 @@ export const CredentialDialog = memo(function CredentialDialog({
           />
 
           {/* Dialog */}
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-component-md">
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -151,11 +151,11 @@ export const CredentialDialog = memo(function CredentialDialog({
               className="bg-card rounded-lg shadow-modal max-w-md w-full"
             >
               {/* Header */}
-              <div className="px-6 pt-6 pb-4 border-b border-border">
+              <div className="px-component-lg pt-component-lg pb-component-md border-b border-border">
                 <h2 className="text-xl font-semibold text-foreground">
                   Connect to Router
                 </h2>
-                <p className="mt-1 text-sm text-muted-foreground">
+                <p className="mt-component-sm text-sm text-muted-foreground">
                   {routerName ? (
                     <>
                       {routerName}{' '}
@@ -168,13 +168,13 @@ export const CredentialDialog = memo(function CredentialDialog({
               </div>
 
               {/* Form */}
-              <form onSubmit={handleSubmit} className="px-6 py-4">
-                <div className="space-y-4">
+              <form onSubmit={handleSubmit} className="px-component-lg py-component-md">
+                <div className="space-y-component-md">
                   {/* Username Input */}
                   <div>
                     <label
                       htmlFor="username"
-                      className="block text-sm font-medium text-foreground mb-1"
+                      className="block text-sm font-medium text-foreground mb-component-sm"
                     >
                       Username
                     </label>
@@ -185,7 +185,7 @@ export const CredentialDialog = memo(function CredentialDialog({
                       onChange={(e) => setUsername(e.target.value)}
                       disabled={isValidating}
                       placeholder="admin"
-                      className={cn('w-full px-3 py-2 border rounded-md shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-background text-foreground disabled:opacity-50', 'border-border')}
+                      className={cn('w-full px-component-sm py-component-sm border rounded-md shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-card text-foreground disabled:opacity-50', 'border-border')}
                       autoFocus
                     />
                   </div>
@@ -194,7 +194,7 @@ export const CredentialDialog = memo(function CredentialDialog({
                   <div>
                     <label
                       htmlFor="password"
-                      className="block text-sm font-medium text-foreground mb-1"
+                      className="block text-sm font-medium text-foreground mb-component-sm"
                     >
                       Password
                     </label>
@@ -206,7 +206,7 @@ export const CredentialDialog = memo(function CredentialDialog({
                         onChange={(e) => setPassword(e.target.value)}
                         disabled={isValidating}
                         placeholder="Enter password"
-                        className={cn('w-full px-3 py-2 pr-10 border rounded-md shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-background text-foreground disabled:opacity-50', 'border-border')}
+                        className={cn('w-full px-component-sm py-component-sm pr-10 border rounded-md shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-card text-foreground disabled:opacity-50', 'border-border')}
                       />
                       <button
                         type="button"
@@ -266,7 +266,7 @@ export const CredentialDialog = memo(function CredentialDialog({
                     />
                     <label
                       htmlFor="saveCredentials"
-                      className="ml-2 block text-sm text-foreground"
+                      className="ml-component-sm block text-sm text-foreground"
                     >
                       Remember credentials
                     </label>
@@ -309,19 +309,19 @@ export const CredentialDialog = memo(function CredentialDialog({
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex gap-3 mt-6">
+                <div className="flex gap-component-md mt-component-lg">
                   <button
                     type="button"
                     onClick={handleCancel}
                     disabled={isValidating}
-                    className={cn('flex-1 px-4 py-2 rounded-md focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 transition-colors font-medium disabled:opacity-50', 'bg-muted text-foreground hover:bg-muted/80')}
+                    className={cn('flex-1 px-component-md py-component-sm rounded-md focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 transition-colors font-medium disabled:opacity-50', 'bg-muted text-foreground hover:bg-muted/80')}
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={isValidating || !username.trim()}
-                    className={cn('flex-1 px-4 py-2 rounded-md focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 transition-colors font-medium disabled:opacity-50 flex items-center justify-center gap-2', 'bg-primary text-primary-foreground hover:bg-primary/90')}
+                    className={cn('flex-1 px-component-md py-component-sm rounded-md focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 transition-colors font-medium disabled:opacity-50 flex items-center justify-center gap-component-sm', 'bg-primary text-primary-foreground hover:bg-primary/90')}
                   >
                     {isValidating ? (
                       <>
@@ -336,10 +336,10 @@ export const CredentialDialog = memo(function CredentialDialog({
               </form>
 
               {/* Footer Help Text */}
-              <div className="px-6 py-4 bg-muted border-t border-border rounded-b-lg">
+              <div className="px-component-lg py-component-md bg-muted border-t border-border rounded-b-lg">
                 <p className="text-xs text-muted-foreground">
                   💡 Default MikroTik credentials: username{' '}
-                  <code className="px-1 py-0.5 bg-card rounded font-mono">
+                  <code className="px-component-sm py-component-sm bg-card rounded font-mono">
                     admin
                   </code>{' '}
                   with empty password

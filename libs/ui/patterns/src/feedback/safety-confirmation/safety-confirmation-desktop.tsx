@@ -105,7 +105,8 @@ export function SafetyConfirmationDesktop({
       <DialogContent
         className={cn(
           'sm:max-w-md',
-          'border-destructive/50'
+          'bg-card border border-border rounded-[var(--semantic-radius-card)]',
+          'p-6'
         )}
         onPointerDownOutside={(e) => {
           // Prevent closing on outside click during processing
@@ -162,9 +163,9 @@ export function SafetyConfirmationDesktop({
           )}
         </div>
 
-        <DialogFooter className="flex-col gap-2 sm:flex-row sm:gap-2">
+        <DialogFooter className="flex flex-col gap-2 sm:flex-row sm:justify-end sm:gap-2">
           <Button
-            variant="outline"
+            variant="secondary"
             onClick={() => {
               cancel();
               onOpenChange(false);
@@ -180,7 +181,7 @@ export function SafetyConfirmationDesktop({
             variant="destructive"
             onClick={handleConfirm}
             disabled={!canConfirm || isProcessing}
-            className="w-full sm:w-auto"
+            className="w-full sm:w-auto bg-error hover:bg-error/90"
             aria-label={isProcessing ? 'Processing confirmation' : `Confirm ${title}`}
           >
             {isProcessing ? (

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/wanlink-runtime",
+  "title": "WANLinkRuntime",
+  "description": "WAN Link runtime state",
+  "source": "@site/docs/api/types/objects/wanlink-runtime.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/wanlink-runtime",
+  "permalink": "/api/types/objects/wanlink-runtime",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "wanlink-runtime",
+    "title": "WANLinkRuntime"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "WANLinkResource",
+    "permalink": "/api/types/objects/wanlink-resource"
+  },
+  "next": {
+    "title": "WANLink",
+    "permalink": "/api/types/objects/wanlink"
+  }
+}

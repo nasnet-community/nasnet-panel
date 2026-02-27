@@ -207,8 +207,8 @@ export const BridgeForm = memo(function BridgeForm({
             control={form.control}
             name="vlanFiltering"
             render={({ field }) => (
-              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                <div className="space-y-0.5">
+              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-component-md">
+                <div className="space-y-component-xs">
                   <FormLabel className="text-base">VLAN Filtering</FormLabel>
                   <FormDescription>
                     Enable VLAN filtering for per-port VLAN assignment

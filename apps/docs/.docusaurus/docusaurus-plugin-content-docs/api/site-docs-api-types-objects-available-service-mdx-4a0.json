@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/available-service",
+  "title": "AvailableService",
+  "description": "Available service that can be installed from the Feature Marketplace.",
+  "source": "@site/docs/api/types/objects/available-service.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/available-service",
+  "permalink": "/api/types/objects/available-service",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "available-service",
+    "title": "AvailableService"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "AuthStatus",
+    "permalink": "/api/types/objects/auth-status"
+  },
+  "next": {
+    "title": "BandwidthDataPoint",
+    "permalink": "/api/types/objects/bandwidth-data-point"
+  }
+}

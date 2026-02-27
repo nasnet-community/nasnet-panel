@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/port-allocation",
+  "title": "PortAllocation",
+  "description": "A port allocation record tracking which ports are in use by service instances.",
+  "source": "@site/docs/api/types/objects/port-allocation.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/port-allocation",
+  "permalink": "/api/types/objects/port-allocation",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "port-allocation",
+    "title": "PortAllocation"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "PlatformLimitation",
+    "permalink": "/api/types/objects/platform-limitation"
+  },
+  "next": {
+    "title": "PortAvailability",
+    "permalink": "/api/types/objects/port-availability"
+  }
+}

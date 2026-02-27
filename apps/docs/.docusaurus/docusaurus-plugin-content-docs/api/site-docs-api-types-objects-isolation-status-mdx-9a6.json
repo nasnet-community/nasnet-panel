@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/isolation-status",
+  "title": "IsolationStatus",
+  "description": "Complete isolation status for a service instance.",
+  "source": "@site/docs/api/types/objects/isolation-status.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/isolation-status",
+  "permalink": "/api/types/objects/isolation-status",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "isolation-status",
+    "title": "IsolationStatus"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "IpsecProfile",
+    "permalink": "/api/types/objects/ipsec-profile"
+  },
+  "next": {
+    "title": "IsolationViolation",
+    "permalink": "/api/types/objects/isolation-violation"
+  }
+}

@@ -81,7 +81,7 @@ function VlanTopologyDesktopContent({
     return (
       <Card>
         <CardContent className="py-12">
-          <p className="text-center text-destructive" role="alert">
+          <p className="text-center text-error" role="alert">
             {error.message}
           </p>
         </CardContent>
@@ -93,7 +93,7 @@ function VlanTopologyDesktopContent({
     return (
       <Card>
         <CardContent className="py-12 text-center">
-          <Network className="h-12 w-12 mx-auto mb-4 text-muted-foreground" aria-hidden="true" />
+          <Network className="h-12 w-12 mx-auto mb-component-md text-muted-foreground" aria-hidden="true" />
           <p className="text-muted-foreground">No VLANs configured</p>
         </CardContent>
       </Card>
@@ -193,7 +193,7 @@ function VlanTopologyDesktopContent({
                           <button
                             key={vlan.id}
                             onClick={() => handleVlanSelect(vlan.id)}
-                            className="w-full flex items-center gap-component-sm p-component-sm rounded-[var(--semantic-radius-card)] hover:bg-background border border-border hover:border-primary/50 transition-all text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                            className="w-full flex items-center gap-component-sm p-component-sm rounded-[var(--semantic-radius-card)] hover:bg-card border border-border hover:border-primary/50 transition-all text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                           >
                             <div className="flex-1 flex items-center justify-between">
                               <div className="flex items-center gap-component-sm">

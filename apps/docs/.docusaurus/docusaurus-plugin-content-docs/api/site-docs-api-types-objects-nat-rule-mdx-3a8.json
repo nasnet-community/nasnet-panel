@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/nat-rule",
+  "title": "NatRule",
+  "description": "NAT rule configuration for network address translation.",
+  "source": "@site/docs/api/types/objects/nat-rule.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/nat-rule",
+  "permalink": "/api/types/objects/nat-rule",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "nat-rule",
+    "title": "NatRule"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "NatRuleReference",
+    "permalink": "/api/types/objects/nat-rule-reference"
+  },
+  "next": {
+    "title": "NetworkConfigDetection",
+    "permalink": "/api/types/objects/network-config-detection"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/directives/mikrotik",
+  "title": "mikrotik",
+  "description": "Maps field to MikroTik RouterOS API path and command",
+  "source": "@site/docs/api/types/directives/mikrotik.mdx",
+  "sourceDirName": "api/types/directives",
+  "slug": "/api/types/directives/mikrotik",
+  "permalink": "/api/types/directives/mikrotik",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "mikrotik",
+    "title": "mikrotik"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "migrateFrom",
+    "permalink": "/api/types/directives/migrate-from"
+  },
+  "next": {
+    "title": "oneOf",
+    "permalink": "/api/types/directives/one-of"
+  }
+}

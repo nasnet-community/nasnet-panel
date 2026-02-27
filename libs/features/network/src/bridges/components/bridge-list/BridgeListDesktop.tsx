@@ -51,7 +51,7 @@ export const BridgeListDesktop = memo(function BridgeListDesktop({
         key: 'name',
         header: 'Name',
         cell: (bridge) => (
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-component-xs">
             <span className="font-medium">{bridge.name}</span>
             {bridge.comment && (
               <span className="text-sm text-muted-foreground">
@@ -70,7 +70,7 @@ export const BridgeListDesktop = memo(function BridgeListDesktop({
           const remaining = portCount - 3;
 
           return (
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-component-xs">
               <span className="text-sm font-medium">{portCount} ports</span>
               {portNames && (
                 <span className="text-xs text-muted-foreground">
@@ -114,7 +114,7 @@ export const BridgeListDesktop = memo(function BridgeListDesktop({
         key: 'mac-address',
         header: 'MAC Address',
         cell: (bridge) => (
-          <code className="text-xs font-mono">{bridge.macAddress}</code>
+          <code className="text-xs font-mono font-medium">{bridge.macAddress}</code>
         ),
       },
       {
@@ -153,7 +153,7 @@ export const BridgeListDesktop = memo(function BridgeListDesktop({
     <div className="flex h-full flex-col gap-component-md">
       {/* Toolbar */}
       <DataTableToolbar>
-        <div className="flex flex-1 items-center gap-2">
+        <div className="flex flex-1 items-center gap-component-sm">
           {/* Search */}
           <div className="relative w-64">
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -161,7 +161,7 @@ export const BridgeListDesktop = memo(function BridgeListDesktop({
               placeholder="Search bridges..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-8"
+              className="pl-component-lg"
               aria-label="Search bridges"
             />
           </div>
@@ -214,9 +214,9 @@ export const BridgeListDesktop = memo(function BridgeListDesktop({
         </div>
 
         {/* Actions */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-component-sm">
           <Button onClick={() => setSelectedBridgeId('new')} size="sm" aria-label="Add new bridge">
-            <Plus className="h-4 w-4 mr-2" />
+            <Plus className="h-4 w-4 mr-component-sm" />
             Add Bridge
           </Button>
         </div>

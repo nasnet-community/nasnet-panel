@@ -18,12 +18,7 @@ import { Command as CommandPrimitive } from 'cmdk';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Clock, Sparkles } from 'lucide-react';
 
-import {
-  Dialog,
-  DialogPortal,
-  DialogOverlay,
-  cn,
-} from '@nasnet/ui/primitives';
+import { Dialog, DialogPortal, DialogOverlay, cn } from '@nasnet/ui/primitives';
 
 import { CommandItem } from './CommandItem';
 import { useCommandPalette } from './useCommandPalette';
@@ -60,7 +55,10 @@ const CommandPaletteDesktop = React.memo(function CommandPaletteDesktop({
   } = useCommandPalette();
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={setOpen}
+    >
       <AnimatePresence>
         {open && (
           <DialogPortal forceMount>
@@ -69,8 +67,8 @@ const CommandPaletteDesktop = React.memo(function CommandPaletteDesktop({
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                transition={{ duration: 0.15 }}
-                className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm"
+                transition={{ duration: 0.2 }}
+                className="fixed inset-0 z-50 bg-black/50"
               />
             </DialogOverlay>
 
@@ -78,9 +76,9 @@ const CommandPaletteDesktop = React.memo(function CommandPaletteDesktop({
               initial={{ opacity: 0, scale: 0.95, y: -20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: -20 }}
-              transition={{ duration: 0.15, ease: 'easeOut' }}
+              transition={{ duration: 0.2 }}
               className={cn(
-                'fixed left-[50%] top-[20%] z-50 w-full max-w-lg translate-x-[-50%] rounded-xl border border-border bg-popover text-popover-foreground shadow-2xl',
+                'border-border bg-card fixed left-1/2 top-[20%] z-50 w-full max-w-lg -translate-x-1/2 rounded-[var(--semantic-radius-modal)] border shadow-[var(--semantic-shadow-modal)]',
                 className
               )}
             >
@@ -90,9 +88,9 @@ const CommandPaletteDesktop = React.memo(function CommandPaletteDesktop({
                 shouldFilter={false}
               >
                 {/* Search Input */}
-                <div className="flex items-center border-b border-border px-4">
+                <div className="border-border flex h-12 items-center border-b px-4">
                   <Search
-                    className="mr-2 h-4 w-4 shrink-0 text-muted-foreground"
+                    className="text-muted-foreground mr-3 h-5 w-5 shrink-0"
                     aria-hidden="true"
                   />
                   <CommandPrimitive.Input
@@ -100,7 +98,7 @@ const CommandPaletteDesktop = React.memo(function CommandPaletteDesktop({
                     value={query}
                     onValueChange={setQuery}
                     placeholder="Search commands..."
-                    className="flex h-12 w-full bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
+                    className="placeholder:text-muted-foreground flex w-full bg-transparent text-base outline-none disabled:cursor-not-allowed disabled:opacity-50"
                     aria-label="Search commands"
                     aria-autocomplete="list"
                     aria-controls="command-list"
@@ -114,27 +112,32 @@ const CommandPaletteDesktop = React.memo(function CommandPaletteDesktop({
                   id="command-list"
                   role="listbox"
                   aria-label={isShowingRecent ? 'Recent commands' : 'Search results'}
-                  className="max-h-[300px] overflow-y-auto overflow-x-hidden p-2"
+                  className="max-h-[300px] overflow-y-auto overflow-x-hidden px-4 py-3"
                 >
                   {/* Empty state */}
-                  <CommandPrimitive.Empty className="py-6 text-center text-sm text-muted-foreground">
+                  <CommandPrimitive.Empty className="text-muted-foreground py-6 text-center text-sm">
                     No commands found.
                   </CommandPrimitive.Empty>
 
                   {/* Section header */}
                   {hasResults && (
-                    <div className="mb-2 flex items-center gap-2 px-2 text-xs font-medium text-muted-foreground">
-                      {isShowingRecent ? (
+                    <div className="text-muted-foreground mb-2 flex items-center gap-2 px-4 py-2 text-xs font-semibold uppercase">
+                      {isShowingRecent ?
                         <>
-                          <Clock className="h-3 w-3" aria-hidden="true" />
+                          <Clock
+                            className="h-3 w-3"
+                            aria-hidden="true"
+                          />
                           <span>Recent</span>
                         </>
-                      ) : (
-                        <>
-                          <Sparkles className="h-3 w-3" aria-hidden="true" />
+                      : <>
+                          <Sparkles
+                            className="h-3 w-3"
+                            aria-hidden="true"
+                          />
                           <span>Results</span>
                         </>
-                      )}
+                      }
                     </div>
                   )}
 
@@ -152,35 +155,35 @@ const CommandPaletteDesktop = React.memo(function CommandPaletteDesktop({
                         showShortcut={true}
                         isOnline={isOnline}
                         onSelect={() => execute(command)}
+                        className="px-4 py-3"
                       />
                     </CommandPrimitive.Item>
                   ))}
                 </CommandPrimitive.List>
 
                 {/* Footer with hints */}
-                <div className="flex items-center justify-between border-t border-border px-4 py-2 text-xs text-muted-foreground">
+                <div className="border-border text-muted-foreground flex items-center justify-between border-t px-4 py-2 text-xs">
                   <div className="flex items-center gap-4">
                     <div className="flex items-center gap-1">
-                      <kbd className="rounded bg-muted px-1.5 py-0.5 font-mono text-[10px]">
-                        ↑↓
-                      </kbd>
+                      <kbd className="bg-muted rounded px-1.5 py-0.5 font-mono text-[10px]">↑↓</kbd>
                       <span>Navigate</span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <kbd className="rounded bg-muted px-1.5 py-0.5 font-mono text-[10px]">
-                        ↵
-                      </kbd>
+                      <kbd className="bg-muted rounded px-1.5 py-0.5 font-mono text-[10px]">↵</kbd>
                       <span>Select</span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <kbd className="rounded bg-muted px-1.5 py-0.5 font-mono text-[10px]">
+                      <kbd className="bg-muted rounded px-1.5 py-0.5 font-mono text-[10px]">
                         Esc
                       </kbd>
                       <span>Close</span>
                     </div>
                   </div>
                   {results.length > 0 && (
-                    <span aria-live="polite" aria-atomic="true">
+                    <span
+                      aria-live="polite"
+                      aria-atomic="true"
+                    >
                       {results.length} {results.length === 1 ? 'result' : 'results'}
                     </span>
                   )}

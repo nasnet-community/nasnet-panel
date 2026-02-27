@@ -2,6 +2,7 @@ package capability
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 	"strings"
 )
@@ -27,12 +28,12 @@ func (d *detector) Detect(ctx context.Context, port RouterPort) (*Capabilities, 
 
 	// Step 1: Get system resource information
 	if err := d.detectSystemResource(ctx, port, caps); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("detect system resource: %w", err)
 	}
 
 	// Step 2: Get installed packages
 	if err := d.detectPackages(ctx, port, caps); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("detect packages: %w", err)
 	}
 
 	// Step 3: Get routerboard information
@@ -57,7 +58,7 @@ func (d *detector) detectSystemResource(ctx context.Context, port RouterPort, ca
 		Path: "/system/resource",
 	})
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to query system resource: %w", err)
 	}
 
 	if len(result.Resources) == 0 {
@@ -115,7 +116,7 @@ func (d *detector) detectPackages(ctx context.Context, port RouterPort, caps *Ca
 		Path: "/system/package",
 	})
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to query system packages: %w", err)
 	}
 
 	packages := make([]string, 0, len(result.Resources))
@@ -149,7 +150,7 @@ func (d *detector) detectRouterboard(ctx context.Context, port RouterPort, caps 
 		Path: "/system/routerboard",
 	})
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to query system routerboard: %w", err)
 	}
 
 	if len(result.Resources) == 0 {

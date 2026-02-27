@@ -12,7 +12,7 @@ import { DHCPLeaseManagementPage } from '@nasnet/features/network';
 import { useConnectionStore } from '@nasnet/state/stores';
 
 function DHCPLeasesRoute() {
-  const routerId = useConnectionStore((state) => state.currentRouterIp) || '';
+  const routerId = useConnectionStore((state) => state.activeRouterId) || '';
   return <DHCPLeaseManagementPage routerId={routerId} />;
 }
 

@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/update-schedule",
+  "title": "updateSchedule",
+  "description": "Update an existing routing schedule.",
+  "source": "@site/docs/api/operations/mutations/update-schedule.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/update-schedule",
+  "permalink": "/api/operations/mutations/update-schedule",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "update-schedule",
+    "title": "updateSchedule"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "updateRoutingChain",
+    "permalink": "/api/operations/mutations/update-routing-chain"
+  },
+  "next": {
+    "title": "updateTunnel",
+    "permalink": "/api/operations/mutations/update-tunnel"
+  }
+}

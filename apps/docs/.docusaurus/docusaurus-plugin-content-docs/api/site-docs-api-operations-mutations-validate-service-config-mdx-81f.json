@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/validate-service-config",
+  "title": "validateServiceConfig",
+  "description": "Validate service configuration without applying it.",
+  "source": "@site/docs/api/operations/mutations/validate-service-config.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/validate-service-config",
+  "permalink": "/api/operations/mutations/validate-service-config",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "validate-service-config",
+    "title": "validateServiceConfig"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "validateResource",
+    "permalink": "/api/operations/mutations/validate-resource"
+  },
+  "next": {
+    "title": "verifyTroubleshootFix",
+    "permalink": "/api/operations/mutations/verify-troubleshoot-fix"
+  }
+}

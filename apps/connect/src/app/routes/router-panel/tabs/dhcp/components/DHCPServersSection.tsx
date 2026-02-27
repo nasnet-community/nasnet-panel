@@ -38,7 +38,7 @@ export const DHCPServersSection = React.memo(function DHCPServersSection({
         {[1, 2].map((i) => (
           <div
             key={i}
-            className="bg-card rounded-card-sm border border-border p-4 animate-pulse"
+            className="bg-card rounded-card-sm border border-border p-4 animate-pulse shadow-sm"
           >
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-muted rounded-lg" />
@@ -55,8 +55,8 @@ export const DHCPServersSection = React.memo(function DHCPServersSection({
 
   if (servers.length === 0) {
     return (
-      <div className={`bg-muted rounded-card-sm border border-border p-8 text-center ${className}`}>
-        <Server className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+      <div className={`bg-muted rounded-card-sm border border-border p-8 text-center shadow-sm ${className}`}>
+        <Server className="w-12 h-12 text-muted-foreground mx-auto mb-3" aria-hidden={true} />
         <p className="text-muted-foreground text-sm">
           {t('dhcp.noServers')}
         </p>
@@ -73,7 +73,7 @@ export const DHCPServersSection = React.memo(function DHCPServersSection({
         return (
           <div
             key={server.id}
-            className={`bg-card rounded-card-sm border border-border p-4 transition-all ${
+            className={`bg-card rounded-card-sm border border-border p-4 transition-all shadow-sm ${
               !isActive ? 'opacity-60' : ''
             }`}
           >
@@ -85,11 +85,11 @@ export const DHCPServersSection = React.memo(function DHCPServersSection({
                     ? 'bg-info/10'
                     : 'bg-muted'
                 }`}>
-                  <Network className={`w-5 h-5 ${isActive ? 'text-info' : 'text-muted-foreground'}`} />
+                  <Network className={`w-5 h-5 ${isActive ? 'text-info' : 'text-muted-foreground'}`} aria-hidden={true} />
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h3 className="font-semibold text-foreground text-sm">
+                    <h3 className="font-semibold text-foreground text-sm font-display">
                       {server.name}
                     </h3>
                     {server.authoritative && (
@@ -104,7 +104,7 @@ export const DHCPServersSection = React.memo(function DHCPServersSection({
                     )}
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    {t('dhcp.interface')}: {server.interface}
+                    {t('dhcp.interface')}: <span className="font-mono">{server.interface}</span>
                   </p>
                 </div>
               </div>
@@ -113,10 +113,10 @@ export const DHCPServersSection = React.memo(function DHCPServersSection({
               <div className="flex items-center gap-4 text-right">
                 <div>
                   <div className="flex items-center gap-1 justify-end">
-                    <Clock className="w-3 h-3 text-muted-foreground" />
+                    <Clock className="w-3 h-3 text-muted-foreground" aria-hidden={true} />
                     <p className="text-xs text-muted-foreground">{t('dhcp.lease')}</p>
                   </div>
-                  <p className="text-sm font-semibold text-foreground">
+                  <p className="text-sm font-semibold text-foreground font-mono">
                     {formatLeaseTime(server.leaseTime)}
                   </p>
                 </div>

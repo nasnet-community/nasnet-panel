@@ -198,17 +198,19 @@ const BottomNavigationImpl = React.forwardRef<HTMLElement, BottomNavigationProps
       <nav
         ref={ref}
         className={cn(
-          'fixed bottom-0 left-0 right-0 z-50',
-          'bg-background',
+          'fixed bottom-0 left-0 right-0 z-40',
+          'backdrop-blur-md bg-card/80',
           'border-t border-border',
-          'shadow-lg',
-          'md:hidden', // Hide on larger screens
-          'safe-bottom', // Account for device notches (iOS safe-area)
+          'hidden sm:flex md:hidden', // Hide on larger screens
           className
         )}
+        style={{
+          paddingBottom: 'max(env(safe-area-inset-bottom), 0px)',
+          height: 'calc(4rem + max(env(safe-area-inset-bottom), 0px))',
+        }}
         aria-label="Main navigation"
       >
-        <div className="flex items-center justify-around h-16 min-h-[44px]">
+        <div className="flex items-center justify-around flex-1">
           {renderedItems}
         </div>
       </nav>

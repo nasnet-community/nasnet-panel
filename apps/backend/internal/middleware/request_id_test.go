@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	internalerrors "backend/internal/errors"
+	internalerrors "backend/internal/apperrors"
 )
 
 // =============================================================================

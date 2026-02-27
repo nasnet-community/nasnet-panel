@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/platform-info",
+  "title": "PlatformInfo",
+  "description": "Layer 8: Platform-specific capabilities and field mappings.",
+  "source": "@site/docs/api/types/objects/platform-info.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/platform-info",
+  "permalink": "/api/types/objects/platform-info",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "platform-info",
+    "title": "PlatformInfo"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "PlatformFeature",
+    "permalink": "/api/types/objects/platform-feature"
+  },
+  "next": {
+    "title": "PlatformLimitation",
+    "permalink": "/api/types/objects/platform-limitation"
+  }
+}

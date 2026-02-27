@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/deprecate-resource-payload",
+  "title": "DeprecateResourcePayload",
+  "description": "No description",
+  "source": "@site/docs/api/types/objects/deprecate-resource-payload.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/deprecate-resource-payload",
+  "permalink": "/api/types/objects/deprecate-resource-payload",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "deprecate-resource-payload",
+    "title": "DeprecateResourcePayload"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "DeploymentState",
+    "permalink": "/api/types/objects/deployment-state"
+  },
+  "next": {
+    "title": "DeviceRoutingEvent",
+    "permalink": "/api/types/objects/device-routing-event"
+  }
+}

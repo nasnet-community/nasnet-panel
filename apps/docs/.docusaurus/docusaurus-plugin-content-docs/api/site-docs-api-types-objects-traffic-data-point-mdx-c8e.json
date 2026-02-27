@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/traffic-data-point",
+  "title": "TrafficDataPoint",
+  "description": "A single traffic data point for time-series visualization.",
+  "source": "@site/docs/api/types/objects/traffic-data-point.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/traffic-data-point",
+  "permalink": "/api/types/objects/traffic-data-point",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "traffic-data-point",
+    "title": "TrafficDataPoint"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "TracerouteResult",
+    "permalink": "/api/types/objects/traceroute-result"
+  },
+  "next": {
+    "title": "TrafficQuotaPayload",
+    "permalink": "/api/types/objects/traffic-quota-payload"
+  }
+}

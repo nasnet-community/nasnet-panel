@@ -1,0 +1,28 @@
+{
+  "id": "stores/selectors-reference",
+  "title": "Selectors Reference",
+  "description": "Complete API documentation for all selector utilities and pre-built selectors in the Zustand store ecosystem.",
+  "source": "@site/../../libs/state/docs/stores/selectors-reference.md",
+  "sourceDirName": "stores",
+  "slug": "/stores/selectors-reference",
+  "permalink": "/docs/state/stores/selectors-reference",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/state/docs/stores/selectors-reference.md",
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 11,
+  "frontMatter": {
+    "sidebar_position": 11,
+    "title": "Selectors Reference"
+  },
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Hooks & Utility Functions",
+    "permalink": "/docs/state/stores/hooks-utilities"
+  },
+  "next": {
+    "title": "Authentication Store (useAuthStore)",
+    "permalink": "/docs/state/stores/auth"
+  }
+}

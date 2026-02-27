@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/subscriptions/router-status-changed",
+  "title": "routerStatusChanged",
+  "description": "Subscribe to router status changes",
+  "source": "@site/docs/api/operations/subscriptions/router-status-changed.mdx",
+  "sourceDirName": "api/operations/subscriptions",
+  "slug": "/api/operations/subscriptions/router-status-changed",
+  "permalink": "/api/operations/subscriptions/router-status-changed",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "router-status-changed",
+    "title": "routerStatusChanged"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "routerAdded",
+    "permalink": "/api/operations/subscriptions/router-added"
+  },
+  "next": {
+    "title": "routingChainChanged",
+    "permalink": "/api/operations/subscriptions/routing-chain-changed"
+  }
+}

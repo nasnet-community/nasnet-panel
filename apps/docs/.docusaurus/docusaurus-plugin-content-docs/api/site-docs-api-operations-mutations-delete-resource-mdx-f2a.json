@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/delete-resource",
+  "title": "deleteResource",
+  "description": "Delete a resource permanently",
+  "source": "@site/docs/api/operations/mutations/delete-resource.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/delete-resource",
+  "permalink": "/api/operations/mutations/delete-resource",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "delete-resource",
+    "title": "deleteResource"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "deletePortMirror",
+    "permalink": "/api/operations/mutations/delete-port-mirror"
+  },
+  "next": {
+    "title": "deleteRoute",
+    "permalink": "/api/operations/mutations/delete-route"
+  }
+}

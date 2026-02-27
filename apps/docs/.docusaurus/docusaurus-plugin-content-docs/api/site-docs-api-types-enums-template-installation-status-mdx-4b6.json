@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/template-installation-status",
+  "title": "TemplateInstallationStatus",
+  "description": "Template installation status",
+  "source": "@site/docs/api/types/enums/template-installation-status.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/template-installation-status",
+  "permalink": "/api/types/enums/template-installation-status",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "template-installation-status",
+    "title": "TemplateInstallationStatus"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "TemplateConflictType",
+    "permalink": "/api/types/enums/template-conflict-type"
+  },
+  "next": {
+    "title": "TemplateScope",
+    "permalink": "/api/types/enums/template-scope"
+  }
+}

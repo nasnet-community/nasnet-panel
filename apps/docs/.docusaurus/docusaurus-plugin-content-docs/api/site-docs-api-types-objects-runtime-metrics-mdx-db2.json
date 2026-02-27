@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/runtime-metrics",
+  "title": "RuntimeMetrics",
+  "description": "Resource-specific runtime metrics",
+  "source": "@site/docs/api/types/objects/runtime-metrics.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/runtime-metrics",
+  "permalink": "/api/types/objects/runtime-metrics",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "runtime-metrics",
+    "title": "RuntimeMetrics"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "RunTroubleshootStepPayload",
+    "permalink": "/api/types/objects/run-troubleshoot-step-payload"
+  },
+  "next": {
+    "title": "RuntimeState",
+    "permalink": "/api/types/objects/runtime-state"
+  }
+}

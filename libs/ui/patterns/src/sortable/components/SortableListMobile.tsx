@@ -48,35 +48,20 @@ const MobileItemWrapper: React.FC<MobileItemWrapperProps> = ({
   const isLast = position === total;
 
   return (
-    <div className="flex items-stretch gap-2">
-      {/* Position number */}
-      <div
-        className={cn(
-          'flex items-center justify-center',
-          'w-10 flex-shrink-0',
-          'text-lg font-semibold',
-          'text-primary',
-          'bg-primary/10',
-          'rounded-l-lg',
-        )}
-        aria-hidden="true"
-      >
-        #{position}
-      </div>
-
+    <div className="flex items-center gap-component-sm">
       {/* Content */}
-      <div className="flex-1 min-w-0 py-2">{children}</div>
+      <div className="flex-1 min-w-0 py-component-sm">{children}</div>
 
       {/* Move buttons (fallback for touch) */}
       {showMoveButtons && (
-        <div className="flex flex-col justify-center gap-1 pr-2">
+        <div className="flex flex-col justify-center gap-component-sm">
           <Button
             variant="ghost"
             size="icon"
             onClick={onMoveUp}
             disabled={isFirst || disabled}
             className={cn(
-              'h-10 w-10',
+              'h-11 w-11',
               'touch-none',
             )}
             style={{ minWidth: MIN_TOUCH_TARGET, minHeight: MIN_TOUCH_TARGET }}
@@ -90,7 +75,7 @@ const MobileItemWrapper: React.FC<MobileItemWrapperProps> = ({
             onClick={onMoveDown}
             disabled={isLast || disabled}
             className={cn(
-              'h-10 w-10',
+              'h-11 w-11',
               'touch-none',
             )}
             style={{ minWidth: MIN_TOUCH_TARGET, minHeight: MIN_TOUCH_TARGET }}
@@ -154,16 +139,16 @@ export function SortableListMobile<T extends SortableItemData>({
       renderItem={renderItem}
       className={cn(
         // Mobile-specific styles
-        'touch-pan-y', // Allow vertical scrolling
+        'touch-pan-y space-y-1', // Allow vertical scrolling
         className
       )}
       // Mobile defaults
       showDragHandle={true}
       showPositionNumbers={false} // Position shown in MobileItemWrapper
-      gap={3}
+      gap={1}
       itemClassName={cn(
-        'bg-card border border-border rounded-lg shadow-sm',
-        'min-h-[64px]', // Larger touch target
+        'bg-card border border-border rounded-[var(--semantic-radius-card)]',
+        'min-h-[44px]', // WCAG AAA touch target (44px minimum)
       )}
     />
   );

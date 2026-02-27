@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/template-rule-input",
+  "title": "TemplateRuleInput",
+  "description": "Input for defining a template rule.",
+  "source": "@site/docs/api/types/inputs/template-rule-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/template-rule-input",
+  "permalink": "/api/types/inputs/template-rule-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "template-rule-input",
+    "title": "TemplateRuleInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "StopInstanceInput",
+    "permalink": "/api/types/inputs/stop-instance-input"
+  },
+  "next": {
+    "title": "ThrottleConfigInput",
+    "permalink": "/api/types/inputs/throttle-config-input"
+  }
+}

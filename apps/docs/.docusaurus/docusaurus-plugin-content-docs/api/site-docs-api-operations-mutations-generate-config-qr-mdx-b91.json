@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/generate-config-qr",
+  "title": "generateConfigQR",
+  "description": "Generate a QR code for service configuration sharing.",
+  "source": "@site/docs/api/operations/mutations/generate-config-qr.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/generate-config-qr",
+  "permalink": "/api/operations/mutations/generate-config-qr",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "generate-config-qr",
+    "title": "generateConfigQR"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "flushDnsCache",
+    "permalink": "/api/operations/mutations/flush-dns-cache"
+  },
+  "next": {
+    "title": "importAlertRuleTemplate",
+    "permalink": "/api/operations/mutations/import-alert-rule-template"
+  }
+}

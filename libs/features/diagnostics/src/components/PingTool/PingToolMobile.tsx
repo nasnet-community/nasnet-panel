@@ -93,10 +93,10 @@ export const PingToolMobile = memo(function PingToolMobile({
           <CardTitle className="text-lg">Ping Diagnostic</CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-component-md">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-component-lg">
             {/* Target input with monospace for IPs */}
-            <div className="space-y-component-xs">
-              <Label htmlFor="ping-target-mobile">Target *</Label>
+            <div className="space-y-component-sm">
+              <Label htmlFor="ping-target-mobile">Target</Label>
               <Input
                 id="ping-target-mobile"
                 placeholder="8.8.8.8 or hostname"
@@ -105,15 +105,15 @@ export const PingToolMobile = memo(function PingToolMobile({
                 {...register('target')}
               />
               {errors.target && (
-                <p className="text-sm text-error" role="alert">
+                <p className="text-xs text-error" role="alert">
                   {errors.target.message}
                 </p>
               )}
             </div>
 
             {/* Compact advanced options */}
-            <div className="grid grid-cols-2 gap-component-sm">
-              <div className="space-y-component-xs">
+            <div className="grid grid-cols-2 gap-component-md">
+              <div className="space-y-component-sm">
                 <Label htmlFor="ping-count-mobile" className="text-xs">
                   Count
                 </Label>
@@ -126,7 +126,7 @@ export const PingToolMobile = memo(function PingToolMobile({
                   {...register('count')}
                 />
               </div>
-              <div className="space-y-component-xs">
+              <div className="space-y-component-sm">
                 <Label htmlFor="ping-timeout-mobile" className="text-xs">
                   Timeout (ms)
                 </Label>
@@ -189,7 +189,7 @@ export const PingToolMobile = memo(function PingToolMobile({
             {/* Error display */}
             {ping.error && (
               <div
-                className="p-component-sm border border-error bg-error/10 rounded-card-sm text-sm text-error"
+                className="p-component-md border border-error bg-error/10 rounded-card-sm text-xs text-error"
                 role="alert"
               >
                 {ping.error}
@@ -212,7 +212,7 @@ export const PingToolMobile = memo(function PingToolMobile({
             <SheetHeader>
               <SheetTitle>Ping Results</SheetTitle>
             </SheetHeader>
-            <div className="space-y-component-lg mt-component-md" role="log" aria-label="Ping results">
+            <div className="space-y-component-xl mt-component-lg" role="log" aria-label="Ping results">
               <PingResults results={ping.results} />
               <LatencyGraph results={ping.results} />
               <PingStatistics statistics={ping.statistics} />

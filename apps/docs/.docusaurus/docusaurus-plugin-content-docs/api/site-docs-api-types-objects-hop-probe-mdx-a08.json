@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/hop-probe",
+  "title": "HopProbe",
+  "description": "A single probe result within a hop",
+  "source": "@site/docs/api/types/objects/hop-probe.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/hop-probe",
+  "permalink": "/api/types/objects/hop-probe",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "hop-probe",
+    "title": "HopProbe"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "HealthStatus",
+    "permalink": "/api/types/objects/health-status"
+  },
+  "next": {
+    "title": "HourlyStats",
+    "permalink": "/api/types/objects/hourly-stats"
+  }
+}

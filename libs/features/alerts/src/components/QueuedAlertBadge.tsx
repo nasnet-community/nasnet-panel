@@ -74,7 +74,7 @@ const QueuedAlertBadge = ({
     return (
       <div
         className={cn(
-          'inline-flex items-center gap-component-sm px-2 py-1 rounded-[var(--semantic-radius-badge)] text-xs font-medium',
+          'inline-flex items-center gap-component-sm px-component-sm py-component-xs rounded-[var(--semantic-radius-badge)] text-xs font-medium',
           'bg-warning/10 text-warning border border-warning/20',
           className
         )}
@@ -93,7 +93,7 @@ const QueuedAlertBadge = ({
     return (
       <div
         className={cn(
-          'inline-flex items-center gap-component-sm px-2 py-1 rounded-[var(--semantic-radius-badge)] text-xs font-medium',
+          'inline-flex items-center gap-component-sm px-component-sm py-component-xs rounded-[var(--semantic-radius-badge)] text-xs font-medium',
           'bg-info/10 text-info border border-info/20',
           className
         )}

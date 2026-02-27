@@ -1,0 +1,24 @@
+{
+  "id": "testing/e2e-testing",
+  "title": "E2E Testing",
+  "description": "End-to-end tests verify complete user journeys in a real browser. They sit at the top of the testing pyramid and are used sparingly — only for the most critical workflows where a failure would be catastrophic (router configuration changes, firewall rule management, VPN provisioning).",
+  "source": "@site/../connect/docs/testing/e2e-testing.md",
+  "sourceDirName": "testing",
+  "slug": "/testing/e2e-testing",
+  "permalink": "/docs/frontend/testing/e2e-testing",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../connect/docs/testing/e2e-testing.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Component Testing",
+    "permalink": "/docs/frontend/testing/component-testing"
+  },
+  "next": {
+    "title": "Mocking Strategy",
+    "permalink": "/docs/frontend/testing/mocking"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/create-router",
+  "title": "createRouter",
+  "description": "Add a new router to manage",
+  "source": "@site/docs/api/operations/mutations/create-router.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/create-router",
+  "permalink": "/api/operations/mutations/create-router",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "create-router",
+    "title": "createRouter"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "createRoute",
+    "permalink": "/api/operations/mutations/create-route"
+  },
+  "next": {
+    "title": "createRoutingChain",
+    "permalink": "/api/operations/mutations/create-routing-chain"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/router",
+  "title": "Router",
+  "description": "A managed router device",
+  "source": "@site/docs/api/types/objects/router.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/router",
+  "permalink": "/api/types/objects/router",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "router",
+    "title": "Router"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "RouterStatusEvent",
+    "permalink": "/api/types/objects/router-status-event"
+  },
+  "next": {
+    "title": "RoutingChainMutationResult",
+    "permalink": "/api/types/objects/routing-chain-mutation-result"
+  }
+}

@@ -177,31 +177,21 @@ const FirewallLogStatsDesktop = memo(function FirewallLogStatsDesktop({
 
   if (loading) {
     return (
-      <Card className={cn('animate-pulse', className)}>
-        <CardHeader>
-          <div className="h-6 w-48 bg-muted rounded" />
-          <div className="h-4 w-64 bg-muted rounded mt-2" />
-        </CardHeader>
-        <CardContent>
-          <div className="h-64 bg-muted rounded" />
-        </CardContent>
-      </Card>
+      <div className={cn('grid grid-cols-2 sm:grid-cols-4 gap-3 animate-pulse', className)}>
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="bg-muted/50 rounded-lg p-3 h-20" />
+        ))}
+      </div>
     );
   }
 
   if (stats.totalLogs === 0) {
     return (
-      <Card className={className}>
-        <CardHeader>
-          <CardTitle>Log Statistics</CardTitle>
-          <CardDescription>No firewall logs to display</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-center h-48 text-muted-foreground">
-            <p className="text-sm">Enable logging on firewall rules to see statistics</p>
-          </div>
-        </CardContent>
-      </Card>
+      <div className={cn('grid grid-cols-2 sm:grid-cols-4 gap-3', className)}>
+        <div className="col-span-full bg-muted/50 rounded-lg p-3 text-center text-muted-foreground text-sm">
+          No firewall logs to display
+        </div>
+      </div>
     );
   }
 
@@ -246,6 +236,24 @@ const FirewallLogStatsDesktop = memo(function FirewallLogStatsDesktop({
           </ResponsiveContainer>
         </CardContent>
       </Card>
+
+      {/* Summary Stats Cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="bg-muted/50 rounded-lg p-3 text-center">
+          <div className="text-lg font-bold font-display text-foreground">
+            {stats.actionDistribution.reduce((sum, a) => sum + a.count, 0)}
+          </div>
+          <div className="text-xs text-muted-foreground mt-1">Total Logs</div>
+        </div>
+        {stats.actionDistribution.map((action) => (
+          <div key={action.action} className="bg-muted/50 rounded-lg p-3 text-center">
+            <div className="text-lg font-bold font-display" style={{ color: action.color }}>
+              {action.count}
+            </div>
+            <div className="text-xs text-muted-foreground mt-1 capitalize">{action.action}</div>
+          </div>
+        ))}
+      </div>
 
       {/* Two-column layout for lists */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -372,27 +380,21 @@ const FirewallLogStatsMobile = memo(function FirewallLogStatsMobile({
 
   if (loading) {
     return (
-      <div className={cn('space-y-4 animate-pulse', className)}>
-        <div className="h-32 bg-muted rounded-lg" />
-        <div className="h-64 bg-muted rounded-lg" />
+      <div className={cn('grid grid-cols-2 gap-3 animate-pulse', className)}>
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="bg-muted/50 rounded-lg p-3 h-20" />
+        ))}
       </div>
     );
   }
 
   if (stats.totalLogs === 0) {
     return (
-      <Card className={className}>
-        <CardContent className="pt-6">
-          <div className="text-center py-8">
-            <p className="text-sm text-muted-foreground">
-              No firewall logs to display
-            </p>
-            <p className="text-xs text-muted-foreground mt-2">
-              Enable logging on firewall rules
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+      <div className={cn('grid grid-cols-2 gap-3', className)}>
+        <div className="col-span-full bg-muted/50 rounded-lg p-3 text-center text-muted-foreground text-xs">
+          No firewall logs to display
+        </div>
+      </div>
     );
   }
 

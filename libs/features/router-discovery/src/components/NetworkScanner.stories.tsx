@@ -160,7 +160,7 @@ export const WideLayout: Story = {
   },
   decorators: [
     (Story) => (
-      <div className="max-w-3xl mx-auto p-8">
+      <div className="max-w-3xl mx-auto p-component-xl">
         <Story />
       </div>
     ),

@@ -151,7 +151,7 @@ export const UndoFloatingButton = memo(function UndoFloatingButton({
     <>
       {/* Floating Button */}
       <div className="fixed bottom-6 right-6 z-50">
-        <div className="flex flex-col items-end gap-2">
+        <div className="flex flex-col items-end gap-component-sm">
           {/* Countdown Display */}
           <div
             role="status"
@@ -165,7 +165,7 @@ export const UndoFloatingButton = memo(function UndoFloatingButton({
                   : 'bg-card border border-border'
             }`}
           >
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-component-sm">
               <span className="text-sm font-medium">Rollback available</span>
               <span className="font-mono text-lg font-bold">
                 {formatTime(secondsRemaining)}
@@ -173,7 +173,7 @@ export const UndoFloatingButton = memo(function UndoFloatingButton({
             </div>
             <Progress
               value={progressValue}
-              className={`mt-1 h-1 ${
+              className={`mt-component-xs h-1 ${
                 urgencyLevel === 'critical'
                   ? 'bg-error-foreground/20'
                   : urgencyLevel === 'warning'
@@ -192,7 +192,7 @@ export const UndoFloatingButton = memo(function UndoFloatingButton({
             disabled={isRollingBack}
             aria-label={isRollingBack ? 'Rolling back changes in progress' : 'Undo recent template changes'}
           >
-            <Undo2 className="mr-2 h-5 w-5" aria-hidden="true" />
+            <Undo2 className="mr-component-sm h-5 w-5" aria-hidden="true" />
             {isRollingBack ? 'Rolling back...' : 'Undo Changes'}
           </Button>
         </div>
@@ -202,7 +202,7 @@ export const UndoFloatingButton = memo(function UndoFloatingButton({
       <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
+            <DialogTitle className="flex items-center gap-component-sm">
               <AlertCircle className="h-5 w-5 text-warning" aria-hidden="true" />
               Confirm Rollback
             </DialogTitle>
@@ -211,12 +211,12 @@ export const UndoFloatingButton = memo(function UndoFloatingButton({
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4">
+          <div className="space-y-component-md">
             {/* Template Info */}
             <div className="rounded-[var(--semantic-radius-card)] border border-border p-component-md">
-              <h4 className="mb-2 text-sm font-medium">Template Applied</h4>
+              <h4 className="mb-component-sm text-sm font-medium">Template Applied</h4>
               <p className="text-sm text-muted-foreground">{templateName}</p>
-              <p className="mt-1 text-sm text-muted-foreground">
+              <p className="mt-component-xs text-sm text-muted-foreground">
                 {rulesApplied} firewall rule{rulesApplied !== 1 ? 's' : ''} created
               </p>
             </div>
@@ -226,7 +226,7 @@ export const UndoFloatingButton = memo(function UndoFloatingButton({
               <AlertCircle className="h-4 w-4" aria-hidden="true" />
               <AlertDescription>
                 <p className="font-medium">What will happen:</p>
-                <ul className="mt-2 list-inside list-disc space-y-1 text-sm">
+                <ul className="mt-component-sm list-inside list-disc space-y-component-xs text-sm">
                   <li>All {rulesApplied} firewall rules will be removed</li>
                   <li>Router configuration will be restored to previous state</li>
                   <li>Changes cannot be undone after rollback</li>
@@ -262,12 +262,12 @@ export const UndoFloatingButton = memo(function UndoFloatingButton({
             >
               {isRollingBack ? (
                 <>
-                  <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                  <div className="mr-component-sm h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
                   Rolling Back...
                 </>
               ) : (
                 <>
-                  <Undo2 className="mr-2 h-4 w-4" />
+                  <Undo2 className="mr-component-sm h-4 w-4" />
                   Confirm Rollback
                 </>
               )}

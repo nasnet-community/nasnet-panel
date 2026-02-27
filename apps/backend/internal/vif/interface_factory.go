@@ -54,6 +54,21 @@ func NewInterfaceFactory(cfg InterfaceFactoryConfig) *InterfaceFactory {
 // cleanupFunc represents a function to be called on rollback.
 type cleanupFunc func() error
 
+// removeCommand returns a cleanup function that removes a RouterOS resource.
+func (f *InterfaceFactory) removeCommand(ctx context.Context, path string, args map[string]string) cleanupFunc {
+	return func() error {
+		_, err := f.router.ExecuteCommand(ctx, router.Command{
+			Path:   path,
+			Action: "remove",
+			Args:   args,
+		})
+		if err != nil {
+			return fmt.Errorf("remove %s: %w", path, err)
+		}
+		return nil
+	}
+}
+
 // CreateInterface creates a VLAN interface with IP address and routing table on the router.
 // It executes commands transactionally with cleanup on failure.
 func (f *InterfaceFactory) CreateInterface(
@@ -88,7 +103,7 @@ func (f *InterfaceFactory) CreateInterface(
 		SetStatus(virtualinterface.StatusCreating).
 		Save(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create VirtualInterface record: %w", err)
+		return nil, fmt.Errorf("create interface: save vif record: %w", err)
 	}
 
 	// Track cleanup functions in LIFO order
@@ -118,19 +133,9 @@ func (f *InterfaceFactory) CreateInterface(
 	if _, vlanErr := f.router.ExecuteCommand(ctx, vlanCmd); vlanErr != nil {
 		// Update status to ERROR
 		vif.Update().SetStatus(virtualinterface.StatusError).SaveX(ctx)
-		return nil, fmt.Errorf("failed to create VLAN interface: %w", vlanErr)
+		return nil, fmt.Errorf("create vlan interface: %w", vlanErr)
 	}
-	cleanups = append(cleanups, func() error {
-		removeVlanCmd := router.Command{
-			Path:   "/interface/vlan",
-			Action: "remove",
-			Args: map[string]string{
-				"numbers": interfaceName,
-			},
-		}
-		_, rmErr := f.router.ExecuteCommand(ctx, removeVlanCmd)
-		return rmErr
-	})
+	cleanups = append(cleanups, f.removeCommand(ctx, "/interface/vlan", map[string]string{"numbers": interfaceName}))
 
 	// Step 2: Assign IP address
 	ipCmd := router.Command{
@@ -143,19 +148,9 @@ func (f *InterfaceFactory) CreateInterface(
 	}
 	if _, ipErr := f.router.ExecuteCommand(ctx, ipCmd); ipErr != nil {
 		vif.Update().SetStatus(virtualinterface.StatusError).SaveX(ctx)
-		return nil, fmt.Errorf("failed to assign IP address: %w", ipErr)
+		return nil, fmt.Errorf("assign ip address: %w", ipErr)
 	}
-	cleanups = append(cleanups, func() error {
-		removeIpCmd := router.Command{
-			Path:   "/ip/address",
-			Action: "remove",
-			Args: map[string]string{
-				"numbers": ipAddress,
-			},
-		}
-		_, rmErr := f.router.ExecuteCommand(ctx, removeIpCmd)
-		return rmErr
-	})
+	cleanups = append(cleanups, f.removeCommand(ctx, "/ip/address", map[string]string{"numbers": ipAddress}))
 
 	// Step 3: Create routing table
 	tableCmd := router.Command{
@@ -167,19 +162,9 @@ func (f *InterfaceFactory) CreateInterface(
 	}
 	if _, tblErr := f.router.ExecuteCommand(ctx, tableCmd); tblErr != nil {
 		vif.Update().SetStatus(virtualinterface.StatusError).SaveX(ctx)
-		return nil, fmt.Errorf("failed to create routing table: %w", tblErr)
+		return nil, fmt.Errorf("create routing table: %w", tblErr)
 	}
-	cleanups = append(cleanups, func() error {
-		removeTableCmd := router.Command{
-			Path:   "/routing/table",
-			Action: "remove",
-			Args: map[string]string{
-				"numbers": routingTableName,
-			},
-		}
-		_, rmErr := f.router.ExecuteCommand(ctx, removeTableCmd)
-		return rmErr
-	})
+	cleanups = append(cleanups, f.removeCommand(ctx, "/routing/table", map[string]string{"numbers": routingTableName}))
 
 	// Step 4: Add default route to gateway
 	gatewayIP := fmt.Sprintf("10.99.%d.2", vlanID)
@@ -194,20 +179,9 @@ func (f *InterfaceFactory) CreateInterface(
 	}
 	if _, rtErr := f.router.ExecuteCommand(ctx, routeCmd); rtErr != nil {
 		vif.Update().SetStatus(virtualinterface.StatusError).SaveX(ctx)
-		return nil, fmt.Errorf("failed to create default route: %w", rtErr)
+		return nil, fmt.Errorf("create default route: %w", rtErr)
 	}
-	cleanups = append(cleanups, func() error {
-		removeRouteCmd := router.Command{
-			Path:   "/ip/route",
-			Action: "remove",
-			Args: map[string]string{
-				"routing-table": routingTableName,
-				"dst-address":   "0.0.0.0/0",
-			},
-		}
-		_, rmErr := f.router.ExecuteCommand(ctx, removeRouteCmd)
-		return rmErr
-	})
+	cleanups = append(cleanups, f.removeCommand(ctx, "/ip/route", map[string]string{"routing-table": routingTableName, "dst-address": "0.0.0.0/0"}))
 
 	// All steps succeeded - update status to ACTIVE and clear cleanup
 	vif, err = vif.Update().
@@ -215,7 +189,7 @@ func (f *InterfaceFactory) CreateInterface(
 		SetUpdatedAt(time.Now()).
 		Save(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("failed to update VirtualInterface status: %w", err)
+		return nil, fmt.Errorf("create interface: update vif status: %w", err)
 	}
 	cleanups = nil // Clear cleanups to prevent rollback
 
@@ -256,7 +230,7 @@ func (f *InterfaceFactory) RemoveInterface(
 			f.logger.Warn("VirtualInterface not found", zap.String("instance_id", instanceID))
 			return nil
 		}
-		return fmt.Errorf("failed to load VirtualInterface: %w", err)
+		return fmt.Errorf("remove interface: load vif: %w", err)
 	}
 
 	f.logger.Info("Removing virtual interface",
@@ -321,7 +295,7 @@ func (f *InterfaceFactory) RemoveInterface(
 
 	// Delete VirtualInterface record
 	if err := f.store.VirtualInterface.DeleteOne(vif).Exec(ctx); err != nil {
-		return fmt.Errorf("failed to delete VirtualInterface record: %w", err)
+		return fmt.Errorf("remove interface: delete vif record: %w", err)
 	}
 
 	// Emit event

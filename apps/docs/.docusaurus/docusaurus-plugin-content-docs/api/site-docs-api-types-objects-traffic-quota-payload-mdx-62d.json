@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/traffic-quota-payload",
+  "title": "TrafficQuotaPayload",
+  "description": "Payload for traffic quota mutation.",
+  "source": "@site/docs/api/types/objects/traffic-quota-payload.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/traffic-quota-payload",
+  "permalink": "/api/types/objects/traffic-quota-payload",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "traffic-quota-payload",
+    "title": "TrafficQuotaPayload"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "TrafficDataPoint",
+    "permalink": "/api/types/objects/traffic-data-point"
+  },
+  "next": {
+    "title": "TrafficQuota",
+    "permalink": "/api/types/objects/traffic-quota"
+  }
+}

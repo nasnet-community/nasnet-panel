@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/gateway-state",
+  "title": "GatewayState",
+  "description": "Gateway process state for monitoring",
+  "source": "@site/docs/api/types/enums/gateway-state.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/gateway-state",
+  "permalink": "/api/types/enums/gateway-state",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "gateway-state",
+    "title": "GatewayState"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "FrameTypes",
+    "permalink": "/api/types/enums/frame-types"
+  },
+  "next": {
+    "title": "GatewayStatus",
+    "permalink": "/api/types/enums/gateway-status"
+  }
+}

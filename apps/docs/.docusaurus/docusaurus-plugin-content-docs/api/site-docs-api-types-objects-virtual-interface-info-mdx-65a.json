@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/virtual-interface-info",
+  "title": "VirtualInterfaceInfo",
+  "description": "Virtual interface information for routing matrix.",
+  "source": "@site/docs/api/types/objects/virtual-interface-info.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/virtual-interface-info",
+  "permalink": "/api/types/objects/virtual-interface-info",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "virtual-interface-info",
+    "title": "VirtualInterfaceInfo"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "VIFRequirements",
+    "permalink": "/api/types/objects/vifrequirements"
+  },
+  "next": {
+    "title": "VirtualInterface",
+    "permalink": "/api/types/objects/virtual-interface"
+  }
+}

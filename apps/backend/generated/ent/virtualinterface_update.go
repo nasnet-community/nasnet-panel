@@ -15,6 +15,7 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"entgo.io/ent/dialect/sql/sqljson"
 	"entgo.io/ent/schema/field"
 )
 
@@ -170,6 +171,85 @@ func (_u *VirtualInterfaceUpdate) SetNillableStatus(v *virtualinterface.Status) 
 	return _u
 }
 
+// SetRoutingMode sets the "routing_mode" field.
+func (_u *VirtualInterfaceUpdate) SetRoutingMode(v virtualinterface.RoutingMode) *VirtualInterfaceUpdate {
+	_u.mutation.SetRoutingMode(v)
+	return _u
+}
+
+// SetNillableRoutingMode sets the "routing_mode" field if the given value is not nil.
+func (_u *VirtualInterfaceUpdate) SetNillableRoutingMode(v *virtualinterface.RoutingMode) *VirtualInterfaceUpdate {
+	if v != nil {
+		_u.SetRoutingMode(*v)
+	}
+	return _u
+}
+
+// SetIngressVlanID sets the "ingress_vlan_id" field.
+func (_u *VirtualInterfaceUpdate) SetIngressVlanID(v int) *VirtualInterfaceUpdate {
+	_u.mutation.ResetIngressVlanID()
+	_u.mutation.SetIngressVlanID(v)
+	return _u
+}
+
+// SetNillableIngressVlanID sets the "ingress_vlan_id" field if the given value is not nil.
+func (_u *VirtualInterfaceUpdate) SetNillableIngressVlanID(v *int) *VirtualInterfaceUpdate {
+	if v != nil {
+		_u.SetIngressVlanID(*v)
+	}
+	return _u
+}
+
+// AddIngressVlanID adds value to the "ingress_vlan_id" field.
+func (_u *VirtualInterfaceUpdate) AddIngressVlanID(v int) *VirtualInterfaceUpdate {
+	_u.mutation.AddIngressVlanID(v)
+	return _u
+}
+
+// ClearIngressVlanID clears the value of the "ingress_vlan_id" field.
+func (_u *VirtualInterfaceUpdate) ClearIngressVlanID() *VirtualInterfaceUpdate {
+	_u.mutation.ClearIngressVlanID()
+	return _u
+}
+
+// SetEgressVlanIds sets the "egress_vlan_ids" field.
+func (_u *VirtualInterfaceUpdate) SetEgressVlanIds(v []int) *VirtualInterfaceUpdate {
+	_u.mutation.SetEgressVlanIds(v)
+	return _u
+}
+
+// AppendEgressVlanIds appends value to the "egress_vlan_ids" field.
+func (_u *VirtualInterfaceUpdate) AppendEgressVlanIds(v []int) *VirtualInterfaceUpdate {
+	_u.mutation.AppendEgressVlanIds(v)
+	return _u
+}
+
+// ClearEgressVlanIds clears the value of the "egress_vlan_ids" field.
+func (_u *VirtualInterfaceUpdate) ClearEgressVlanIds() *VirtualInterfaceUpdate {
+	_u.mutation.ClearEgressVlanIds()
+	return _u
+}
+
+// SetContainerIP sets the "container_ip" field.
+func (_u *VirtualInterfaceUpdate) SetContainerIP(v string) *VirtualInterfaceUpdate {
+	_u.mutation.SetContainerIP(v)
+	return _u
+}
+
+// SetNillableContainerIP sets the "container_ip" field if the given value is not nil.
+func (_u *VirtualInterfaceUpdate) SetNillableContainerIP(v *string) *VirtualInterfaceUpdate {
+	if v != nil {
+		_u.SetContainerIP(*v)
+	}
+	return _u
+}
+
+// ClearContainerIP clears the value of the "container_ip" field.
+func (_u *VirtualInterfaceUpdate) ClearContainerIP() *VirtualInterfaceUpdate {
+	_u.mutation.ClearContainerIP()
+	return _u
+}
+
 // SetUpdatedAt sets the "updated_at" field.
 func (_u *VirtualInterfaceUpdate) SetUpdatedAt(v time.Time) *VirtualInterfaceUpdate {
 	_u.mutation.SetUpdatedAt(v)
@@ -311,6 +391,21 @@ func (_u *VirtualInterfaceUpdate) check() error {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "VirtualInterface.status": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.RoutingMode(); ok {
+		if err := virtualinterface.RoutingModeValidator(v); err != nil {
+			return &ValidationError{Name: "routing_mode", err: fmt.Errorf(`ent: validator failed for field "VirtualInterface.routing_mode": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.IngressVlanID(); ok {
+		if err := virtualinterface.IngressVlanIDValidator(v); err != nil {
+			return &ValidationError{Name: "ingress_vlan_id", err: fmt.Errorf(`ent: validator failed for field "VirtualInterface.ingress_vlan_id": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.ContainerIP(); ok {
+		if err := virtualinterface.ContainerIPValidator(v); err != nil {
+			return &ValidationError{Name: "container_ip", err: fmt.Errorf(`ent: validator failed for field "VirtualInterface.container_ip": %w`, err)}
+		}
+	}
 	if _u.mutation.InstanceCleared() && len(_u.mutation.InstanceIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "VirtualInterface.instance"`)
 	}
@@ -358,6 +453,35 @@ func (_u *VirtualInterfaceUpdate) sqlSave(ctx context.Context) (_node int, err e
 	}
 	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(virtualinterface.FieldStatus, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.RoutingMode(); ok {
+		_spec.SetField(virtualinterface.FieldRoutingMode, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.IngressVlanID(); ok {
+		_spec.SetField(virtualinterface.FieldIngressVlanID, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedIngressVlanID(); ok {
+		_spec.AddField(virtualinterface.FieldIngressVlanID, field.TypeInt, value)
+	}
+	if _u.mutation.IngressVlanIDCleared() {
+		_spec.ClearField(virtualinterface.FieldIngressVlanID, field.TypeInt)
+	}
+	if value, ok := _u.mutation.EgressVlanIds(); ok {
+		_spec.SetField(virtualinterface.FieldEgressVlanIds, field.TypeJSON, value)
+	}
+	if value, ok := _u.mutation.AppendedEgressVlanIds(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, virtualinterface.FieldEgressVlanIds, value)
+		})
+	}
+	if _u.mutation.EgressVlanIdsCleared() {
+		_spec.ClearField(virtualinterface.FieldEgressVlanIds, field.TypeJSON)
+	}
+	if value, ok := _u.mutation.ContainerIP(); ok {
+		_spec.SetField(virtualinterface.FieldContainerIP, field.TypeString, value)
+	}
+	if _u.mutation.ContainerIPCleared() {
+		_spec.ClearField(virtualinterface.FieldContainerIP, field.TypeString)
 	}
 	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(virtualinterface.FieldUpdatedAt, field.TypeTime, value)
@@ -602,6 +726,85 @@ func (_u *VirtualInterfaceUpdateOne) SetNillableStatus(v *virtualinterface.Statu
 	return _u
 }
 
+// SetRoutingMode sets the "routing_mode" field.
+func (_u *VirtualInterfaceUpdateOne) SetRoutingMode(v virtualinterface.RoutingMode) *VirtualInterfaceUpdateOne {
+	_u.mutation.SetRoutingMode(v)
+	return _u
+}
+
+// SetNillableRoutingMode sets the "routing_mode" field if the given value is not nil.
+func (_u *VirtualInterfaceUpdateOne) SetNillableRoutingMode(v *virtualinterface.RoutingMode) *VirtualInterfaceUpdateOne {
+	if v != nil {
+		_u.SetRoutingMode(*v)
+	}
+	return _u
+}
+
+// SetIngressVlanID sets the "ingress_vlan_id" field.
+func (_u *VirtualInterfaceUpdateOne) SetIngressVlanID(v int) *VirtualInterfaceUpdateOne {
+	_u.mutation.ResetIngressVlanID()
+	_u.mutation.SetIngressVlanID(v)
+	return _u
+}
+
+// SetNillableIngressVlanID sets the "ingress_vlan_id" field if the given value is not nil.
+func (_u *VirtualInterfaceUpdateOne) SetNillableIngressVlanID(v *int) *VirtualInterfaceUpdateOne {
+	if v != nil {
+		_u.SetIngressVlanID(*v)
+	}
+	return _u
+}
+
+// AddIngressVlanID adds value to the "ingress_vlan_id" field.
+func (_u *VirtualInterfaceUpdateOne) AddIngressVlanID(v int) *VirtualInterfaceUpdateOne {
+	_u.mutation.AddIngressVlanID(v)
+	return _u
+}
+
+// ClearIngressVlanID clears the value of the "ingress_vlan_id" field.
+func (_u *VirtualInterfaceUpdateOne) ClearIngressVlanID() *VirtualInterfaceUpdateOne {
+	_u.mutation.ClearIngressVlanID()
+	return _u
+}
+
+// SetEgressVlanIds sets the "egress_vlan_ids" field.
+func (_u *VirtualInterfaceUpdateOne) SetEgressVlanIds(v []int) *VirtualInterfaceUpdateOne {
+	_u.mutation.SetEgressVlanIds(v)
+	return _u
+}
+
+// AppendEgressVlanIds appends value to the "egress_vlan_ids" field.
+func (_u *VirtualInterfaceUpdateOne) AppendEgressVlanIds(v []int) *VirtualInterfaceUpdateOne {
+	_u.mutation.AppendEgressVlanIds(v)
+	return _u
+}
+
+// ClearEgressVlanIds clears the value of the "egress_vlan_ids" field.
+func (_u *VirtualInterfaceUpdateOne) ClearEgressVlanIds() *VirtualInterfaceUpdateOne {
+	_u.mutation.ClearEgressVlanIds()
+	return _u
+}
+
+// SetContainerIP sets the "container_ip" field.
+func (_u *VirtualInterfaceUpdateOne) SetContainerIP(v string) *VirtualInterfaceUpdateOne {
+	_u.mutation.SetContainerIP(v)
+	return _u
+}
+
+// SetNillableContainerIP sets the "container_ip" field if the given value is not nil.
+func (_u *VirtualInterfaceUpdateOne) SetNillableContainerIP(v *string) *VirtualInterfaceUpdateOne {
+	if v != nil {
+		_u.SetContainerIP(*v)
+	}
+	return _u
+}
+
+// ClearContainerIP clears the value of the "container_ip" field.
+func (_u *VirtualInterfaceUpdateOne) ClearContainerIP() *VirtualInterfaceUpdateOne {
+	_u.mutation.ClearContainerIP()
+	return _u
+}
+
 // SetUpdatedAt sets the "updated_at" field.
 func (_u *VirtualInterfaceUpdateOne) SetUpdatedAt(v time.Time) *VirtualInterfaceUpdateOne {
 	_u.mutation.SetUpdatedAt(v)
@@ -756,6 +959,21 @@ func (_u *VirtualInterfaceUpdateOne) check() error {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "VirtualInterface.status": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.RoutingMode(); ok {
+		if err := virtualinterface.RoutingModeValidator(v); err != nil {
+			return &ValidationError{Name: "routing_mode", err: fmt.Errorf(`ent: validator failed for field "VirtualInterface.routing_mode": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.IngressVlanID(); ok {
+		if err := virtualinterface.IngressVlanIDValidator(v); err != nil {
+			return &ValidationError{Name: "ingress_vlan_id", err: fmt.Errorf(`ent: validator failed for field "VirtualInterface.ingress_vlan_id": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.ContainerIP(); ok {
+		if err := virtualinterface.ContainerIPValidator(v); err != nil {
+			return &ValidationError{Name: "container_ip", err: fmt.Errorf(`ent: validator failed for field "VirtualInterface.container_ip": %w`, err)}
+		}
+	}
 	if _u.mutation.InstanceCleared() && len(_u.mutation.InstanceIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "VirtualInterface.instance"`)
 	}
@@ -820,6 +1038,35 @@ func (_u *VirtualInterfaceUpdateOne) sqlSave(ctx context.Context) (_node *Virtua
 	}
 	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(virtualinterface.FieldStatus, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.RoutingMode(); ok {
+		_spec.SetField(virtualinterface.FieldRoutingMode, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.IngressVlanID(); ok {
+		_spec.SetField(virtualinterface.FieldIngressVlanID, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedIngressVlanID(); ok {
+		_spec.AddField(virtualinterface.FieldIngressVlanID, field.TypeInt, value)
+	}
+	if _u.mutation.IngressVlanIDCleared() {
+		_spec.ClearField(virtualinterface.FieldIngressVlanID, field.TypeInt)
+	}
+	if value, ok := _u.mutation.EgressVlanIds(); ok {
+		_spec.SetField(virtualinterface.FieldEgressVlanIds, field.TypeJSON, value)
+	}
+	if value, ok := _u.mutation.AppendedEgressVlanIds(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, virtualinterface.FieldEgressVlanIds, value)
+		})
+	}
+	if _u.mutation.EgressVlanIdsCleared() {
+		_spec.ClearField(virtualinterface.FieldEgressVlanIds, field.TypeJSON)
+	}
+	if value, ok := _u.mutation.ContainerIP(); ok {
+		_spec.SetField(virtualinterface.FieldContainerIP, field.TypeString, value)
+	}
+	if _u.mutation.ContainerIPCleared() {
+		_spec.ClearField(virtualinterface.FieldContainerIP, field.TypeString)
 	}
 	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(virtualinterface.FieldUpdatedAt, field.TypeTime, value)

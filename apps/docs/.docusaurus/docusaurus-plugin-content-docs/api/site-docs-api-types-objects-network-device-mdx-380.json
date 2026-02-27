@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/network-device",
+  "title": "NetworkDevice",
+  "description": "Network device discovered via DHCP and ARP.",
+  "source": "@site/docs/api/types/objects/network-device.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/network-device",
+  "permalink": "/api/types/objects/network-device",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "network-device",
+    "title": "NetworkDevice"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "NetworkConfigDetection",
+    "permalink": "/api/types/objects/network-config-detection"
+  },
+  "next": {
+    "title": "NotificationChannelConfig",
+    "permalink": "/api/types/objects/notification-channel-config"
+  }
+}

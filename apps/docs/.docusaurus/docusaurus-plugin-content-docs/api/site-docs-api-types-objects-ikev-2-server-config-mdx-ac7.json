@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/ikev-2-server-config",
+  "title": "IKEv2ServerConfig",
+  "description": "IKEv2 server configuration",
+  "source": "@site/docs/api/types/objects/ikev-2-server-config.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/ikev-2-server-config",
+  "permalink": "/api/types/objects/ikev-2-server-config",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "ikev-2-server-config",
+    "title": "IKEv2ServerConfig"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "IKEv2Runtime",
+    "permalink": "/api/types/objects/ikev-2-runtime"
+  },
+  "next": {
+    "title": "IKEv2ServerDeployment",
+    "permalink": "/api/types/objects/ikev-2-server-deployment"
+  }
+}

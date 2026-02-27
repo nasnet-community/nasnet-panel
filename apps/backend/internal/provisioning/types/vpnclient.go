@@ -2,12 +2,13 @@ package types
 
 // VPNClient holds all VPN client configurations.
 type VPNClient struct {
-	Wireguard []WireguardClientConfig `json:"wireguard,omitempty"`
-	OpenVPN   []OpenVpnClientConfig   `json:"openVpn,omitempty"`
-	L2TP      []L2tpClientConfig      `json:"l2tp,omitempty"`
-	PPTP      []PptpClientConfig      `json:"pptp,omitempty"`
-	SSTP      []SstpClientConfig      `json:"sstp,omitempty"`
-	IKev2     []Ike2ClientConfig      `json:"ikev2,omitempty"`
+	Wireguard       []WireguardClientConfig `json:"wireguard,omitempty"`
+	OpenVPN         []OpenVpnClientConfig   `json:"openVpn,omitempty"`
+	L2TP            []L2tpClientConfig      `json:"l2tp,omitempty"`
+	PPTP            []PptpClientConfig      `json:"pptp,omitempty"`
+	SSTP            []SstpClientConfig      `json:"sstp,omitempty"`
+	IKev2           []Ike2ClientConfig      `json:"ikev2,omitempty"`
+	MultiLinkConfig *MultiLinkConfig        `json:"multiLinkConfig,omitempty"`
 }
 
 // === Shared Types ===
@@ -21,7 +22,7 @@ type Server struct {
 // Credentials holds username and password.
 type Credentials struct {
 	Username string `json:"username"`
-	Password string `json:"password"`
+	Password string `json:"password"` //nolint:gosec // G101: credential field
 }
 
 // === Auth and Protocol Types ===
@@ -33,6 +34,8 @@ const (
 	AuthMethodNone     AuthMethod = "none"
 	AuthMethodPAP      AuthMethod = "pap"
 	AuthMethodCHAP     AuthMethod = "chap"
+	AuthMethodMSCHAP1  AuthMethod = "mschap1"
+	AuthMethodMSCHAP2  AuthMethod = "mschap2"
 	AuthMethodMSCHAPv2 AuthMethod = "mschapv2"
 	AuthMethodEAP      AuthMethod = "eap"
 )
@@ -41,10 +44,13 @@ const (
 type TLSVersion string
 
 const (
-	TLSVersion1_0 TLSVersion = "1.0"
-	TLSVersion1_1 TLSVersion = "1.1"
-	TLSVersion1_2 TLSVersion = "1.2"
-	TLSVersion1_3 TLSVersion = "1.3"
+	TLSVersion1_0    TLSVersion = "1.0"
+	TLSVersion1_1    TLSVersion = "1.1"
+	TLSVersion1_2    TLSVersion = "1.2"
+	TLSVersion1_3    TLSVersion = "1.3"
+	TLSVersionAny    TLSVersion = "any"
+	TLSVersionOnly12 TLSVersion = "only-1.2"
+	TLSVersionOnly13 TLSVersion = "only-1.3"
 )
 
 // NetworkProtocol represents network protocol.
@@ -89,11 +95,13 @@ const (
 type IkeV2AuthMethod string
 
 const (
-	IkeAuthPSK   IkeV2AuthMethod = "psk"
-	IkeAuthRSA   IkeV2AuthMethod = "rsa"
-	IkeAuthDSS   IkeV2AuthMethod = "dss"
-	IkeAuthECDSA IkeV2AuthMethod = "ecdsa"
-	IkeAuthEAP   IkeV2AuthMethod = "eap"
+	IkeAuthPSK              IkeV2AuthMethod = "psk"
+	IkeAuthRSA              IkeV2AuthMethod = "rsa"
+	IkeAuthDSS              IkeV2AuthMethod = "dss"
+	IkeAuthECDSA            IkeV2AuthMethod = "ecdsa"
+	IkeAuthEAP              IkeV2AuthMethod = "eap"
+	IkeAuthPSKFull          IkeV2AuthMethod = "pre-shared-key"
+	IkeAuthDigitalSignature IkeV2AuthMethod = "digital-signature"
 )
 
 // IkeV2Protocol represents IKEv2 protocol.
@@ -136,9 +144,14 @@ type WireguardClientConfig struct {
 
 // OpenVpnClientCertificates holds OpenVPN client certificates.
 type OpenVpnClientCertificates struct {
-	CA   string `json:"ca"`
-	Cert string `json:"cert"`
-	Key  string `json:"key"`
+	CA                       string  `json:"ca"`
+	Cert                     string  `json:"cert"`
+	Key                      string  `json:"key"`
+	ClientCertificateName    *string `json:"clientCertificateName,omitempty"`
+	CaCertificateName        *string `json:"caCertificateName,omitempty"`
+	CaCertificateContent     *string `json:"caCertificateContent,omitempty"`
+	ClientCertificateContent *string `json:"clientCertificateContent,omitempty"`
+	ClientKeyContent         *string `json:"clientKeyContent,omitempty"`
 }
 
 // OpenVpnClientConfig defines an OpenVPN client configuration.
@@ -164,11 +177,13 @@ type OpenVpnClientConfig struct {
 // PptpClientConfig defines a PPTP client configuration.
 type PptpClientConfig struct {
 	BaseVPNClientConfig
-	ConnectTo        Server      `json:"connectTo"`
-	Credentials      Credentials `json:"credentials"`
-	AuthMethod       AuthMethod  `json:"authMethod"`
-	KeepaliveTimeout *int        `json:"keepaliveTimeout,omitempty"`
-	DialOnDemand     *bool       `json:"dialOnDemand,omitempty"`
+	ConnectTo        Server       `json:"connectTo"`
+	ConnectToAddress *string      `json:"connectToAddress,omitempty"`
+	Credentials      Credentials  `json:"credentials"`
+	AuthMethod       AuthMethod   `json:"authMethod"`
+	AuthMethods      []AuthMethod `json:"authMethods,omitempty"`
+	KeepaliveTimeout *int         `json:"keepaliveTimeout,omitempty"`
+	DialOnDemand     *bool        `json:"dialOnDemand,omitempty"`
 }
 
 // === L2TP ===
@@ -176,18 +191,21 @@ type PptpClientConfig struct {
 // L2tpClientConfig defines an L2TP client configuration.
 type L2tpClientConfig struct {
 	BaseVPNClientConfig
-	Server       Server      `json:"server"`
-	Credentials  Credentials `json:"credentials"`
-	UseIPsec     *bool       `json:"useIpsec,omitempty"`
-	IPsecSecret  *string     `json:"ipsecSecret,omitempty"`
-	AuthMethod   AuthMethod  `json:"authMethod"`
-	ProtoVersion *int        `json:"protoVersion,omitempty"`
-	FastPath     *bool       `json:"fastPath,omitempty"`
-	KeepAlive    *int        `json:"keepAlive,omitempty"`
-	DialOnDemand *bool       `json:"dialOnDemand,omitempty"`
-	CookieLength *int        `json:"cookieLength,omitempty"`
-	DigestHash   *string     `json:"digestHash,omitempty"`
-	CircuitId    *string     `json:"circuitId,omitempty"`
+	Server          Server       `json:"server"`
+	Credentials     Credentials  `json:"credentials"`
+	UseIPsec        *bool        `json:"useIpsec,omitempty"`
+	IPsecSecret     *string      `json:"ipsecSecret,omitempty"`
+	AuthMethod      AuthMethod   `json:"authMethod"`
+	AuthMethods     []AuthMethod `json:"authMethods,omitempty"`
+	ProtoVersion    *int         `json:"protoVersion,omitempty"`
+	ProtoVersionStr *string      `json:"protoVersionStr,omitempty"`
+	FastPath        *bool        `json:"fastPath,omitempty"`
+	KeepAlive       *int         `json:"keepAlive,omitempty"`
+	KeepAliveStr    *string      `json:"keepAliveStr,omitempty"`
+	DialOnDemand    *bool        `json:"dialOnDemand,omitempty"`
+	CookieLength    *int         `json:"cookieLength,omitempty"`
+	DigestHash      *string      `json:"digestHash,omitempty"`
+	CircuitId       *string      `json:"circuitId,omitempty"`
 }
 
 // === SSTP ===
@@ -195,19 +213,23 @@ type L2tpClientConfig struct {
 // SstpClientConfig defines an SSTP client configuration.
 type SstpClientConfig struct {
 	BaseVPNClientConfig
-	Server                             Server      `json:"server"`
-	Credentials                        Credentials `json:"credentials"`
-	AuthMethod                         AuthMethod  `json:"authMethod"`
-	Ciphers                            *string     `json:"ciphers,omitempty"`
-	TLSVersion                         *TLSVersion `json:"tlsVersion,omitempty"`
-	Proxy                              *Server     `json:"proxy,omitempty"`
-	SNI                                *string     `json:"sni,omitempty"`
-	PFS                                *bool       `json:"pfs,omitempty"`
-	DialOnDemand                       *bool       `json:"dialOnDemand,omitempty"`
-	KeepAlive                          *int        `json:"keepAlive,omitempty"`
-	VerifyServerCertificate            *bool       `json:"verifyServerCertificate,omitempty"`
-	VerifyServerAddressFromCertificate *bool       `json:"verifyServerAddressFromCertificate,omitempty"`
-	ClientCertificateName              *string     `json:"clientCertificateName,omitempty"`
+	Server                             Server       `json:"server"`
+	Credentials                        Credentials  `json:"credentials"`
+	AuthMethod                         AuthMethod   `json:"authMethod"`
+	AuthMethods                        []AuthMethod `json:"authMethods,omitempty"`
+	Ciphers                            *string      `json:"ciphers,omitempty"`
+	CiphersList                        []string     `json:"ciphersList,omitempty"`
+	TLSVersion                         *TLSVersion  `json:"tlsVersion,omitempty"`
+	Proxy                              *Server      `json:"proxy,omitempty"`
+	SNI                                *string      `json:"sni,omitempty"`
+	SNIEnabled                         *bool        `json:"sniEnabled,omitempty"`
+	PFS                                *bool        `json:"pfs,omitempty"`
+	PFSStr                             *string      `json:"pfsStr,omitempty"`
+	DialOnDemand                       *bool        `json:"dialOnDemand,omitempty"`
+	KeepAlive                          *int         `json:"keepAlive,omitempty"`
+	VerifyServerCertificate            *bool        `json:"verifyServerCertificate,omitempty"`
+	VerifyServerAddressFromCertificate *bool        `json:"verifyServerAddressFromCertificate,omitempty"`
+	ClientCertificateName              *string      `json:"clientCertificateName,omitempty"`
 }
 
 // === IKEv2 ===
@@ -216,8 +238,42 @@ type SstpClientConfig struct {
 type Ike2ClientConfig struct {
 	BaseVPNClientConfig
 	Server                Server          `json:"server"`
+	ServerAddress         *string         `json:"serverAddress,omitempty"`
 	Credentials           Credentials     `json:"credentials"`
 	AuthMethod            IkeV2AuthMethod `json:"authMethod"`
+	PresharedKey          *string         `json:"presharedKey,omitempty"`
+	ClientCertificateName *string         `json:"clientCertificateName,omitempty"`
+	CaCertificateName     *string         `json:"caCertificateName,omitempty"`
+	EapMethods            []string        `json:"eapMethods,omitempty"`
+	EncAlgorithm          []string        `json:"encAlgorithm,omitempty"`
+	HashAlgorithm         []string        `json:"hashAlgorithm,omitempty"`
+	DhGroup               []string        `json:"dhGroup,omitempty"`
+	Lifetime              *string         `json:"lifetime,omitempty"`
+	NatTraversal          *bool           `json:"natTraversal,omitempty"`
+	DpdInterval           *string         `json:"dpdInterval,omitempty"`
+	PfsGroup              *string         `json:"pfsGroup,omitempty"`
+	ProposalLifetime      *string         `json:"proposalLifetime,omitempty"`
+	PolicySrcAddress      *string         `json:"policySrcAddress,omitempty"`
+	PolicyDstAddress      *string         `json:"policyDstAddress,omitempty"`
+	PolicyAction          *string         `json:"policyAction,omitempty"`
+	PolicyLevel           *string         `json:"policyLevel,omitempty"`
+	EnableModeConfig      *bool           `json:"enableModeConfig,omitempty"`
+	RequestAddressPool    *bool           `json:"requestAddressPool,omitempty"`
+	SrcAddressList        *string         `json:"srcAddressList,omitempty"`
+	ConnectionMark        *string         `json:"connectionMark,omitempty"`
+	MyIdType              *string         `json:"myIdType,omitempty"`
+	MyId                  *string         `json:"myId,omitempty"`
+	RemoteIdType          *string         `json:"remoteIdType,omitempty"`
+	RemoteId              *string         `json:"remoteId,omitempty"`
+	GeneratePolicy        *string         `json:"generatePolicy,omitempty"`
+	Port                  *int            `json:"port,omitempty"`
+	LocalAddress          *string         `json:"localAddress,omitempty"`
+	SendInitialContact    *bool           `json:"sendInitialContact,omitempty"`
+	ProfileName           *string         `json:"profileName,omitempty"`
+	PeerName              *string         `json:"peerName,omitempty"`
+	ProposalName          *string         `json:"proposalName,omitempty"`
+	PolicyGroupName       *string         `json:"policyGroupName,omitempty"`
+	ModeConfigName        *string         `json:"modeConfigName,omitempty"`
 	LocalIdentity         *string         `json:"localIdentity,omitempty"`
 	RemoteIdentity        *string         `json:"remoteIdentity,omitempty"`
 	Version               *string         `json:"version,omitempty"`

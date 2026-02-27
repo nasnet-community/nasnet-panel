@@ -1,0 +1,24 @@
+{
+  "id": "cross-cutting-flows",
+  "title": "Cross-Cutting Flows",
+  "description": "This document traces six end-to-end flows that span multiple packages. Each flow shows how data moves from user interaction through frontend state, API client, GraphQL schema, and into the backend.",
+  "source": "@site/../../libs/features/docs/cross-cutting-flows.md",
+  "sourceDirName": ".",
+  "slug": "/cross-cutting-flows",
+  "permalink": "/docs/features/cross-cutting-flows",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/features/docs/cross-cutting-flows.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Architecture Overview",
+    "permalink": "/docs/features/architecture-overview"
+  },
+  "next": {
+    "title": "Error Handling Architecture",
+    "permalink": "/docs/features/error-handling"
+  }
+}

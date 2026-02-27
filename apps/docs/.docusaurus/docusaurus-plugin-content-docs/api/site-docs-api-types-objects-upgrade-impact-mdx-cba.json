@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/upgrade-impact",
+  "title": "UpgradeImpact",
+  "description": "Impact assessment for an upgrade",
+  "source": "@site/docs/api/types/objects/upgrade-impact.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/upgrade-impact",
+  "permalink": "/api/types/objects/upgrade-impact",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "upgrade-impact",
+    "title": "UpgradeImpact"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "UpdateRouterPayload",
+    "permalink": "/api/types/objects/update-router-payload"
+  },
+  "next": {
+    "title": "UpgradeRecommendation",
+    "permalink": "/api/types/objects/upgrade-recommendation"
+  }
+}

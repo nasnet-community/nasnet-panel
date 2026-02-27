@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/subscriptions/bridge-stp-status-changed",
+  "title": "bridgeStpStatusChanged",
+  "description": "Subscribe to STP status changes for a bridge",
+  "source": "@site/docs/api/operations/subscriptions/bridge-stp-status-changed.mdx",
+  "sourceDirName": "api/operations/subscriptions",
+  "slug": "/api/operations/subscriptions/bridge-stp-status-changed",
+  "permalink": "/api/operations/subscriptions/bridge-stp-status-changed",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "bridge-stp-status-changed",
+    "title": "bridgeStpStatusChanged"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "bridgePortsChanged",
+    "permalink": "/api/operations/subscriptions/bridge-ports-changed"
+  },
+  "next": {
+    "title": "changeSetProgress",
+    "permalink": "/api/operations/subscriptions/change-set-progress"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/check-router-health",
+  "title": "checkRouterHealth",
+  "description": "Perform immediate health check on a router",
+  "source": "@site/docs/api/operations/mutations/check-router-health.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/check-router-health",
+  "permalink": "/api/operations/mutations/check-router-health",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "check-router-health",
+    "title": "checkRouterHealth"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "checkForUpdates",
+    "permalink": "/api/operations/mutations/check-for-updates"
+  },
+  "next": {
+    "title": "classifyWAN",
+    "permalink": "/api/operations/mutations/classify-wan"
+  }
+}

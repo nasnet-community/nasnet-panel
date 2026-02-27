@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/nat-rule-reference",
+  "title": "NatRuleReference",
+  "description": "NAT rule reference type (lightweight for dependency tracking).",
+  "source": "@site/docs/api/types/objects/nat-rule-reference.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/nat-rule-reference",
+  "permalink": "/api/types/objects/nat-rule-reference",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "nat-rule-reference",
+    "title": "NatRuleReference"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "MutationError",
+    "permalink": "/api/types/objects/mutation-error"
+  },
+  "next": {
+    "title": "NatRule",
+    "permalink": "/api/types/objects/nat-rule"
+  }
+}

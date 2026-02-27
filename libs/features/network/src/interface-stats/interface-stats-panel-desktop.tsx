@@ -16,6 +16,7 @@ import { memo, useMemo } from 'react';
 import { AlertCircle, ArrowDown, ArrowUp, Activity } from 'lucide-react';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle , Alert, AlertDescription , Skeleton } from '@nasnet/ui/primitives';
+import { cn } from '@nasnet/ui/utils';
 
 import { ErrorRateIndicator } from './error-rate-indicator';
 import { StatsCounter } from './stats-counter';
@@ -87,7 +88,7 @@ export const InterfaceStatsPanelDesktop = memo(function InterfaceStatsPanelDeskt
   // Loading state with skeleton placeholders
   if (loading && !stats) {
     return (
-      <Card className={className}>
+      <Card className={cn('bg-card category-networking', className)}>
         <CardHeader>
           <CardTitle>{interfaceName} Statistics</CardTitle>
           <CardDescription>Loading interface statistics...</CardDescription>
@@ -106,7 +107,7 @@ export const InterfaceStatsPanelDesktop = memo(function InterfaceStatsPanelDeskt
   // Error state with actionable message
   if (error && !stats) {
     return (
-      <Card className={className}>
+      <Card className={cn('bg-card category-networking', className)}>
         <CardHeader>
           <CardTitle>{interfaceName} Statistics</CardTitle>
           <CardDescription>Failed to load statistics</CardDescription>
@@ -128,7 +129,7 @@ export const InterfaceStatsPanelDesktop = memo(function InterfaceStatsPanelDeskt
   }
 
   return (
-    <Card className={className} role="region" aria-label={`${interfaceName} statistics`}>
+    <Card className={cn('bg-card category-networking', className)} role="region" aria-label={`${interfaceName} statistics`}>
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
@@ -172,7 +173,7 @@ export const InterfaceStatsPanelDesktop = memo(function InterfaceStatsPanelDeskt
               Bandwidth
             </h3>
             <div className="grid grid-cols-2 gap-component-md">
-              <Card className="border-chart-1/20 bg-chart-1/5">
+              <Card className="border-chart-1/20 bg-chart-1/5 bg-muted">
                 <CardContent className="pt-component-lg">
                   <div className="flex items-center justify-between">
                     <div>
@@ -180,7 +181,7 @@ export const InterfaceStatsPanelDesktop = memo(function InterfaceStatsPanelDeskt
                         <ArrowUp className="h-4 w-4" aria-hidden="true" />
                         <span>TX Rate</span>
                       </div>
-                      <div className="mt-component-sm text-3xl font-bold font-mono tabular-nums">
+                      <div className="mt-component-sm text-3xl font-bold font-mono tabular-nums text-foreground">
                         {formatBitsPerSecBigInt(rates.txRate)}
                       </div>
                     </div>
@@ -189,7 +190,7 @@ export const InterfaceStatsPanelDesktop = memo(function InterfaceStatsPanelDeskt
                 </CardContent>
               </Card>
 
-              <Card className="border-chart-2/20 bg-chart-2/5">
+              <Card className="border-chart-2/20 bg-chart-2/5 bg-muted">
                 <CardContent className="pt-component-lg">
                   <div className="flex items-center justify-between">
                     <div>
@@ -197,7 +198,7 @@ export const InterfaceStatsPanelDesktop = memo(function InterfaceStatsPanelDeskt
                         <ArrowDown className="h-4 w-4" aria-hidden="true" />
                         <span>RX Rate</span>
                       </div>
-                      <div className="mt-component-sm text-3xl font-bold font-mono tabular-nums">
+                      <div className="mt-component-sm text-3xl font-bold font-mono tabular-nums text-foreground">
                         {formatBitsPerSecBigInt(rates.rxRate)}
                       </div>
                     </div>

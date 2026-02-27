@@ -7,7 +7,7 @@
  * @module @nasnet/ui/patterns/rhf-form-field
  */
 
-import { Plus, Trash2, GripVertical } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 import { useFieldArray, useFormContext, type FieldValues, type ArrayPath, type FieldArray } from 'react-hook-form';
 
 import { Button, cn } from '@nasnet/ui/primitives';
@@ -82,7 +82,7 @@ export function FormArrayField<TFieldValues extends FieldValues = FieldValues>({
   const canRemove = fields.length > minItems;
 
   return (
-    <div className={cn('space-y-4', className)}>
+    <div className={cn('space-y-3', className)}>
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -98,8 +98,9 @@ export function FormArrayField<TFieldValues extends FieldValues = FieldValues>({
           onClick={() => append(defaultItem)}
           disabled={!canAdd}
           aria-label={`Add ${label.toLowerCase()}`}
+          className="flex items-center gap-1.5 text-sm font-medium"
         >
-          <Plus className="h-4 w-4 mr-1.5" aria-hidden="true" />
+          <Plus className="h-4 w-4" aria-hidden="true" />
           {addButtonText}
         </Button>
       </div>
@@ -112,29 +113,42 @@ export function FormArrayField<TFieldValues extends FieldValues = FieldValues>({
               key={field.id}
               role="listitem"
               className={cn(
-                'relative border border-border rounded-lg p-4',
-                'bg-card hover:bg-accent/5 transition-colors'
+                'flex items-start gap-2 p-3',
+                'bg-muted/30 rounded-lg border border-border',
+                'hover:bg-muted/50 transition-colors'
               )}
             >
-              {/* Item number badge */}
-              <div className="absolute -top-2 left-3 bg-background px-2 text-xs font-medium text-muted-foreground">
-                #{index + 1}
-              </div>
+              {/* Drag handle (if needed) - optional */}
+              {/* <GripVertical className="h-4 w-4 text-muted-foreground cursor-grab flex-shrink-0 mt-0.5" /> */}
 
               {/* Render item content */}
-              {renderItem({
-                index,
-                remove: () => remove(index),
-                canRemove,
-                fieldPrefix: `${name}.${index}`,
-              })}
+              <div className="flex-1">
+                {renderItem({
+                  index,
+                  remove: () => remove(index),
+                  canRemove,
+                  fieldPrefix: `${name}.${index}`,
+                })}
+              </div>
+
+              {/* Remove button */}
+              {canRemove && (
+                <button
+                  type="button"
+                  onClick={() => remove(index)}
+                  className="h-8 w-8 rounded-md text-muted-foreground hover:text-error hover:bg-error-light transition-colors flex-shrink-0 flex items-center justify-center"
+                  aria-label={`Remove item ${index + 1}`}
+                >
+                  <Trash2 className="h-4 w-4" aria-hidden="true" />
+                </button>
+              )}
             </div>
           ))}
         </div>
       ) : (
         /* Empty state */
-        <div className="text-center py-8 border border-dashed border-border rounded-lg bg-muted/20">
-          <p className="text-sm text-muted-foreground">{emptyMessage}</p>
+        <div className="text-center py-4 text-sm text-muted-foreground">
+          {emptyMessage}
         </div>
       )}
 

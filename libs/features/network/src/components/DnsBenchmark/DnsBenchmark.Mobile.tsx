@@ -82,7 +82,7 @@ function DnsBenchmarkMobileComponent({
   }, [reset]);
 
   return (
-    <Card className={cn('', className)}>
+    <Card className={cn('category-networking', className)}>
       <CardHeader>
         <CardTitle>DNS Server Benchmark</CardTitle>
         <CardDescription>
@@ -94,7 +94,7 @@ function DnsBenchmarkMobileComponent({
           <Button
             onClick={handleRunBenchmark}
             disabled={isLoading}
-            className="w-full gap-2 h-11"
+            className="w-full gap-component-sm h-11"
             size="lg"
             aria-label="Run DNS server benchmark"
           >
@@ -121,7 +121,7 @@ function DnsBenchmarkMobileComponent({
               className="w-full h-2"
               aria-label={`Benchmark progress: ${progress}%`}
             />
-            <p className="text-sm text-info text-center">Testing DNS servers...</p>
+            <p className="text-sm text-muted-foreground text-center">Testing DNS servers...</p>
           </div>
         )}
 

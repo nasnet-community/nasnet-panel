@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/waninterface",
+  "title": "WANInterface",
+  "description": "WAN interface status with connection details",
+  "source": "@site/docs/api/types/objects/waninterface.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/waninterface",
+  "permalink": "/api/types/objects/waninterface",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "waninterface",
+    "title": "WANInterface"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "WANHealthStatus",
+    "permalink": "/api/types/objects/wanhealth-status"
+  },
+  "next": {
+    "title": "WANLinkConfig",
+    "permalink": "/api/types/objects/wanlink-config"
+  }
+}

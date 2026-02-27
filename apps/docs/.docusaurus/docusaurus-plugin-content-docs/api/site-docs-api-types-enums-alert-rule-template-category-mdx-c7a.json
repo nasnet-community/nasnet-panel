@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/alert-rule-template-category",
+  "title": "AlertRuleTemplateCategory",
+  "description": "Alert rule template categories",
+  "source": "@site/docs/api/types/enums/alert-rule-template-category.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/alert-rule-template-category",
+  "permalink": "/api/types/enums/alert-rule-template-category",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "alert-rule-template-category",
+    "title": "AlertRuleTemplateCategory"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "AlertAction",
+    "permalink": "/api/types/enums/alert-action"
+  },
+  "next": {
+    "title": "AlertRuleTemplateVariableType",
+    "permalink": "/api/types/enums/alert-rule-template-variable-type"
+  }
+}

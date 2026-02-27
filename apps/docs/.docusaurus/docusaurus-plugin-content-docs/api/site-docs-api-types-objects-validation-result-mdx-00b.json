@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/validation-result",
+  "title": "ValidationResult",
+  "description": "Layer 2: Validation result from 7-stage backend validation pipeline.",
+  "source": "@site/docs/api/types/objects/validation-result.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/validation-result",
+  "permalink": "/api/types/objects/validation-result",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "validation-result",
+    "title": "ValidationResult"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ValidationIssue",
+    "permalink": "/api/types/objects/validation-issue"
+  },
+  "next": {
+    "title": "VerificationEvent",
+    "permalink": "/api/types/objects/verification-event"
+  }
+}

@@ -39,8 +39,9 @@ func NewProcessSupervisor(cfg ProcessSupervisorConfig) *ProcessSupervisor {
 	}
 }
 
-// NewProcessSupervisorSimple creates a new process supervisor without port validation
-// Deprecated: Use NewProcessSupervisor with ProcessSupervisorConfig instead
+// NewProcessSupervisorSimple creates a new process supervisor without port validation.
+//
+// Deprecated: Use NewProcessSupervisor with ProcessSupervisorConfig instead.
 func NewProcessSupervisorSimple(logger *zap.Logger) *ProcessSupervisor {
 	return &ProcessSupervisor{
 		processes: make(map[string]*ManagedProcess),
@@ -101,7 +102,10 @@ func (ps *ProcessSupervisor) Start(ctx context.Context, id string) error {
 			zap.Any("ports", mp.Ports))
 	}
 
-	return mp.Start(ctx)
+	if err := mp.Start(ctx); err != nil {
+		return fmt.Errorf("start process %s: %w", id, err)
+	}
+	return nil
 }
 
 // Stop stops a managed process
@@ -114,7 +118,10 @@ func (ps *ProcessSupervisor) Stop(ctx context.Context, id string) error {
 		return fmt.Errorf("process %s not found", id)
 	}
 
-	return mp.Stop(ctx)
+	if err := mp.Stop(ctx); err != nil {
+		return fmt.Errorf("stop process %s: %w", id, err)
+	}
+	return nil
 }
 
 // StopAll stops all managed processes
@@ -148,7 +155,7 @@ func (ps *ProcessSupervisor) StopAll(ctx context.Context) error {
 	}
 
 	if len(errs) > 0 {
-		return errors.Join(errs...)
+		return fmt.Errorf("stop all processes: %w", errors.Join(errs...))
 	}
 
 	return nil
@@ -191,7 +198,7 @@ func (ps *ProcessSupervisor) Remove(id string) error {
 	if mp.logCapture != nil {
 		if err := mp.logCapture.Close(); err != nil {
 			ps.logger.Warn("failed to close log capture",
-				zap.Error(err),
+				zap.Error(fmt.Errorf("close log capture failed: %w", err)),
 				zap.String("process_id", id))
 		}
 	}
@@ -210,7 +217,11 @@ func (mp *ManagedProcess) GetLogs(maxLines int) ([]resources.LogEntry, error) {
 		return nil, fmt.Errorf("log capture not initialized for process %s", mp.ID)
 	}
 
-	return lc.TailLogs(maxLines)
+	logs, err := lc.TailLogs(maxLines)
+	if err != nil {
+		return nil, fmt.Errorf("tail logs: %w", err)
+	}
+	return logs, nil
 }
 
 // SubscribeToLogs subscribes to real-time log updates for a managed process
@@ -223,7 +234,11 @@ func (mp *ManagedProcess) SubscribeToLogs(subscriberID string, bufferSize int, f
 		return nil, fmt.Errorf("log capture not initialized for process %s", mp.ID)
 	}
 
-	return lc.Subscribe(subscriberID, bufferSize, filter)
+	sub, err := lc.Subscribe(subscriberID, bufferSize, filter)
+	if err != nil {
+		return nil, fmt.Errorf("failed to subscribe to logs: %w", err)
+	}
+	return sub, nil
 }
 
 // UnsubscribeFromLogs removes a log subscriber

@@ -29,7 +29,7 @@ export const InterfaceListPage = memo(function InterfaceListPage({
     <div className="container mx-auto p-component-lg">
       <div className="mb-component-lg">
         <h1 className="text-2xl font-bold font-display">Network Interfaces</h1>
-        <p className="text-muted-foreground mt-1">
+        <p className="text-muted-foreground mt-component-sm">
           View and manage router network interfaces
         </p>
       </div>

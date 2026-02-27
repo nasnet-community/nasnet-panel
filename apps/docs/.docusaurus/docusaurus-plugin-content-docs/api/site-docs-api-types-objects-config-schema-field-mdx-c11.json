@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/config-schema-field",
+  "title": "ConfigSchemaField",
+  "description": "Configuration field definition for a service",
+  "source": "@site/docs/api/types/objects/config-schema-field.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/config-schema-field",
+  "permalink": "/api/types/objects/config-schema-field",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "config-schema-field",
+    "title": "ConfigSchemaField"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ConfigProgress",
+    "permalink": "/api/types/objects/config-progress"
+  },
+  "next": {
+    "title": "ConfigSchema",
+    "permalink": "/api/types/objects/config-schema"
+  }
+}

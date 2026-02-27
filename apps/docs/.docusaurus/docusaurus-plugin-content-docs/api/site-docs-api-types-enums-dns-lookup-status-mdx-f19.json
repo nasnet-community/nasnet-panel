@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/dns-lookup-status",
+  "title": "DnsLookupStatus",
+  "description": "DNS lookup status codes",
+  "source": "@site/docs/api/types/enums/dns-lookup-status.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/dns-lookup-status",
+  "permalink": "/api/types/enums/dns-lookup-status",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "dns-lookup-status",
+    "title": "DnsLookupStatus"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "DisconnectReason",
+    "permalink": "/api/types/enums/disconnect-reason"
+  },
+  "next": {
+    "title": "DnsRecordType",
+    "permalink": "/api/types/enums/dns-record-type"
+  }
+}

@@ -322,10 +322,10 @@ func validateServiceName(serviceName string) error {
 	// Ensure service name is safe: only alphanumerics, hyphens, underscores, and dots
 	// This matches feature ID conventions (e.g., "tor", "sing-box", "xray-core", "adguard.home")
 	for _, r := range serviceName {
-		if !((r >= 'a' && r <= 'z') ||
-			(r >= 'A' && r <= 'Z') ||
-			(r >= '0' && r <= '9') ||
-			r == '-' || r == '_' || r == '.') {
+		if (r < 'a' || r > 'z') &&
+			(r < 'A' || r > 'Z') &&
+			(r < '0' || r > '9') &&
+			r != '-' && r != '_' && r != '.' {
 
 			return NewStorageErrorWithDetails(
 				ErrCodeInvalidServiceID,

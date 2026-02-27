@@ -1,0 +1,26 @@
+{
+  "id": "api/types/scalars/duration",
+  "title": "Duration",
+  "description": "Duration string in RouterOS format (e.g., \"1d2h3m4s\", \"30s\", \"5m\")",
+  "source": "@site/docs/api/types/scalars/duration.mdx",
+  "sourceDirName": "api/types/scalars",
+  "slug": "/api/types/scalars/duration",
+  "permalink": "/api/types/scalars/duration",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "duration",
+    "title": "Duration"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "DateTime",
+    "permalink": "/api/types/scalars/date-time"
+  },
+  "next": {
+    "title": "Float",
+    "permalink": "/api/types/scalars/float"
+  }
+}

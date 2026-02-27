@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/disconnect-router-payload",
+  "title": "DisconnectRouterPayload",
+  "description": "No description",
+  "source": "@site/docs/api/types/objects/disconnect-router-payload.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/disconnect-router-payload",
+  "permalink": "/api/types/objects/disconnect-router-payload",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "disconnect-router-payload",
+    "title": "DisconnectRouterPayload"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "DiscardProvisioningSessionPayload",
+    "permalink": "/api/types/objects/discard-provisioning-session-payload"
+  },
+  "next": {
+    "title": "DiscoveredDevice",
+    "permalink": "/api/types/objects/discovered-device"
+  }
+}

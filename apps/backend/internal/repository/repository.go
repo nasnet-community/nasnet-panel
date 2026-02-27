@@ -81,7 +81,7 @@ type CreateRouterInput struct {
 
 	// Credentials (will be encrypted before storage)
 	Username string
-	Password string
+	Password string //nolint:gosec // G101: credential field
 }
 
 // RouterFilter contains filter criteria for listing routers.
@@ -141,7 +141,7 @@ type CreateUserInput struct {
 	Username    string
 	Email       string
 	DisplayName string
-	Password    string // Will be hashed with bcrypt before storage
+	Password    string //nolint:gosec // G101: credential field // Will be hashed with bcrypt before storage
 	Role        UserRole
 }
 

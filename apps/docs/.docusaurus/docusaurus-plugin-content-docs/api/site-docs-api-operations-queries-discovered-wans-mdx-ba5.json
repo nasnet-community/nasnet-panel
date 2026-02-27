@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/discovered-wans",
+  "title": "discoveredWANs",
+  "description": "Discover WAN interfaces on a router.",
+  "source": "@site/docs/api/operations/queries/discovered-wans.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/discovered-wans",
+  "permalink": "/api/operations/queries/discovered-wans",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "discovered-wans",
+    "title": "discoveredWANs"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "digestQueueCount",
+    "permalink": "/api/operations/queries/digest-queue-count"
+  },
+  "next": {
+    "title": "dnsBenchmark",
+    "permalink": "/api/operations/queries/dns-benchmark"
+  }
+}

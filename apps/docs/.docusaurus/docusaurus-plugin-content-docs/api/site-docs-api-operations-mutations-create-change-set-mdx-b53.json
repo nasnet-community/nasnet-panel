@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/create-change-set",
+  "title": "createChangeSet",
+  "description": "Create a new change set",
+  "source": "@site/docs/api/operations/mutations/create-change-set.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/create-change-set",
+  "permalink": "/api/operations/mutations/create-change-set",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "create-change-set",
+    "title": "createChangeSet"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "createBridge",
+    "permalink": "/api/operations/mutations/create-bridge"
+  },
+  "next": {
+    "title": "createEgressVLAN",
+    "permalink": "/api/operations/mutations/create-egress-vlan"
+  }
+}

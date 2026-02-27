@@ -127,26 +127,49 @@ const ConfirmationDialogComponent = React.forwardRef<
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent
           ref={ref}
-          className="sm:max-w-[425px]"
+          className={cn(
+            'sm:max-w-[425px]',
+            'bg-card border border-border rounded-[var(--semantic-radius-modal)]',
+            'shadow-[var(--semantic-shadow-modal)]',
+            'p-6'
+          )}
           role="alertdialog"
           aria-describedby="confirmation-description"
         >
           <DialogHeader className="space-y-3">
-            <DialogTitle className="text-lg font-semibold">
-              {title}
-            </DialogTitle>
-            <DialogDescription id="confirmation-description">
+            <div className="flex items-start gap-3">
+              <div className="h-10 w-10 rounded-full bg-warning/10 flex items-center justify-center flex-shrink-0">
+                <svg
+                  className="h-6 w-6 text-warning"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 9v2m0 4v2m0 6H8a2 2 0 01-2-2V7a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2h-4z"
+                  />
+                </svg>
+              </div>
+              <DialogTitle className="font-display text-lg font-semibold">
+                {title}
+              </DialogTitle>
+            </div>
+            <DialogDescription id="confirmation-description" className="text-sm text-muted-foreground mt-2">
               {description}
             </DialogDescription>
           </DialogHeader>
 
-          <DialogFooter className="gap-3 pt-4">
+          <DialogFooter className="flex justify-end gap-2 mt-6">
             <Button
               type="button"
-              variant="outline"
+              variant="secondary"
               onClick={handleCancel}
               disabled={isLoading}
-              className="flex-1 sm:flex-initial"
+              className="sm:flex-initial"
             >
               {cancelLabel}
             </Button>
@@ -155,7 +178,7 @@ const ConfirmationDialogComponent = React.forwardRef<
               variant={confirmButtonVariant}
               onClick={handleConfirm}
               disabled={isLoading}
-              className={confirmButtonClassName ? cn('flex-1 sm:flex-initial', confirmButtonClassName) : 'flex-1 sm:flex-initial'}
+              className={confirmButtonClassName ? cn('sm:flex-initial', confirmButtonClassName) : 'sm:flex-initial'}
               aria-busy={isLoading}
             >
               {isLoading ? 'Processing...' : confirmLabel}

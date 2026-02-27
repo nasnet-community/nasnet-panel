@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/error-extensions",
+  "title": "ErrorExtensions",
+  "description": "Rich error extensions for detailed error diagnostics.",
+  "source": "@site/docs/api/types/objects/error-extensions.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/error-extensions",
+  "permalink": "/api/types/objects/error-extensions",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "error-extensions",
+    "title": "ErrorExtensions"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "EoIPTunnel",
+    "permalink": "/api/types/objects/eo-iptunnel"
+  },
+  "next": {
+    "title": "EscalationConfig",
+    "permalink": "/api/types/objects/escalation-config"
+  }
+}

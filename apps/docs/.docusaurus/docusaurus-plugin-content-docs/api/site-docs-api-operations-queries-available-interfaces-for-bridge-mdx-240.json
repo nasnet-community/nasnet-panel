@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/available-interfaces-for-bridge",
+  "title": "availableInterfacesForBridge",
+  "description": "Get interfaces available to add to a bridge (not already in any bridge)",
+  "source": "@site/docs/api/operations/queries/available-interfaces-for-bridge.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/available-interfaces-for-bridge",
+  "permalink": "/api/operations/queries/available-interfaces-for-bridge",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "available-interfaces-for-bridge",
+    "title": "availableInterfacesForBridge"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "availableDiagnostics",
+    "permalink": "/api/operations/queries/available-diagnostics"
+  },
+  "next": {
+    "title": "availableProvisioningResources",
+    "permalink": "/api/operations/queries/available-provisioning-resources"
+  }
+}

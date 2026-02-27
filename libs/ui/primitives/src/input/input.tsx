@@ -5,19 +5,19 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../lib/utils';
 
 const inputVariants = cva(
-  'flex w-full rounded-input border bg-card px-4 py-3 text-base text-foreground transition-all duration-200 file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
+  'flex w-full rounded-[var(--semantic-radius-input)] border bg-card px-3 py-2 text-sm text-foreground transition-colors duration-150 file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
   {
     variants: {
       variant: {
         default:
-          'border-input shadow-sm',
+          'border-border',
         error:
-          'border-error shadow-sm focus-visible:ring-error',
+          'border-error focus:border-error focus-visible:ring-error/20',
       },
       inputSize: {
-        default: 'h-11',
-        sm: 'h-9 px-3 py-2 text-sm',
-        lg: 'h-12 px-5 py-3 text-lg',
+        default: 'h-10',
+        sm: 'h-9 px-3 py-2 text-xs',
+        lg: 'h-12 px-4 py-3 text-base',
       },
     },
     defaultVariants: {

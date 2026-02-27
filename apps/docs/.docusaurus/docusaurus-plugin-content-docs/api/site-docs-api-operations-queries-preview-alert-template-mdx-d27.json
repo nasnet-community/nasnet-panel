@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/preview-alert-template",
+  "title": "previewAlertTemplate",
+  "description": "Preview an alert template with variables",
+  "source": "@site/docs/api/operations/queries/preview-alert-template.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/preview-alert-template",
+  "permalink": "/api/operations/queries/preview-alert-template",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "preview-alert-template",
+    "title": "previewAlertTemplate"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "previewAlertRuleTemplate",
+    "permalink": "/api/operations/queries/preview-alert-rule-template"
+  },
+  "next": {
+    "title": "provisioningSession",
+    "permalink": "/api/operations/queries/provisioning-session"
+  }
+}

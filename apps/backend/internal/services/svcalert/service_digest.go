@@ -82,7 +82,11 @@ func (s *Service) GetDigestHistory(ctx context.Context, channelID string, limit 
 
 	result := make([]DigestSummary, 0, limit)
 	for i := 0; i < len(digestOrder) && i < limit; i++ {
-		result = append(result, *digestMap[digestOrder[i]])
+		digest := digestMap[digestOrder[i]]
+		if digest == nil {
+			continue
+		}
+		result = append(result, *digest)
 	}
 	return result, nil
 }

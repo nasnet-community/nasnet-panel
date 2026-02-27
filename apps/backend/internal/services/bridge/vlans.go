@@ -10,7 +10,7 @@ import (
 // GetBridgeVlans retrieves all VLANs for a bridge.
 func (s *Service) GetBridgeVlans(ctx context.Context, bridgeID string) ([]*VlanData, error) {
 	if err := s.EnsureConnected(ctx); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("ensure connected: %w", err)
 	}
 
 	result, err := s.Port().ExecuteCommand(ctx, router.Command{
@@ -19,12 +19,12 @@ func (s *Service) GetBridgeVlans(ctx context.Context, bridgeID string) ([]*VlanD
 		Query:  fmt.Sprintf("?bridge=%s", bridgeID),
 	})
 	if err != nil {
-		return nil, fmt.Errorf("failed to fetch bridge VLANs: %w", err)
+		return nil, fmt.Errorf("fetch bridge VLANs: %w", err)
 	}
 
 	vlans, err := s.parseBridgeVlans(result.Data)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse bridge VLANs: %w", err)
+		return nil, fmt.Errorf("parse bridge VLANs: %w", err)
 	}
 
 	return vlans, nil
@@ -33,7 +33,7 @@ func (s *Service) GetBridgeVlans(ctx context.Context, bridgeID string) ([]*VlanD
 // CreateBridgeVlan creates a VLAN entry on a bridge.
 func (s *Service) CreateBridgeVlan(ctx context.Context, bridgeID string, input *CreateBridgeVlanInput) (*VlanData, error) {
 	if err := s.EnsureConnected(ctx); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("ensure connected: %w", err)
 	}
 
 	args := map[string]string{
@@ -55,12 +55,12 @@ func (s *Service) CreateBridgeVlan(ctx context.Context, bridgeID string, input *
 		Args:   args,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("failed to create bridge VLAN: %w", err)
+		return nil, fmt.Errorf("create bridge VLAN: %w", err)
 	}
 
 	vlan, err := s.parseBridgeVlan(result.Data)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse created bridge VLAN: %w", err)
+		return nil, fmt.Errorf("parse created bridge VLAN: %w", err)
 	}
 
 	return vlan, nil
@@ -69,7 +69,7 @@ func (s *Service) CreateBridgeVlan(ctx context.Context, bridgeID string, input *
 // DeleteBridgeVlan deletes a VLAN entry from a bridge.
 func (s *Service) DeleteBridgeVlan(ctx context.Context, uuid string) error {
 	if err := s.EnsureConnected(ctx); err != nil {
-		return err
+		return fmt.Errorf("ensure connected: %w", err)
 	}
 
 	_, err := s.Port().ExecuteCommand(ctx, router.Command{
@@ -78,7 +78,7 @@ func (s *Service) DeleteBridgeVlan(ctx context.Context, uuid string) error {
 		ID:     uuid,
 	})
 	if err != nil {
-		return fmt.Errorf("failed to delete bridge VLAN: %w", err)
+		return fmt.Errorf("delete bridge VLAN: %w", err)
 	}
 
 	return nil
@@ -87,7 +87,7 @@ func (s *Service) DeleteBridgeVlan(ctx context.Context, uuid string) error {
 // GetStpStatus retrieves STP status for a bridge.
 func (s *Service) GetStpStatus(ctx context.Context, bridgeID string) (*StpStatusData, error) {
 	if err := s.EnsureConnected(ctx); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("ensure connected: %w", err)
 	}
 
 	result, err := s.Port().ExecuteCommand(ctx, router.Command{
@@ -98,12 +98,12 @@ func (s *Service) GetStpStatus(ctx context.Context, bridgeID string) (*StpStatus
 		},
 	})
 	if err != nil {
-		return nil, fmt.Errorf("failed to fetch STP status: %w", err)
+		return nil, fmt.Errorf("fetch STP status: %w", err)
 	}
 
 	stpStatus, err := s.parseStpStatus(result.Data)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse STP status: %w", err)
+		return nil, fmt.Errorf("parse STP status: %w", err)
 	}
 
 	return stpStatus, nil

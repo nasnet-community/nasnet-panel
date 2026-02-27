@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/subscriptions/bridge-ports-changed",
+  "title": "bridgePortsChanged",
+  "description": "Subscribe to bridge port changes",
+  "source": "@site/docs/api/operations/subscriptions/bridge-ports-changed.mdx",
+  "sourceDirName": "api/operations/subscriptions",
+  "slug": "/api/operations/subscriptions/bridge-ports-changed",
+  "permalink": "/api/operations/subscriptions/bridge-ports-changed",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "bridge-ports-changed",
+    "title": "bridgePortsChanged"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "bootSequenceEvents",
+    "permalink": "/api/operations/subscriptions/boot-sequence-events"
+  },
+  "next": {
+    "title": "bridgeStpStatusChanged",
+    "permalink": "/api/operations/subscriptions/bridge-stp-status-changed"
+  }
+}

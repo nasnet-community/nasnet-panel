@@ -1,0 +1,24 @@
+{
+  "id": "getting-started",
+  "title": "Getting Started",
+  "description": "Everything you need to set up a local development environment, understand the project layout, and run the NasNet backend.",
+  "source": "@site/../backend/docs/getting-started.md",
+  "sourceDirName": ".",
+  "slug": "/getting-started",
+  "permalink": "/docs/backend/getting-started",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../backend/docs/getting-started.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Flow: Service Update",
+    "permalink": "/docs/backend/flows/service-update-flow"
+  },
+  "next": {
+    "title": "GraphQL API Layer",
+    "permalink": "/docs/backend/graphql-api"
+  }
+}

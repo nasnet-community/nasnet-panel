@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/webhook",
+  "title": "webhook",
+  "description": "Get a single webhook by ID",
+  "source": "@site/docs/api/operations/queries/webhook.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/webhook",
+  "permalink": "/api/operations/queries/webhook",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "webhook",
+    "title": "webhook"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "wanInterfaces",
+    "permalink": "/api/operations/queries/wan-interfaces"
+  },
+  "next": {
+    "title": "webhooks",
+    "permalink": "/api/operations/queries/webhooks"
+  }
+}

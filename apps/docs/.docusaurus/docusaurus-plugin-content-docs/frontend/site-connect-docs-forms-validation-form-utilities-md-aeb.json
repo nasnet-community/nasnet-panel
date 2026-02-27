@@ -1,0 +1,24 @@
+{
+  "id": "forms-validation/form-utilities",
+  "title": "Form Utilities",
+  "description": "This document covers the core form utility hooks and functions in libs/core/forms/src/.",
+  "source": "@site/../connect/docs/forms-validation/form-utilities.md",
+  "sourceDirName": "forms-validation",
+  "slug": "/forms-validation/form-utilities",
+  "permalink": "/docs/frontend/forms-validation/form-utilities",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../connect/docs/forms-validation/form-utilities.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Wireless Feature Module",
+    "permalink": "/docs/frontend/feature-modules/wireless"
+  },
+  "next": {
+    "title": "Network Validators",
+    "permalink": "/docs/frontend/forms-validation/network-validators"
+  }
+}

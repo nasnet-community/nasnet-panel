@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/lte-modem-input",
+  "title": "LteModemInput",
+  "description": "Input for configuring LTE modem",
+  "source": "@site/docs/api/types/inputs/lte-modem-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/lte-modem-input",
+  "permalink": "/api/types/inputs/lte-modem-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "lte-modem-input",
+    "title": "LteModemInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "KnockPortInput",
+    "permalink": "/api/types/inputs/knock-port-input"
+  },
+  "next": {
+    "title": "NtfyChannelInput",
+    "permalink": "/api/types/inputs/ntfy-channel-input"
+  }
+}

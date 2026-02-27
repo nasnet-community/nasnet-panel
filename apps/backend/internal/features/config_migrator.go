@@ -87,5 +87,9 @@ func (r *MigratorRegistry) Migrate(ctx context.Context, featureID, oldVersion, n
 		return nil, fmt.Errorf("no migration path from %s to %s for feature %s", oldVersion, newVersion, featureID)
 	}
 
-	return migrator.Migrate(ctx, oldVersion, newVersion, config)
+	result, err := migrator.Migrate(ctx, oldVersion, newVersion, config)
+	if err != nil {
+		return nil, fmt.Errorf("migrate config for feature %s: %w", featureID, err)
+	}
+	return result, nil
 }

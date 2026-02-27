@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/refresh-capabilities",
+  "title": "refreshCapabilities",
+  "description": "Force refresh router capabilities (invalidates cache)",
+  "source": "@site/docs/api/operations/mutations/refresh-capabilities.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/refresh-capabilities",
+  "permalink": "/api/operations/mutations/refresh-capabilities",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "refresh-capabilities",
+    "title": "refreshCapabilities"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "reconnectRouter",
+    "permalink": "/api/operations/mutations/reconnect-router"
+  },
+  "next": {
+    "title": "removeBridgePort",
+    "permalink": "/api/operations/mutations/remove-bridge-port"
+  }
+}

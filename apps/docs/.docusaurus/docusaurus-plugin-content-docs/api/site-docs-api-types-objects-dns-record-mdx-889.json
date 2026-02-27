@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/dns-record",
+  "title": "DnsRecord",
+  "description": "Single DNS record",
+  "source": "@site/docs/api/types/objects/dns-record.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/dns-record",
+  "permalink": "/api/types/objects/dns-record",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "dns-record",
+    "title": "DnsRecord"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "DnsLookupResult",
+    "permalink": "/api/types/objects/dns-lookup-result"
+  },
+  "next": {
+    "title": "DnsServer",
+    "permalink": "/api/types/objects/dns-server"
+  }
+}

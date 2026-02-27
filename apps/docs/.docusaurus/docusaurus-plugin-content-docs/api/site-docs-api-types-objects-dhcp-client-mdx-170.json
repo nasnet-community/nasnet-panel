@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/dhcp-client",
+  "title": "DhcpClient",
+  "description": "DHCP client configuration for dynamic WAN IP",
+  "source": "@site/docs/api/types/objects/dhcp-client.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/dhcp-client",
+  "permalink": "/api/types/objects/dhcp-client",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "dhcp-client",
+    "title": "DhcpClient"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "Device",
+    "permalink": "/api/types/objects/device"
+  },
+  "next": {
+    "title": "DhcpServer",
+    "permalink": "/api/types/objects/dhcp-server"
+  }
+}

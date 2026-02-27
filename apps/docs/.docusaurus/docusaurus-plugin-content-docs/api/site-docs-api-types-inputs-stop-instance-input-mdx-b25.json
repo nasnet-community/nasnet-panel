@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/stop-instance-input",
+  "title": "StopInstanceInput",
+  "description": "Input for stopping a service instance.",
+  "source": "@site/docs/api/types/inputs/stop-instance-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/stop-instance-input",
+  "permalink": "/api/types/inputs/stop-instance-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "stop-instance-input",
+    "title": "StopInstanceInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "StatsTimeRangeInput",
+    "permalink": "/api/types/inputs/stats-time-range-input"
+  },
+  "next": {
+    "title": "TemplateRuleInput",
+    "permalink": "/api/types/inputs/template-rule-input"
+  }
+}

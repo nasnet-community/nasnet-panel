@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/run-dns-lookup",
+  "title": "runDnsLookup",
+  "description": "Perform DNS lookup (synchronous request-response).",
+  "source": "@site/docs/api/operations/mutations/run-dns-lookup.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/run-dns-lookup",
+  "permalink": "/api/operations/mutations/run-dns-lookup",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "run-dns-lookup",
+    "title": "runDnsLookup"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "runDiagnostics",
+    "permalink": "/api/operations/mutations/run-diagnostics"
+  },
+  "next": {
+    "title": "runServiceDiagnostics",
+    "permalink": "/api/operations/mutations/run-service-diagnostics"
+  }
+}

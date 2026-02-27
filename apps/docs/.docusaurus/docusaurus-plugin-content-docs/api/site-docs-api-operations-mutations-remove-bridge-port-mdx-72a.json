@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/remove-bridge-port",
+  "title": "removeBridgePort",
+  "description": "Remove a port from a bridge",
+  "source": "@site/docs/api/operations/mutations/remove-bridge-port.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/remove-bridge-port",
+  "permalink": "/api/operations/mutations/remove-bridge-port",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "remove-bridge-port",
+    "title": "removeBridgePort"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "refreshCapabilities",
+    "permalink": "/api/operations/mutations/refresh-capabilities"
+  },
+  "next": {
+    "title": "removeChangeSetItem",
+    "permalink": "/api/operations/mutations/remove-change-set-item"
+  }
+}

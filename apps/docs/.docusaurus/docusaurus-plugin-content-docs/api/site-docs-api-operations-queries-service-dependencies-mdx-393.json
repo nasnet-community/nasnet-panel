@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/service-dependencies",
+  "title": "serviceDependencies",
+  "description": "Get all dependencies of a service instance (services it depends on).",
+  "source": "@site/docs/api/operations/queries/service-dependencies.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/service-dependencies",
+  "permalink": "/api/operations/queries/service-dependencies",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "service-dependencies",
+    "title": "serviceDependencies"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "serviceConfigSchema",
+    "permalink": "/api/operations/queries/service-config-schema"
+  },
+  "next": {
+    "title": "serviceDependents",
+    "permalink": "/api/operations/queries/service-dependents"
+  }
+}

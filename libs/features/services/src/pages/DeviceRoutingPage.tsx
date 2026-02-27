@@ -23,6 +23,7 @@
  */
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { Network } from 'lucide-react';
 
 import type {
   DeviceRoutingActions,
@@ -431,7 +432,10 @@ function DeviceRoutingPageComponent({
   return (
     <div className={cn('container mx-auto py-component-lg', className)}>
       <div className="mb-component-lg">
-        <h1 className="text-3xl font-display tracking-tight text-foreground">Device Routing</h1>
+        <div className="flex items-center gap-component-md">
+          <h1 className="text-3xl font-display tracking-tight text-foreground">Device Routing</h1>
+          <Network className="h-6 w-6 text-category-vpn" aria-hidden="true" />
+        </div>
         <p className="text-muted-foreground">
           Route network devices through service instances (Tor, Xray, etc.)
         </p>

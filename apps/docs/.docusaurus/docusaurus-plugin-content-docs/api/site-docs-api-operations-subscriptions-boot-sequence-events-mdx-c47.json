@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/subscriptions/boot-sequence-events",
+  "title": "bootSequenceEvents",
+  "description": "Subscribe to boot sequence events for real-time progress updates.",
+  "source": "@site/docs/api/operations/subscriptions/boot-sequence-events.mdx",
+  "sourceDirName": "api/operations/subscriptions",
+  "slug": "/api/operations/subscriptions/boot-sequence-events",
+  "permalink": "/api/operations/subscriptions/boot-sequence-events",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "boot-sequence-events",
+    "title": "bootSequenceEvents"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "alertEvents",
+    "permalink": "/api/operations/subscriptions/alert-events"
+  },
+  "next": {
+    "title": "bridgePortsChanged",
+    "permalink": "/api/operations/subscriptions/bridge-ports-changed"
+  }
+}

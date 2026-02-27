@@ -6,6 +6,7 @@ package ulid
 
 import (
 	"crypto/rand"
+	"fmt"
 	"time"
 
 	"github.com/oklog/ulid/v2"
@@ -33,7 +34,11 @@ func MustParse(s string) ulid.ULID {
 // Parse parses a ULID string with error handling.
 // Returns an error if the string is not a valid ULID.
 func Parse(s string) (ulid.ULID, error) {
-	return ulid.Parse(s)
+	id, err := ulid.Parse(s)
+	if err != nil {
+		return ulid.ULID{}, fmt.Errorf("parse ulid: %w", err)
+	}
+	return id, nil
 }
 
 // String returns the string representation of a ULID.

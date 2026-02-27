@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/feature-deployment",
+  "title": "FeatureDeployment",
+  "description": "Feature deployment state",
+  "source": "@site/docs/api/types/objects/feature-deployment.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/feature-deployment",
+  "permalink": "/api/types/objects/feature-deployment",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "feature-deployment",
+    "title": "FeatureDeployment"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "FeatureCompatibilityInfo",
+    "permalink": "/api/types/objects/feature-compatibility-info"
+  },
+  "next": {
+    "title": "FeatureResource",
+    "permalink": "/api/types/objects/feature-resource"
+  }
+}

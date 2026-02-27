@@ -159,7 +159,7 @@ export const ExecutionProgress = memo(function ExecutionProgress({
   // If there's an error fetching job
   if (error && !job) {
     return (
-      <div className="flex flex-col items-center justify-center py-8" role="alert">
+      <div className="flex flex-col items-center justify-center py-component-xl" role="alert">
         <div className="w-12 h-12 rounded-full bg-error/10 flex items-center justify-center mb-4">
           <XCircle className="w-6 h-6 text-error" aria-hidden="true" />
         </div>
@@ -173,7 +173,7 @@ export const ExecutionProgress = memo(function ExecutionProgress({
           <button
             onClick={handleRetry}
             aria-label="Retry tracking the batch job"
-            className="min-h-[44px] btn-action px-4 py-2 rounded-lg text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className="min-h-[44px] btn-action px-component-md py-2 rounded-lg text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
             Try Again
           </button>
@@ -190,14 +190,14 @@ export const ExecutionProgress = memo(function ExecutionProgress({
   const StatusIcon = statusConfig.icon;
 
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={cn('space-y-component-lg', className)}>
       {/* Status Header */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className={`p-4 rounded-xl ${statusConfig.bgColor}`}
+        className={`p-component-md rounded-xl ${statusConfig.bgColor}`}
       >
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-component-md">
           <StatusIcon
             className={`w-6 h-6 ${statusConfig.color} ${
               job.status === 'running' ? 'animate-spin' : ''
@@ -208,7 +208,7 @@ export const ExecutionProgress = memo(function ExecutionProgress({
               {statusConfig.label}
             </p>
             {job.currentCommand && isRunning && (
-              <p className="text-xs text-muted-foreground font-mono mt-1 truncate">
+              <p className="text-xs text-muted-foreground font-mono mt-component-sm truncate">
                 {job.currentCommand}
               </p>
             )}
@@ -217,7 +217,7 @@ export const ExecutionProgress = memo(function ExecutionProgress({
       </motion.div>
 
       {/* Progress Bar */}
-      <div className="space-y-2" role="status" aria-label={`Progress: ${Math.round(job.progress.percent)}% complete`}>
+      <div className="space-y-component-sm" role="status" aria-label={`Progress: ${Math.round(job.progress.percent)}% complete`}>
         <div className="flex justify-between text-sm">
           <span className="text-muted-foreground">Progress</span>
           <span className="font-medium text-foreground">
@@ -240,7 +240,7 @@ export const ExecutionProgress = memo(function ExecutionProgress({
         </div>
         <div className="flex justify-between text-xs text-muted-foreground">
           <span>{Math.round(job.progress.percent)}% complete</span>
-          <div className="flex gap-3">
+          <div className="flex gap-component-md">
             <span className="text-success">
               {job.progress.succeeded} succeeded
             </span>
@@ -261,16 +261,16 @@ export const ExecutionProgress = memo(function ExecutionProgress({
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="space-y-2"
+            className="space-y-component-sm"
             role="alert"
           >
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-component-sm">
               <AlertTriangle className="w-4 h-4 text-error" aria-hidden="true" />
               <h4 className="text-sm font-medium text-error">
                 {job.errors.length} error{job.errors.length > 1 ? 's' : ''}
               </h4>
             </div>
-            <div className="max-h-32 overflow-y-auto space-y-1 p-3 bg-error/10 rounded-lg border border-error/20">
+            <div className="max-h-32 overflow-y-auto space-y-component-sm p-component-md bg-error/10 rounded-lg border border-error/20">
               {job.errors.map((err, index) => (
                 <div
                   key={index}
@@ -290,13 +290,13 @@ export const ExecutionProgress = memo(function ExecutionProgress({
 
       {/* Rollback info */}
       {job.status === 'rolled_back' && job.rollbackCount !== undefined && (
-        <div className="flex items-start gap-3 p-3 bg-warning/10 border border-warning/30 rounded-lg" role="alert">
+        <div className="flex items-start gap-component-md p-component-md bg-warning/10 border border-warning/30 rounded-lg" role="alert">
           <RotateCcw className="w-5 h-5 text-warning flex-shrink-0 mt-0.5" aria-hidden="true" />
           <div>
             <p className="text-sm font-medium text-warning">
               Configuration rolled back
             </p>
-            <p className="text-xs text-muted-foreground mt-0.5">
+            <p className="text-xs text-muted-foreground mt-component-sm">
               {job.rollbackCount} change{job.rollbackCount > 1 ? 's' : ''} were
               reverted to restore previous state.
             </p>
@@ -305,13 +305,13 @@ export const ExecutionProgress = memo(function ExecutionProgress({
       )}
 
       {/* Action Buttons */}
-      <div className="flex justify-end gap-3">
+      <div className="flex justify-end gap-component-md">
         {isRunning && onCancel && (
           <button
             onClick={handleCancel}
             disabled={isCancelling}
             aria-label={isCancelling ? 'Cancelling job' : 'Cancel running job'}
-            className="min-h-[44px] btn-destructive px-4 py-2 rounded-lg text-sm flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className="min-h-[44px] btn-destructive px-component-md py-component-sm rounded-lg text-sm flex items-center gap-component-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
             {isCancelling ? (
               <>
@@ -328,7 +328,7 @@ export const ExecutionProgress = memo(function ExecutionProgress({
           <button
             onClick={handleRetry}
             aria-label="Retry applying configuration"
-            className="min-h-[44px] btn-secondary px-4 py-2 rounded-lg text-sm flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className="min-h-[44px] btn-secondary px-component-md py-component-sm rounded-lg text-sm flex items-center gap-component-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
             <RotateCcw className="w-4 h-4" aria-hidden="true" />
             Try Again

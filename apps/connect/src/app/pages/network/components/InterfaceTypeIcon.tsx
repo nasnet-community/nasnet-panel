@@ -28,6 +28,7 @@ interface InterfaceTypeIconProps {
 export const InterfaceTypeIcon = React.memo(function InterfaceTypeIcon({ type, className }: InterfaceTypeIconProps) {
   const iconProps = {
     className: className || 'w-5 h-5 text-muted-foreground',
+    'aria-hidden': true as const,
   };
 
   switch (type) {

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/service-template",
+  "title": "ServiceTemplate",
+  "description": "Service template",
+  "source": "@site/docs/api/types/objects/service-template.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/service-template",
+  "permalink": "/api/types/objects/service-template",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "service-template",
+    "title": "ServiceTemplate"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ServiceSpec",
+    "permalink": "/api/types/objects/service-spec"
+  },
+  "next": {
+    "title": "ServiceTrafficStats",
+    "permalink": "/api/types/objects/service-traffic-stats"
+  }
+}

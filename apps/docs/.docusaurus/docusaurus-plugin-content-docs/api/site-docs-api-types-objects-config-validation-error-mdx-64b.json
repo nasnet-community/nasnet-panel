@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/config-validation-error",
+  "title": "ConfigValidationError",
+  "description": "Validation error for a configuration field",
+  "source": "@site/docs/api/types/objects/config-validation-error.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/config-validation-error",
+  "permalink": "/api/types/objects/config-validation-error",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "config-validation-error",
+    "title": "ConfigValidationError"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ConfigSchema",
+    "permalink": "/api/types/objects/config-schema"
+  },
+  "next": {
+    "title": "ConfigValidationResult",
+    "permalink": "/api/types/objects/config-validation-result"
+  }
+}

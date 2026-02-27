@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/lte-modem",
+  "title": "LteModem",
+  "description": "LTE/cellular modem configuration",
+  "source": "@site/docs/api/types/objects/lte-modem.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/lte-modem",
+  "permalink": "/api/types/objects/lte-modem",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "lte-modem",
+    "title": "LteModem"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "LogEntry",
+    "permalink": "/api/types/objects/log-entry"
+  },
+  "next": {
+    "title": "MemoryMetrics",
+    "permalink": "/api/types/objects/memory-metrics"
+  }
+}

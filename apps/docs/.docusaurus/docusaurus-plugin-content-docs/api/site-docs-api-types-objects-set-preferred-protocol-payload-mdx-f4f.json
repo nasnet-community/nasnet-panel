@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/set-preferred-protocol-payload",
+  "title": "SetPreferredProtocolPayload",
+  "description": "No description",
+  "source": "@site/docs/api/types/objects/set-preferred-protocol-payload.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/set-preferred-protocol-payload",
+  "permalink": "/api/types/objects/set-preferred-protocol-payload",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "set-preferred-protocol-payload",
+    "title": "SetPreferredProtocolPayload"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "Session",
+    "permalink": "/api/types/objects/session"
+  },
+  "next": {
+    "title": "SoftwareInfo",
+    "permalink": "/api/types/objects/software-info"
+  }
+}

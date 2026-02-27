@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/detect-isp",
+  "title": "detectISP",
+  "description": "Detect ISP information from WAN IP",
+  "source": "@site/docs/api/operations/queries/detect-isp.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/detect-isp",
+  "permalink": "/api/operations/queries/detect-isp",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "detect-isp",
+    "title": "detectISP"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "detectGateway",
+    "permalink": "/api/operations/queries/detect-gateway"
+  },
+  "next": {
+    "title": "detectOrphanedPorts",
+    "permalink": "/api/operations/queries/detect-orphaned-ports"
+  }
+}

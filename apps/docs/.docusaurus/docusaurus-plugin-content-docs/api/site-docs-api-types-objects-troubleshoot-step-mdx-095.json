@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/troubleshoot-step",
+  "title": "TroubleshootStep",
+  "description": "A single step in the troubleshooting wizard",
+  "source": "@site/docs/api/types/objects/troubleshoot-step.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/troubleshoot-step",
+  "permalink": "/api/types/objects/troubleshoot-step",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "troubleshoot-step",
+    "title": "TroubleshootStep"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "TroubleshootStepResult",
+    "permalink": "/api/types/objects/troubleshoot-step-result"
+  },
+  "next": {
+    "title": "TunnelMutationResult",
+    "permalink": "/api/types/objects/tunnel-mutation-result"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/vlanallocation",
+  "title": "VLANAllocation",
+  "description": "VLANAllocation represents an automatic VLAN allocation for a service instance.",
+  "source": "@site/docs/api/types/objects/vlanallocation.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/vlanallocation",
+  "permalink": "/api/types/objects/vlanallocation",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "vlanallocation",
+    "title": "VLANAllocation"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "Vlan",
+    "permalink": "/api/types/objects/vlan"
+  },
+  "next": {
+    "title": "VLANPoolStatus",
+    "permalink": "/api/types/objects/vlanpool-status"
+  }
+}

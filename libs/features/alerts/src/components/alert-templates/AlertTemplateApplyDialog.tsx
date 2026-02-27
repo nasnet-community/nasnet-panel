@@ -135,7 +135,7 @@ const VariableInput = React.memo(function VariableInput({
     id: variable.name,
     value: value?.toString() || '',
     onChange: handleChange,
-    className: cn('min-h-[44px]', error && 'border-error focus-visible:ring-error'),
+    className: cn('min-h-[44px]', error && 'border-error focus-visible:ring-error/50'),
     'aria-invalid': !!error,
     'aria-describedby': error ? `${variable.name}-error` : undefined,
   }), [variable.name, value, error, handleChange]);
@@ -172,7 +172,7 @@ const VariableInput = React.memo(function VariableInput({
       )}
 
       {/* Variable constraints */}
-      <div className="flex items-center gap-component-md text-xs text-muted-foreground font-mono">
+      <div className="flex items-center gap-component-md text-xs text-muted-foreground">
         {variable.defaultValue && (
           <span>Default: <code className="font-mono text-xs">{variable.defaultValue}</code></span>
         )}
@@ -247,7 +247,7 @@ const PreviewSection = React.memo(function PreviewSection({
 
   if (loading) {
     return (
-      <div className="space-y-2">
+      <div className="space-y-component-sm">
         <Skeleton className="h-16 w-full" />
         <Skeleton className="h-16 w-full" />
       </div>
@@ -297,13 +297,13 @@ const PreviewSection = React.memo(function PreviewSection({
           <Card key={index} className="bg-muted/50">
             <CardContent className="p-component-sm">
               <div className="flex items-center gap-component-sm text-sm flex-wrap">
-                <code className="font-mono text-xs bg-background px-2 py-1 rounded-[var(--semantic-radius-button)]">
+                <code className="font-mono text-xs bg-background px-component-sm py-component-xs rounded-[var(--semantic-radius-button)]">
                   {condition.field}
                 </code>
                 <Badge variant="outline" className="text-xs">
                   {operatorLabels[condition.operator] || condition.operator}
                 </Badge>
-                <code className="font-mono text-xs bg-primary/10 px-2 py-1 rounded-[var(--semantic-radius-button)]">
+                <code className="font-mono text-xs bg-muted px-component-sm py-component-xs rounded-[var(--semantic-radius-button)]">
                   {condition.value}
                 </code>
               </div>

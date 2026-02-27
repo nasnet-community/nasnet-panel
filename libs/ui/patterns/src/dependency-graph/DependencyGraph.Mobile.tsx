@@ -67,7 +67,7 @@ const DependencyGraphMobileInner = ({
   // Loading state
   if (loading) {
     return (
-      <Card className={cn('w-full', className)}>
+      <Card className={cn('w-full bg-card border border-border rounded-[var(--semantic-radius-card)] p-4 sm:p-6 shadow-[var(--semantic-shadow-card)]', className)}>
         <CardHeader>
           <Skeleton className="h-6 w-48" />
           <Skeleton className="h-4 w-32 mt-2" />
@@ -84,9 +84,9 @@ const DependencyGraphMobileInner = ({
   // Error state
   if (error) {
     return (
-      <Card className={cn('w-full border-destructive', className)}>
+      <Card className={cn('w-full bg-card border border-error rounded-[var(--semantic-radius-card)] p-4 sm:p-6 shadow-[var(--semantic-shadow-card)]', className)}>
         <CardContent className="pt-6">
-          <div className="flex items-center gap-3 text-destructive">
+          <div className="flex items-center gap-3 text-error">
             <AlertCircle className="h-5 w-5 flex-shrink-0" />
             <p className="text-sm font-medium">{error}</p>
           </div>
@@ -98,7 +98,7 @@ const DependencyGraphMobileInner = ({
   // Empty state
   if (state.isEmpty) {
     return (
-      <Card className={cn('w-full', className)}>
+      <Card className={cn('w-full bg-card border border-border rounded-[var(--semantic-radius-card)] p-4 sm:p-6 shadow-[var(--semantic-shadow-card)]', className)}>
         <CardContent className="pt-6">
           <div className="flex flex-col items-center justify-center py-8 text-center">
             <GitBranch className="h-12 w-12 text-muted-foreground mb-3" />
@@ -110,7 +110,7 @@ const DependencyGraphMobileInner = ({
   }
 
   return (
-    <Card className={cn('w-full', className)}>
+    <Card className={cn('w-full bg-card border border-border rounded-[var(--semantic-radius-card)] p-4 sm:p-6 shadow-[var(--semantic-shadow-card)]', className)}>
       <CardHeader>
         <CardTitle className="text-lg font-semibold">Dependencies</CardTitle>
         <CardDescription>
@@ -131,7 +131,7 @@ const DependencyGraphMobileInner = ({
                 className={cn(
                   'w-full flex items-center justify-between',
                   'min-h-[44px] px-3 py-2 rounded-lg',
-                  'bg-muted/50 hover:bg-muted transition-colors',
+                  'bg-muted hover:bg-muted/80 transition-colors',
                   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
                 )}
                 aria-expanded={isExpanded}
@@ -205,8 +205,8 @@ const NodeCardInner = ({ node, isSelected, onSelect }: NodeCardProps) => (
       'transition-colors',
       'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
       isSelected
-        ? 'bg-primary/10 border border-primary'
-        : 'bg-card border border-border hover:bg-accent'
+        ? 'bg-primary/20 border border-primary text-primary'
+        : 'bg-card border border-border hover:bg-muted/50'
     )}
     aria-pressed={isSelected}
   >

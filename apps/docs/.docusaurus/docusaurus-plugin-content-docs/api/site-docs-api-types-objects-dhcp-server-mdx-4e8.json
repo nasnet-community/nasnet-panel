@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/dhcp-server",
+  "title": "DhcpServer",
+  "description": "DHCP server (minimal type for dependencies)",
+  "source": "@site/docs/api/types/objects/dhcp-server.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/dhcp-server",
+  "permalink": "/api/types/objects/dhcp-server",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "dhcp-server",
+    "title": "DhcpServer"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "DhcpClient",
+    "permalink": "/api/types/objects/dhcp-client"
+  },
+  "next": {
+    "title": "DHCPServerResource",
+    "permalink": "/api/types/objects/dhcpserver-resource"
+  }
+}

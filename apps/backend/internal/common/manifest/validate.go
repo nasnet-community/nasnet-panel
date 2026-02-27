@@ -40,6 +40,9 @@ func (m *Manifest) Validate() error {
 	if err := validatePortMappings(m.Ports); err != nil {
 		return err
 	}
+	if err := validateSource(m.Source); err != nil {
+		return err
+	}
 	return validateResourceBudget(m.MinRAM, m.RecommendedRAM, m.CPUWeight)
 }
 
@@ -86,6 +89,31 @@ func validatePortMappings(ports []PortMapping) error {
 		if port.Protocol != "tcp" && port.Protocol != "udp" {
 			return fmt.Errorf("invalid protocol at index %d: must be 'tcp' or 'udp'", i)
 		}
+	}
+	return nil
+}
+
+func validateSource(source *Source) error {
+	if source == nil {
+		return nil // Source is optional
+	}
+	if source.GitHubOwner == "" {
+		return fmt.Errorf("source.github_owner is required when source is specified")
+	}
+	if source.GitHubRepo == "" {
+		return fmt.Errorf("source.github_repo is required when source is specified")
+	}
+	if source.BinaryName == "" {
+		return fmt.Errorf("source.binary_name is required when source is specified")
+	}
+	// Validate archive format
+	validFormats := map[string]bool{"": true, "none": true, "tar.gz": true, "zip": true}
+	if !validFormats[source.ArchiveFormat] {
+		return fmt.Errorf("source.archive_format must be one of: none, tar.gz, zip (got %q)", source.ArchiveFormat)
+	}
+	// If archive format requires extraction, extract_path must be set
+	if source.ArchiveFormat != "" && source.ArchiveFormat != "none" && source.ExtractPath == "" {
+		return fmt.Errorf("source.extract_path is required when archive_format is %q", source.ArchiveFormat)
 	}
 	return nil
 }

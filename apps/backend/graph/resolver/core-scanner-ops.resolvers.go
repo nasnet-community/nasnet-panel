@@ -7,7 +7,7 @@ package resolver
 
 import (
 	"backend/graph/model"
-	"backend/internal/errors"
+	"backend/internal/apperrors"
 	"context"
 )
 
@@ -22,12 +22,12 @@ import (
 func (r *mutationResolver) ScanNetwork(ctx context.Context, input model.ScanNetworkInput) (*model.ScanNetworkPayload, error) {
 	// Validate input
 	if input.Subnet == "" {
-		return nil, errors.NewValidationError("subnet", input.Subnet, "required")
+		return nil, apperrors.NewValidationError("subnet", input.Subnet, "required")
 	}
 
 	// Verify scanner service is configured
-	if r.Resolver.ScannerService == nil {
-		return nil, errors.NewInternalError("scanner service not configured", nil)
+	if r.ScannerService == nil {
+		return nil, apperrors.NewInternalError("scanner service not configured", nil)
 	}
 
 	// TODO: Validate subnet CIDR format (e.g., 192.168.1.0/24)
@@ -38,7 +38,7 @@ func (r *mutationResolver) ScanNetwork(ctx context.Context, input model.ScanNetw
 	// TODO: Publish ScanStartedEvent via EventPublisher
 	// TODO: Implement deduplication by MAC address in results
 
-	return nil, errors.NewInternalError("not implemented: ScanNetwork - scanNetwork", nil)
+	return nil, apperrors.NewInternalError("not implemented: ScanNetwork - scanNetwork", nil)
 }
 
 // AutoScanGateways is the resolver for the autoScanGateways field.
@@ -51,8 +51,8 @@ func (r *mutationResolver) ScanNetwork(ctx context.Context, input model.ScanNetw
 // - Handle no-gateway case gracefully with informative error
 func (r *mutationResolver) AutoScanGateways(ctx context.Context) (*model.ScanNetworkPayload, error) {
 	// Verify scanner service is configured
-	if r.Resolver.ScannerService == nil {
-		return nil, errors.NewInternalError("scanner service not configured", nil)
+	if r.ScannerService == nil {
+		return nil, apperrors.NewInternalError("scanner service not configured", nil)
 	}
 
 	// TODO: Detect local network gateways via routing table
@@ -64,7 +64,7 @@ func (r *mutationResolver) AutoScanGateways(ctx context.Context) (*model.ScanNet
 	// TODO: Publish ScanStartedEvent with gateway discovery details
 	// TODO: Handle no-gateway case with informative error message
 
-	return nil, errors.NewInternalError("not implemented: AutoScanGateways - autoScanGateways", nil)
+	return nil, apperrors.NewInternalError("not implemented: AutoScanGateways - autoScanGateways", nil)
 }
 
 // CancelScan is the resolver for the cancelScan field.
@@ -78,12 +78,12 @@ func (r *mutationResolver) AutoScanGateways(ctx context.Context) (*model.ScanNet
 func (r *mutationResolver) CancelScan(ctx context.Context, taskID string) (*model.CancelScanPayload, error) {
 	// Validate input
 	if taskID == "" {
-		return nil, errors.NewValidationError("taskID", taskID, "required")
+		return nil, apperrors.NewValidationError("taskID", taskID, "required")
 	}
 
 	// Verify scanner service is configured
-	if r.Resolver.ScannerService == nil {
-		return nil, errors.NewInternalError("scanner service not configured", nil)
+	if r.ScannerService == nil {
+		return nil, apperrors.NewInternalError("scanner service not configured", nil)
 	}
 
 	// TODO: Validate taskID exists and is active (not already completed)
@@ -93,7 +93,7 @@ func (r *mutationResolver) CancelScan(ctx context.Context, taskID string) (*mode
 	// TODO: Publish ScanCancelledEvent with task details
 	// TODO: Return error if task not found or already completed
 
-	return nil, errors.NewInternalError("not implemented: CancelScan - cancelScan", nil)
+	return nil, apperrors.NewInternalError("not implemented: CancelScan - cancelScan", nil)
 }
 
 // ScanStatus is the resolver for the scanStatus field.
@@ -106,12 +106,12 @@ func (r *mutationResolver) CancelScan(ctx context.Context, taskID string) (*mode
 func (r *queryResolver) ScanStatus(ctx context.Context, taskID string) (*model.ScanTask, error) {
 	// Validate input
 	if taskID == "" {
-		return nil, errors.NewValidationError("taskID", taskID, "required")
+		return nil, apperrors.NewValidationError("taskID", taskID, "required")
 	}
 
 	// Verify scanner service is configured
-	if r.Resolver.ScannerService == nil {
-		return nil, errors.NewInternalError("scanner service not configured", nil)
+	if r.ScannerService == nil {
+		return nil, apperrors.NewInternalError("scanner service not configured", nil)
 	}
 
 	// TODO: Look up scan task by taskID
@@ -120,7 +120,7 @@ func (r *queryResolver) ScanStatus(ctx context.Context, taskID string) (*model.S
 	// TODO: Handle task not found case with proper error
 	// TODO: Include partial results if scan is still in progress
 
-	return nil, errors.NewInternalError("not implemented: ScanStatus - scanStatus", nil)
+	return nil, apperrors.NewInternalError("not implemented: ScanStatus - scanStatus", nil)
 }
 
 // ScanHistory is the resolver for the scanHistory field.
@@ -136,7 +136,7 @@ func (r *queryResolver) ScanHistory(ctx context.Context, limit *int) ([]*model.S
 	scanLimit := 50
 	if limit != nil {
 		if *limit < 1 {
-			return nil, errors.NewValidationError("limit", *limit, "must be greater than 0").WithCode(errors.CodeOutOfRange)
+			return nil, apperrors.NewValidationError("limit", *limit, "must be greater than 0").WithCode(apperrors.CodeOutOfRange)
 		}
 		if *limit > 1000 {
 			scanLimit = 1000 // Max limit is 1000
@@ -146,8 +146,8 @@ func (r *queryResolver) ScanHistory(ctx context.Context, limit *int) ([]*model.S
 	}
 
 	// Verify scanner service is configured
-	if r.Resolver.ScannerService == nil {
-		return nil, errors.NewInternalError("scanner service not configured", nil)
+	if r.ScannerService == nil {
+		return nil, apperrors.NewInternalError("scanner service not configured", nil)
 	}
 
 	// TODO: Retrieve completed scan tasks from database
@@ -159,7 +159,7 @@ func (r *queryResolver) ScanHistory(ctx context.Context, limit *int) ([]*model.S
 
 	_ = scanLimit // TODO: Pass scanLimit to database query
 
-	return nil, errors.NewInternalError("not implemented: ScanHistory - scanHistory", nil)
+	return nil, apperrors.NewInternalError("not implemented: ScanHistory - scanHistory", nil)
 }
 
 // ScanProgress is the resolver for the scanProgress field.
@@ -174,17 +174,17 @@ func (r *queryResolver) ScanHistory(ctx context.Context, limit *int) ([]*model.S
 func (r *subscriptionResolver) ScanProgress(ctx context.Context, taskID string) (<-chan *model.ScanProgressEvent, error) {
 	// Validate input
 	if taskID == "" {
-		return nil, errors.NewValidationError("taskID", taskID, "required")
+		return nil, apperrors.NewValidationError("taskID", taskID, "required")
 	}
 
 	// Verify event bus is configured
 	if r.EventBus == nil {
-		return nil, errors.NewInternalError("event bus not configured", nil)
+		return nil, apperrors.NewInternalError("event bus not configured", nil)
 	}
 
 	// Verify scanner service is configured
-	if r.Resolver.ScannerService == nil {
-		return nil, errors.NewInternalError("scanner service not configured", nil)
+	if r.ScannerService == nil {
+		return nil, apperrors.NewInternalError("scanner service not configured", nil)
 	}
 
 	// TODO: Validate taskID exists and is active (not completed)
@@ -195,5 +195,5 @@ func (r *subscriptionResolver) ScanProgress(ctx context.Context, taskID string) 
 	// TODO: Handle context cancellation and cleanup goroutines
 	// TODO: Include: percentage complete, hosts scanned, devices found, eta
 
-	return nil, errors.NewInternalError("not implemented: ScanProgress - scanProgress", nil)
+	return nil, apperrors.NewInternalError("not implemented: ScanProgress - scanProgress", nil)
 }

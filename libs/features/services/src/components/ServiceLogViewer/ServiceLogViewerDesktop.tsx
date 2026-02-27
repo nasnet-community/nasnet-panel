@@ -165,7 +165,7 @@ function ServiceLogViewerDesktopComponent(props: ServiceLogViewerProps) {
                   Refresh Logs
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={clearLogs} className="text-destructive">
+                <DropdownMenuItem onClick={clearLogs} className="text-error">
                   <Trash2 className="mr-2 h-4 w-4" aria-hidden="true" />
                   Clear Logs
                 </DropdownMenuItem>
@@ -175,22 +175,22 @@ function ServiceLogViewerDesktopComponent(props: ServiceLogViewerProps) {
         </div>
 
         {/* Filters */}
-        <div className="flex items-center gap-component-sm mt-component-sm">
+        <div className="flex items-center gap-component-sm mt-component-md">
           {/* Search */}
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
+            <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
             <Input
               type="text"
               placeholder="Search logs..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 pr-9"
+              className="pl-component-lg pr-component-lg"
               aria-label="Search logs"
             />
             {hasSearch && (
               <button
                 onClick={handleClearSearch}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm"
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm"
                 aria-label="Clear search"
               >
                 <X className="h-4 w-4" aria-hidden="true" />
@@ -235,19 +235,19 @@ function ServiceLogViewerDesktopComponent(props: ServiceLogViewerProps) {
       <CardContent className="p-0">
         {/* Error state */}
         {error && (
-          <div className="p-component-sm text-sm text-error">
+          <div className="p-component-md text-sm text-error">
             Error loading logs: {error.message}
           </div>
         )}
 
         {/* Loading state */}
         {isLoading && !searchResults.length && (
-          <div className="p-component-sm text-sm text-muted-foreground" role="status">Loading logs...</div>
+          <div className="p-component-md text-sm text-muted-foreground" role="status">Loading logs...</div>
         )}
 
         {/* Empty state */}
         {!isLoading && !searchResults.length && (
-          <div className="p-component-sm text-sm text-muted-foreground text-center">
+          <div className="p-component-md text-sm text-muted-foreground text-center">
             {hasSearch || levelFilter
               ? 'No logs match your filters'
               : 'No logs available yet'}
@@ -286,7 +286,7 @@ function ServiceLogViewerDesktopComponent(props: ServiceLogViewerProps) {
                       transform: `translateY(${virtualRow.start}px)`,
                     }}
                     className={cn(
-                      'flex items-center px-3 border-b border-border',
+                      'flex items-center px-component-md border-b border-border',
                       'font-mono text-xs leading-none',
                       'cursor-pointer hover:bg-accent/50 transition-colors',
                       'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
@@ -297,13 +297,13 @@ function ServiceLogViewerDesktopComponent(props: ServiceLogViewerProps) {
                     tabIndex={0}
                     aria-label={`Log entry: ${entry.level} - ${entry.message}`}
                   >
-                    <span className="text-muted-foreground w-24 shrink-0">
+                    <span className="text-muted-foreground w-24 shrink-0 font-mono">
                       {formatLogTimestamp(entry.timestamp)}
                     </span>
                     <span className={`w-16 shrink-0 font-bold ${textColor}`}>
                       [{entry.level}]
                     </span>
-                    <span className="text-muted-foreground w-32 shrink-0 truncate">
+                    <span className="text-muted-foreground w-32 shrink-0 truncate font-mono">
                       {entry.source}
                     </span>
                     <span className="flex-1 truncate">{entry.message}</span>

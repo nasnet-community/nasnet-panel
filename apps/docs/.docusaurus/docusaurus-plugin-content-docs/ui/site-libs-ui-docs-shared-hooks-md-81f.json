@@ -1,0 +1,24 @@
+{
+  "id": "shared-hooks",
+  "title": "Shared Hooks Reference",
+  "description": "This document covers every reusable hook exported from libs/ui/. For each hook you will find the full TypeScript signature, parameter descriptions, return type, and a usage example drawn directly from the source.",
+  "source": "@site/../../libs/ui/docs/shared-hooks.md",
+  "sourceDirName": ".",
+  "slug": "/shared-hooks",
+  "permalink": "/docs/ui/shared-hooks",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/ui/docs/shared-hooks.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Primitives Reference (Layer 1)",
+    "permalink": "/docs/ui/primitives-reference"
+  },
+  "next": {
+    "title": "Design Tokens & Animation System",
+    "permalink": "/docs/ui/tokens-and-animation"
+  }
+}

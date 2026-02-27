@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/l2-tpdeployment",
+  "title": "L2TPDeployment",
+  "description": "L2TP deployment state",
+  "source": "@site/docs/api/types/objects/l2-tpdeployment.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/l2-tpdeployment",
+  "permalink": "/api/types/objects/l2-tpdeployment",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "l2-tpdeployment",
+    "title": "L2TPDeployment"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "L2TPClient",
+    "permalink": "/api/types/objects/l2-tpclient"
+  },
+  "next": {
+    "title": "L2TPRuntime",
+    "permalink": "/api/types/objects/l2-tpruntime"
+  }
+}

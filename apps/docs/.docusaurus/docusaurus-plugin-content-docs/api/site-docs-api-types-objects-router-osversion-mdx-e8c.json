@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/router-osversion",
+  "title": "RouterOSVersion",
+  "description": "Parsed RouterOS version with semantic versioning",
+  "source": "@site/docs/api/types/objects/router-osversion.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/router-osversion",
+  "permalink": "/api/types/objects/router-osversion",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "router-osversion",
+    "title": "RouterOSVersion"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "RouterOSInfo",
+    "permalink": "/api/types/objects/router-osinfo"
+  },
+  "next": {
+    "title": "RouterStatusEvent",
+    "permalink": "/api/types/objects/router-status-event"
+  }
+}

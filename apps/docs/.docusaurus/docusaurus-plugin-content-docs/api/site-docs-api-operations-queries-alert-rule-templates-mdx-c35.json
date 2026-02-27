@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/alert-rule-templates",
+  "title": "alertRuleTemplates",
+  "description": "Get alert rule templates, optionally filtered by category",
+  "source": "@site/docs/api/operations/queries/alert-rule-templates.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/alert-rule-templates",
+  "permalink": "/api/operations/queries/alert-rule-templates",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "alert-rule-templates",
+    "title": "alertRuleTemplates"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "alertRuleTemplate",
+    "permalink": "/api/operations/queries/alert-rule-template"
+  },
+  "next": {
+    "title": "alertRuleThrottleStatus",
+    "permalink": "/api/operations/queries/alert-rule-throttle-status"
+  }
+}

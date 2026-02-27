@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/cancel-scan",
+  "title": "cancelScan",
+  "description": "Cancel a running scan.",
+  "source": "@site/docs/api/operations/mutations/cancel-scan.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/cancel-scan",
+  "permalink": "/api/operations/mutations/cancel-scan",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "cancel-scan",
+    "title": "cancelScan"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "cancelChangeSet",
+    "permalink": "/api/operations/mutations/cancel-change-set"
+  },
+  "next": {
+    "title": "cancelTraceroute",
+    "permalink": "/api/operations/mutations/cancel-traceroute"
+  }
+}

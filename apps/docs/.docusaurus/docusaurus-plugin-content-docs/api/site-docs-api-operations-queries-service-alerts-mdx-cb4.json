@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/service-alerts",
+  "title": "serviceAlerts",
+  "description": "Get alerts for a specific service instance",
+  "source": "@site/docs/api/operations/queries/service-alerts.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/service-alerts",
+  "permalink": "/api/operations/queries/service-alerts",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "service-alerts",
+    "title": "serviceAlerts"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "searchAlertTemplates",
+    "permalink": "/api/operations/queries/search-alert-templates"
+  },
+  "next": {
+    "title": "serviceConfigSchema",
+    "permalink": "/api/operations/queries/service-config-schema"
+  }
+}

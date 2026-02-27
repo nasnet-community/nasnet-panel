@@ -48,12 +48,12 @@ export declare const KnockPortSchema: z.ZodObject<{
     protocol: z.ZodEnum<["tcp", "udp", "both"]>;
     order: z.ZodNumber;
 }, "strip", z.ZodTypeAny, {
-    protocol: "tcp" | "udp" | "both";
     order: number;
+    protocol: "both" | "tcp" | "udp";
     port: number;
 }, {
-    protocol: "tcp" | "udp" | "both";
     order: number;
+    protocol: "both" | "tcp" | "udp";
     port: number;
 }>;
 /**
@@ -85,20 +85,20 @@ export declare const PortKnockSequenceSchema: z.ZodObject<{
         protocol: z.ZodEnum<["tcp", "udp", "both"]>;
         order: z.ZodNumber;
     }, "strip", z.ZodTypeAny, {
-        protocol: "tcp" | "udp" | "both";
         order: number;
+        protocol: "both" | "tcp" | "udp";
         port: number;
     }, {
-        protocol: "tcp" | "udp" | "both";
         order: number;
+        protocol: "both" | "tcp" | "udp";
         port: number;
     }>, "many">, {
-        protocol: "tcp" | "udp" | "both";
         order: number;
+        protocol: "both" | "tcp" | "udp";
         port: number;
     }[], {
-        protocol: "tcp" | "udp" | "both";
         order: number;
+        protocol: "both" | "tcp" | "udp";
         port: number;
     }[]>;
     protectedPort: z.ZodNumber;
@@ -114,8 +114,8 @@ export declare const PortKnockSequenceSchema: z.ZodObject<{
 }, "strip", z.ZodTypeAny, {
     name: string;
     knockPorts: {
-        protocol: "tcp" | "udp" | "both";
         order: number;
+        protocol: "both" | "tcp" | "udp";
         port: number;
     }[];
     protectedPort: number;
@@ -123,26 +123,26 @@ export declare const PortKnockSequenceSchema: z.ZodObject<{
     accessTimeout: string;
     knockTimeout: string;
     isEnabled: boolean;
+    id?: string | undefined;
     updatedAt?: string | undefined;
     createdAt?: string | undefined;
-    id?: string | undefined;
     routerId?: string | undefined;
     recentAccessCount?: number | undefined;
     generatedRuleIds?: string[] | undefined;
 }, {
     name: string;
     knockPorts: {
-        protocol: "tcp" | "udp" | "both";
         order: number;
+        protocol: "both" | "tcp" | "udp";
         port: number;
     }[];
     protectedPort: number;
     protectedProtocol: "tcp" | "udp";
     accessTimeout: string;
     knockTimeout: string;
+    id?: string | undefined;
     updatedAt?: string | undefined;
     createdAt?: string | undefined;
-    id?: string | undefined;
     routerId?: string | undefined;
     isEnabled?: boolean | undefined;
     recentAccessCount?: number | undefined;
@@ -196,24 +196,24 @@ export declare const PortKnockAttemptSchema: z.ZodObject<{
     progress: z.ZodString;
 }, "strip", z.ZodTypeAny, {
     id: string;
-    status: "success" | "failed" | "partial" | "timeout";
+    status: "partial" | "success" | "failed" | "timeout";
+    progress: string;
     timestamp: string;
     protectedPort: number;
     sequenceId: string;
     sequenceName: string;
     sourceIP: string;
     portsHit: number[];
-    progress: string;
 }, {
     id: string;
-    status: "success" | "failed" | "partial" | "timeout";
+    status: "partial" | "success" | "failed" | "timeout";
+    progress: string;
     timestamp: string;
     protectedPort: number;
     sequenceId: string;
     sequenceName: string;
     sourceIP: string;
     portsHit: number[];
-    progress: string;
 }>;
 /**
  * Port knock attempt log entry

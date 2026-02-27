@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/ikev-2-client",
+  "title": "IKEv2Client",
+  "description": "IKEv2 VPN Client resource implementing 8-layer model",
+  "source": "@site/docs/api/types/objects/ikev-2-client.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/ikev-2-client",
+  "permalink": "/api/types/objects/ikev-2-client",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "ikev-2-client",
+    "title": "IKEv2Client"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "IKEv2ClientConfig",
+    "permalink": "/api/types/objects/ikev-2-client-config"
+  },
+  "next": {
+    "title": "IKEv2Deployment",
+    "permalink": "/api/types/objects/ikev-2-deployment"
+  }
+}

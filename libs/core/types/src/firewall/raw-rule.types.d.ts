@@ -84,11 +84,13 @@ export declare const RawRuleSchema: z.ZodEffects<z.ZodEffects<z.ZodEffects<z.Zod
     packets: z.ZodOptional<z.ZodNumber>;
     bytes: z.ZodOptional<z.ZodNumber>;
 }, "strip", z.ZodTypeAny, {
-    chain: "prerouting" | "output";
-    action: "accept" | "drop" | "jump" | "log" | "notrack";
+    action: "log" | "accept" | "drop" | "jump" | "notrack";
     disabled: boolean;
+    chain: "output" | "prerouting";
     id?: string | undefined;
-    protocol?: "tcp" | "udp" | "icmp" | "ipv6-icmp" | "all" | undefined;
+    order?: number | undefined;
+    bytes?: number | undefined;
+    protocol?: "all" | "tcp" | "udp" | "icmp" | "ipv6-icmp" | undefined;
     srcAddress?: string | undefined;
     dstAddress?: string | undefined;
     srcPort?: string | undefined;
@@ -99,17 +101,18 @@ export declare const RawRuleSchema: z.ZodEffects<z.ZodEffects<z.ZodEffects<z.Zod
     comment?: string | undefined;
     logPrefix?: string | undefined;
     packets?: number | undefined;
-    bytes?: number | undefined;
-    order?: number | undefined;
     limit?: {
         rate: string;
         burst?: number | undefined;
     } | undefined;
 }, {
-    chain: "prerouting" | "output";
-    action: "accept" | "drop" | "jump" | "log" | "notrack";
+    action: "log" | "accept" | "drop" | "jump" | "notrack";
+    chain: "output" | "prerouting";
     id?: string | undefined;
-    protocol?: "tcp" | "udp" | "icmp" | "ipv6-icmp" | "all" | undefined;
+    order?: number | undefined;
+    disabled?: boolean | undefined;
+    bytes?: number | undefined;
+    protocol?: "all" | "tcp" | "udp" | "icmp" | "ipv6-icmp" | undefined;
     srcAddress?: string | undefined;
     dstAddress?: string | undefined;
     srcPort?: string | undefined;
@@ -118,21 +121,20 @@ export declare const RawRuleSchema: z.ZodEffects<z.ZodEffects<z.ZodEffects<z.Zod
     outInterface?: string | undefined;
     jumpTarget?: string | undefined;
     comment?: string | undefined;
-    disabled?: boolean | undefined;
     logPrefix?: string | undefined;
     packets?: number | undefined;
-    bytes?: number | undefined;
-    order?: number | undefined;
     limit?: {
         rate: string;
         burst?: number | undefined;
     } | undefined;
 }>, {
-    chain: "prerouting" | "output";
-    action: "accept" | "drop" | "jump" | "log" | "notrack";
+    action: "log" | "accept" | "drop" | "jump" | "notrack";
     disabled: boolean;
+    chain: "output" | "prerouting";
     id?: string | undefined;
-    protocol?: "tcp" | "udp" | "icmp" | "ipv6-icmp" | "all" | undefined;
+    order?: number | undefined;
+    bytes?: number | undefined;
+    protocol?: "all" | "tcp" | "udp" | "icmp" | "ipv6-icmp" | undefined;
     srcAddress?: string | undefined;
     dstAddress?: string | undefined;
     srcPort?: string | undefined;
@@ -143,17 +145,18 @@ export declare const RawRuleSchema: z.ZodEffects<z.ZodEffects<z.ZodEffects<z.Zod
     comment?: string | undefined;
     logPrefix?: string | undefined;
     packets?: number | undefined;
-    bytes?: number | undefined;
-    order?: number | undefined;
     limit?: {
         rate: string;
         burst?: number | undefined;
     } | undefined;
 }, {
-    chain: "prerouting" | "output";
-    action: "accept" | "drop" | "jump" | "log" | "notrack";
+    action: "log" | "accept" | "drop" | "jump" | "notrack";
+    chain: "output" | "prerouting";
     id?: string | undefined;
-    protocol?: "tcp" | "udp" | "icmp" | "ipv6-icmp" | "all" | undefined;
+    order?: number | undefined;
+    disabled?: boolean | undefined;
+    bytes?: number | undefined;
+    protocol?: "all" | "tcp" | "udp" | "icmp" | "ipv6-icmp" | undefined;
     srcAddress?: string | undefined;
     dstAddress?: string | undefined;
     srcPort?: string | undefined;
@@ -162,21 +165,20 @@ export declare const RawRuleSchema: z.ZodEffects<z.ZodEffects<z.ZodEffects<z.Zod
     outInterface?: string | undefined;
     jumpTarget?: string | undefined;
     comment?: string | undefined;
-    disabled?: boolean | undefined;
     logPrefix?: string | undefined;
     packets?: number | undefined;
-    bytes?: number | undefined;
-    order?: number | undefined;
     limit?: {
         rate: string;
         burst?: number | undefined;
     } | undefined;
 }>, {
-    chain: "prerouting" | "output";
-    action: "accept" | "drop" | "jump" | "log" | "notrack";
+    action: "log" | "accept" | "drop" | "jump" | "notrack";
     disabled: boolean;
+    chain: "output" | "prerouting";
     id?: string | undefined;
-    protocol?: "tcp" | "udp" | "icmp" | "ipv6-icmp" | "all" | undefined;
+    order?: number | undefined;
+    bytes?: number | undefined;
+    protocol?: "all" | "tcp" | "udp" | "icmp" | "ipv6-icmp" | undefined;
     srcAddress?: string | undefined;
     dstAddress?: string | undefined;
     srcPort?: string | undefined;
@@ -187,17 +189,18 @@ export declare const RawRuleSchema: z.ZodEffects<z.ZodEffects<z.ZodEffects<z.Zod
     comment?: string | undefined;
     logPrefix?: string | undefined;
     packets?: number | undefined;
-    bytes?: number | undefined;
-    order?: number | undefined;
     limit?: {
         rate: string;
         burst?: number | undefined;
     } | undefined;
 }, {
-    chain: "prerouting" | "output";
-    action: "accept" | "drop" | "jump" | "log" | "notrack";
+    action: "log" | "accept" | "drop" | "jump" | "notrack";
+    chain: "output" | "prerouting";
     id?: string | undefined;
-    protocol?: "tcp" | "udp" | "icmp" | "ipv6-icmp" | "all" | undefined;
+    order?: number | undefined;
+    disabled?: boolean | undefined;
+    bytes?: number | undefined;
+    protocol?: "all" | "tcp" | "udp" | "icmp" | "ipv6-icmp" | undefined;
     srcAddress?: string | undefined;
     dstAddress?: string | undefined;
     srcPort?: string | undefined;
@@ -206,21 +209,20 @@ export declare const RawRuleSchema: z.ZodEffects<z.ZodEffects<z.ZodEffects<z.Zod
     outInterface?: string | undefined;
     jumpTarget?: string | undefined;
     comment?: string | undefined;
-    disabled?: boolean | undefined;
     logPrefix?: string | undefined;
     packets?: number | undefined;
-    bytes?: number | undefined;
-    order?: number | undefined;
     limit?: {
         rate: string;
         burst?: number | undefined;
     } | undefined;
 }>, {
-    chain: "prerouting" | "output";
-    action: "accept" | "drop" | "jump" | "log" | "notrack";
+    action: "log" | "accept" | "drop" | "jump" | "notrack";
     disabled: boolean;
+    chain: "output" | "prerouting";
     id?: string | undefined;
-    protocol?: "tcp" | "udp" | "icmp" | "ipv6-icmp" | "all" | undefined;
+    order?: number | undefined;
+    bytes?: number | undefined;
+    protocol?: "all" | "tcp" | "udp" | "icmp" | "ipv6-icmp" | undefined;
     srcAddress?: string | undefined;
     dstAddress?: string | undefined;
     srcPort?: string | undefined;
@@ -231,17 +233,18 @@ export declare const RawRuleSchema: z.ZodEffects<z.ZodEffects<z.ZodEffects<z.Zod
     comment?: string | undefined;
     logPrefix?: string | undefined;
     packets?: number | undefined;
-    bytes?: number | undefined;
-    order?: number | undefined;
     limit?: {
         rate: string;
         burst?: number | undefined;
     } | undefined;
 }, {
-    chain: "prerouting" | "output";
-    action: "accept" | "drop" | "jump" | "log" | "notrack";
+    action: "log" | "accept" | "drop" | "jump" | "notrack";
+    chain: "output" | "prerouting";
     id?: string | undefined;
-    protocol?: "tcp" | "udp" | "icmp" | "ipv6-icmp" | "all" | undefined;
+    order?: number | undefined;
+    disabled?: boolean | undefined;
+    bytes?: number | undefined;
+    protocol?: "all" | "tcp" | "udp" | "icmp" | "ipv6-icmp" | undefined;
     srcAddress?: string | undefined;
     dstAddress?: string | undefined;
     srcPort?: string | undefined;
@@ -250,21 +253,20 @@ export declare const RawRuleSchema: z.ZodEffects<z.ZodEffects<z.ZodEffects<z.Zod
     outInterface?: string | undefined;
     jumpTarget?: string | undefined;
     comment?: string | undefined;
-    disabled?: boolean | undefined;
     logPrefix?: string | undefined;
     packets?: number | undefined;
-    bytes?: number | undefined;
-    order?: number | undefined;
     limit?: {
         rate: string;
         burst?: number | undefined;
     } | undefined;
 }>, {
-    chain: "prerouting" | "output";
-    action: "accept" | "drop" | "jump" | "log" | "notrack";
+    action: "log" | "accept" | "drop" | "jump" | "notrack";
     disabled: boolean;
+    chain: "output" | "prerouting";
     id?: string | undefined;
-    protocol?: "tcp" | "udp" | "icmp" | "ipv6-icmp" | "all" | undefined;
+    order?: number | undefined;
+    bytes?: number | undefined;
+    protocol?: "all" | "tcp" | "udp" | "icmp" | "ipv6-icmp" | undefined;
     srcAddress?: string | undefined;
     dstAddress?: string | undefined;
     srcPort?: string | undefined;
@@ -275,17 +277,18 @@ export declare const RawRuleSchema: z.ZodEffects<z.ZodEffects<z.ZodEffects<z.Zod
     comment?: string | undefined;
     logPrefix?: string | undefined;
     packets?: number | undefined;
-    bytes?: number | undefined;
-    order?: number | undefined;
     limit?: {
         rate: string;
         burst?: number | undefined;
     } | undefined;
 }, {
-    chain: "prerouting" | "output";
-    action: "accept" | "drop" | "jump" | "log" | "notrack";
+    action: "log" | "accept" | "drop" | "jump" | "notrack";
+    chain: "output" | "prerouting";
     id?: string | undefined;
-    protocol?: "tcp" | "udp" | "icmp" | "ipv6-icmp" | "all" | undefined;
+    order?: number | undefined;
+    disabled?: boolean | undefined;
+    bytes?: number | undefined;
+    protocol?: "all" | "tcp" | "udp" | "icmp" | "ipv6-icmp" | undefined;
     srcAddress?: string | undefined;
     dstAddress?: string | undefined;
     srcPort?: string | undefined;
@@ -294,11 +297,8 @@ export declare const RawRuleSchema: z.ZodEffects<z.ZodEffects<z.ZodEffects<z.Zod
     outInterface?: string | undefined;
     jumpTarget?: string | undefined;
     comment?: string | undefined;
-    disabled?: boolean | undefined;
     logPrefix?: string | undefined;
     packets?: number | undefined;
-    bytes?: number | undefined;
-    order?: number | undefined;
     limit?: {
         rate: string;
         burst?: number | undefined;

@@ -1,0 +1,24 @@
+{
+  "id": "README",
+  "title": "Documentation Index",
+  "description": "This is the master index for all developer documentation for the apps/connect frontend application.",
+  "source": "@site/../connect/docs/README.md",
+  "sourceDirName": ".",
+  "slug": "/",
+  "permalink": "/docs/frontend/",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../connect/docs/README.md",
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 0,
+  "frontMatter": {
+    "sidebar_position": 0,
+    "title": "Documentation Index"
+  },
+  "sidebar": "sidebar",
+  "next": {
+    "title": "Introduction",
+    "permalink": "/docs/frontend/intro"
+  }
+}

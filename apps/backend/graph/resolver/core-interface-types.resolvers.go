@@ -7,11 +7,11 @@ package resolver
 
 import (
 	"backend/graph/model"
-	"backend/internal/errors"
+	"backend/internal/apperrors"
 	"context"
 )
 
 // InterfaceStatusChanged is the resolver for the interfaceStatusChanged field.
 func (r *subscriptionResolver) InterfaceStatusChanged(ctx context.Context, routerID string, interfaceID *string) (<-chan *model.InterfaceStatusEvent, error) {
-	panic(errors.NewProtocolError("NOT_IMPLEMENTED", "InterfaceStatusChanged - interfaceStatusChanged", "graphql"))
+	panic(apperrors.NewProtocolError("NOT_IMPLEMENTED", "InterfaceStatusChanged - interfaceStatusChanged", "graphql"))
 }

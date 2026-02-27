@@ -101,13 +101,13 @@ function DiagnosticsPanelMobileComponent(props: DiagnosticsPanelProps) {
             {result.details && (
               <div className="text-sm">
                 <strong className="text-muted-foreground">Details:</strong>
-                <p className="mt-component-sm whitespace-pre-wrap font-mono">{result.details}</p>
+                <p className="mt-component-sm whitespace-pre-wrap font-mono text-xs">{result.details}</p>
               </div>
             )}
             {result.errorMessage && (
               <div className="text-sm">
                 <strong className="text-error">Error:</strong>
-                <p className="mt-component-sm text-error whitespace-pre-wrap font-mono">
+                <p className="mt-component-sm text-error whitespace-pre-wrap font-mono text-xs">
                   {result.errorMessage}
                 </p>
               </div>
@@ -134,7 +134,7 @@ function DiagnosticsPanelMobileComponent(props: DiagnosticsPanelProps) {
         <AccordionTrigger className="min-h-[44px] hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
           <div className="flex items-center justify-between flex-1 gap-component-md">
             <div className="flex-1 min-w-0">
-              <div className="font-medium truncate font-mono">{timestamp}</div>
+              <div className="font-medium truncate font-mono text-sm">{timestamp}</div>
               <div className="text-sm text-muted-foreground">
                 {run.passedCount}✓ {run.failedCount}✗ {run.warningCount}⚠
               </div>
@@ -171,7 +171,7 @@ function DiagnosticsPanelMobileComponent(props: DiagnosticsPanelProps) {
             onClick={refreshHistory}
             disabled={isLoadingHistory}
           >
-            <Icon icon={RefreshCw} className={cn('mr-2 h-5 w-5', isLoadingHistory && 'animate-spin')} aria-hidden="true" />
+            <Icon icon={RefreshCw} className={cn('mr-component-sm h-5 w-5', isLoadingHistory && 'animate-spin')} aria-hidden="true" />
             Refresh
           </Button>
           <Button
@@ -180,7 +180,7 @@ function DiagnosticsPanelMobileComponent(props: DiagnosticsPanelProps) {
             onClick={runDiagnostics}
             disabled={isRunning}
           >
-            <Icon icon={Play} className="mr-2 h-5 w-5" aria-hidden="true" />
+            <Icon icon={Play} className="mr-component-sm h-5 w-5" aria-hidden="true" />
             {isRunning ? 'Running...' : 'Run Tests'}
           </Button>
         </div>
@@ -214,10 +214,10 @@ function DiagnosticsPanelMobileComponent(props: DiagnosticsPanelProps) {
         {isRunning && (
           <div className="space-y-component-sm">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground truncate font-mono">
+              <span className="text-muted-foreground truncate font-mono text-xs">
                 {currentTest || 'Initializing...'}
               </span>
-              <span className="font-medium shrink-0 ml-component-md font-mono">
+              <span className="font-medium shrink-0 ml-component-md font-mono text-xs">
                 {completedTests}/{totalTests}
               </span>
             </div>
@@ -227,14 +227,14 @@ function DiagnosticsPanelMobileComponent(props: DiagnosticsPanelProps) {
 
         {/* Loading state */}
         {isLoadingHistory && !history && (
-          <div className="p-component-md text-sm text-muted-foreground text-center">
+          <div className="p-component-md text-sm text-muted-foreground text-center font-mono">
             Loading diagnostic history...
           </div>
         )}
 
         {/* Empty state */}
         {!isLoadingHistory && !history?.length && (
-          <div className="p-component-md text-sm text-muted-foreground text-center">
+          <div className="p-component-md text-sm text-muted-foreground text-center font-mono">
             No history available. Tap "Run Tests" to start.
           </div>
         )}

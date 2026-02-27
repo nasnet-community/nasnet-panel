@@ -157,10 +157,12 @@ export const NATRuleBuilderMobile = memo(function NATRuleBuilderMobile({
           {/* Form Content - Scrollable */}
           <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
             {/* Chain and Action Section */}
-            <Card className="p-4">
+            <Card className="p-component-md border-t-2 border-t-category-firewall">
               <div className="flex items-center gap-2 mb-4">
-                <Network className="w-4 h-4 text-muted-foreground" />
-                <h3 className="font-medium text-sm">Chain & Action</h3>
+                <Network className="w-4 h-4 text-category-firewall" />
+                <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider">
+                  NAT Configuration
+                </h3>
               </div>
 
               <div className="space-y-4">
@@ -228,7 +230,7 @@ export const NATRuleBuilderMobile = memo(function NATRuleBuilderMobile({
             </Card>
 
             {/* Matchers Section - Collapsible */}
-            <Card className="p-4">
+            <Card className="p-component-md">
               <button
                 type="button"
                 onClick={() => toggleSection('matchers')}
@@ -236,7 +238,9 @@ export const NATRuleBuilderMobile = memo(function NATRuleBuilderMobile({
               >
                 <div className="flex items-center gap-2">
                   <Settings className="w-4 h-4 text-muted-foreground" />
-                  <h3 className="font-medium text-sm">Traffic Matchers</h3>
+                  <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider">
+                    Traffic Matchers
+                  </h3>
                 </div>
                 <ChevronDown
                   className={`w-4 h-4 transition-transform ${
@@ -384,7 +388,7 @@ export const NATRuleBuilderMobile = memo(function NATRuleBuilderMobile({
               isFieldVisible('outInterface') ||
               isFieldVisible('inInterfaceList') ||
               isFieldVisible('outInterfaceList')) && (
-              <Card className="p-4">
+              <Card className="p-component-md">
                 <button
                   type="button"
                   onClick={() => toggleSection('interfaces')}
@@ -392,7 +396,9 @@ export const NATRuleBuilderMobile = memo(function NATRuleBuilderMobile({
                 >
                   <div className="flex items-center gap-2">
                     <Globe className="w-4 h-4 text-muted-foreground" />
-                    <h3 className="font-medium text-sm">Interfaces</h3>
+                    <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider">
+                      Interfaces
+                    </h3>
                   </div>
                   <ChevronDown
                     className={`w-4 h-4 transition-transform ${
@@ -552,15 +558,17 @@ export const NATRuleBuilderMobile = memo(function NATRuleBuilderMobile({
 
             {/* Translation Section - Collapsible */}
             {(isFieldVisible('toAddresses') || isFieldVisible('toPorts')) && (
-              <Card className="p-4">
+              <Card className="p-component-md">
                 <button
                   type="button"
                   onClick={() => toggleSection('translation')}
                   className="flex items-center justify-between w-full mb-4 min-h-[44px]"
                 >
                   <div className="flex items-center gap-2">
-                    <ArrowRight className="w-4 h-4 text-muted-foreground" />
-                    <h3 className="font-medium text-sm">Translation</h3>
+                    <ArrowRight className="w-4 h-4 text-primary" />
+                    <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider">
+                      Translation
+                    </h3>
                   </div>
                   <ChevronDown
                     className={`w-4 h-4 transition-transform ${
@@ -623,7 +631,7 @@ export const NATRuleBuilderMobile = memo(function NATRuleBuilderMobile({
             )}
 
             {/* Options Section - Collapsible */}
-            <Card className="p-4">
+            <Card className="p-component-md">
               <button
                 type="button"
                 onClick={() => toggleSection('options')}
@@ -631,7 +639,9 @@ export const NATRuleBuilderMobile = memo(function NATRuleBuilderMobile({
               >
                 <div className="flex items-center gap-2">
                   <Info className="w-4 h-4 text-muted-foreground" />
-                  <h3 className="font-medium text-sm">Options</h3>
+                  <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider">
+                    Options
+                  </h3>
                 </div>
                 <ChevronDown
                   className={`w-4 h-4 transition-transform ${
@@ -738,7 +748,7 @@ export const NATRuleBuilderMobile = memo(function NATRuleBuilderMobile({
             </Card>
 
             {/* Preview Section - Collapsible */}
-            <Card className="p-4 bg-muted/50">
+            <Card className="p-component-md bg-muted/50">
               <button
                 type="button"
                 onClick={() => toggleSection('preview')}
@@ -746,7 +756,9 @@ export const NATRuleBuilderMobile = memo(function NATRuleBuilderMobile({
               >
                 <div className="flex items-center gap-2">
                   <Info className="w-4 h-4 text-muted-foreground" />
-                  <h3 className="font-medium text-sm">Preview</h3>
+                  <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider">
+                    Preview
+                  </h3>
                 </div>
                 <ChevronDown
                   className={`w-4 h-4 transition-transform ${

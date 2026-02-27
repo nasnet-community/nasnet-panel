@@ -108,7 +108,7 @@ const WANCardComponent = ({ wan, onConfigure, onViewDetails }: WANCardProps) => 
     >
       <CardHeader>
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-component-sm">
             {isConnected ? (
               <Globe className="h-5 w-5 text-success" aria-hidden="true" />
             ) : (
@@ -128,10 +128,10 @@ const WANCardComponent = ({ wan, onConfigure, onViewDetails }: WANCardProps) => 
         </div>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
+        <div className="space-y-component-md">
         {/* Connection Info */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-component-sm">
             <Badge variant={getConnectionStatusColor(wan.status) as any} className="text-xs">
               {isConnected ? (
                 <Globe className="h-3 w-3" aria-hidden="true" />
@@ -148,7 +148,7 @@ const WANCardComponent = ({ wan, onConfigure, onViewDetails }: WANCardProps) => 
 
           {/* Health Status (if enabled) */}
           {hasHealthCheck && (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-component-sm">
               <Activity
                 className={cn(
                   'h-4 w-4',
@@ -172,7 +172,7 @@ const WANCardComponent = ({ wan, onConfigure, onViewDetails }: WANCardProps) => 
             {wan.publicIP && (
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Public IP:</span>
-                <code className="text-xs font-mono bg-muted px-2 py-1 rounded-[var(--semantic-radius-button)]">
+                <code className="text-xs font-mono bg-muted px-component-sm py-component-xs rounded-[var(--semantic-radius-button)] category-networking">
                   {wan.publicIP}
                 </code>
               </div>
@@ -181,7 +181,7 @@ const WANCardComponent = ({ wan, onConfigure, onViewDetails }: WANCardProps) => 
             {wan.gateway && (
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Gateway:</span>
-                <code className="text-xs font-mono bg-muted px-2 py-1 rounded-[var(--semantic-radius-button)]">
+                <code className="text-xs font-mono bg-muted px-component-sm py-component-xs rounded-[var(--semantic-radius-button)] category-networking">
                   {wan.gateway}
                 </code>
               </div>
@@ -190,7 +190,7 @@ const WANCardComponent = ({ wan, onConfigure, onViewDetails }: WANCardProps) => 
             {wan.primaryDNS && (
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">DNS:</span>
-                <code className="text-xs font-mono bg-muted px-2 py-1 rounded-[var(--semantic-radius-button)]">
+                <code className="text-xs font-mono bg-muted px-component-sm py-component-xs rounded-[var(--semantic-radius-button)] category-networking">
                   {wan.primaryDNS}
                   {wan.secondaryDNS && (
                     <>
@@ -221,12 +221,12 @@ const WANCardComponent = ({ wan, onConfigure, onViewDetails }: WANCardProps) => 
           <div className="text-xs text-muted-foreground pt-component-md border-t border-border">
             <div className="flex items-center justify-between">
               <span>Health target:</span>
-              <code className="font-mono text-[10px]">{wan.healthTarget}</code>
+              <code className="font-mono text-[10px] category-networking">{wan.healthTarget}</code>
             </div>
             {wan.healthLatency && wan.healthLatency > 0 && (
               <div className="flex items-center justify-between mt-1">
                 <span>Latency:</span>
-                <code className="font-mono text-[10px]">
+                <code className="font-mono text-[10px] category-networking">
                   {wan.healthLatency}ms
                 </code>
               </div>
@@ -238,7 +238,7 @@ const WANCardComponent = ({ wan, onConfigure, onViewDetails }: WANCardProps) => 
         {wan.isDefaultRoute && (
           <div className="pt-component-md border-t border-border">
             <Badge variant="secondary" className="text-[10px]">
-              <Network className="h-3 w-3 mr-1" aria-hidden="true" />
+              <Network className="h-3 w-3 mr-component-xs" aria-hidden="true" />
               Default Route
             </Badge>
           </div>
@@ -252,7 +252,7 @@ const WANCardComponent = ({ wan, onConfigure, onViewDetails }: WANCardProps) => 
               <span>Not connected</span>
             </div>
             {wan.lastConnected && (
-              <div className="mt-1">
+              <div className="mt-component-xs">
                 Last connected{' '}
                 {formatDistanceToNow(new Date(wan.lastConnected), {
                   addSuffix: true,
@@ -301,14 +301,14 @@ const WANCardCompactComponent = ({ wan, onConfigure, onViewDetails }: WANCardPro
           ) : (
             <WifiOff className="h-3 w-3" aria-hidden="true" />
           )}
-          <span className="ml-1">{wan.status.charAt(0) + wan.status.slice(1).toLowerCase()}</span>
+          <span className="ml-component-xs">{wan.status.charAt(0) + wan.status.slice(1).toLowerCase()}</span>
         </Badge>
       </div>
 
       {/* IP Info */}
       {isConnected && wan.publicIP && (
         <div className="text-xs">
-          <code className="font-mono bg-muted px-2 py-1 rounded-[var(--semantic-radius-button)]">
+          <code className="font-mono bg-muted px-component-sm py-component-xs rounded-[var(--semantic-radius-button)] category-networking">
             {wan.publicIP}
           </code>
         </div>
@@ -321,7 +321,7 @@ const WANCardCompactComponent = ({ wan, onConfigure, onViewDetails }: WANCardPro
         </Badge>
 
         {/* Actions */}
-        <div className="flex gap-2">
+        <div className="flex gap-component-sm">
           {onConfigure && (
             <button
               onClick={handleConfigureClick}

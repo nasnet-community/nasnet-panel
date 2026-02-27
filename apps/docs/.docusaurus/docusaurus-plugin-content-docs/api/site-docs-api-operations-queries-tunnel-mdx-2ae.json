@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/tunnel",
+  "title": "tunnel",
+  "description": "Get a specific tunnel by ID",
+  "source": "@site/docs/api/operations/queries/tunnel.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/tunnel",
+  "permalink": "/api/operations/queries/tunnel",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "tunnel",
+    "title": "tunnel"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "troubleshootSession",
+    "permalink": "/api/operations/queries/troubleshoot-session"
+  },
+  "next": {
+    "title": "tunnels",
+    "permalink": "/api/operations/queries/tunnels"
+  }
+}

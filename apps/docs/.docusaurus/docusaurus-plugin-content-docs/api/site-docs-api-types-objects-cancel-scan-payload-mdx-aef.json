@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/cancel-scan-payload",
+  "title": "CancelScanPayload",
+  "description": "No description",
+  "source": "@site/docs/api/types/objects/cancel-scan-payload.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/cancel-scan-payload",
+  "permalink": "/api/types/objects/cancel-scan-payload",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "cancel-scan-payload",
+    "title": "CancelScanPayload"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "CancelChangeSetPayload",
+    "permalink": "/api/types/objects/cancel-change-set-payload"
+  },
+  "next": {
+    "title": "CapabilityEntry",
+    "permalink": "/api/types/objects/capability-entry"
+  }
+}

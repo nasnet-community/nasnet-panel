@@ -105,11 +105,11 @@ type portAllocEntityWrapper struct {
 	raw *ent.PortAllocation
 }
 
-func (w *portAllocEntityWrapper) GetID() string        { return w.raw.ID }
-func (w *portAllocEntityWrapper) GetRouterID() string  { return w.raw.RouterID }
-func (w *portAllocEntityWrapper) GetPort() int         { return w.raw.Port }
-func (w *portAllocEntityWrapper) GetProtocol() string  { return string(w.raw.Protocol) }
-func (w *portAllocEntityWrapper) GetInstanceID() string { return w.raw.InstanceID }
+func (w *portAllocEntityWrapper) GetID() string          { return w.raw.ID }
+func (w *portAllocEntityWrapper) GetRouterID() string    { return w.raw.RouterID }
+func (w *portAllocEntityWrapper) GetPort() int           { return w.raw.Port }
+func (w *portAllocEntityWrapper) GetProtocol() string    { return string(w.raw.Protocol) }
+func (w *portAllocEntityWrapper) GetInstanceID() string  { return w.raw.InstanceID }
 func (w *portAllocEntityWrapper) GetServiceType() string { return w.raw.ServiceType }
 
 func (q *entPortAllocationQuery) Exist(ctx context.Context) (bool, error) {

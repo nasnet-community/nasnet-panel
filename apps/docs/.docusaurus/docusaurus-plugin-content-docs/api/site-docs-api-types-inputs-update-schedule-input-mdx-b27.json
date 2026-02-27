@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/update-schedule-input",
+  "title": "UpdateScheduleInput",
+  "description": "Input for updating an existing routing schedule.",
+  "source": "@site/docs/api/types/inputs/update-schedule-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/update-schedule-input",
+  "permalink": "/api/types/inputs/update-schedule-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "update-schedule-input",
+    "title": "UpdateScheduleInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "UpdateRouterInput",
+    "permalink": "/api/types/inputs/update-router-input"
+  },
+  "next": {
+    "title": "UpdateWebhookInput",
+    "permalink": "/api/types/inputs/update-webhook-input"
+  }
+}

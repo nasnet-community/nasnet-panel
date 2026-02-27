@@ -59,7 +59,7 @@ export function DashboardSkeleton({ className }: DashboardSkeletonProps) {
         {Array.from({ length: 4 }).map((_, i) => (
           <div
             key={i}
-            className="rounded-card-sm border border-border bg-card p-component-md"
+            className="rounded-card-sm border border-border bg-card p-component-md shadow-sm"
           >
             <div className="flex items-center justify-between">
               <Skeleton className="h-4 w-20" />
@@ -79,7 +79,7 @@ export function DashboardSkeleton({ className }: DashboardSkeletonProps) {
             showTitle
             showLegend
             height={300}
-            className="rounded-card-sm border border-border bg-card p-component-md"
+            className="rounded-card-sm border border-border bg-card p-component-md shadow-sm"
           />
         </div>
 
@@ -98,7 +98,7 @@ export function DashboardSkeleton({ className }: DashboardSkeletonProps) {
       </div>
 
       {/* Recent Activity Section */}
-      <div className="rounded-card-sm border border-border bg-card p-component-md">
+      <div className="rounded-card-sm border border-border bg-card p-component-md shadow-sm">
         <Skeleton className="mb-4 h-6 w-32" />
         <div className="space-y-3">
           {Array.from({ length: 5 }).map((_, i) => (

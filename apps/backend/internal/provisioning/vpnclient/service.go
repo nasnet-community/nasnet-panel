@@ -67,7 +67,8 @@ func (s *Service) ProvisionVPNClient(
 	results := make([]*ProvisionResult, 0, totalClients)
 
 	// Provision WireGuard clients
-	for i, wg := range vpnClient.Wireguard {
+	for i := range vpnClient.Wireguard {
+		wg := vpnClient.Wireguard[i]
 		result, err := s.ProvisionWireGuard(ctx, routerID, sessionID, wg)
 		if err != nil {
 			return results, fmt.Errorf("failed to provision WireGuard client %d (%s): %w", i, wg.Name, err)
@@ -76,7 +77,8 @@ func (s *Service) ProvisionVPNClient(
 	}
 
 	// Provision OpenVPN clients
-	for i, ovpn := range vpnClient.OpenVPN {
+	for i := range vpnClient.OpenVPN {
+		ovpn := vpnClient.OpenVPN[i]
 		result, err := s.ProvisionOpenVPN(ctx, routerID, sessionID, ovpn)
 		if err != nil {
 			return results, fmt.Errorf("failed to provision OpenVPN client %d (%s): %w", i, ovpn.Name, err)
@@ -85,7 +87,8 @@ func (s *Service) ProvisionVPNClient(
 	}
 
 	// Provision PPTP clients
-	for i, pptp := range vpnClient.PPTP {
+	for i := range vpnClient.PPTP {
+		pptp := vpnClient.PPTP[i]
 		result, err := s.ProvisionPPTP(ctx, routerID, sessionID, pptp)
 		if err != nil {
 			return results, fmt.Errorf("failed to provision PPTP client %d (%s): %w", i, pptp.Name, err)
@@ -94,7 +97,8 @@ func (s *Service) ProvisionVPNClient(
 	}
 
 	// Provision L2TP clients
-	for i, l2tp := range vpnClient.L2TP {
+	for i := range vpnClient.L2TP {
+		l2tp := vpnClient.L2TP[i]
 		result, err := s.ProvisionL2TP(ctx, routerID, sessionID, l2tp)
 		if err != nil {
 			return results, fmt.Errorf("failed to provision L2TP client %d (%s): %w", i, l2tp.Name, err)
@@ -103,7 +107,8 @@ func (s *Service) ProvisionVPNClient(
 	}
 
 	// Provision SSTP clients
-	for i, sstp := range vpnClient.SSTP {
+	for i := range vpnClient.SSTP {
+		sstp := vpnClient.SSTP[i]
 		result, err := s.ProvisionSSTP(ctx, routerID, sessionID, sstp)
 		if err != nil {
 			return results, fmt.Errorf("failed to provision SSTP client %d (%s): %w", i, sstp.Name, err)
@@ -112,7 +117,8 @@ func (s *Service) ProvisionVPNClient(
 	}
 
 	// Provision IKEv2 clients
-	for i, ike := range vpnClient.IKev2 {
+	for i := range vpnClient.IKev2 {
+		ike := vpnClient.IKev2[i]
 		result, err := s.ProvisionIKEv2(ctx, routerID, sessionID, ike)
 		if err != nil {
 			return results, fmt.Errorf("failed to provision IKEv2 client %d (%s): %w", i, ike.Name, err)

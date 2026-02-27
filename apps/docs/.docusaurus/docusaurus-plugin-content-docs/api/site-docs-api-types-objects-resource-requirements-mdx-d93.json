@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/resource-requirements",
+  "title": "ResourceRequirements",
+  "description": "Resource requirements for a service feature (from manifest).",
+  "source": "@site/docs/api/types/objects/resource-requirements.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/resource-requirements",
+  "permalink": "/api/types/objects/resource-requirements",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "resource-requirements",
+    "title": "ResourceRequirements"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ResourceRelationships",
+    "permalink": "/api/types/objects/resource-relationships"
+  },
+  "next": {
+    "title": "ResourceRuntimeEvent",
+    "permalink": "/api/types/objects/resource-runtime-event"
+  }
+}

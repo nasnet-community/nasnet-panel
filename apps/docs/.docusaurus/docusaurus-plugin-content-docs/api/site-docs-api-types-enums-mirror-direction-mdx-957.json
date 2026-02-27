@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/mirror-direction",
+  "title": "MirrorDirection",
+  "description": "Direction of traffic to mirror",
+  "source": "@site/docs/api/types/enums/mirror-direction.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/mirror-direction",
+  "permalink": "/api/types/enums/mirror-direction",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "mirror-direction",
+    "title": "MirrorDirection"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "LogLevel",
+    "permalink": "/api/types/enums/log-level"
+  },
+  "next": {
+    "title": "MultiLinkStrategy",
+    "permalink": "/api/types/enums/multi-link-strategy"
+  }
+}

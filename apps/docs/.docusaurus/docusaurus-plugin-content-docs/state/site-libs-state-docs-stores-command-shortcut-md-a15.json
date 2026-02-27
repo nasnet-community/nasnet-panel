@@ -1,0 +1,24 @@
+{
+  "id": "stores/command-shortcut",
+  "title": "Command and Shortcut Registry Stores",
+  "description": "This document covers the command palette and keyboard shortcut systems that power NasNetConnect's fast navigation and power-user experience.",
+  "source": "@site/../../libs/state/docs/stores/command-shortcut.md",
+  "sourceDirName": "stores",
+  "slug": "/stores/command-shortcut",
+  "permalink": "/docs/state/stores/command-shortcut",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/state/docs/stores/command-shortcut.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Change Set Store",
+    "permalink": "/docs/state/stores/change-set"
+  },
+  "next": {
+    "title": "Connection Stores (useConnectionStore & useNetworkStore)",
+    "permalink": "/docs/state/stores/connection"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/directives/vyos",
+  "title": "vyos",
+  "description": "Maps field to VyOS configuration path",
+  "source": "@site/docs/api/types/directives/vyos.mdx",
+  "sourceDirName": "api/types/directives",
+  "slug": "/api/types/directives/vyos",
+  "permalink": "/api/types/directives/vyos",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "vyos",
+    "title": "vyos"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "validate",
+    "permalink": "/api/types/directives/validate"
+  },
+  "next": {
+    "title": "Enums",
+    "permalink": "/category/enums"
+  }
+}

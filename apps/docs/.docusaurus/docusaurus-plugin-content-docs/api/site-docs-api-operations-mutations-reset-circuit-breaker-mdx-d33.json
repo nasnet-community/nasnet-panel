@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/reset-circuit-breaker",
+  "title": "resetCircuitBreaker",
+  "description": "Manually reset the circuit breaker for a router.",
+  "source": "@site/docs/api/operations/mutations/reset-circuit-breaker.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/reset-circuit-breaker",
+  "permalink": "/api/operations/mutations/reset-circuit-breaker",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "reset-circuit-breaker",
+    "title": "resetCircuitBreaker"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "resetAlertTemplate",
+    "permalink": "/api/operations/mutations/reset-alert-template"
+  },
+  "next": {
+    "title": "resetExternalStorage",
+    "permalink": "/api/operations/mutations/reset-external-storage"
+  }
+}

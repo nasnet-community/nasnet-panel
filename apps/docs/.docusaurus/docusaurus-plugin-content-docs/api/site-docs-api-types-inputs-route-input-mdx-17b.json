@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/route-input",
+  "title": "RouteInput",
+  "description": "Input for creating or updating a route",
+  "source": "@site/docs/api/types/inputs/route-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/route-input",
+  "permalink": "/api/types/inputs/route-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "route-input",
+    "title": "RouteInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "RestartInstanceInput",
+    "permalink": "/api/types/inputs/restart-instance-input"
+  },
+  "next": {
+    "title": "RunDiagnosticsInput",
+    "permalink": "/api/types/inputs/run-diagnostics-input"
+  }
+}

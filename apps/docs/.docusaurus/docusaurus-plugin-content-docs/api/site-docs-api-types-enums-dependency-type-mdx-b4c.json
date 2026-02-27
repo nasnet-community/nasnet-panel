@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/dependency-type",
+  "title": "DependencyType",
+  "description": "DependencyType defines the strength of the dependency relationship.",
+  "source": "@site/docs/api/types/enums/dependency-type.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/dependency-type",
+  "permalink": "/api/types/enums/dependency-type",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "dependency-type",
+    "title": "DependencyType"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "CredentialTestStatus",
+    "permalink": "/api/types/enums/credential-test-status"
+  },
+  "next": {
+    "title": "DiagnosticStatus",
+    "permalink": "/api/types/enums/diagnostic-status"
+  }
+}

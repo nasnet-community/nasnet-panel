@@ -261,7 +261,7 @@ func authenticateJWT(ctx context.Context, config AuthMiddlewareConfig, token str
 	// Validate token
 	claims, err := config.JWTService.ValidateToken(token)
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, nil, nil, fmt.Errorf("validate token: %w", err)
 	}
 
 	// Validate session if validator is configured

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/scan-storage-payload",
+  "title": "ScanStoragePayload",
+  "description": "Payload for scanStorage mutation.",
+  "source": "@site/docs/api/types/objects/scan-storage-payload.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/scan-storage-payload",
+  "permalink": "/api/types/objects/scan-storage-payload",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "scan-storage-payload",
+    "title": "ScanStoragePayload"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ScanProgressEvent",
+    "permalink": "/api/types/objects/scan-progress-event"
+  },
+  "next": {
+    "title": "ScanTask",
+    "permalink": "/api/types/objects/scan-task"
+  }
+}

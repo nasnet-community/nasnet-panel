@@ -95,10 +95,10 @@ const InterfaceStatusCardMobileComponent = React.memo(function InterfaceStatusCa
         className
       )}
     >
-      <CardContent className="p-3">
+      <CardContent className="p-component-sm">
         {/* Compact header: Icon + Name + Status */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 min-w-0">
+          <div className="flex items-center gap-component-sm min-w-0">
             <InterfaceTypeIcon
               type={iface.type}
               className="h-4 w-4 shrink-0"
@@ -112,13 +112,13 @@ const InterfaceStatusCardMobileComponent = React.memo(function InterfaceStatusCa
         </div>
 
         {/* Combined traffic on single line */}
-        <div className="text-xs text-muted-foreground mt-1">
+        <div className="text-xs text-muted-foreground mt-component-xs">
           ↑{formatTrafficRate(iface.txRate)} ↓{formatTrafficRate(iface.rxRate)}
         </div>
 
         {/* IP address if available */}
         {iface.ip && (
-          <div className="text-xs font-mono text-muted-foreground mt-0.5 truncate">
+          <div className="text-xs font-mono text-muted-foreground mt-component-xs truncate">
             {iface.ip}
           </div>
         )}

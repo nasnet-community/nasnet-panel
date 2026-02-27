@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/resource-relationship-edge",
+  "title": "ResourceRelationshipEdge",
+  "description": "Edge in the resource relationship graph",
+  "source": "@site/docs/api/types/objects/resource-relationship-edge.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/resource-relationship-edge",
+  "permalink": "/api/types/objects/resource-relationship-edge",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "resource-relationship-edge",
+    "title": "ResourceRelationshipEdge"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ResourceReference",
+    "permalink": "/api/types/objects/resource-reference"
+  },
+  "next": {
+    "title": "ResourceRelationships",
+    "permalink": "/api/types/objects/resource-relationships"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/dns-cache-stats",
+  "title": "dnsCacheStats",
+  "description": "Get DNS cache statistics including entries, size, hit rate, and top domains.",
+  "source": "@site/docs/api/operations/queries/dns-cache-stats.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/dns-cache-stats",
+  "permalink": "/api/operations/queries/dns-cache-stats",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "dns-cache-stats",
+    "title": "dnsCacheStats"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "dnsBenchmark",
+    "permalink": "/api/operations/queries/dns-benchmark"
+  },
+  "next": {
+    "title": "dnsServers",
+    "permalink": "/api/operations/queries/dns-servers"
+  }
+}

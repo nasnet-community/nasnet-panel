@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/port-protocol",
+  "title": "PortProtocol",
+  "description": "Transport protocol for port allocations.",
+  "source": "@site/docs/api/types/enums/port-protocol.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/port-protocol",
+  "permalink": "/api/types/enums/port-protocol",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "port-protocol",
+    "title": "PortProtocol"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "PortMode",
+    "permalink": "/api/types/enums/port-mode"
+  },
+  "next": {
+    "title": "ProtocolPreference",
+    "permalink": "/api/types/enums/protocol-preference"
+  }
+}

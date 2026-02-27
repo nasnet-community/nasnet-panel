@@ -117,7 +117,7 @@ export const InterfaceGridDesktop = memo(
       return (
         <Alert variant="destructive" className={className}>
           <AlertCircle className="h-4 w-4" aria-hidden="true" />
-          <AlertDescription className="flex items-center justify-between gap-4">
+          <AlertDescription className="flex items-center justify-between gap-component-md">
             <span>Failed to load interfaces: {error.message}</span>
             <Button
               variant="outline"

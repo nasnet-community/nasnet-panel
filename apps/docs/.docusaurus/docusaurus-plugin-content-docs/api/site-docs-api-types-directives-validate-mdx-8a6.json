@@ -1,0 +1,26 @@
+{
+  "id": "api/types/directives/validate",
+  "title": "validate",
+  "description": "No description",
+  "source": "@site/docs/api/types/directives/validate.mdx",
+  "sourceDirName": "api/types/directives",
+  "slug": "/api/types/directives/validate",
+  "permalink": "/api/types/directives/validate",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "validate",
+    "title": "validate"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "specifiedBy",
+    "permalink": "/api/types/directives/specified-by"
+  },
+  "next": {
+    "title": "vyos",
+    "permalink": "/api/types/directives/vyos"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/delete-port-mirror",
+  "title": "deletePortMirror",
+  "description": "Delete a port mirror configuration",
+  "source": "@site/docs/api/operations/mutations/delete-port-mirror.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/delete-port-mirror",
+  "permalink": "/api/operations/mutations/delete-port-mirror",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "delete-port-mirror",
+    "title": "deletePortMirror"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "deletePortKnockSequence",
+    "permalink": "/api/operations/mutations/delete-port-knock-sequence"
+  },
+  "next": {
+    "title": "deleteResource",
+    "permalink": "/api/operations/mutations/delete-resource"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/setup-dual-vlanbridge-input",
+  "title": "SetupDualVLANBridgeInput",
+  "description": "Input for setting up a dual-VLAN bridge (ingress + egress VLANs).",
+  "source": "@site/docs/api/types/inputs/setup-dual-vlanbridge-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/setup-dual-vlanbridge-input",
+  "permalink": "/api/types/inputs/setup-dual-vlanbridge-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "setup-dual-vlanbridge-input",
+    "title": "SetupDualVLANBridgeInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "SetTrafficQuotaInput",
+    "permalink": "/api/types/inputs/set-traffic-quota-input"
+  },
+  "next": {
+    "title": "SingleDeviceRoutingInput",
+    "permalink": "/api/types/inputs/single-device-routing-input"
+  }
+}

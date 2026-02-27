@@ -68,10 +68,10 @@ export const DashboardLayout = memo(function DashboardLayout({
   return (
     <div className={cn('flex flex-col h-full', className)}>
       {/* Page Header */}
-      <header className="flex items-center justify-between p-4 sm:p-6 border-b border-border">
+      <header className="flex items-center justify-between p-component-md sm:p-component-lg border-b border-border">
         <div>
           <h1 className="text-2xl font-display font-bold text-foreground">Dashboard</h1>
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="text-sm text-muted-foreground mt-component-xs">
             Router health and network status at a glance
           </p>
         </div>
@@ -92,10 +92,10 @@ export const DashboardLayout = memo(function DashboardLayout({
       </header>
 
       {/* Dashboard Grid */}
-      <main className="flex-1 overflow-auto p-4 sm:p-6 lg:p-8">
+      <main className="flex-1 overflow-auto p-component-md sm:p-component-lg lg:p-component-xl">
         <div
           className={cn(
-            'grid gap-4 sm:gap-6 lg:gap-8',
+            'grid gap-component-md sm:gap-component-lg lg:gap-component-xl',
             gridColumns,
             // Ensure proper grid layout
             'auto-rows-max'

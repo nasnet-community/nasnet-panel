@@ -114,7 +114,7 @@ export const LogSettingsDialog = React.memo(
             <Button
               variant="ghost"
               size="sm"
-              className={cn('gap-2 min-h-[44px] min-w-[44px]', className)}
+              className={cn('gap-component-sm min-h-[44px] min-w-[44px]', className)}
               aria-label="Log Settings"
             >
               <Settings className="h-4 w-4" aria-hidden="true" />
@@ -199,7 +199,7 @@ const RulesTab = React.memo(
 
     if (error) {
       return (
-        <div className="flex flex-col items-center gap-4 py-8 text-center">
+        <div className="flex flex-col items-center gap-component-md py-component-xl text-center">
           <AlertCircle className="h-8 w-8 text-error" aria-hidden="true" />
           <p className="text-sm text-muted-foreground">{error.message}</p>
           <Button
@@ -224,7 +224,7 @@ const RulesTab = React.memo(
             variant="outline"
             size="sm"
             onClick={() => setShowAddForm(true)}
-            className="gap-2"
+            className="gap-component-sm"
           >
             <Plus className="h-4 w-4" aria-hidden="true" />
             Add Rule
@@ -245,7 +245,7 @@ const RulesTab = React.memo(
                       {rule.prefix && ` • Prefix: ${rule.prefix}`}
                     </p>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-component-sm">
                     <Switch
                       checked={!rule.disabled}
                       onCheckedChange={(checked) =>
@@ -282,7 +282,7 @@ const RulesTab = React.memo(
           ))}
 
           {rules.length === 0 && (
-            <p className="text-sm text-muted-foreground text-center py-8">
+            <p className="text-sm text-muted-foreground text-center py-component-xl">
               No logging rules configured.
             </p>
           )}
@@ -344,7 +344,7 @@ const AddRuleForm = React.memo(
           {/* Topics Selection */}
           <div className="space-y-2">
             <label htmlFor="topics-input" className="text-sm font-medium">Topics</label>
-            <div id="topics-input" className="flex flex-wrap gap-2 max-h-32 overflow-y-auto" role="group" aria-labelledby="topics-label">
+            <div id="topics-input" className="flex flex-wrap gap-component-sm max-h-32 overflow-y-auto" role="group" aria-labelledby="topics-label">
               {LOG_TOPICS.map((topic) => (
                 <Button
                   key={topic}
@@ -393,14 +393,14 @@ const AddRuleForm = React.memo(
             />
           </div>
 
-          <div className="flex justify-end gap-2">
+          <div className="flex justify-end gap-component-sm">
             <Button type="button" variant="outline" onClick={onClose}>
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={topics.length === 0 || createRule.isPending}
-              className="gap-2"
+              className="gap-component-sm"
             >
               <Save className="h-4 w-4" aria-hidden="true" />
               Add Rule
@@ -447,7 +447,7 @@ const DestinationsTab = React.memo(
 
     if (error) {
       return (
-        <div className="flex flex-col items-center gap-4 py-8 text-center">
+        <div className="flex flex-col items-center gap-component-md py-component-xl text-center">
           <AlertCircle className="h-8 w-8 text-error" aria-hidden="true" />
           <p className="text-sm text-muted-foreground">{error.message}</p>
         </div>
@@ -638,7 +638,7 @@ const ActionConfigForm = React.memo(
         <Button
           onClick={handleSave}
           disabled={updateAction.isPending}
-          className="w-full gap-2"
+          className="w-full gap-component-sm"
         >
           <Save className="h-4 w-4" aria-hidden="true" />
           Save Changes

@@ -77,6 +77,6 @@ func (l *ResourceLoader) ClearAll() {
 
 // Prime adds a value to the cache.
 // Useful when you've already fetched a resource and want to cache it for future loads.
-func (l *ResourceLoader) Prime(ctx context.Context, id string, resource *ent.Resource) {
-	l.loader.Prime(ctx, id, resource)
+func (l *ResourceLoader) Prime(ctx context.Context, id string, res *ent.Resource) {
+	l.loader.Prime(ctx, id, res)
 }

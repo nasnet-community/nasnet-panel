@@ -128,7 +128,7 @@ function RouteListDesktopComponent({
         header: 'Destination',
         cell: (route) => (
           <div className="flex items-center gap-component-sm">
-            <code className="text-sm font-mono">{route.destination}</code>
+            <code className="text-sm font-mono text-foreground">{route.destination}</code>
             {route.destination === '0.0.0.0/0' && (
               <Badge variant="default" className="text-xs">
                 Default
@@ -141,7 +141,7 @@ function RouteListDesktopComponent({
         key: 'gateway',
         header: 'Gateway',
         cell: (route) => (
-          <code className="text-sm text-muted-foreground">
+          <code className="text-sm font-mono text-foreground">
             {route.gateway || '-'}
           </code>
         ),
@@ -213,7 +213,7 @@ function RouteListDesktopComponent({
               <DropdownMenuItem
                 onClick={() => onDelete?.(route)}
                 disabled={route.type !== 'STATIC'}
-                className="text-destructive"
+                className="text-error"
               >
                 <Trash className="mr-2 h-4 w-4" />
                 Delete
@@ -314,7 +314,7 @@ function RouteListDesktopComponent({
 
         {/* Error message */}
         {error && (
-          <div role="alert" className="mb-component-md flex items-center gap-component-sm rounded-lg border border-error/50 bg-error/10 p-component-sm text-sm text-error">
+          <div role="alert" className="mb-component-md flex items-center gap-component-sm rounded-lg border border-error bg-error/10 p-component-sm text-sm text-error">
             <AlertCircle className="h-4 w-4" aria-hidden="true" />
             <p>{error}</p>
           </div>

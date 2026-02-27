@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/scan-task",
+  "title": "ScanTask",
+  "description": "A network scan task that tracks scan progress and results.",
+  "source": "@site/docs/api/types/objects/scan-task.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/scan-task",
+  "permalink": "/api/types/objects/scan-task",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "scan-task",
+    "title": "ScanTask"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ScanStoragePayload",
+    "permalink": "/api/types/objects/scan-storage-payload"
+  },
+  "next": {
+    "title": "ScheduleEvent",
+    "permalink": "/api/types/objects/schedule-event"
+  }
+}

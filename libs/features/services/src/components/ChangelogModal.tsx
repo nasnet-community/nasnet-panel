@@ -157,12 +157,12 @@ function ChangelogModalComponent(props: ChangelogModalProps) {
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6 py-4">
+        <div className="space-y-component-lg py-component-md">
           {/* Severity badge */}
           <div className="flex items-center justify-between">
             <Badge
               className={cn(
-                'inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium border',
+                'inline-flex items-center gap-component-sm px-component-md py-1.5 text-sm font-medium border',
                 severityColor
               )}
             >
@@ -177,22 +177,22 @@ function ChangelogModalComponent(props: ChangelogModalProps) {
           </div>
 
           {/* Version diff */}
-          <div className="rounded-md bg-muted p-4">
-            <h3 className="text-sm font-medium text-muted-foreground mb-2">
+          <div className="rounded-md bg-muted p-component-md">
+            <h3 className="text-sm font-medium text-muted-foreground mb-component-sm">
               Version Change
             </h3>
             <p className="font-mono text-lg">
               <span className="text-muted-foreground">v{currentVersion}</span>
-              <span className="mx-3 text-muted-foreground">→</span>
+              <span className="mx-component-md text-muted-foreground">→</span>
               <span className="font-mono font-semibold text-foreground">v{newVersion}</span>
             </p>
           </div>
 
           {/* Warnings */}
           {(securityFixes || breakingChanges) && (
-            <div className="space-y-2">
+            <div className="space-y-component-sm">
               {securityFixes && (
-                <div className="flex items-start gap-3 rounded-md border border-error/20 bg-error/10 p-3">
+                <div className="flex items-start gap-component-md rounded-md border border-error/20 bg-error/10 p-component-sm">
                   <ShieldAlert
                     className="h-5 w-5 text-error flex-shrink-0 mt-0.5"
                     aria-hidden="true"
@@ -201,7 +201,7 @@ function ChangelogModalComponent(props: ChangelogModalProps) {
                     <p className="text-sm font-medium text-error">
                       Security Fixes Included
                     </p>
-                    <p className="text-xs text-muted-foreground mt-1">
+                    <p className="text-xs text-muted-foreground mt-component-sm">
                       This update includes important security patches. We recommend
                       updating as soon as possible.
                     </p>
@@ -209,7 +209,7 @@ function ChangelogModalComponent(props: ChangelogModalProps) {
                 </div>
               )}
               {breakingChanges && (
-                <div className="flex items-start gap-3 rounded-md border border-warning/20 bg-warning/10 p-3">
+                <div className="flex items-start gap-component-md rounded-md border border-warning/20 bg-warning/10 p-component-sm">
                   <AlertCircle
                     className="h-5 w-5 text-warning flex-shrink-0 mt-0.5"
                     aria-hidden="true"
@@ -218,7 +218,7 @@ function ChangelogModalComponent(props: ChangelogModalProps) {
                     <p className="text-sm font-medium text-warning">
                       Breaking Changes
                     </p>
-                    <p className="text-xs text-muted-foreground mt-1">
+                    <p className="text-xs text-muted-foreground mt-component-sm">
                       This update contains breaking changes. Review the changelog
                       before updating.
                     </p>
@@ -231,7 +231,7 @@ function ChangelogModalComponent(props: ChangelogModalProps) {
           <Separator />
 
           {/* Changelog preview message */}
-          <div className="text-center py-6 space-y-4">
+          <div className="text-center py-component-lg space-y-component-md">
             <p className="text-sm text-muted-foreground">
               For detailed release notes and changelog, visit the GitHub release page.
             </p>

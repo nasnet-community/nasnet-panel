@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/storage-info",
+  "title": "StorageInfo",
+  "description": "Information about a storage location (flash or external).",
+  "source": "@site/docs/api/types/objects/storage-info.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/storage-info",
+  "permalink": "/api/types/objects/storage-info",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "storage-info",
+    "title": "StorageInfo"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "StorageConfig",
+    "permalink": "/api/types/objects/storage-config"
+  },
+  "next": {
+    "title": "StorageMetrics",
+    "permalink": "/api/types/objects/storage-metrics"
+  }
+}

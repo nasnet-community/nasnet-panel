@@ -1,0 +1,24 @@
+{
+  "id": "alert-system",
+  "title": "Alert System",
+  "description": "Overview",
+  "source": "@site/../backend/docs/alert-system.md",
+  "sourceDirName": ".",
+  "slug": "/alert-system",
+  "permalink": "/docs/backend/alert-system",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../backend/docs/alert-system.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Introduction",
+    "permalink": "/docs/backend/intro"
+  },
+  "next": {
+    "title": "Application Bootstrap",
+    "permalink": "/docs/backend/application-bootstrap"
+  }
+}

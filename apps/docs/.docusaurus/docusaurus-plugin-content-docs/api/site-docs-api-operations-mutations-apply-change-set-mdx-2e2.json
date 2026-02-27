@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/apply-change-set",
+  "title": "applyChangeSet",
+  "description": "Apply a change set atomically to the router",
+  "source": "@site/docs/api/operations/mutations/apply-change-set.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/apply-change-set",
+  "permalink": "/api/operations/mutations/apply-change-set",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "apply-change-set",
+    "title": "applyChangeSet"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "applyAlertTemplate",
+    "permalink": "/api/operations/mutations/apply-alert-template"
+  },
+  "next": {
+    "title": "applyFirewallTemplate",
+    "permalink": "/api/operations/mutations/apply-firewall-template"
+  }
+}

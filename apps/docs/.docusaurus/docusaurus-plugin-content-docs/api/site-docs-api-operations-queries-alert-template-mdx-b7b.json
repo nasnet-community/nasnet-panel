@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/alert-template",
+  "title": "alertTemplate",
+  "description": "Get a single alert template by ID",
+  "source": "@site/docs/api/operations/queries/alert-template.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/alert-template",
+  "permalink": "/api/operations/queries/alert-template",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "alert-template",
+    "title": "alertTemplate"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "alertStormStatus",
+    "permalink": "/api/operations/queries/alert-storm-status"
+  },
+  "next": {
+    "title": "alertTemplates",
+    "permalink": "/api/operations/queries/alert-templates"
+  }
+}

@@ -175,7 +175,7 @@ func (s *IPAddressService) fetchDHCPServers(ctx context.Context, _routerID strin
 	}
 	result, err := s.routerPort.ExecuteCommand(ctx, cmd)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to fetch DHCP servers: %w", err)
 	}
 	servers := make([]DHCPServerInfo, 0)
 	for _, data := range result.Data {
@@ -197,7 +197,7 @@ func (s *IPAddressService) fetchRoutes(ctx context.Context, _routerID string) ([
 	}
 	result, err := s.routerPort.ExecuteCommand(ctx, cmd)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to fetch routes: %w", err)
 	}
 	routes := make([]RouteInfo, 0)
 	for _, data := range result.Data {
@@ -219,7 +219,7 @@ func (s *IPAddressService) fetchNATRules(ctx context.Context, _routerID string) 
 	}
 	result, err := s.routerPort.ExecuteCommand(ctx, cmd)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to fetch NAT rules: %w", err)
 	}
 	rules := make([]NATRuleInfo, 0)
 	for _, data := range result.Data {
@@ -243,7 +243,7 @@ func (s *IPAddressService) fetchFirewallRules(ctx context.Context, _routerID str
 	}
 	result, err := s.routerPort.ExecuteCommand(ctx, cmd)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to fetch firewall rules: %w", err)
 	}
 	rules := make([]FirewallRuleInfo, 0)
 	for _, data := range result.Data {

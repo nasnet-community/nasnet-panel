@@ -152,8 +152,8 @@ function DialogWrapper({ ipAddress, loading: externalLoading, mocks, autoOpen = 
 
   return (
     <MockedProvider mocks={mocks} addTypename={true}>
-      <div className="flex flex-col items-center gap-4 p-8">
-        <div className="text-center space-y-2">
+      <div className="flex flex-col items-center gap-component-md p-component-xl">
+        <div className="text-center space-y-component-xs">
           <p className="text-sm text-muted-foreground">
             Click to open the delete dialog for{' '}
             <code className="font-mono text-xs bg-muted rounded px-1">{ipAddress.address}</code>

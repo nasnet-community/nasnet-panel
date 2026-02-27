@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/wire-guard-client",
+  "title": "WireGuardClient",
+  "description": "WireGuard VPN Client resource implementing 8-layer model",
+  "source": "@site/docs/api/types/objects/wire-guard-client.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/wire-guard-client",
+  "permalink": "/api/types/objects/wire-guard-client",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "wire-guard-client",
+    "title": "WireGuardClient"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "WireGuardClientConfig",
+    "permalink": "/api/types/objects/wire-guard-client-config"
+  },
+  "next": {
+    "title": "WireGuardDeployment",
+    "permalink": "/api/types/objects/wire-guard-deployment"
+  }
+}

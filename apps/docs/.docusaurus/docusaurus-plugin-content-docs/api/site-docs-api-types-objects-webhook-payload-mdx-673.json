@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/webhook-payload",
+  "title": "WebhookPayload",
+  "description": "Webhook mutation payload",
+  "source": "@site/docs/api/types/objects/webhook-payload.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/webhook-payload",
+  "permalink": "/api/types/objects/webhook-payload",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "webhook-payload",
+    "title": "WebhookPayload"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "WebhookDeliveryStats",
+    "permalink": "/api/types/objects/webhook-delivery-stats"
+  },
+  "next": {
+    "title": "WebhookTestPayload",
+    "permalink": "/api/types/objects/webhook-test-payload"
+  }
+}

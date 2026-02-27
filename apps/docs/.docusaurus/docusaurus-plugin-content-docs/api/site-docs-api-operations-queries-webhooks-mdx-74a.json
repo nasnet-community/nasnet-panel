@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/webhooks",
+  "title": "webhooks",
+  "description": "Get all webhooks",
+  "source": "@site/docs/api/operations/queries/webhooks.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/webhooks",
+  "permalink": "/api/operations/queries/webhooks",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "webhooks",
+    "title": "webhooks"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "webhook",
+    "permalink": "/api/operations/queries/webhook"
+  },
+  "next": {
+    "title": "Subscriptions",
+    "permalink": "/category/subscriptions"
+  }
+}

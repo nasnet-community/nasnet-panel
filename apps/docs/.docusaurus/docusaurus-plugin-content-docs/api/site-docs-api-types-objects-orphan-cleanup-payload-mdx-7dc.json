@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/orphan-cleanup-payload",
+  "title": "OrphanCleanupPayload",
+  "description": "Payload for orphan cleanup mutation.",
+  "source": "@site/docs/api/types/objects/orphan-cleanup-payload.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/orphan-cleanup-payload",
+  "permalink": "/api/types/objects/orphan-cleanup-payload",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "orphan-cleanup-payload",
+    "title": "OrphanCleanupPayload"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "OperationCounts",
+    "permalink": "/api/types/objects/operation-counts"
+  },
+  "next": {
+    "title": "OrphanedPort",
+    "permalink": "/api/types/objects/orphaned-port"
+  }
+}

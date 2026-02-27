@@ -3,10 +3,11 @@
  *
  * Compact presenter optimized for desktop/larger screens.
  * Features:
- * - 24px height (compact)
+ * - h-2 height (8px) with rounded-full border radius
  * - Inline horizontal layout
  * - Information-dense display
  * - Hover states for interactivity
+ * - semantic color tokens (success, warning, error)
  */
 
 import * as React from 'react';
@@ -35,46 +36,47 @@ const STATUS_ICONS: Record<UsageStatus, typeof Circle> = {
 
 /**
  * Status color classes (semantic tokens)
+ * Uses: success (green), warning (amber), error (red), muted (gray)
  */
 const STATUS_COLORS: Record<
   UsageStatus,
   { bg: string; fill: string; text: string; icon: string }
 > = {
   idle: {
-    bg: 'bg-gray-100 dark:bg-gray-800',
-    fill: 'bg-gray-400 dark:bg-gray-500',
-    text: 'text-gray-600 dark:text-gray-400',
-    icon: 'text-gray-500 dark:text-gray-400',
+    bg: 'bg-muted',
+    fill: 'bg-muted-foreground',
+    text: 'text-muted-foreground',
+    icon: 'text-muted-foreground',
   },
   normal: {
-    bg: 'bg-green-50 dark:bg-green-950/30',
-    fill: 'bg-semantic-success',
-    text: 'text-semantic-success',
-    icon: 'text-semantic-success',
+    bg: 'bg-success-light',
+    fill: 'bg-success',
+    text: 'text-success-dark',
+    icon: 'text-success',
   },
   warning: {
-    bg: 'bg-amber-50 dark:bg-amber-950/30',
-    fill: 'bg-semantic-warning',
-    text: 'text-semantic-warning',
-    icon: 'text-semantic-warning',
+    bg: 'bg-warning-light',
+    fill: 'bg-warning',
+    text: 'text-warning-dark',
+    icon: 'text-warning',
   },
   critical: {
-    bg: 'bg-orange-50 dark:bg-orange-950/30',
-    fill: 'bg-orange-500 dark:bg-orange-600',
-    text: 'text-orange-600 dark:text-orange-400',
-    icon: 'text-orange-600 dark:text-orange-400',
+    bg: 'bg-warning-light',
+    fill: 'bg-warning',
+    text: 'text-warning-dark',
+    icon: 'text-warning',
   },
   danger: {
-    bg: 'bg-red-50 dark:bg-red-950/30',
-    fill: 'bg-semantic-error',
-    text: 'text-semantic-error',
-    icon: 'text-semantic-error',
+    bg: 'bg-error-light',
+    fill: 'bg-error',
+    text: 'text-error-dark',
+    icon: 'text-error',
   },
   unknown: {
-    bg: 'bg-gray-100 dark:bg-gray-800',
-    fill: 'bg-gray-400 dark:bg-gray-500',
-    text: 'text-gray-600 dark:text-gray-400',
-    icon: 'text-gray-500 dark:text-gray-400',
+    bg: 'bg-muted',
+    fill: 'bg-muted-foreground',
+    text: 'text-muted-foreground',
+    icon: 'text-muted-foreground',
   },
 };
 
@@ -87,7 +89,7 @@ const STATUS_COLORS: Record<
  * Uses horizontal inline layout.
  */
 function ResourceUsageBarDesktopBase(props: ResourceUsageBarProps) {
-  const { showValues = true, showPercentage = true, className } = props;
+  const { showValues = true, className } = props;
   const state = useResourceUsageBar(props);
 
   const colors = STATUS_COLORS[state.status];
@@ -105,13 +107,12 @@ function ResourceUsageBarDesktopBase(props: ResourceUsageBarProps) {
         <span className="text-sm font-medium text-foreground">{state.label}</span>
       </div>
 
-      {/* Progress Bar - 24px height (compact) */}
+      {/* Progress Bar - h-2 (8px) rounded-full */}
       <div className="flex-1 min-w-[120px]">
         <div
           className={cn(
-            'relative h-6 rounded-md overflow-hidden',
+            'relative h-2 w-full rounded-full overflow-hidden',
             colors.bg,
-            'border border-gray-200 dark:border-gray-700',
             'transition-all duration-200'
           )}
           role="progressbar"
@@ -121,51 +122,30 @@ function ResourceUsageBarDesktopBase(props: ResourceUsageBarProps) {
           aria-valuemax={state.ariaValueMax}
           aria-valuetext={state.ariaValueText}
         >
-          {/* Fill */}
+          {/* Fill - rounded-full to match track */}
           <div
             className={cn(
-              'h-full transition-all duration-500 ease-out',
-              colors.fill,
-              'flex items-center justify-end px-2'
+              'h-full rounded-full transition-all duration-500 ease-out',
+              colors.fill
             )}
             style={{ width: `${state.percentage}%` }}
-          >
-            {/* Percentage inside bar (if enough space) */}
-            {showPercentage && state.percentage > 20 && (
-              <span className="text-xs font-semibold text-white drop-shadow-sm">
-                {state.percentageText}
-              </span>
-            )}
-          </div>
-
-          {/* Percentage outside bar (if not enough space inside) */}
-          {showPercentage && state.percentage <= 20 && (
-            <span
-              className={cn(
-                'absolute right-2 top-1/2 -translate-y-1/2',
-                'text-xs font-semibold',
-                colors.text
-              )}
-            >
-              {state.percentageText}
-            </span>
-          )}
+          />
         </div>
       </div>
 
       {/* Values Display */}
       {showValues && (
-        <div className="flex items-center gap-3 min-w-[160px]">
+        <div className="flex items-center gap-2 min-w-[160px] text-xs">
           <div className="flex flex-col items-end">
-            <span className="text-xs text-muted-foreground">Used</span>
-            <span className={cn('text-sm font-semibold font-mono', colors.text)}>
+            <span className="text-muted-foreground">Used</span>
+            <span className={cn('font-medium font-mono', colors.text)}>
               {state.usedText}
             </span>
           </div>
           <span className="text-muted-foreground">/</span>
           <div className="flex flex-col items-start">
-            <span className="text-xs text-muted-foreground">Total</span>
-            <span className="text-sm font-semibold font-mono text-foreground">
+            <span className="text-muted-foreground">Total</span>
+            <span className="font-medium font-mono text-foreground">
               {state.totalText}
             </span>
           </div>

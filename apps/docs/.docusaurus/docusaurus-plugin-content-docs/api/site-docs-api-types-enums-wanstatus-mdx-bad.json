@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/wanstatus",
+  "title": "WANStatus",
+  "description": "WAN connection status",
+  "source": "@site/docs/api/types/enums/wanstatus.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/wanstatus",
+  "permalink": "/api/types/enums/wanstatus",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "wanstatus",
+    "title": "WANStatus"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "WANLinkTypeEnum",
+    "permalink": "/api/types/enums/wanlink-type-enum"
+  },
+  "next": {
+    "title": "WebhookAuthType",
+    "permalink": "/api/types/enums/webhook-auth-type"
+  }
+}

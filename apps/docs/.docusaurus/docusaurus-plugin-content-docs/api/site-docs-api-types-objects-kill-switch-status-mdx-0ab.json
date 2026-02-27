@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/kill-switch-status",
+  "title": "KillSwitchStatus",
+  "description": "Kill switch status information for monitoring.",
+  "source": "@site/docs/api/types/objects/kill-switch-status.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/kill-switch-status",
+  "permalink": "/api/types/objects/kill-switch-status",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "kill-switch-status",
+    "title": "KillSwitchStatus"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ISPInfo",
+    "permalink": "/api/types/objects/ispinfo"
+  },
+  "next": {
+    "title": "KnockPort",
+    "permalink": "/api/types/objects/knock-port"
+  }
+}

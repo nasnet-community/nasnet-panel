@@ -95,12 +95,12 @@ function WizardStepInterfaceComponent({ stepper, routerIp, className }: WizardSt
   }, [handleInterfaceSelect]);
 
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={cn('space-y-component-lg', className)}>
       <FormSection
         title="Select Network Interface"
         description="Choose the interface where the DHCP server will operate"
       >
-        <div className="space-y-4">
+        <div className="space-y-component-md">
           <div>
             <Label htmlFor="interface-selector">
               Interface
@@ -112,14 +112,14 @@ function WizardStepInterfaceComponent({ stepper, routerIp, className }: WizardSt
               onChange={handleSelectorChange}
             />
             {form.formState.errors.interface && (
-              <p className="text-sm text-destructive mt-1">
+              <p className="text-sm text-error mt-component-xs">
                 {form.formState.errors.interface.message}
               </p>
             )}
           </div>
 
           {selectedInterface && selectedInterface.ipAddress && (
-            <div className="rounded-[var(--semantic-radius-card)] border border-border bg-muted/50 p-component-md space-y-2">
+            <div className="rounded-[var(--semantic-radius-card)] border border-border bg-background p-component-md space-y-component-sm">
               <h4 className="font-medium text-sm">Selected Interface Details</h4>
               <div className="grid grid-cols-2 gap-component-sm text-sm">
                 <div>

@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/save-custom-alert-rule-template",
+  "title": "saveCustomAlertRuleTemplate",
+  "description": "Save a custom alert rule template",
+  "source": "@site/docs/api/operations/mutations/save-custom-alert-rule-template.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/save-custom-alert-rule-template",
+  "permalink": "/api/operations/mutations/save-custom-alert-rule-template",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "save-custom-alert-rule-template",
+    "title": "saveCustomAlertRuleTemplate"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "saveAlertTemplate",
+    "permalink": "/api/operations/mutations/save-alert-template"
+  },
+  "next": {
+    "title": "saveFirewallTemplate",
+    "permalink": "/api/operations/mutations/save-firewall-template"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/bulk-create-address-list-entries",
+  "title": "bulkCreateAddressListEntries",
+  "description": "Bulk create address list entries.",
+  "source": "@site/docs/api/operations/mutations/bulk-create-address-list-entries.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/bulk-create-address-list-entries",
+  "permalink": "/api/operations/mutations/bulk-create-address-list-entries",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "bulk-create-address-list-entries",
+    "title": "bulkCreateAddressListEntries"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "bulkAssignRouting",
+    "permalink": "/api/operations/mutations/bulk-assign-routing"
+  },
+  "next": {
+    "title": "cancelChangeSet",
+    "permalink": "/api/operations/mutations/cancel-change-set"
+  }
+}

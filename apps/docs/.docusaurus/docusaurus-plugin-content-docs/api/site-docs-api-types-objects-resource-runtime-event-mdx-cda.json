@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/resource-runtime-event",
+  "title": "ResourceRuntimeEvent",
+  "description": "Runtime update event for a resource",
+  "source": "@site/docs/api/types/objects/resource-runtime-event.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/resource-runtime-event",
+  "permalink": "/api/types/objects/resource-runtime-event",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "resource-runtime-event",
+    "title": "ResourceRuntimeEvent"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ResourceRequirements",
+    "permalink": "/api/types/objects/resource-requirements"
+  },
+  "next": {
+    "title": "ResourceStateEvent",
+    "permalink": "/api/types/objects/resource-state-event"
+  }
+}

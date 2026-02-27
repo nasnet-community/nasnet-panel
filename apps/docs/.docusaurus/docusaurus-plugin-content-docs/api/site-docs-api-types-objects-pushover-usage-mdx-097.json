@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/pushover-usage",
+  "title": "PushoverUsage",
+  "description": "Pushover API usage statistics",
+  "source": "@site/docs/api/types/objects/pushover-usage.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/pushover-usage",
+  "permalink": "/api/types/objects/pushover-usage",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "pushover-usage",
+    "title": "PushoverUsage"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ProvisioningSession",
+    "permalink": "/api/types/objects/provisioning-session"
+  },
+  "next": {
+    "title": "QuietHoursConfig",
+    "permalink": "/api/types/objects/quiet-hours-config"
+  }
+}

@@ -72,7 +72,11 @@ func (r *featureRepository) List(ctx context.Context, filter FeatureFilter) ([]*
 		query = query.Offset(filter.Offset)
 	}
 
-	return query.All(ctx)
+	result, err := query.All(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("list features: %w", err)
+	}
+	return result, nil
 }
 
 // Create creates a new feature entry.

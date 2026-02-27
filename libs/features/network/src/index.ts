@@ -5,6 +5,9 @@ export * from './components/interface-detail';
 export * from './components/interface-edit';
 export * from './pages';
 
+// Interface Statistics (NAS-6.9)
+export * from './interface-stats';
+
 // Bridge Configuration (NAS-6.6)
 export * from './bridges';
 

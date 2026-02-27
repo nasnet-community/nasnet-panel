@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/router-status-event",
+  "title": "RouterStatusEvent",
+  "description": "No description",
+  "source": "@site/docs/api/types/objects/router-status-event.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/router-status-event",
+  "permalink": "/api/types/objects/router-status-event",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "router-status-event",
+    "title": "RouterStatusEvent"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "RouterOSVersion",
+    "permalink": "/api/types/objects/router-osversion"
+  },
+  "next": {
+    "title": "Router",
+    "permalink": "/api/types/objects/router"
+  }
+}

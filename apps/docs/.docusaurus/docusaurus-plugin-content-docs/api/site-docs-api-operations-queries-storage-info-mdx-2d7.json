@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/storage-info",
+  "title": "storageInfo",
+  "description": "List all detected storage locations (flash and external).",
+  "source": "@site/docs/api/operations/queries/storage-info.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/storage-info",
+  "permalink": "/api/operations/queries/storage-info",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "storage-info",
+    "title": "storageInfo"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "storageConfig",
+    "permalink": "/api/operations/queries/storage-config"
+  },
+  "next": {
+    "title": "storageUsage",
+    "permalink": "/api/operations/queries/storage-usage"
+  }
+}

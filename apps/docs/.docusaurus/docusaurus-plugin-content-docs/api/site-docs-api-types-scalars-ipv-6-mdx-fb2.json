@@ -1,0 +1,26 @@
+{
+  "id": "api/types/scalars/ipv-6",
+  "title": "IPv6",
+  "description": "IPv6 address string (e.g., \"200185a300000370:7334\")",
+  "source": "@site/docs/api/types/scalars/ipv-6.mdx",
+  "sourceDirName": "api/types/scalars",
+  "slug": "/api/types/scalars/ipv-6",
+  "permalink": "/api/types/scalars/ipv-6",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "ipv-6",
+    "title": "IPv6"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "IPv4",
+    "permalink": "/api/types/scalars/ipv-4"
+  },
+  "next": {
+    "title": "JSON",
+    "permalink": "/api/types/scalars/json"
+  }
+}

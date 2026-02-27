@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/diagnostic-result",
+  "title": "DiagnosticResult",
+  "description": "Result of a single diagnostic test.",
+  "source": "@site/docs/api/types/objects/diagnostic-result.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/diagnostic-result",
+  "permalink": "/api/types/objects/diagnostic-result",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "diagnostic-result",
+    "title": "DiagnosticResult"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "DiagnosticReport",
+    "permalink": "/api/types/objects/diagnostic-report"
+  },
+  "next": {
+    "title": "DiagnosticSuggestion",
+    "permalink": "/api/types/objects/diagnostic-suggestion"
+  }
+}

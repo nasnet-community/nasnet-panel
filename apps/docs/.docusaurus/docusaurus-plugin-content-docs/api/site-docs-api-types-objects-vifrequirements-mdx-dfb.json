@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/vifrequirements",
+  "title": "VIFRequirements",
+  "description": "VIF (Virtual Interface Factory) requirements check result",
+  "source": "@site/docs/api/types/objects/vifrequirements.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/vifrequirements",
+  "permalink": "/api/types/objects/vifrequirements",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "vifrequirements",
+    "title": "VIFRequirements"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "VIFGuidanceStep",
+    "permalink": "/api/types/objects/vifguidance-step"
+  },
+  "next": {
+    "title": "VirtualInterfaceInfo",
+    "permalink": "/api/types/objects/virtual-interface-info"
+  }
+}

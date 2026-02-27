@@ -85,7 +85,7 @@ const CATEGORY_COLORS: Record<FingerprintDeviceCategory, string> = {
   mobile: 'text-info',         // Blue
   computer: 'text-success',    // Green
   iot: 'text-warning',         // Amber
-  network: 'text-primary',     // Golden Amber
+  network: 'text-category-networking',     // Golden Amber
   entertainment: 'text-accent', // Cyan
   other: 'text-muted-foreground', // Gray
 };

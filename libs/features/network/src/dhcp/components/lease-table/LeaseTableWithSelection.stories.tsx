@@ -30,7 +30,7 @@ const meta: Meta<typeof LeaseTableWithSelection> = {
   },
   decorators: [
     (Story) => (
-      <div className="p-6">
+      <div className="p-component-lg">
         <Story />
       </div>
     ),

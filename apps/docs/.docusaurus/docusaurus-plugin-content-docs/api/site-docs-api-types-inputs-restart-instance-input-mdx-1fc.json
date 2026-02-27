@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/restart-instance-input",
+  "title": "RestartInstanceInput",
+  "description": "Input for restarting a service instance.",
+  "source": "@site/docs/api/types/inputs/restart-instance-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/restart-instance-input",
+  "permalink": "/api/types/inputs/restart-instance-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "restart-instance-input",
+    "title": "RestartInstanceInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ResourceRelationshipsInput",
+    "permalink": "/api/types/inputs/resource-relationships-input"
+  },
+  "next": {
+    "title": "RouteInput",
+    "permalink": "/api/types/inputs/route-input"
+  }
+}

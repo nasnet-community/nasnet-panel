@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/storage-usage",
+  "title": "StorageUsage",
+  "description": "Comprehensive storage usage breakdown across flash and external locations.",
+  "source": "@site/docs/api/types/objects/storage-usage.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/storage-usage",
+  "permalink": "/api/types/objects/storage-usage",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "storage-usage",
+    "title": "StorageUsage"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "StorageUnmountedEvent",
+    "permalink": "/api/types/objects/storage-unmounted-event"
+  },
+  "next": {
+    "title": "StormRuleContribution",
+    "permalink": "/api/types/objects/storm-rule-contribution"
+  }
+}

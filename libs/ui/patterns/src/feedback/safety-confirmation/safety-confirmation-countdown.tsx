@@ -60,10 +60,10 @@ export function SafetyConfirmationCountdown({
       <div className="flex items-center justify-center gap-2">
         <div
           className={cn(
-            'text-center font-mono text-3xl font-bold',
+            'text-center font-mono text-4xl font-bold tabular-nums',
             urgencyLevel === 'normal' && 'text-muted-foreground',
             urgencyLevel === 'urgent' && 'text-warning',
-            urgencyLevel === 'critical' && 'animate-pulse text-destructive'
+            urgencyLevel === 'critical' && 'animate-pulse text-error'
           )}
           role="timer"
           aria-live="polite"
@@ -75,28 +75,19 @@ export function SafetyConfirmationCountdown({
       </div>
 
       {/* Progress Bar */}
-      <div
+      <Progress
+        value={progress}
         className={cn(
-          'rounded-full p-1',
-          urgencyLevel === 'normal' && 'bg-muted',
-          urgencyLevel === 'urgent' && 'bg-warning/10',
-          urgencyLevel === 'critical' && 'bg-destructive/10'
+          'h-2',
+          urgencyLevel === 'normal' && '[&>div]:bg-muted-foreground',
+          urgencyLevel === 'urgent' && '[&>div]:bg-warning',
+          urgencyLevel === 'critical' && '[&>div]:bg-error'
         )}
-      >
-        <Progress
-          value={progress}
-          className={cn(
-            'h-2',
-            urgencyLevel === 'normal' && '[&>div]:bg-muted-foreground',
-            urgencyLevel === 'urgent' && '[&>div]:bg-warning',
-            urgencyLevel === 'critical' && '[&>div]:bg-destructive'
-          )}
-          aria-label={`Countdown progress: ${formattedTime} remaining`}
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-valuenow={Math.round(progress)}
-        />
-      </div>
+        aria-label={`Countdown progress: ${formattedTime} remaining`}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={Math.round(progress)}
+      />
 
       {/* Status Text */}
       <p
@@ -104,7 +95,7 @@ export function SafetyConfirmationCountdown({
           'text-center text-xs',
           urgencyLevel === 'normal' && 'text-muted-foreground',
           urgencyLevel === 'urgent' && 'text-warning',
-          urgencyLevel === 'critical' && 'text-destructive'
+          urgencyLevel === 'critical' && 'text-error'
         )}
         aria-live="assertive"
         aria-atomic="true"

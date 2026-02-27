@@ -142,17 +142,17 @@ export const PortKnockingPage = memo(function PortKnockingPage({ className }: Po
   }, [setCreateDialogOpen, setEditingSequenceId]);
 
   return (
-    <div className={cn('space-y-component-lg', className)}>
+    <div className={cn('space-y-component-xl', className)}>
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold font-display">Port Knocking</h1>
-          <p className="text-muted-foreground mt-1">
+          <p className="text-muted-foreground mt-component-sm">
             Protect sensitive services behind secret knock sequences
           </p>
         </div>
         <Button onClick={handleCreate} aria-label="Create new port knock sequence" className="min-h-[44px]">
-          <Icon icon={Plus} className="h-4 w-4 mr-2" aria-hidden="true" />
+          <Icon icon={Plus} className="h-4 w-4 mr-component-sm" aria-hidden="true" />
           Create Sequence
         </Button>
       </div>
@@ -160,8 +160,8 @@ export const PortKnockingPage = memo(function PortKnockingPage({ className }: Po
       {/* Info Card */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Icon icon={Shield} className="h-5 w-5 text-error" aria-hidden="true" />
+          <CardTitle className="flex items-center gap-component-md">
+            <Icon icon={Shield} className="h-5 w-5 text-category-firewall" aria-hidden="true" />
             What is Port Knocking?
           </CardTitle>
           <CardDescription>
@@ -176,20 +176,20 @@ export const PortKnockingPage = memo(function PortKnockingPage({ className }: Po
       <Tabs value={activeTab} onValueChange={(val) => setActiveTab(val as 'sequences' | 'log')}>
         <TabsList>
           <TabsTrigger value="sequences">
-            <Icon icon={Shield} className="h-4 w-4 mr-2" aria-hidden="true" />
+            <Icon icon={Shield} className="h-4 w-4 mr-component-sm" aria-hidden="true" />
             Sequences
           </TabsTrigger>
           <TabsTrigger value="log">
-            <Icon icon={ScrollText} className="h-4 w-4 mr-2" aria-hidden="true" />
+            <Icon icon={ScrollText} className="h-4 w-4 mr-component-sm" aria-hidden="true" />
             Knock Log
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="sequences" className="mt-6">
+        <TabsContent value="sequences" className="mt-component-lg">
           <PortKnockSequenceManager onEdit={handleEdit} onCreate={handleCreate} />
         </TabsContent>
 
-        <TabsContent value="log" className="mt-6">
+        <TabsContent value="log" className="mt-component-lg">
           <PortKnockLogViewer />
         </TabsContent>
       </Tabs>
@@ -208,7 +208,7 @@ export const PortKnockingPage = memo(function PortKnockingPage({ className }: Po
             </SheetDescription>
           </SheetHeader>
 
-          <div className="mt-6">
+          <div className="mt-component-lg">
             <PortKnockSequenceForm
               formState={formState}
               isEditMode={isEditMode}

@@ -127,12 +127,12 @@ function QueryLoadingStateComponent<T>({
         <div
           role="alert"
           className={cn(
-            'flex flex-col items-center justify-center p-8 text-center',
+            'flex flex-col items-center justify-center min-h-[200px] p-component-lg gap-component-md text-center',
             className
           )}
         >
-          <p className="text-destructive font-medium">Something went wrong</p>
-          <p className="text-sm text-muted-foreground mt-1">{error.message}</p>
+          <p className="text-sm font-medium text-error">Something went wrong</p>
+          <p className="text-xs text-muted-foreground">{error.message}</p>
         </div>
       );
     }
@@ -148,8 +148,13 @@ function QueryLoadingStateComponent<T>({
       }
 
       return (
-        <div aria-busy="true" aria-live="polite" className={cn('flex items-center justify-center p-8', className)}>
-          <LoadingSpinner size="lg" showLabel label="Loading..." />
+        <div
+          aria-busy="true"
+          aria-live="polite"
+          className={cn('flex flex-col items-center justify-center min-h-[200px] gap-component-md', className)}
+        >
+          <LoadingSpinner size="lg" />
+          <p className="text-sm text-muted-foreground">Loading...</p>
         </div>
       );
     }

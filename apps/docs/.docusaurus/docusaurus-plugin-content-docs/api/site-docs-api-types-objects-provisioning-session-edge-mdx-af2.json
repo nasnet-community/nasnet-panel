@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/provisioning-session-edge",
+  "title": "ProvisioningSessionEdge",
+  "description": "Edge in provisioning session connection",
+  "source": "@site/docs/api/types/objects/provisioning-session-edge.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/provisioning-session-edge",
+  "permalink": "/api/types/objects/provisioning-session-edge",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "provisioning-session-edge",
+    "title": "ProvisioningSessionEdge"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ProvisioningSessionConnection",
+    "permalink": "/api/types/objects/provisioning-session-connection"
+  },
+  "next": {
+    "title": "ProvisioningSessionPayload",
+    "permalink": "/api/types/objects/provisioning-session-payload"
+  }
+}

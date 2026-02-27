@@ -1,0 +1,14 @@
+# ============================================
+# UPDATE SUBSCRIPTIONS
+# ============================================
+
+extend type Subscription {
+  """
+  Subscribe to update progress for a router.
+  Emits progress updates during atomic update process.
+  """
+  updateProgress(
+    """Router ID to subscribe to"""
+    routerID: ID!
+  ): UpdateProgress!
+}

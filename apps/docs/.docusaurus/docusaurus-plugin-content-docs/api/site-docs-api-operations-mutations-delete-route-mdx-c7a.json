@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/delete-route",
+  "title": "deleteRoute",
+  "description": "Delete a route with impact analysis",
+  "source": "@site/docs/api/operations/mutations/delete-route.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/delete-route",
+  "permalink": "/api/operations/mutations/delete-route",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "delete-route",
+    "title": "deleteRoute"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "deleteResource",
+    "permalink": "/api/operations/mutations/delete-resource"
+  },
+  "next": {
+    "title": "deleteRouter",
+    "permalink": "/api/operations/mutations/delete-router"
+  }
+}

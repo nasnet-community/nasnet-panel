@@ -35,11 +35,11 @@
     },
     "lint": {
       "executor": "nx:run-commands",
-      "options": { "command": "node -e \"const{execSync}=require('child_process');try{execSync('golangci-lint version',{stdio:'ignore'});execSync('golangci-lint run --tests=false --allow-parallel-runners --config ../../.golangci.yml ./...',{stdio:'inherit',cwd:'.'});}catch(e){if(e.status)process.exit(e.status);console.log('golangci-lint not installed, skipping (install with: go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest)');}\"", "cwd": "apps/backend" }
+      "options": { "command": "node -e \"const{execSync}=require('child_process');const p=require('path');const gcl=p.resolve(__dirname,'../../.bin/custom-gcl'+(process.platform==='win32'?'.exe':''));try{execSync(gcl+' version',{stdio:'ignore'});}catch{console.log('custom-gcl not found. Run: cd <root> && golangci-lint custom');process.exit(0);}try{execSync(gcl+' run --tests=false --allow-parallel-runners --config ../../.golangci.yml ./...',{stdio:'inherit',cwd:'.'});}catch(e){process.exit(e.status||1);}\"", "cwd": "apps/backend" }
     },
     "lint:fix": {
       "executor": "nx:run-commands",
-      "options": { "command": "node -e \"const{execSync}=require('child_process');try{execSync('golangci-lint version',{stdio:'ignore'});execSync('golangci-lint run --tests=false --allow-parallel-runners --config ../../.golangci.yml --fix ./...',{stdio:'inherit',cwd:'.'});}catch(e){if(e.status)process.exit(e.status);console.log('golangci-lint not installed, skipping');}\"", "cwd": "apps/backend" }
+      "options": { "command": "node -e \"const{execSync}=require('child_process');const p=require('path');const gcl=p.resolve(__dirname,'../../.bin/custom-gcl'+(process.platform==='win32'?'.exe':''));try{execSync(gcl+' version',{stdio:'ignore'});}catch{console.log('custom-gcl not found. Run: cd <root> && golangci-lint custom');process.exit(0);}try{execSync(gcl+' run --tests=false --allow-parallel-runners --config ../../.golangci.yml --fix ./...',{stdio:'inherit',cwd:'.'});}catch(e){process.exit(e.status||1);}\"", "cwd": "apps/backend" }
     },
     "build:check": {
       "executor": "nx:run-commands",
@@ -57,6 +57,20 @@
           "nx run backend:lint"
         ],
         "parallel": false
+      }
+    },
+    "vulncheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "go install golang.org/x/vuln/cmd/govulncheck@latest && govulncheck ./...",
+        "cwd": "apps/backend"
+      }
+    },
+    "wire": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "wire ./internal/bootstrap/",
+        "cwd": "apps/backend"
       }
     },
     "docker:build": {

@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/update-provisioning-networks",
+  "title": "updateProvisioningNetworks",
+  "description": "Update networks configuration in the provisioning session",
+  "source": "@site/docs/api/operations/mutations/update-provisioning-networks.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/update-provisioning-networks",
+  "permalink": "/api/operations/mutations/update-provisioning-networks",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "update-provisioning-networks",
+    "title": "updateProvisioningNetworks"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "updatePortMirror",
+    "permalink": "/api/operations/mutations/update-port-mirror"
+  },
+  "next": {
+    "title": "updateResource",
+    "permalink": "/api/operations/mutations/update-resource"
+  }
+}

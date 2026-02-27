@@ -7,46 +7,46 @@ package resolver
 
 import (
 	"backend/graph/model"
-	"backend/internal/errors"
+	"backend/internal/apperrors"
 	"context"
 )
 
 // CreateTunnel is the resolver for the createTunnel field.
 func (r *mutationResolver) CreateTunnel(ctx context.Context, routerID string, input model.TunnelInput) (*model.TunnelMutationResult, error) {
-	panic(errors.NewInternalError("not implemented: CreateTunnel - createTunnel", nil))
+	panic(apperrors.NewInternalError("not implemented: CreateTunnel - createTunnel", nil))
 }
 
 // UpdateTunnel is the resolver for the updateTunnel field.
 func (r *mutationResolver) UpdateTunnel(ctx context.Context, routerID string, id string, input model.TunnelInput) (*model.TunnelMutationResult, error) {
-	panic(errors.NewInternalError("not implemented: UpdateTunnel - updateTunnel", nil))
+	panic(apperrors.NewInternalError("not implemented: UpdateTunnel - updateTunnel", nil))
 }
 
 // DeleteTunnel is the resolver for the deleteTunnel field.
 func (r *mutationResolver) DeleteTunnel(ctx context.Context, routerID string, id string) (*model.TunnelMutationResult, error) {
-	panic(errors.NewInternalError("not implemented: DeleteTunnel - deleteTunnel", nil))
+	panic(apperrors.NewInternalError("not implemented: DeleteTunnel - deleteTunnel", nil))
 }
 
 // TestTunnel is the resolver for the testTunnel field.
 func (r *mutationResolver) TestTunnel(ctx context.Context, routerID string, id string) (*model.TunnelTestResult, error) {
-	panic(errors.NewInternalError("not implemented: TestTunnel - testTunnel", nil))
+	panic(apperrors.NewInternalError("not implemented: TestTunnel - testTunnel", nil))
 }
 
 // Tunnels is the resolver for the tunnels field.
 func (r *queryResolver) Tunnels(ctx context.Context, routerID string, typeArg *model.TunnelType) ([]*model.Tunnel, error) {
-	panic(errors.NewInternalError("not implemented: Tunnels - tunnels", nil))
+	panic(apperrors.NewInternalError("not implemented: Tunnels - tunnels", nil))
 }
 
 // Tunnel is the resolver for the tunnel field.
 func (r *queryResolver) Tunnel(ctx context.Context, routerID string, id string) (*model.Tunnel, error) {
-	panic(errors.NewInternalError("not implemented: Tunnel - tunnel", nil))
+	panic(apperrors.NewInternalError("not implemented: Tunnel - tunnel", nil))
 }
 
 // IpsecProfiles is the resolver for the ipsecProfiles field.
 func (r *queryResolver) IpsecProfiles(ctx context.Context, routerID string) ([]*model.IpsecProfile, error) {
-	panic(errors.NewInternalError("not implemented: IpsecProfiles - ipsecProfiles", nil))
+	panic(apperrors.NewInternalError("not implemented: IpsecProfiles - ipsecProfiles", nil))
 }
 
 // TunnelChanged is the resolver for the tunnelChanged field.
 func (r *subscriptionResolver) TunnelChanged(ctx context.Context, routerID string) (<-chan *model.Tunnel, error) {
-	panic(errors.NewInternalError("not implemented: TunnelChanged - tunnelChanged", nil))
+	panic(apperrors.NewInternalError("not implemented: TunnelChanged - tunnelChanged", nil))
 }

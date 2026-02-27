@@ -1,0 +1,26 @@
+{
+  "id": "api/types/directives/migrate-from",
+  "title": "migrateFrom",
+  "description": "No description",
+  "source": "@site/docs/api/types/directives/migrate-from.mdx",
+  "sourceDirName": "api/types/directives",
+  "slug": "/api/types/directives/migrate-from",
+  "permalink": "/api/types/directives/migrate-from",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "migrate-from",
+    "title": "migrateFrom"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "deprecated",
+    "permalink": "/api/types/directives/deprecated"
+  },
+  "next": {
+    "title": "mikrotik",
+    "permalink": "/api/types/directives/mikrotik"
+  }
+}

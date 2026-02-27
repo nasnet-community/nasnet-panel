@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/boot-sequence-progress",
+  "title": "BootSequenceProgress",
+  "description": "BootSequenceProgress represents the current state of the boot sequence.",
+  "source": "@site/docs/api/types/objects/boot-sequence-progress.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/boot-sequence-progress",
+  "permalink": "/api/types/objects/boot-sequence-progress",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "boot-sequence-progress",
+    "title": "BootSequenceProgress"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "BootSequenceEvent",
+    "permalink": "/api/types/objects/boot-sequence-event"
+  },
+  "next": {
+    "title": "BridgeMutationResult",
+    "permalink": "/api/types/objects/bridge-mutation-result"
+  }
+}

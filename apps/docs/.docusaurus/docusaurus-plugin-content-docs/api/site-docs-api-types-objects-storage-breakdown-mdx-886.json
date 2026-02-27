@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/storage-breakdown",
+  "title": "StorageBreakdown",
+  "description": "Storage breakdown for a specific location (flash or external).",
+  "source": "@site/docs/api/types/objects/storage-breakdown.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/storage-breakdown",
+  "permalink": "/api/types/objects/storage-breakdown",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "storage-breakdown",
+    "title": "StorageBreakdown"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "StatsDataPoint",
+    "permalink": "/api/types/objects/stats-data-point"
+  },
+  "next": {
+    "title": "StorageConfig",
+    "permalink": "/api/types/objects/storage-config"
+  }
+}

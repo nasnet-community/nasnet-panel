@@ -49,29 +49,27 @@ export function FormSectionErrors({
       role="alert"
       aria-live="polite"
       className={cn(
-        'p-3 rounded-md',
-        'bg-error/10 border border-error/30',
+        'bg-error-light/50 border border-error/20 rounded-lg p-3 mt-2',
+        'dark:bg-red-900/10 dark:border-red-900/30',
         className
       )}
     >
-      {/* Error count header */}
-      <div className="flex items-center gap-2 text-error font-medium mb-2">
-        <AlertCircle className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
-        <span>
-          {errors.length} {errors.length === 1 ? 'error' : 'errors'} in this
-          section
-        </span>
-      </div>
+      {/* Error header with icon */}
+      <div className="flex items-start gap-2">
+        <AlertCircle className="h-4 w-4 text-error flex-shrink-0 mt-0.5" aria-hidden="true" />
 
-      {/* Error list */}
-      <ul
-        className="list-disc list-inside space-y-1 text-sm text-error"
-        aria-label="Error list"
-      >
-        {errors.map((error, index) => (
-          <li key={index}>{error}</li>
-        ))}
-      </ul>
+        {/* Error list */}
+        <ul
+          className="space-y-1 flex-1"
+          aria-label="Error list"
+        >
+          {errors.map((error, index) => (
+            <li key={index} className="text-xs text-error-dark dark:text-red-400">
+              {error}
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }

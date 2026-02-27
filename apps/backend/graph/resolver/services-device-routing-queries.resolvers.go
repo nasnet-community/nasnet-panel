@@ -9,7 +9,7 @@ import (
 	"backend/generated/ent"
 	"backend/generated/ent/devicerouting"
 	"backend/graph/model"
-	"backend/internal/errors"
+	"backend/internal/apperrors"
 	"context"
 	"fmt"
 )
@@ -18,23 +18,23 @@ import (
 func (r *queryResolver) DeviceRoutingMatrix(ctx context.Context, routerID string) (*model.DeviceRoutingMatrix, error) {
 	// Validate input
 	if routerID == "" {
-		return nil, errors.NewValidationError("routerID", "", "required")
+		return nil, apperrors.NewValidationError("routerID", "", "required")
 	}
 
 	// Verify routing matrix service is configured
-	if r.Resolver.RoutingMatrixSvc == nil {
-		return nil, errors.NewResourceError(errors.CodeDependencyNotReady, "routing matrix service not configured", "RoutingMatrixService", "")
+	if r.RoutingMatrixSvc == nil {
+		return nil, apperrors.NewResourceError(apperrors.CodeDependencyNotReady, "routing matrix service not configured", "RoutingMatrixService", "")
 	}
 
 	// Query the full device routing matrix
-	matrix, err := r.Resolver.RoutingMatrixSvc.GetDeviceRoutingMatrix(ctx)
+	matrix, err := r.RoutingMatrixSvc.GetDeviceRoutingMatrix(ctx)
 	if err != nil {
-		return nil, errors.Wrap(err, errors.CodeResourceNotFound, errors.CategoryResource, "failed to get device routing matrix")
+		return nil, apperrors.Wrap(err, apperrors.CodeResourceNotFound, apperrors.CategoryResource, "failed to get device routing matrix")
 	}
 
 	// Verify matrix is not nil
 	if matrix == nil {
-		return nil, errors.NewResourceError(errors.CodeResourceNotFound, "device routing matrix is nil", "DeviceRoutingMatrix", routerID)
+		return nil, apperrors.NewResourceError(apperrors.CodeResourceNotFound, "device routing matrix is nil", "DeviceRoutingMatrix", routerID)
 	}
 
 	// Convert to GraphQL model
@@ -45,7 +45,7 @@ func (r *queryResolver) DeviceRoutingMatrix(ctx context.Context, routerID string
 func (r *queryResolver) DeviceRoutings(ctx context.Context, routerID string) ([]*model.DeviceRouting, error) {
 	// Validate input
 	if routerID == "" {
-		return nil, errors.NewValidationError("routerID", "", "required")
+		return nil, apperrors.NewValidationError("routerID", "", "required")
 	}
 
 	// Query all device routings for this router
@@ -54,7 +54,7 @@ func (r *queryResolver) DeviceRoutings(ctx context.Context, routerID string) ([]
 		Where(devicerouting.RouterIDEQ(routerID)).
 		All(ctx)
 	if err != nil {
-		return nil, errors.Wrap(err, errors.CodeResourceNotFound, errors.CategoryResource, "failed to query device routings")
+		return nil, apperrors.Wrap(err, apperrors.CodeResourceNotFound, apperrors.CategoryResource, "failed to query device routings")
 	}
 
 	// Return empty slice if no routings found (not an error)
@@ -66,7 +66,7 @@ func (r *queryResolver) DeviceRoutings(ctx context.Context, routerID string) ([]
 	result := make([]*model.DeviceRouting, len(routings))
 	for i, dr := range routings {
 		if dr == nil {
-			return nil, errors.NewResourceError(errors.CodeResourceNotFound, fmt.Sprintf("device routing is nil at index %d", i), "DeviceRouting", "")
+			return nil, apperrors.NewResourceError(apperrors.CodeResourceNotFound, fmt.Sprintf("device routing is nil at index %d", i), "DeviceRouting", "")
 		}
 		result[i] = convertDeviceRouting(dr)
 	}
@@ -78,25 +78,106 @@ func (r *queryResolver) DeviceRoutings(ctx context.Context, routerID string) ([]
 func (r *queryResolver) DeviceRouting(ctx context.Context, routerID string, routingID string) (*model.DeviceRouting, error) {
 	// Validate inputs
 	if routerID == "" {
-		return nil, errors.NewValidationError("routerID", "", "required")
+		return nil, apperrors.NewValidationError("routerID", "", "required")
 	}
 	if routingID == "" {
-		return nil, errors.NewValidationError("routingID", "", "required")
+		return nil, apperrors.NewValidationError("routingID", "", "required")
 	}
 
 	// Query specific device routing
 	dr, err := r.db.DeviceRouting.Get(ctx, routingID)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return nil, errors.NewResourceError(errors.CodeResourceNotFound, "device routing not found", "DeviceRouting", routingID)
+			return nil, apperrors.NewResourceError(apperrors.CodeResourceNotFound, "device routing not found", "DeviceRouting", routingID)
 		}
-		return nil, errors.Wrap(err, errors.CodeResourceNotFound, errors.CategoryResource, "failed to query device routing")
+		return nil, apperrors.Wrap(err, apperrors.CodeResourceNotFound, apperrors.CategoryResource, "failed to query device routing")
 	}
 
 	// Verify it belongs to the correct router
 	if dr.RouterID != routerID {
-		return nil, errors.NewValidationError("routerID", routerID, "routing does not belong to router")
+		return nil, apperrors.NewValidationError("routerID", routerID, "routing does not belong to router")
 	}
 
 	return convertDeviceRouting(dr), nil
+}
+
+// KillSwitchStatus resolves the killSwitchStatus query.
+func (r *queryResolver) KillSwitchStatus(ctx context.Context, routerID string, deviceID string) (*model.KillSwitchStatus, error) {
+	// Validate inputs
+	if routerID == "" {
+		return nil, apperrors.NewValidationError("routerID", "", "required")
+	}
+	if deviceID == "" {
+		return nil, apperrors.NewValidationError("deviceID", "", "required")
+	}
+
+	// Query the device routing to get kill switch status
+	dr, err := r.db.DeviceRouting.
+		Query().
+		Where(devicerouting.DeviceIDEQ(deviceID)).
+		Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, apperrors.NewResourceError(apperrors.CodeResourceNotFound, "device routing not found", "DeviceRouting", deviceID)
+		}
+		return nil, apperrors.Wrap(err, apperrors.CodeResourceNotFound, apperrors.CategoryResource, "failed to query device routing")
+	}
+
+	// Verify device routing is not nil
+	if dr == nil {
+		return nil, apperrors.NewResourceError(apperrors.CodeResourceNotFound, "device routing is nil after query", "DeviceRouting", deviceID)
+	}
+
+	// Verify it belongs to the correct router
+	if dr.RouterID != routerID {
+		return nil, apperrors.NewValidationError("routerID", routerID, "routing does not belong to router")
+	}
+
+	// Map kill switch mode from DB to GraphQL enum
+	var killSwitchMode model.KillSwitchMode
+	//nolint:exhaustive // string value switch, default handles all cases
+	switch dr.KillSwitchMode {
+	case "block_all":
+		killSwitchMode = model.KillSwitchModeBlockAll
+	case "fallback_service":
+		killSwitchMode = model.KillSwitchModeFallbackService
+	case "allow_direct":
+		killSwitchMode = model.KillSwitchModeAllowDirect
+	default:
+		killSwitchMode = model.KillSwitchModeBlockAll
+	}
+
+	// TODO: Query activation history for activation count and last deactivation timestamp
+	// For now, we'll return basic info from the routing record
+	activationCount := 0
+	if dr.KillSwitchActivatedAt != nil {
+		activationCount = 1 // Simple approximation
+	}
+
+	// Safe conversion of fallback interface ID to pointer
+	fallbackInterfaceID := ""
+	if dr.KillSwitchFallbackInterfaceID != "" {
+		fallbackInterfaceID = dr.KillSwitchFallbackInterfaceID
+	}
+
+	return &model.KillSwitchStatus{
+		Enabled:              dr.KillSwitchEnabled,
+		Mode:                 killSwitchMode,
+		Active:               dr.KillSwitchActive,
+		LastActivatedAt:      dr.KillSwitchActivatedAt,
+		LastDeactivatedAt:    nil, // TODO: Track deactivation timestamps
+		FallbackInterfaceID:  &fallbackInterfaceID,
+		ActivationCount:      activationCount,
+		LastActivationReason: nil, // TODO: Track activation reason
+	}, nil
+}
+
+// DeviceRoutingChanged resolves the deviceRoutingChanged subscription.
+func (r *subscriptionResolver) DeviceRoutingChanged(ctx context.Context, routerID string) (<-chan *model.DeviceRoutingEvent, error) {
+	return r.subscribeToDeviceRoutingEvents(ctx, routerID, "device.routing.changed", "failed to subscribe to routing events")
+}
+
+// KillSwitchChanged resolves the killSwitchChanged subscription.
+func (r *subscriptionResolver) KillSwitchChanged(ctx context.Context, routerID string) (<-chan *model.DeviceRoutingEvent, error) {
+	return r.subscribeToDeviceRoutingEvents(ctx, routerID, "device.killswitch.*", "failed to subscribe to kill switch events")
 }

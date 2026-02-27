@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/interface-traffic-event",
+  "title": "InterfaceTrafficEvent",
+  "description": "No description",
+  "source": "@site/docs/api/types/objects/interface-traffic-event.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/interface-traffic-event",
+  "permalink": "/api/types/objects/interface-traffic-event",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "interface-traffic-event",
+    "title": "InterfaceTrafficEvent"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "InterfaceStatusEvent",
+    "permalink": "/api/types/objects/interface-status-event"
+  },
+  "next": {
+    "title": "Interface",
+    "permalink": "/api/types/objects/interface"
+  }
+}

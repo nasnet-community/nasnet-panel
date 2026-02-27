@@ -1,0 +1,24 @@
+{
+  "id": "feature-modules/logs",
+  "title": "Logs Feature Module",
+  "description": "Source: libs/features/logs/src/",
+  "source": "@site/../connect/docs/feature-modules/logs.md",
+  "sourceDirName": "feature-modules",
+  "slug": "/feature-modules/logs",
+  "permalink": "/docs/frontend/feature-modules/logs",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../connect/docs/feature-modules/logs.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Firewall Feature",
+    "permalink": "/docs/frontend/feature-modules/firewall"
+  },
+  "next": {
+    "title": "Network Feature",
+    "permalink": "/docs/frontend/feature-modules/network"
+  }
+}

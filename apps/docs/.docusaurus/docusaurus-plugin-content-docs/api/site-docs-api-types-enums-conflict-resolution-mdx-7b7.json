@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/conflict-resolution",
+  "title": "ConflictResolution",
+  "description": "Conflict resolution strategy for service import.",
+  "source": "@site/docs/api/types/enums/conflict-resolution.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/conflict-resolution",
+  "permalink": "/api/types/enums/conflict-resolution",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "conflict-resolution",
+    "title": "ConflictResolution"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ConfirmationSeverity",
+    "permalink": "/api/types/enums/confirmation-severity"
+  },
+  "next": {
+    "title": "ConflictType",
+    "permalink": "/api/types/enums/conflict-type"
+  }
+}

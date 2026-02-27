@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/tunnel-test-result",
+  "title": "TunnelTestResult",
+  "description": "Result of a tunnel connectivity test",
+  "source": "@site/docs/api/types/objects/tunnel-test-result.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/tunnel-test-result",
+  "permalink": "/api/types/objects/tunnel-test-result",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "tunnel-test-result",
+    "title": "TunnelTestResult"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "TunnelMutationResult",
+    "permalink": "/api/types/objects/tunnel-mutation-result"
+  },
+  "next": {
+    "title": "Tunnel",
+    "permalink": "/api/types/objects/tunnel"
+  }
+}

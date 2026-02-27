@@ -109,7 +109,7 @@ func (iv *IsolationVerifier) VerifyPreStart(ctx context.Context, instance *ent.S
 	}
 
 	// Layer 2: Directory validation
-	if err := iv.verifyDirectory(ctx, instance); err != nil {
+	if err := iv.verifyDirectory(instance); err != nil {
 		report.AddViolation("Directory", fmt.Sprintf("Directory validation failed: %v", err), isolation.SeverityError)
 		iv.emitIsolationViolationEvent(ctx, instance, "filesystem_access", err.Error())
 	}
@@ -147,7 +147,11 @@ func (iv *IsolationVerifier) VerifyPreStart(ctx context.Context, instance *ent.S
 func (iv *IsolationVerifier) verifyIPBinding(ctx context.Context, instance *ent.ServiceInstance) (string, error) {
 	// If ConfigBindingValidator is provided, use it for advanced validation
 	if iv.configBindingValidator != nil {
-		return iv.configBindingValidator.ValidateBinding(ctx, instance)
+		bindIP, err := iv.configBindingValidator.ValidateBinding(ctx, instance)
+		if err != nil {
+			return "", fmt.Errorf("validate binding for instance %s: %w", instance.ID, err)
+		}
+		return bindIP, nil
 	}
 
 	// Fallback: Simple validation - check if bind_ip field is set
@@ -157,7 +161,7 @@ func (iv *IsolationVerifier) verifyIPBinding(ctx context.Context, instance *ent.
 
 	// Use pkg/isolation for IP validation
 	if err := isolation.ValidateIP(instance.BindIP); err != nil {
-		return "", err
+		return "", fmt.Errorf("IP validation failed for %s: %w", instance.BindIP, err)
 	}
 
 	return instance.BindIP, nil
@@ -165,7 +169,7 @@ func (iv *IsolationVerifier) verifyIPBinding(ctx context.Context, instance *ent.
 
 // verifyDirectory validates directory permissions and prevents symlink escapes
 // Layer 2: Directory validation (exists, 0750 permissions, no symlink escapes)
-func (iv *IsolationVerifier) verifyDirectory(_ context.Context, instance *ent.ServiceInstance) error {
+func (iv *IsolationVerifier) verifyDirectory(instance *ent.ServiceInstance) error {
 	binaryPath := instance.BinaryPath
 	if binaryPath == "" {
 		return fmt.Errorf("binary_path not set for instance %s", instance.ID)
@@ -173,11 +177,14 @@ func (iv *IsolationVerifier) verifyDirectory(_ context.Context, instance *ent.Se
 
 	// Use pkg/isolation for directory validation
 	if err := isolation.ValidateDirectory(binaryPath, iv.allowedBaseDir); err != nil {
-		return err
+		return fmt.Errorf("directory validation failed for %s: %w", binaryPath, err)
 	}
 
 	// Use pkg/isolation for permission validation
-	return isolation.ValidateDirectoryPermissions(binaryPath)
+	if err := isolation.ValidateDirectoryPermissions(binaryPath); err != nil {
+		return fmt.Errorf("directory permission validation failed for %s: %w", binaryPath, err)
+	}
+	return nil
 }
 
 // verifyPorts checks port availability using PortRegistry
@@ -221,20 +228,43 @@ func (iv *IsolationVerifier) verifyPorts(ctx context.Context, instance *ent.Serv
 }
 
 // verifyProcessBinding checks if any process is already using the bind IP (warning only)
-// Layer 4: Process binding check (warning only, netstat fallback)
-func (iv *IsolationVerifier) verifyProcessBinding(ctx context.Context, instance *ent.ServiceInstance) error {
-	// For MVP, this is a placeholder that always returns nil (no-op)
-	// In production, this would:
-	// 1. Parse /proc/net/tcp and /proc/net/udp to check for processes binding to instance.BindIP
-	// 2. Use netstat as a fallback if /proc is unavailable
-	// 3. Return warning (not error) if conflicts found
+// Layer 4: Process binding check (warning only, /proc/net/tcp parser)
+func (iv *IsolationVerifier) verifyProcessBinding(_ context.Context, instance *ent.ServiceInstance) error {
+	if instance.BindIP == "" {
+		return nil // Skip if no bind IP configured
+	}
 
-	// This is a warning-only check, so we don't block instance start
-	// Future implementation would check:
-	// - netstat -tulpn | grep <bind_ip>
-	// - or parse /proc/net/{tcp,udp} files
+	// Parse /proc/net/tcp to check for existing bindings on this IP
+	conflicts, err := iv.parseProcNetTCP(instance.BindIP)
+	if err != nil {
+		// Error is non-fatal (platform-specific limitations), just log and return
+		iv.logger.Warn("failed to parse /proc/net/tcp for process binding check",
+			zap.String("instance_id", instance.ID),
+			zap.String("bind_ip", instance.BindIP),
+			zap.Error(err))
+		return nil
+	}
 
-	return nil
+	// If no conflicts found, return success
+	if len(conflicts) == 0 {
+		return nil
+	}
+
+	// Found conflicts - emit warning but don't block instance start
+	conflictMsg := fmt.Sprintf("Found %d existing process binding(s) on %s: ", len(conflicts), instance.BindIP)
+	for i, conflict := range conflicts {
+		if i > 0 {
+			conflictMsg += ", "
+		}
+		conflictMsg += fmt.Sprintf("%s:%d (state=%s)", conflict.LocalIP, conflict.LocalPort, conflict.State)
+	}
+
+	iv.logger.Warn("process binding check: potential conflict detected",
+		zap.String("instance_id", instance.ID),
+		zap.String("message", conflictMsg))
+
+	// Return as a warning (caller will add to report with SeverityWarning)
+	return fmt.Errorf("%s", conflictMsg)
 }
 
 // emitIsolationViolationEvent publishes an isolation violation event to the event bus

@@ -95,9 +95,9 @@ const BandwidthTooltip = React.memo(function BandwidthTooltip({
   if (!active || !payload || !payload.length) return null;
 
   return (
-    <div className={cn('rounded-md border bg-popover p-component-sm shadow-md')}>
-      <p className="mb-component-sm text-sm font-medium">{formatDateTime(label)}</p>
-      <div className="space-y-1">
+    <div className={cn('rounded-md border border-border bg-card p-component-sm shadow-md')}>
+      <p className="mb-component-sm text-sm font-medium text-foreground">{formatDateTime(label)}</p>
+      <div className="space-y-component-sm">
         {payload.map((entry: any) => (
           <div key={entry.dataKey} className="flex items-center gap-component-sm text-sm">
             <div
@@ -221,7 +221,7 @@ const BandwidthChartComponent = forwardRef<HTMLDivElement, BandwidthChartProps>(
     // Empty state
     if (chartData.length === 0) {
       return (
-        <div className="flex h-[400px] items-center justify-center rounded-[var(--semantic-radius-card)] border border-dashed">
+        <div className="flex h-[400px] items-center justify-center rounded-[var(--semantic-radius-card)] border border-border border-dashed bg-muted">
           <p className="text-sm text-muted-foreground">
             No data available for the selected time range
           </p>
@@ -239,7 +239,7 @@ const BandwidthChartComponent = forwardRef<HTMLDivElement, BandwidthChartProps>(
     return (
       <div
         ref={ref}
-        className={cn(className)}
+        className={cn('category-networking', className)}
         role="img"
         aria-label={ariaLabel}
       >

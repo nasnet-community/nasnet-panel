@@ -195,7 +195,7 @@ func (p *Parser) ParseMikroTikOutput(output, target string, protocol Protocol, m
 // BuildMikroTikCommand builds the MikroTik traceroute command string.
 func BuildMikroTikCommand(input Input) string {
 	var cmd strings.Builder
-	cmd.WriteString(fmt.Sprintf("/tool traceroute address=%s", input.Target))
+	fmt.Fprintf(&cmd, "/tool traceroute address=%s", input.Target)
 
 	if input.MaxHops > 0 {
 		fmt.Fprintf(&cmd, " max-hops=%d", input.MaxHops)

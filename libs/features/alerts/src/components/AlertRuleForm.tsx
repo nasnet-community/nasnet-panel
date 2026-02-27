@@ -159,7 +159,7 @@ const AlertRuleForm = memo(
             role="alert"
             aria-live="assertive"
           >
-            <div className="flex gap-2">
+            <div className="flex gap-component-sm">
               <Icon
                 icon={AlertCircle}
                 className="h-4 w-4 flex-shrink-0 mt-0.5"
@@ -173,59 +173,59 @@ const AlertRuleForm = memo(
       {/* Basic Info */}
       <div className="space-y-component-md">
         <div>
-          <label htmlFor="name" className="block text-sm font-medium mb-2">
+          <label htmlFor="name" className="block text-sm font-medium mb-component-sm">
             Rule Name *
           </label>
           <input
             {...register('name')}
             id="name"
             type="text"
-            className="w-full px-3 py-2 border border-border rounded-[var(--semantic-radius-button)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className="w-full px-component-md py-component-sm border border-border rounded-[var(--semantic-radius-button)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             placeholder="e.g., High CPU Alert"
             aria-invalid={!!errors.name}
             aria-describedby={errors.name ? 'name-error' : undefined}
           />
           {errors.name && (
-            <p id="name-error" className="text-sm text-error mt-1" role="alert">{errors.name.message}</p>
+            <p id="name-error" className="text-sm text-error mt-component-sm" role="alert">{errors.name.message}</p>
           )}
         </div>
 
         <div>
-          <label htmlFor="description" className="block text-sm font-medium mb-2">
+          <label htmlFor="description" className="block text-sm font-medium mb-component-sm">
             Description
           </label>
           <textarea
             {...register('description')}
             id="description"
-            className="w-full px-3 py-2 border border-border rounded-[var(--semantic-radius-button)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className="w-full px-component-md py-component-sm border border-border rounded-[var(--semantic-radius-button)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             rows={2}
             placeholder="Optional description of this alert rule"
           />
         </div>
 
         <div>
-          <label htmlFor="eventType" className="block text-sm font-medium mb-2">
+          <label htmlFor="eventType" className="block text-sm font-medium mb-component-sm">
             Event Type *
           </label>
           <input
             {...register('eventType')}
             id="eventType"
             type="text"
-            className="w-full px-3 py-2 border border-border rounded-[var(--semantic-radius-button)] font-mono focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className="w-full px-component-md py-component-sm border border-border rounded-[var(--semantic-radius-button)] font-mono focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             placeholder="e.g., device.cpu.high"
             aria-invalid={!!errors.eventType}
             aria-describedby={errors.eventType ? 'eventType-error' : undefined}
           />
           {errors.eventType && (
-            <p id="eventType-error" className="text-sm text-error mt-1" role="alert">{errors.eventType.message}</p>
+            <p id="eventType-error" className="text-sm text-error mt-component-sm" role="alert">{errors.eventType.message}</p>
           )}
         </div>
       </div>
 
       {/* Severity */}
       <div>
-        <label htmlFor="severity-group" className="block text-sm font-medium mb-2" id="severity-group-label">Severity *</label>
-        <div id="severity-group" className="flex gap-3" role="radiogroup" aria-labelledby="severity-group-label">
+        <label htmlFor="severity-group" className="block text-sm font-medium mb-component-sm" id="severity-group-label">Severity *</label>
+        <div id="severity-group" className="flex gap-component-md" role="radiogroup" aria-labelledby="severity-group-label">
           {Object.entries(SEVERITY_CONFIG).map(([key, config]) => (
             <label
               key={key}
@@ -242,14 +242,14 @@ const AlertRuleForm = memo(
                 className="sr-only"
               />
               <div className="font-medium">{config.label}</div>
-              <div className="text-xs text-muted-foreground mt-1">
+              <div className="text-xs text-muted-foreground mt-component-sm">
                 {config.description}
               </div>
             </label>
           ))}
         </div>
         {errors.severity && (
-          <p className="text-sm text-error mt-1" role="alert">{errors.severity.message}</p>
+          <p className="text-sm text-error mt-component-sm" role="alert">{errors.severity.message}</p>
         )}
       </div>
 
@@ -264,7 +264,7 @@ const AlertRuleForm = memo(
                   placeholder="Field"
                   aria-label={`Condition ${index + 1} field`}
                   className={cn(
-                    'flex-1 px-3 py-2 border border-border rounded-[var(--semantic-radius-button)] font-mono',
+                    'flex-1 px-component-md py-component-sm border border-border rounded-[var(--semantic-radius-button)] font-mono',
                     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                     'focus-visible:ring-offset-2'
                   )}
@@ -273,7 +273,7 @@ const AlertRuleForm = memo(
                   {...register(`conditions.${index}.operator`)}
                   aria-label={`Condition ${index + 1} operator`}
                   className={cn(
-                    'w-32 px-3 py-2 border border-border rounded-[var(--semantic-radius-button)]',
+                    'w-32 px-component-md py-component-sm border border-border rounded-[var(--semantic-radius-button)]',
                     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                     'focus-visible:ring-offset-2'
                   )}
@@ -289,7 +289,7 @@ const AlertRuleForm = memo(
                   placeholder="Value"
                   aria-label={`Condition ${index + 1} value`}
                   className={cn(
-                    'flex-1 px-3 py-2 border border-border rounded-[var(--semantic-radius-button)] font-mono',
+                    'flex-1 px-component-md py-component-sm border border-border rounded-[var(--semantic-radius-button)] font-mono',
                     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                     'focus-visible:ring-offset-2'
                   )}
@@ -300,7 +300,7 @@ const AlertRuleForm = memo(
                     onClick={() => handleRemoveCondition(index)}
                     aria-label={`Remove condition ${index + 1}`}
                     className={cn(
-                      'min-h-[44px] px-3 py-2 text-error hover:bg-error/10 rounded-[var(--semantic-radius-button)]',
+                      'min-h-[44px] px-component-md py-component-sm text-error hover:bg-error/10 rounded-[var(--semantic-radius-button)]',
                       'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                       'focus-visible:ring-offset-2'
                     )}
@@ -320,7 +320,7 @@ const AlertRuleForm = memo(
             onClick={handleAddCondition}
             aria-label="Add new condition"
             className={cn(
-              'mt-2 text-sm text-primary hover:underline rounded-[var(--semantic-radius-button)]',
+              'mt-component-sm text-sm text-primary hover:underline rounded-[var(--semantic-radius-button)]',
               'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
               'focus-visible:ring-offset-2'
             )}
@@ -372,7 +372,7 @@ const AlertRuleForm = memo(
 
         {/* Enabled Toggle */}
         <div>
-          <label className="flex items-center gap-2 cursor-pointer">
+          <label className="flex items-center gap-component-sm cursor-pointer">
             <input {...register('enabled')} type="checkbox" className="rounded" />
             <span className="text-sm font-medium">
               Enable this rule immediately
@@ -381,13 +381,13 @@ const AlertRuleForm = memo(
         </div>
 
         {/* Actions */}
-        <div className={cn('flex gap-component-md justify-end pt-component-md border-t border-border')}>
+        <div className={cn('flex gap-component-md justify-end pt-component-lg border-t border-border')}>
           {onCancel && (
             <button
               type="button"
               onClick={onCancel}
               className={cn(
-                'min-h-[44px] px-4 py-2 border border-border rounded-[var(--semantic-radius-button)] hover:bg-muted',
+                'min-h-[44px] px-component-lg py-component-sm border border-border rounded-[var(--semantic-radius-button)] hover:bg-muted',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                 'focus-visible:ring-offset-2'
               )}
@@ -400,7 +400,7 @@ const AlertRuleForm = memo(
           <button
             type="submit"
             className={cn(
-              'min-h-[44px] px-4 py-2 bg-primary text-primary-foreground rounded-[var(--semantic-radius-button)]',
+              'min-h-[44px] px-component-lg py-component-sm bg-primary text-primary-foreground rounded-[var(--semantic-radius-button)]',
               'hover:bg-primary/90 disabled:opacity-50',
               'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
               'focus-visible:ring-offset-2'

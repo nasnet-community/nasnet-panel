@@ -21,13 +21,13 @@ import { useResourceBudgetPanel } from './useResourceBudgetPanel';
 import type { ResourceBudgetPanelProps, EnhancedServiceInstanceResource } from './types';
 
 /**
- * Status badge color mapping
+ * Status badge color mapping (semantic tokens)
  */
 const STATUS_COLORS = {
-  running: 'bg-semantic-success text-white',
-  stopped: 'bg-gray-400 dark:bg-gray-600 text-white',
-  pending: 'bg-semantic-warning text-white',
-  error: 'bg-semantic-error text-white',
+  running: 'bg-success text-success-foreground',
+  stopped: 'bg-muted text-muted-foreground',
+  pending: 'bg-warning text-warning-foreground',
+  error: 'bg-error text-error-foreground',
 } as const;
 
 /**
@@ -160,11 +160,11 @@ export const ResourceBudgetPanelMobile = React.memo(function ResourceBudgetPanel
     <div className={cn('space-y-4 p-4', className)}>
       {/* System Totals */}
       {showSystemTotals && (
-        <Card>
+        <Card className="border border-border rounded-[var(--semantic-radius-card)]">
           <CardHeader>
-            <h3 className="text-lg font-semibold">System Resources</h3>
+            <h3 className="text-lg font-semibold font-display">System Resources</h3>
           </CardHeader>
-          <CardContent className="space-y-3">
+          <CardContent className="p-4 space-y-3">
             <ResourceUsageBar
               used={state.systemTotals.totalMemoryUsed}
               total={state.systemTotals.totalMemoryAvailable}
@@ -176,10 +176,10 @@ export const ResourceBudgetPanelMobile = React.memo(function ResourceBudgetPanel
               variant="mobile"
             />
 
-            <div className="grid grid-cols-2 gap-3 pt-2 text-sm border-t">
+            <div className="grid grid-cols-2 gap-3 pt-2 text-sm border-t border-border">
               <div className="flex flex-col">
                 <span className="text-xs text-muted-foreground mb-1">Running</span>
-                <span className="font-semibold text-semantic-success">
+                <span className="font-semibold text-success">
                   {state.systemTotals.runningInstances}
                 </span>
               </div>
@@ -203,7 +203,7 @@ export const ResourceBudgetPanelMobile = React.memo(function ResourceBudgetPanel
 
       {/* Empty State */}
       {!state.hasInstances && (
-        <Card>
+        <Card className="border border-border rounded-[var(--semantic-radius-card)]">
           <CardContent className="py-8 text-center">
             <Server className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
             <p className="text-muted-foreground">{state.emptyMessage}</p>

@@ -153,7 +153,7 @@ const meta: Meta<typeof InterfaceList> = {
   decorators: [
     (Story) => (
       <MockedProvider mocks={mocks} addTypename={true}>
-        <div className="p-8 bg-background min-h-screen">
+        <div className="p-component-xl bg-background min-h-screen">
           <Story />
         </div>
       </MockedProvider>
@@ -194,7 +194,7 @@ export const Loading: Story = {
 
       return (
         <MockedProvider mocks={loadingMocks} addTypename={true}>
-          <div className="p-8 bg-background min-h-screen">
+          <div className="p-component-xl bg-background min-h-screen">
             <Story />
           </div>
         </MockedProvider>
@@ -236,7 +236,7 @@ export const Empty: Story = {
 
       return (
         <MockedProvider mocks={emptyMocks} addTypename={true}>
-          <div className="p-8 bg-background min-h-screen">
+          <div className="p-component-xl bg-background min-h-screen">
             <Story />
           </div>
         </MockedProvider>
@@ -263,7 +263,7 @@ export const ErrorState: Story = {
 
       return (
         <MockedProvider mocks={errorMocks} addTypename={true}>
-          <div className="p-8 bg-background min-h-screen">
+          <div className="p-component-xl bg-background min-h-screen">
             <Story />
           </div>
         </MockedProvider>
@@ -307,7 +307,7 @@ export const FilteredByEthernet: Story = {
 
       return (
         <MockedProvider mocks={filteredMocks} addTypename={true}>
-          <div className="p-8 bg-background min-h-screen">
+          <div className="p-component-xl bg-background min-h-screen">
             <Story />
           </div>
         </MockedProvider>
@@ -410,7 +410,7 @@ export const ManyInterfaces: Story = {
 
       return (
         <MockedProvider mocks={manyMocks} addTypename={true}>
-          <div className="p-8 bg-background min-h-screen">
+          <div className="p-component-xl bg-background min-h-screen">
             <Story />
           </div>
         </MockedProvider>
@@ -431,7 +431,7 @@ export const DarkMode: Story = {
   decorators: [
     (Story) => (
       <MockedProvider mocks={mocks} addTypename={true}>
-        <div className="p-8 bg-background min-h-screen dark">
+        <div className="p-component-xl bg-background min-h-screen dark">
           <Story />
         </div>
       </MockedProvider>

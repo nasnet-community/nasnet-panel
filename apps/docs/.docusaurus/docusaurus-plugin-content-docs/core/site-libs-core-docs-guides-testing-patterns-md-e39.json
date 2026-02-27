@@ -1,0 +1,28 @@
+{
+  "id": "guides/testing-patterns",
+  "title": "Testing Patterns",
+  "description": "This guide documents the testing patterns and best practices used across libs/core in the NasNetConnect project.",
+  "source": "@site/../../libs/core/docs/guides/testing-patterns.md",
+  "sourceDirName": "guides",
+  "slug": "/guides/testing-patterns",
+  "permalink": "/docs/core/guides/testing-patterns",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/core/docs/guides/testing-patterns.md",
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 10,
+  "frontMatter": {
+    "sidebar_position": 10,
+    "title": "Testing Patterns"
+  },
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "GraphQL Integration Guide",
+    "permalink": "/docs/core/guides/graphql-integration-guide"
+  },
+  "next": {
+    "title": "State Machines Guide",
+    "permalink": "/docs/core/guides/state-machines-guide"
+  }
+}

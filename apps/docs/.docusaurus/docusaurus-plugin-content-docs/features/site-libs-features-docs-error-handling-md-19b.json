@@ -1,0 +1,24 @@
+{
+  "id": "error-handling",
+  "title": "Error Handling Architecture",
+  "description": "File: libs/features/docs/error-handling.md",
+  "source": "@site/../../libs/features/docs/error-handling.md",
+  "sourceDirName": ".",
+  "slug": "/error-handling",
+  "permalink": "/docs/features/error-handling",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/features/docs/error-handling.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Cross-Cutting Flows",
+    "permalink": "/docs/features/cross-cutting-flows"
+  },
+  "next": {
+    "title": "Feature Module: Alerts (libs/features/alerts)",
+    "permalink": "/docs/features/feature-alerts"
+  }
+}

@@ -186,14 +186,14 @@ export function VLANPoolConfig({
 
           {/* Pool Size Preview */}
           <div className="p-component-md bg-muted rounded-card-sm">
-            <div className="text-sm font-display font-medium mb-1">Pool Size Preview</div>
+            <div className="text-sm font-display font-medium mb-component-xs">Pool Size Preview</div>
             <div className="text-xs text-muted-foreground">
               Current: {currentSize} VLANs (
               {/* VLAN IDs are technical data - use monospace */}
-              <code className="font-mono bg-background px-1 rounded">{poolStart} - {poolEnd}</code>)
+              <code className="font-mono bg-background px-component-xs rounded">{poolStart} - {poolEnd}</code>)
               <br />
               New: {newSize} VLANs (
-              <code className="font-mono bg-background px-1 rounded">
+              <code className="font-mono bg-background px-component-xs rounded">
                 {watchedStart || poolStart} - {watchedEnd || poolEnd}
               </code>
               )
@@ -202,24 +202,24 @@ export function VLANPoolConfig({
 
           {/* Subnet Template Preview */}
           <div className="p-component-md bg-muted rounded-card-sm">
-            <div className="text-sm font-display font-medium mb-1">Subnet Template</div>
+            <div className="text-sm font-display font-medium mb-component-xs">Subnet Template</div>
             <div className="text-xs text-muted-foreground">
               Each VLAN will be assigned a subnet:
               <br />
-              <code className="bg-background px-1 py-0.5 rounded font-mono">
+              <code className="bg-background px-component-xs py-component-xs rounded font-mono">
                 10.{'{VLAN_ID}'}.0.0/24
               </code>
             </div>
-            <div className="text-xs text-muted-foreground mt-2">
+            <div className="text-xs text-muted-foreground mt-component-sm">
               Example: VLAN 100 →{' '}
-              <code className="bg-background px-1 py-0.5 rounded font-mono">10.100.0.0/24</code>
+              <code className="bg-background px-component-xs py-component-xs rounded font-mono">10.100.0.0/24</code>
             </div>
           </div>
 
           {/* Warnings */}
           {isShrinking && (
-            <div className="p-3 bg-warning/10 border border-warning rounded-md" role="alert" aria-live="polite">
-              <div className="text-sm font-medium text-warning mb-1">
+            <div className="p-component-sm bg-warning/10 border border-warning rounded-md" role="alert" aria-live="polite">
+              <div className="text-sm font-medium text-warning mb-component-xs">
                 Warning: Pool Size Reduction
               </div>
               <div className="text-xs text-warning">
@@ -231,8 +231,8 @@ export function VLANPoolConfig({
           )}
 
           {wouldExcludeCurrent && allocatedCount > 0 && (
-            <div className="p-3 bg-error/10 border border-error rounded-md" role="alert" aria-live="polite">
-              <div className="text-sm font-medium text-error mb-1">
+            <div className="p-component-sm bg-error/10 border border-error rounded-md" role="alert" aria-live="polite">
+              <div className="text-sm font-medium text-error mb-component-xs">
                 Warning: Range Change
               </div>
               <div className="text-xs text-error">

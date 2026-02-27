@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/preview-notification-template-input",
+  "title": "PreviewNotificationTemplateInput",
+  "description": "Input for previewing a notification template",
+  "source": "@site/docs/api/types/inputs/preview-notification-template-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/preview-notification-template-input",
+  "permalink": "/api/types/inputs/preview-notification-template-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "preview-notification-template-input",
+    "title": "PreviewNotificationTemplateInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "PppoeClientInput",
+    "permalink": "/api/types/inputs/pppoe-client-input"
+  },
+  "next": {
+    "title": "ProvisioningRelationshipsInput",
+    "permalink": "/api/types/inputs/provisioning-relationships-input"
+  }
+}

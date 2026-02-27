@@ -124,7 +124,7 @@ export const DeviceScanMobile = memo(function DeviceScanMobile({
     <div className={cn('space-y-component-md', className)}>
       {/* Header */}
       <div className="space-y-2">
-        <h2 className="text-xl font-semibold font-display">Device Scan</h2>
+        <h2 className="text-xl font-semibold font-display text-category-networking">Device Scan</h2>
         <p className="text-sm text-muted-foreground">
           Discover devices on your network
         </p>

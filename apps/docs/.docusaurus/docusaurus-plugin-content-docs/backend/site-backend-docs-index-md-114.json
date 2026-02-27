@@ -1,0 +1,24 @@
+{
+  "id": "index",
+  "title": "NasNet Backend — Master Index",
+  "description": "A Go service that manages MikroTik routers, orchestrates downloadable network features, and",
+  "source": "@site/../backend/docs/index.md",
+  "sourceDirName": ".",
+  "slug": "/",
+  "permalink": "/docs/backend/",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../backend/docs/index.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "GraphQL API Layer",
+    "permalink": "/docs/backend/graphql-api"
+  },
+  "next": {
+    "title": "Network Services",
+    "permalink": "/docs/backend/network-services"
+  }
+}

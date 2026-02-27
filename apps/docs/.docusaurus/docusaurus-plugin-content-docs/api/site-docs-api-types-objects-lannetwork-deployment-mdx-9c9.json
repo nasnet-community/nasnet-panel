@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/lannetwork-deployment",
+  "title": "LANNetworkDeployment",
+  "description": "LAN Network deployment state",
+  "source": "@site/docs/api/types/objects/lannetwork-deployment.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/lannetwork-deployment",
+  "permalink": "/api/types/objects/lannetwork-deployment",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "lannetwork-deployment",
+    "title": "LANNetworkDeployment"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "LANNetworkConfig",
+    "permalink": "/api/types/objects/lannetwork-config"
+  },
+  "next": {
+    "title": "LANNetworkRuntime",
+    "permalink": "/api/types/objects/lannetwork-runtime"
+  }
+}

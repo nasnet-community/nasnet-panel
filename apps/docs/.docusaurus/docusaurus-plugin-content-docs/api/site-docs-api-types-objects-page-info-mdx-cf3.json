@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/page-info",
+  "title": "PageInfo",
+  "description": "Information about pagination in a connection",
+  "source": "@site/docs/api/types/objects/page-info.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/page-info",
+  "permalink": "/api/types/objects/page-info",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "page-info",
+    "title": "PageInfo"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "OrphanedPort",
+    "permalink": "/api/types/objects/orphaned-port"
+  },
+  "next": {
+    "title": "PlatformCapabilities",
+    "permalink": "/api/types/objects/platform-capabilities"
+  }
+}

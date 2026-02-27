@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/apply-firewall-template",
+  "title": "applyFirewallTemplate",
+  "description": "Apply a firewall template to the router.",
+  "source": "@site/docs/api/operations/mutations/apply-firewall-template.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/apply-firewall-template",
+  "permalink": "/api/operations/mutations/apply-firewall-template",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "apply-firewall-template",
+    "title": "applyFirewallTemplate"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "applyChangeSet",
+    "permalink": "/api/operations/mutations/apply-change-set"
+  },
+  "next": {
+    "title": "applyProvisioningSession",
+    "permalink": "/api/operations/mutations/apply-provisioning-session"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/resource-relationships",
+  "title": "ResourceRelationships",
+  "description": "Layer 7: Dependencies and relationships between resources.",
+  "source": "@site/docs/api/types/objects/resource-relationships.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/resource-relationships",
+  "permalink": "/api/types/objects/resource-relationships",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "resource-relationships",
+    "title": "ResourceRelationships"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ResourceRelationshipEdge",
+    "permalink": "/api/types/objects/resource-relationship-edge"
+  },
+  "next": {
+    "title": "ResourceRequirements",
+    "permalink": "/api/types/objects/resource-requirements"
+  }
+}

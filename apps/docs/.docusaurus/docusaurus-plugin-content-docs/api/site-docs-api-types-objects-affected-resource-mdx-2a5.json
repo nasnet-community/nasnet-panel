@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/affected-resource",
+  "title": "AffectedResource",
+  "description": "Resource affected by a configuration change",
+  "source": "@site/docs/api/types/objects/affected-resource.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/affected-resource",
+  "permalink": "/api/types/objects/affected-resource",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "affected-resource",
+    "title": "AffectedResource"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "AddressList",
+    "permalink": "/api/types/objects/address-list"
+  },
+  "next": {
+    "title": "AlertCondition",
+    "permalink": "/api/types/objects/alert-condition"
+  }
+}

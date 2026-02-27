@@ -1,0 +1,24 @@
+{
+  "id": "intro",
+  "title": "API Client — Overview",
+  "description": "The libs/api-client library is the single point of entry for all network communication in NasNetConnect. It provides two transport layers — a GraphQL Apollo Client for the main application data model and an Axios HTTP client for REST calls and direct RouterOS access — along with generated TypeScript types, Zod validation schemas, and a rich set of domain query hooks organized by feature area.",
+  "source": "@site/../../libs/api-client/docs/intro.md",
+  "sourceDirName": ".",
+  "slug": "/intro",
+  "permalink": "/docs/api-client/intro",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/api-client/docs/intro.md",
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 1,
+  "frontMatter": {
+    "sidebar_position": 1,
+    "title": "API Client — Overview"
+  },
+  "sidebar": "sidebar",
+  "next": {
+    "title": "Apollo Client",
+    "permalink": "/docs/api-client/apollo-client"
+  }
+}

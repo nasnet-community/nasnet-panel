@@ -201,7 +201,7 @@ export const EmptyCustomState: Story = {
         <p className="text-sm text-muted-foreground">
           Run a network scan or add routers manually to begin managing your MikroTik devices.
         </p>
-        <button className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm font-medium hover:bg-primary/90 transition-colors">
+        <button className="mt-4 px-component-md py-2 bg-primary text-primary-foreground rounded-md text-sm font-medium hover:bg-primary/90 transition-colors">
           Start Discovery
         </button>
       </div>

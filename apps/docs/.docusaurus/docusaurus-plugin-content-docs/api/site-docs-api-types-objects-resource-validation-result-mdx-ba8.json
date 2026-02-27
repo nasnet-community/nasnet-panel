@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/resource-validation-result",
+  "title": "ResourceValidationResult",
+  "description": "Validation result for a single resource in provisioning session",
+  "source": "@site/docs/api/types/objects/resource-validation-result.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/resource-validation-result",
+  "permalink": "/api/types/objects/resource-validation-result",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "resource-validation-result",
+    "title": "ResourceValidationResult"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ResourceUsage",
+    "permalink": "/api/types/objects/resource-usage"
+  },
+  "next": {
+    "title": "ReverifyPayload",
+    "permalink": "/api/types/objects/reverify-payload"
+  }
+}

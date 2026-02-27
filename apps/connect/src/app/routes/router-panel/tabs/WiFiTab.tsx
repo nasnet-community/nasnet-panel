@@ -78,11 +78,11 @@ export const WiFiTab = React.memo(function WiFiTab() {
   }
 
   return (
-    <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-4 md:py-6 space-y-6 max-w-7xl mx-auto">
+    <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-4 md:py-6 space-y-6 max-w-7xl mx-auto animate-fade-in-up">
       {/* Page Header with Quick Actions */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold text-foreground">
+          <h1 className="text-2xl font-semibold text-foreground font-display">
             {t('title')}
           </h1>
           <p className="text-sm text-muted-foreground">

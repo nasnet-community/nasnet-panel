@@ -187,7 +187,7 @@ export const NoTooltip: Story = {
  */
 export const AllCategories: Story = {
   render: () => (
-    <div className="flex items-center gap-6 p-4">
+    <div className="flex items-center gap-component-lg p-component-sm">
       {(
         [
           { deviceType: 'ios', deviceCategory: 'mobile', label: 'Mobile' },

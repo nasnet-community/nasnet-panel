@@ -28,15 +28,15 @@ export const DHCPPoolCard = React.memo(function DHCPPoolCard({ pool, leases, cla
   const utilizationPercent = totalSize > 0 ? Math.round((usedCount / totalSize) * 100) : 0;
 
   return (
-    <div className={`bg-card rounded-card-sm border border-border p-4 ${className}`}>
+    <div className={`bg-card rounded-card-sm border border-border border-l-4 border-l-category-dhcp p-4 shadow-sm ${className}`}>
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-category-dhcp/10 flex items-center justify-center">
-            <Database className="w-4 h-4 text-category-dhcp" />
+            <Database className="w-4 h-4 text-category-dhcp" aria-hidden={true} />
           </div>
           <div>
-            <h3 className="font-semibold text-foreground text-sm">
+            <h3 className="font-semibold text-foreground text-sm font-display">
               {pool.name}
             </h3>
             <p className="text-xs text-muted-foreground">
@@ -44,7 +44,7 @@ export const DHCPPoolCard = React.memo(function DHCPPoolCard({ pool, leases, cla
             </p>
           </div>
         </div>
-        <span className={`text-lg font-bold ${getUtilizationTextColor(utilizationPercent)}`}>
+        <span className={`text-lg font-bold font-mono ${getUtilizationTextColor(utilizationPercent)}`}>
           {utilizationPercent}%
         </span>
       </div>
@@ -75,7 +75,7 @@ export const DHCPPoolCard = React.memo(function DHCPPoolCard({ pool, leases, cla
 
       {/* IP Ranges */}
       <div className="mt-3 pt-3 border-t border-border">
-        <p className="text-xs text-muted-foreground mb-1">{t('dhcp.ipRanges')}</p>
+        <p className="text-xs text-muted-foreground mb-1 font-display font-semibold">{t('dhcp.ipRanges')}</p>
         <div className="space-y-1">
           {ranges.length > 0 ? (
             ranges.map((range, idx) => (

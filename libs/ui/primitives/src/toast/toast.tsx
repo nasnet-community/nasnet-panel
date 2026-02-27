@@ -69,7 +69,7 @@ const ToastViewport = React.memo(
     <ToastPrimitives.Viewport
       ref={ref}
       className={cn(
-        'fixed top-0 z-[100] flex max-h-screen w-full flex-col-reverse p-4 sm:bottom-0 sm:right-0 sm:top-auto sm:flex-col md:max-w-[420px]',
+        'fixed bottom-4 right-4 z-[100] flex max-h-screen w-full flex-col gap-2 md:max-w-[420px]',
         className
       )}
       {...props}
@@ -79,22 +79,22 @@ const ToastViewport = React.memo(
 ToastViewport.displayName = 'ToastViewport';
 
 const toastVariants = cva(
-  'group pointer-events-auto relative flex w-full items-center justify-between gap-component-md overflow-hidden rounded-[var(--semantic-radius-card)] border p-component-md pr-12 shadow-xl transition-all duration-200 data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-bottom-full data-[state=open]:slide-in-from-top-2',
+  'group pointer-events-auto relative flex w-full items-center justify-between gap-component-md overflow-hidden rounded-lg border border-border p-4 shadow-lg transition-all duration-300 data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-up data-[state=open]:duration-300',
   {
     variants: {
       variant: {
         default:
-          'border-border bg-card text-foreground shadow-lg',
+          'bg-card text-card-foreground border-border',
         success:
-          'border-success/50 bg-success/10 text-success-dark',
+          'border-l-4 border-l-success bg-success-light text-success-dark',
         warning:
-          'border-warning/50 bg-warning/10 text-warning-dark',
+          'border-l-4 border-l-warning bg-warning-light text-warning-dark',
         error:
-          'border-error/50 bg-error/10 text-error-dark',
+          'border-l-4 border-l-error bg-error-light text-error-dark',
         info:
-          'border-info/50 bg-info/10 text-info-dark',
+          'border-l-4 border-l-info bg-info-light text-info-dark',
         destructive:
-          'border-error/50 bg-error/10 text-error-dark',
+          'border-l-4 border-l-error bg-error-light text-error-dark',
       },
     },
     defaultVariants: {
@@ -144,7 +144,7 @@ const ToastAction = React.memo(
     <ToastPrimitives.Action
       ref={ref}
       className={cn(
-        'inline-flex min-h-[44px] shrink-0 items-center justify-center rounded-[var(--semantic-radius-button)] border-border bg-transparent px-3 text-sm font-medium transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 group-[.destructive]:border-error/50 group-[.destructive]:hover:border-error/30 group-[.destructive]:hover:bg-error group-[.destructive]:hover:text-error-foreground group-[.destructive]:focus-visible:ring-error',
+        'inline-flex min-h-[44px] shrink-0 items-center justify-center rounded-[var(--semantic-radius-button)] bg-transparent px-3 text-sm font-medium text-primary transition-colors duration-150 hover:text-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
         className
       )}
       {...props}
@@ -170,7 +170,7 @@ const ToastClose = React.memo(
     <ToastPrimitives.Close
       ref={ref}
       className={cn(
-        'absolute right-2 top-2 min-h-[44px] min-w-[44px] rounded-[var(--semantic-radius-button)] p-1 opacity-70 transition-all duration-200 hover:opacity-100 hover:bg-muted focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 group-hover:opacity-100',
+        'absolute right-3 top-3 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-md p-1 opacity-70 transition-all duration-150 hover:opacity-100 hover:bg-muted focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 group-hover:opacity-100',
         className
       )}
       aria-label="Close notification"
@@ -198,7 +198,7 @@ const ToastTitle = React.memo(
   >(({ className, ...props }, ref) => (
     <ToastPrimitives.Title
       ref={ref}
-      className={cn('text-sm font-semibold [&+div]:text-xs', className)}
+      className={cn('text-sm font-semibold', className)}
       {...props}
     />
   ))
@@ -221,7 +221,7 @@ const ToastDescription = React.memo(
   >(({ className, ...props }, ref) => (
     <ToastPrimitives.Description
       ref={ref}
-      className={cn('text-sm opacity-90', className)}
+      className={cn('text-sm text-muted-foreground', className)}
       {...props}
     />
   ))

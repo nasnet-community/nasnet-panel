@@ -129,9 +129,11 @@ export const IPInputDesktop = memo(function IPInputDesktop({
               aria-invalid={hasError ? 'true' : undefined}
               aria-describedby={index === 0 ? inputAriaDescribedBy : undefined}
               className={cn(
-                'w-12 text-center px-1 font-mono',
-                'focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-                hasError && 'border-destructive focus-visible:ring-destructive'
+                'w-12 text-center px-1 font-mono text-sm',
+                'bg-card border border-border text-foreground placeholder:text-muted-foreground',
+                'focus:border-primary focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0',
+                'transition-colors duration-150',
+                hasError && 'border-error focus:border-error focus-visible:ring-error'
               )}
               id={index === 0 ? id : undefined}
             />
@@ -171,9 +173,11 @@ export const IPInputDesktop = memo(function IPInputDesktop({
               aria-label={`CIDR prefix length (0-${version === 'v6' ? '128' : '32'})`}
               aria-invalid={hasError ? 'true' : undefined}
               className={cn(
-                'w-10 text-center px-1 font-mono',
-                'focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-                hasError && 'border-destructive focus-visible:ring-destructive'
+                'w-10 text-center px-1 font-mono text-sm',
+                'bg-card border border-border text-foreground placeholder:text-muted-foreground',
+                'focus:border-primary focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0',
+                'transition-colors duration-150',
+                hasError && 'border-error focus:border-error focus-visible:ring-error'
               )}
             />
           </>
@@ -211,7 +215,7 @@ export const IPInputDesktop = memo(function IPInputDesktop({
         <p
           id={errorId}
           role="alert"
-          className="text-sm text-destructive"
+          className="text-xs text-error"
         >
           {error}
         </p>

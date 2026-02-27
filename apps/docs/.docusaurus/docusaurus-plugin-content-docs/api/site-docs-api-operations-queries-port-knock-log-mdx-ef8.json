@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/port-knock-log",
+  "title": "portKnockLog",
+  "description": "Get port knock attempt log with filtering.",
+  "source": "@site/docs/api/operations/queries/port-knock-log.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/port-knock-log",
+  "permalink": "/api/operations/queries/port-knock-log",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "port-knock-log",
+    "title": "portKnockLog"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "portForwards",
+    "permalink": "/api/operations/queries/port-forwards"
+  },
+  "next": {
+    "title": "portKnockSequence",
+    "permalink": "/api/operations/queries/port-knock-sequence"
+  }
+}

@@ -162,9 +162,9 @@ export const ImportTemplateDialog = React.memo(
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6">
+        <div className="space-y-component-lg">
           {/* File Upload */}
-          <div className="space-y-2">
+          <div className="space-y-component-sm">
             <Label htmlFor="file-upload">Upload JSON File</Label>
             <input
               id="file-upload"
@@ -187,12 +187,12 @@ export const ImportTemplateDialog = React.memo(
               <span className="w-full border-t" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">Or paste JSON</span>
+              <span className="bg-background px-component-sm text-muted-foreground">Or paste JSON</span>
             </div>
           </div>
 
           {/* JSON Textarea */}
-          <div className="space-y-2">
+          <div className="space-y-component-sm">
             <Label htmlFor="json-input">JSON Template</Label>
             <Textarea
               id="json-input"
@@ -226,7 +226,7 @@ export const ImportTemplateDialog = React.memo(
           )}
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="gap-component-sm">
           <Button type="button" variant="outline" onClick={handleClose} disabled={isImporting}>
             Cancel
           </Button>

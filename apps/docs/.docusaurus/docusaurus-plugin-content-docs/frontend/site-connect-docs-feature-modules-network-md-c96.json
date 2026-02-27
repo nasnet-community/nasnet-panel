@@ -1,0 +1,24 @@
+{
+  "id": "feature-modules/network",
+  "title": "Network Feature",
+  "description": "The network feature covers the NetworkDashboard page and the libs/features/network/",
+  "source": "@site/../connect/docs/feature-modules/network.md",
+  "sourceDirName": "feature-modules",
+  "slug": "/feature-modules/network",
+  "permalink": "/docs/frontend/feature-modules/network",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../connect/docs/feature-modules/network.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Logs Feature Module",
+    "permalink": "/docs/frontend/feature-modules/logs"
+  },
+  "next": {
+    "title": "Services Feature Module",
+    "permalink": "/docs/frontend/feature-modules/services"
+  }
+}

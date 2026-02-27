@@ -73,7 +73,7 @@ const EmptyState = memo(function EmptyState({ tab, onAddRule }: EmptyStateProps)
         </CardHeader>
         <CardContent className="flex justify-center">
           <Button onClick={onAddRule} aria-label="Add rate limit rule" className="min-h-[44px]">
-            <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
+            <Plus className="h-4 w-4 mr-component-sm" aria-hidden="true" />
             {t('rateLimiting.buttons.addRateLimit')}
           </Button>
         </CardContent>
@@ -174,7 +174,7 @@ export const RateLimitingPage = memo(function RateLimitingPage() {
           <div className="flex gap-component-sm">
             {selectedTab === 'rate-limits' && (
               <Button onClick={handleAddRule} aria-label="Add new rate limit rule" className="min-h-[44px]">
-                <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
+                <Plus className="h-4 w-4 mr-component-sm" aria-hidden="true" />
                 {t('rateLimiting.buttons.addRateLimit')}
               </Button>
             )}
@@ -189,13 +189,13 @@ export const RateLimitingPage = memo(function RateLimitingPage() {
                   className="min-h-[44px]"
                 >
                   <RefreshCw
-                    className={cn('h-4 w-4 mr-2', isRefreshing && 'animate-spin')}
+                    className={cn('h-4 w-4 mr-component-sm', isRefreshing && 'animate-spin')}
                     aria-hidden="true"
                   />
                   {t('rateLimiting.statistics.refresh')}
                 </Button>
                 <Button variant="outline" onClick={handleExportCSV} aria-label="Export statistics as CSV" className="min-h-[44px]">
-                  <Download className="h-4 w-4 mr-2" aria-hidden="true" />
+                  <Download className="h-4 w-4 mr-component-sm" aria-hidden="true" />
                   {t('rateLimiting.statistics.exportCSV')}
                 </Button>
                 {hasBlockedIPs && (

@@ -143,12 +143,12 @@ function InAppNotificationPreferencesComponent({
       <CardContent className="space-y-component-lg">
         {/* Enable/Disable Toggle */}
         <div className="flex items-center justify-between">
-          <div className="space-y-component-sm">
-            <div className="flex items-center gap-component-sm">
+          <div className="space-y-component-md">
+            <div className="flex items-center gap-component-md">
               <Icon
                 icon={settings.enabled ? Bell : BellOff}
                 size="sm"
-                className={settings.enabled ? 'text-primary' : 'text-muted-foreground'}
+                className={settings.enabled ? 'text-category-monitoring' : 'text-muted-foreground'}
                 aria-hidden="true"
               />
               <Label htmlFor="notifications-enabled" className="font-medium">
@@ -228,12 +228,12 @@ function InAppNotificationPreferencesComponent({
 
             {/* Sound Toggle */}
             <div className="flex items-center justify-between">
-              <div className="space-y-component-sm">
-                <div className="flex items-center gap-component-sm">
+              <div className="space-y-component-md">
+                <div className="flex items-center gap-component-md">
                   <Icon
                     icon={settings.soundEnabled ? Volume2 : VolumeX}
                     size="sm"
-                    className={settings.soundEnabled ? 'text-primary' : 'text-muted-foreground'}
+                    className={settings.soundEnabled ? 'text-category-monitoring' : 'text-muted-foreground'}
                     aria-hidden="true"
                   />
                   <Label htmlFor="sound-enabled" className="font-medium">
@@ -256,7 +256,7 @@ function InAppNotificationPreferencesComponent({
 
         {/* Help text when disabled */}
         {!settings.enabled && (
-          <div className="p-component-md bg-muted rounded-[var(--semantic-radius-card)] text-sm text-muted-foreground">
+          <div className="p-component-lg bg-muted rounded-[var(--semantic-radius-card)] text-sm text-muted-foreground">
             <p>
               In-app notifications are currently disabled. Enable them to receive real-time
               alerts in the application.

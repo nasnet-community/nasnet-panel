@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/quota-period",
+  "title": "QuotaPeriod",
+  "description": "Quota period for traffic limits.",
+  "source": "@site/docs/api/types/enums/quota-period.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/quota-period",
+  "permalink": "/api/types/enums/quota-period",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "quota-period",
+    "title": "QuotaPeriod"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "QuotaAction",
+    "permalink": "/api/types/enums/quota-action"
+  },
+  "next": {
+    "title": "ResourceCategory",
+    "permalink": "/api/types/enums/resource-category"
+  }
+}

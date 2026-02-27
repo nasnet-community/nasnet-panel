@@ -224,10 +224,10 @@ export const ServiceGroupDialog = memo(function ServiceGroupDialog({
           onSubmit={form.handleSubmit(handleSubmit)}
           className="flex-1 flex flex-col overflow-hidden"
         >
-          <ScrollArea className="flex-1 pr-4">
-            <div className="space-y-5 py-1">
+          <ScrollArea className="flex-1 pr-component-md">
+            <div className="space-y-component-lg py-component-xs">
               {/* Group Name */}
-              <div className="space-y-2">
+              <div className="space-y-component-sm">
                 <Label htmlFor="group-name">
                   {t('servicePorts.fields.groupName')}
                   <span className="text-error ml-0.5">*</span>
@@ -251,7 +251,7 @@ export const ServiceGroupDialog = memo(function ServiceGroupDialog({
               </div>
 
               {/* Protocol */}
-              <div className="space-y-2">
+              <div className="space-y-component-sm">
                 <Label>{t('servicePorts.fields.protocol')}</Label>
                 <Controller
                   control={form.control}
@@ -262,15 +262,15 @@ export const ServiceGroupDialog = memo(function ServiceGroupDialog({
                       onValueChange={(value) =>
                         field.onChange(value as ServicePortProtocol)
                       }
-                      className="flex gap-4"
+                      className="flex gap-component-md"
                     >
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-component-sm">
                         <RadioGroupItem value="tcp" id="protocol-tcp" />
                         <Label htmlFor="protocol-tcp" className="font-normal">
                           {t('servicePorts.protocols.tcp')}
                         </Label>
                       </div>
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-component-sm">
                         <RadioGroupItem value="udp" id="protocol-udp" />
                         <Label htmlFor="protocol-udp" className="font-normal">
                           {t('servicePorts.protocols.udp')}
@@ -288,7 +288,7 @@ export const ServiceGroupDialog = memo(function ServiceGroupDialog({
               </div>
 
               {/* Services Multi-Select */}
-              <div className="space-y-2">
+              <div className="space-y-component-sm">
                 <Label htmlFor="services-picker">
                   {t('servicePorts.fields.services')}
                   <span className="text-error ml-0.5">*</span>
@@ -305,7 +305,7 @@ export const ServiceGroupDialog = memo(function ServiceGroupDialog({
                       className={cn(
                         'w-full justify-between font-normal',
                         selectedPorts.length === 0 && 'text-muted-foreground',
-                        portsError && 'border-destructive'
+                        portsError && 'border-error'
                       )}
                     >
                       <span className="truncate">
@@ -322,9 +322,9 @@ export const ServiceGroupDialog = memo(function ServiceGroupDialog({
                     align="start"
                   >
                     {/* Search Header */}
-                    <div className="p-3 border-b">
+                    <div className="p-component-sm border-b">
                       <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                        <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
                         <Input
                           value={searchQuery}
                           onChange={(e) => setSearchQuery(e.target.value)}
@@ -352,7 +352,7 @@ export const ServiceGroupDialog = memo(function ServiceGroupDialog({
 
                     {/* Service List */}
                     <ScrollArea className="max-h-[300px]">
-                      <div role="listbox" aria-label="Service list" className="p-2">
+                      <div role="listbox" aria-label="Service list" className="p-component-sm">
                         {filteredServices.length === 0 && (
                           <div className="py-8 text-center text-sm text-muted-foreground">
                             {searchQuery
@@ -368,7 +368,7 @@ export const ServiceGroupDialog = memo(function ServiceGroupDialog({
                             <div
                               key={service.port}
                               className={cn(
-                                'flex items-center gap-3 p-2 rounded-md cursor-pointer hover:bg-accent',
+                                'flex items-center gap-component-sm p-component-sm rounded-md cursor-pointer hover:bg-accent',
                                 isSelected && 'bg-accent/50'
                               )}
                               onClick={() => handleToggleService(service.port)}
@@ -384,7 +384,7 @@ export const ServiceGroupDialog = memo(function ServiceGroupDialog({
                                 })}
                               />
                               <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-component-sm">
                                   <span className="font-medium text-sm truncate">
                                     {service.service}
                                   </span>
@@ -411,7 +411,7 @@ export const ServiceGroupDialog = memo(function ServiceGroupDialog({
 
                     {/* Footer */}
                     {filteredServices.length > 0 && (
-                      <div className="px-3 py-2 border-t text-xs text-muted-foreground">
+                      <div className="px-component-sm py-component-sm border-t text-xs text-muted-foreground">
                         {t('servicePorts.labels.servicesAvailable', {
                           defaultValue: '{{count}} service available',
                           count: filteredServices.length,
@@ -436,16 +436,16 @@ export const ServiceGroupDialog = memo(function ServiceGroupDialog({
 
               {/* Selected Services Chips */}
               {selectedServices.length > 0 && (
-                <div className="space-y-2">
+                <div className="space-y-component-sm">
                   <Label className="text-sm text-muted-foreground">
                     Selected Services ({selectedServices.length})
                   </Label>
-                  <div className="flex flex-wrap gap-1.5">
+                  <div className="flex flex-wrap gap-component-sm">
                     {selectedServices.map((service) => (
                       <Badge
                         key={service.port}
                         variant="secondary"
-                        className="gap-1.5 pl-2 pr-1"
+                        className="gap-component-sm pl-component-sm pr-1"
                       >
                         <span className="text-xs font-mono">
                           {service.service} ({service.port})
@@ -456,7 +456,7 @@ export const ServiceGroupDialog = memo(function ServiceGroupDialog({
                             e.stopPropagation();
                             handleToggleService(service.port);
                           }}
-                          className="rounded-full p-0.5 hover:bg-muted"
+                          className="rounded-full p-component-xs hover:bg-muted"
                           aria-label={t('servicePorts.labels.removeService', {
                             defaultValue: 'Remove {{service}}',
                             service: service.service,
@@ -498,7 +498,7 @@ export const ServiceGroupDialog = memo(function ServiceGroupDialog({
               )}
 
               {/* Description (Optional) */}
-              <div className="space-y-2">
+              <div className="space-y-component-sm">
                 <Label htmlFor="group-description">
                   {t('servicePorts.fields.description')}
                   <span className="text-muted-foreground text-xs ml-1">(optional)</span>
@@ -514,7 +514,7 @@ export const ServiceGroupDialog = memo(function ServiceGroupDialog({
             </div>
           </ScrollArea>
 
-          <DialogFooter className="mt-6">
+          <DialogFooter className="mt-component-lg">
             <Button
               type="button"
               variant="outline"

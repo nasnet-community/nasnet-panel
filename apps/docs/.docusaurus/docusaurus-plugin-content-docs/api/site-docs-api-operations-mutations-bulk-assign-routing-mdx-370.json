@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/bulk-assign-routing",
+  "title": "bulkAssignRouting",
+  "description": "Assign multiple devices to routing in a single operation.",
+  "source": "@site/docs/api/operations/mutations/bulk-assign-routing.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/bulk-assign-routing",
+  "permalink": "/api/operations/mutations/bulk-assign-routing",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "bulk-assign-routing",
+    "title": "bulkAssignRouting"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "batchInterfaceOperation",
+    "permalink": "/api/operations/mutations/batch-interface-operation"
+  },
+  "next": {
+    "title": "bulkCreateAddressListEntries",
+    "permalink": "/api/operations/mutations/bulk-create-address-list-entries"
+  }
+}

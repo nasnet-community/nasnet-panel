@@ -260,7 +260,7 @@ function ServiceTrafficPanelDesktopComponent({
             <div className="grid grid-cols-2 gap-component-md">
               {uploadRate !== null && (
                 <div className="flex items-center gap-component-sm rounded-md border bg-card p-component-md">
-                  <Icon icon={TrendingUp} className="h-6 w-6 text-info" />
+                  <Icon icon={TrendingUp} className="h-6 w-6 text-category-vpn" />
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Upload Rate</p>
                     <p className="text-2xl font-mono font-semibold tabular-nums">
@@ -315,7 +315,7 @@ function ServiceTrafficPanelDesktopComponent({
                 value={Math.min(quotaUsagePercent, 100)}
                 className={cn(
                   'h-3',
-                  quotaExceeded && '[&>div]:bg-destructive',
+                  quotaExceeded && '[&>div]:bg-error',
                   quotaWarning && !quotaExceeded && '[&>div]:bg-warning'
                 )}
               />

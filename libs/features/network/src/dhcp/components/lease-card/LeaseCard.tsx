@@ -216,7 +216,7 @@ export const LeaseCard = React.memo(function LeaseCard({
             {/* Lease info */}
             <div className="flex-1 min-w-0">
               {/* Top row: IP + New badge */}
-              <div className="flex items-center gap-2 mb-0.5">
+              <div className="flex items-center gap-component-sm mb-component-xs">
                 <span className="font-mono font-semibold text-base truncate">
                   {lease.address}
                 </span>
@@ -236,12 +236,12 @@ export const LeaseCard = React.memo(function LeaseCard({
               </div>
 
               {/* Middle row: Hostname */}
-              <div className="text-sm text-muted-foreground truncate mb-1">
+              <div className="text-sm text-muted-foreground truncate mb-component-xs">
                 {lease.hostname || 'Unknown'}
               </div>
 
               {/* Bottom row: MAC + Status */}
-              <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex items-center gap-component-sm flex-wrap">
                 <span className="text-xs font-mono text-muted-foreground">
                   {formatMACAddress(lease.macAddress)}
                 </span>
@@ -273,46 +273,46 @@ export const LeaseCard = React.memo(function LeaseCard({
           </SheetHeader>
 
           {/* Detailed info */}
-          <div className="mt-6 space-y-4">
+          <div className="mt-component-lg space-y-component-md">
             {/* Status card */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-component-md">
               <div>
-                <div className="text-xs text-muted-foreground mb-1">Status</div>
+                <div className="text-xs text-muted-foreground mb-component-xs">Status</div>
                 <StatusBadge status={isStatic ? 'static' : lease.status} />
               </div>
               <div>
-                <div className="text-xs text-muted-foreground mb-1">Expires</div>
+                <div className="text-xs text-muted-foreground mb-component-xs">Expires</div>
                 <div className="text-sm font-medium">{expiration}</div>
               </div>
             </div>
 
             {/* Network info */}
-            <div className="space-y-3">
+            <div className="space-y-component-md">
               <div>
-                <div className="text-xs text-muted-foreground mb-1">IP Address</div>
+                <div className="text-xs text-muted-foreground mb-component-xs">IP Address</div>
                 <div className="text-sm font-mono">{lease.address}</div>
               </div>
 
               <div>
-                <div className="text-xs text-muted-foreground mb-1">MAC Address</div>
+                <div className="text-xs text-muted-foreground mb-component-xs">MAC Address</div>
                 <div className="text-sm font-mono">{formatMACAddress(lease.macAddress)}</div>
               </div>
 
               {lease.clientId && (
                 <div>
-                  <div className="text-xs text-muted-foreground mb-1">Client ID</div>
+                  <div className="text-xs text-muted-foreground mb-component-xs">Client ID</div>
                   <div className="text-sm font-mono">{lease.clientId}</div>
                 </div>
               )}
 
               <div>
-                <div className="text-xs text-muted-foreground mb-1">DHCP Server</div>
+                <div className="text-xs text-muted-foreground mb-component-xs">DHCP Server</div>
                 <div className="text-sm">{lease.server}</div>
               </div>
 
               {lease.lastSeen && (
                 <div>
-                  <div className="text-xs text-muted-foreground mb-1">Last Seen</div>
+                  <div className="text-xs text-muted-foreground mb-component-xs">Last Seen</div>
                   <div className="text-sm">
                     {new Date(lease.lastSeen).toLocaleString()}
                   </div>
@@ -321,7 +321,7 @@ export const LeaseCard = React.memo(function LeaseCard({
             </div>
 
             {/* Quick actions */}
-            <div className="pt-4 space-y-2">
+            <div className="pt-component-md space-y-component-sm">
               {!isStatic && onMakeStatic && (
                 <Button
                   variant="outline"
@@ -332,7 +332,7 @@ export const LeaseCard = React.memo(function LeaseCard({
                     setIsExpanded(false);
                   }}
                 >
-                  <Icon icon={Pin} size="sm" className="mr-2" />
+                  <Icon icon={Pin} size="sm" className="mr-component-sm" />
                   Make Static
                 </Button>
               )}
@@ -346,7 +346,7 @@ export const LeaseCard = React.memo(function LeaseCard({
                     setIsExpanded(false);
                   }}
                 >
-                  <Icon icon={Trash2} size="sm" className="mr-2" />
+                  <Icon icon={Trash2} size="sm" className="mr-component-sm" />
                   Delete Lease
                 </Button>
               )}

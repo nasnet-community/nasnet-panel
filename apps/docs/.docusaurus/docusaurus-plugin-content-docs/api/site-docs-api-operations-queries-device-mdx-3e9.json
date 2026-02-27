@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/device",
+  "title": "device",
+  "description": "Get a device by ID for resource metrics",
+  "source": "@site/docs/api/operations/queries/device.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/device",
+  "permalink": "/api/operations/queries/device",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "device",
+    "title": "device"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "deviceRoutings",
+    "permalink": "/api/operations/queries/device-routings"
+  },
+  "next": {
+    "title": "diagnosticHistory",
+    "permalink": "/api/operations/queries/diagnostic-history"
+  }
+}

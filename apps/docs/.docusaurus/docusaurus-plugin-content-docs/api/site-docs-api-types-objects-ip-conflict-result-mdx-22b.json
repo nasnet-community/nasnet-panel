@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/ip-conflict-result",
+  "title": "IpConflictResult",
+  "description": "Result of checking IP address conflicts",
+  "source": "@site/docs/api/types/objects/ip-conflict-result.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/ip-conflict-result",
+  "permalink": "/api/types/objects/ip-conflict-result",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "ip-conflict-result",
+    "title": "IpConflictResult"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "IpAddress",
+    "permalink": "/api/types/objects/ip-address"
+  },
+  "next": {
+    "title": "IpConflict",
+    "permalink": "/api/types/objects/ip-conflict"
+  }
+}

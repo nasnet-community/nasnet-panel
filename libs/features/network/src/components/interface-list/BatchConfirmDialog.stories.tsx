@@ -40,7 +40,7 @@ function BatchConfirmDialogWrapper({
   const [open, setOpen] = useState(true);
 
   return (
-    <div className="p-8">
+    <div className="p-component-xl">
       <Button onClick={() => setOpen(true)}>Open Dialog</Button>
       <BatchConfirmDialog
         open={open}

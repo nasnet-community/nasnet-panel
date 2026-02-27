@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/remove-device-routing",
+  "title": "removeDeviceRouting",
+  "description": "Remove a device routing assignment.",
+  "source": "@site/docs/api/operations/mutations/remove-device-routing.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/remove-device-routing",
+  "permalink": "/api/operations/mutations/remove-device-routing",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "remove-device-routing",
+    "title": "removeDeviceRouting"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "removeDependency",
+    "permalink": "/api/operations/mutations/remove-dependency"
+  },
+  "next": {
+    "title": "removeEgressVLAN",
+    "permalink": "/api/operations/mutations/remove-egress-vlan"
+  }
+}

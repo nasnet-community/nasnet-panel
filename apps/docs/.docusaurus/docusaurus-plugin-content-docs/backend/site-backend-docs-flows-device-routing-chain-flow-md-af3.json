@@ -1,0 +1,24 @@
+{
+  "id": "flows/device-routing-chain-flow",
+  "title": "Flow: Device Routing Chain",
+  "description": "Traces how a client device's traffic is steered through a multi-hop service chain (e.g., Device → VPN → Tor → Internet) using MikroTik PBR mangle rules, with kill switch enforcement on service failure.",
+  "source": "@site/../backend/docs/flows/device-routing-chain-flow.md",
+  "sourceDirName": "flows",
+  "slug": "/flows/device-routing-chain-flow",
+  "permalink": "/docs/backend/flows/device-routing-chain-flow",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../backend/docs/flows/device-routing-chain-flow.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Flow: Config Provisioning",
+    "permalink": "/docs/backend/flows/config-provisioning-flow"
+  },
+  "next": {
+    "title": "Flow: GraphQL Request Lifecycle",
+    "permalink": "/docs/backend/flows/graphql-request-lifecycle"
+  }
+}

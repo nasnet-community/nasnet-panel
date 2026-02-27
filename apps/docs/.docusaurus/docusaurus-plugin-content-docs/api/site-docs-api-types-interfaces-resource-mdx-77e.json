@@ -1,0 +1,26 @@
+{
+  "id": "api/types/interfaces/resource",
+  "title": "Resource",
+  "description": "Universal State v2 Resource Interface.",
+  "source": "@site/docs/api/types/interfaces/resource.mdx",
+  "sourceDirName": "api/types/interfaces",
+  "slug": "/api/types/interfaces/resource",
+  "permalink": "/api/types/interfaces/resource",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "resource",
+    "title": "Resource"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "Node",
+    "permalink": "/api/types/interfaces/node"
+  },
+  "next": {
+    "title": "Objects",
+    "permalink": "/category/objects"
+  }
+}

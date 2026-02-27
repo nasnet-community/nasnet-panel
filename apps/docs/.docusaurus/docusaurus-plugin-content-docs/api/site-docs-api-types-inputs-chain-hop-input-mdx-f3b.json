@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/chain-hop-input",
+  "title": "ChainHopInput",
+  "description": "Input for a single hop in a chain.",
+  "source": "@site/docs/api/types/inputs/chain-hop-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/chain-hop-input",
+  "permalink": "/api/types/inputs/chain-hop-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "chain-hop-input",
+    "title": "ChainHopInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "BulkAssignRoutingInput",
+    "permalink": "/api/types/inputs/bulk-assign-routing-input"
+  },
+  "next": {
+    "title": "ChangeSetItemInput",
+    "permalink": "/api/types/inputs/change-set-item-input"
+  }
+}

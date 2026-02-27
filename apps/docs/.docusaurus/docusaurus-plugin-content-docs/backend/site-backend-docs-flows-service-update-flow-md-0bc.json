@@ -1,0 +1,24 @@
+{
+  "id": "flows/service-update-flow",
+  "title": "Flow: Service Update",
+  "description": "Traces the lifecycle of a service binary update — from scheduled version check through atomic 6-phase swap with config migration, health validation, and crash recovery.",
+  "source": "@site/../backend/docs/flows/service-update-flow.md",
+  "sourceDirName": "flows",
+  "slug": "/flows/service-update-flow",
+  "permalink": "/docs/backend/flows/service-update-flow",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../backend/docs/flows/service-update-flow.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Flow: Service Installation",
+    "permalink": "/docs/backend/flows/service-installation-flow"
+  },
+  "next": {
+    "title": "Getting Started",
+    "permalink": "/docs/backend/getting-started"
+  }
+}

@@ -337,7 +337,10 @@ var DefaultService = NewService()
 
 // LoadMatrix loads or reloads the default service's compatibility matrix.
 func LoadMatrix() error {
-	return DefaultService.LoadMatrix()
+	if err := DefaultService.LoadMatrix(); err != nil {
+		return fmt.Errorf("load compatibility matrix: %w", err)
+	}
+	return nil
 }
 
 // GetFeatureCompatibility returns compatibility info using the default service.

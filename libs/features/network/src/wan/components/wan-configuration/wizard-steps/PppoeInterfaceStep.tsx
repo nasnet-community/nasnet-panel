@@ -68,12 +68,12 @@ export const PppoeInterfaceStep = memo(function PppoeInterfaceStep({
         title="PPPoE Interface Configuration"
         description="Select the physical interface and provide a name for the PPPoE connection"
       >
-        <div className="space-y-4">
+        <div className="space-y-component-md">
           {/* PPPoE Interface Name */}
           <div>
-            <div className="flex items-center gap-2 mb-2">
+            <div className="flex items-center gap-component-sm mb-component-md">
               <Label htmlFor="pppoe-name">
-                <Network className="inline h-4 w-4 mr-1" aria-hidden="true" />
+                <Network className="inline h-4 w-4 mr-component-xs" aria-hidden="true" />
                 PPPoE Interface Name
               </Label>
               <FieldHelp field="name" />
@@ -84,21 +84,21 @@ export const PppoeInterfaceStep = memo(function PppoeInterfaceStep({
               placeholder="pppoe-wan"
               {...form.register('name')}
               aria-describedby="name-error name-help"
-              className="font-mono text-sm"
+              className="font-mono text-sm category-networking"
             />
             {form.formState.errors.name && (
-              <p id="name-error" className="text-sm text-destructive mt-1" role="alert">
+              <p id="name-error" className="text-sm text-error mt-component-xs" role="alert">
                 {form.formState.errors.name.message}
               </p>
             )}
-            <p id="name-help" className="text-xs text-muted-foreground mt-1">
+            <p id="name-help" className="text-xs text-muted-foreground mt-component-xs">
               Letters, numbers, hyphens, and underscores only (max 64 characters)
             </p>
           </div>
 
           {/* Physical Interface Selection */}
           <div>
-            <div className="flex items-center gap-2 mb-2">
+            <div className="flex items-center gap-component-sm mb-component-md">
               <Label htmlFor="interface-selector">Physical Interface</Label>
               <FieldHelp field="interface" aria-label="Help about physical interface selection" />
             </div>
@@ -111,7 +111,7 @@ export const PppoeInterfaceStep = memo(function PppoeInterfaceStep({
             />
             {form.formState.errors.interface && (
               <p
-                className="text-sm text-destructive mt-1"
+                className="text-sm text-error mt-1"
                 role="alert"
                 id="interface-error"
               >
@@ -122,33 +122,33 @@ export const PppoeInterfaceStep = memo(function PppoeInterfaceStep({
 
           {/* Selected Interface Details */}
           {selectedInterface && (
-            <div className="rounded-lg border bg-muted/50 p-4 space-y-2">
+            <div className="rounded-lg border bg-muted/50 p-component-md space-y-component-sm category-networking">
               <h4 className="font-medium text-sm">
                 Selected Interface Details
               </h4>
-              <div className="grid grid-cols-2 gap-2 text-sm">
+              <div className="grid grid-cols-2 gap-component-sm text-sm">
                 <div>
                   <span className="text-muted-foreground">Name:</span>
-                  <span className="ml-2 font-mono text-xs">
+                  <span className="ml-component-md font-mono text-xs">
                     {selectedInterface.name}
                   </span>
                 </div>
                 <div>
                   <span className="text-muted-foreground">Type:</span>
-                  <span className="ml-2">{selectedInterface.type}</span>
+                  <span className="ml-component-md">{selectedInterface.type}</span>
                 </div>
                 {selectedInterface.mac && (
                   <div className="col-span-2">
                     <span className="text-muted-foreground">MAC:</span>
-                    <span className="ml-2 font-mono text-xs">
+                    <span className="ml-component-md font-mono text-xs">
                       {selectedInterface.mac}
                     </span>
                   </div>
                 )}
               </div>
-              <p className="text-xs text-muted-foreground pt-2 border-t">
+              <p className="text-xs text-muted-foreground pt-component-md border-t">
                 <strong>Note:</strong> PPPoE will create a virtual interface named{' '}
-                <code className="bg-muted px-1 py-0.5 rounded font-mono text-xs">
+                <code className="bg-muted px-component-xs py-0.5 rounded font-mono text-xs">
                   {form.watch('name')}
                 </code>{' '}
                 bound to this physical interface.

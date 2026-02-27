@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/gateway-type",
+  "title": "GatewayType",
+  "description": "Gateway type for virtual interface routing.",
+  "source": "@site/docs/api/types/enums/gateway-type.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/gateway-type",
+  "permalink": "/api/types/enums/gateway-type",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "gateway-type",
+    "title": "GatewayType"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "GatewayStatus",
+    "permalink": "/api/types/enums/gateway-status"
+  },
+  "next": {
+    "title": "HealthCheckStatus",
+    "permalink": "/api/types/enums/health-check-status"
+  }
+}

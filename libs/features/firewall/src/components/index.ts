@@ -16,6 +16,7 @@ export { RuleSearchFilters } from './RuleSearchFilters';
 
 // Mangle components
 export { MangleRulesTable } from './MangleRulesTable';
+export { MangleRulesTableDesktop } from './MangleRulesTableDesktop';
 export { MangleRulesTableMobile } from './MangleRulesTableMobile';
 
 // RAW components (NAS-7.X)

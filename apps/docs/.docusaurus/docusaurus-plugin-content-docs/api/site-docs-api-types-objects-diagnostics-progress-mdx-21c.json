@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/diagnostics-progress",
+  "title": "DiagnosticsProgress",
+  "description": "Real-time diagnostic progress event for subscriptions.",
+  "source": "@site/docs/api/types/objects/diagnostics-progress.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/diagnostics-progress",
+  "permalink": "/api/types/objects/diagnostics-progress",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "diagnostics-progress",
+    "title": "DiagnosticsProgress"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "DiagnosticTest",
+    "permalink": "/api/types/objects/diagnostic-test"
+  },
+  "next": {
+    "title": "DigestConfig",
+    "permalink": "/api/types/objects/digest-config"
+  }
+}

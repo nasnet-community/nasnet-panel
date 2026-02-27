@@ -26,7 +26,7 @@ export interface UpdateProgressBarProps {
  * Stage color mapping using semantic tokens
  */
 const STAGE_COLORS: Record<UpdateStage, string> = {
-  PENDING: 'bg-neutral',
+  PENDING: 'bg-muted',
   DOWNLOADING: 'bg-info',
   VERIFYING: 'bg-info',
   STOPPING: 'bg-warning',

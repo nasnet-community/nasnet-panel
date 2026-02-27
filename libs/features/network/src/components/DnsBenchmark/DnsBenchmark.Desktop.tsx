@@ -24,6 +24,7 @@ import { Progress } from '@nasnet/ui/primitives/progress';
 import { Icon } from '@nasnet/ui/primitives/icon';
 import { Alert, AlertDescription } from '@nasnet/ui/primitives/alert';
 import { cn } from '@nasnet/ui/utils';
+import { usePlatform } from '@nasnet/ui/layouts';
 import { useDnsBenchmark } from './useDnsBenchmark';
 import type { DnsBenchmarkProps } from './types';
 
@@ -92,7 +93,7 @@ function DnsBenchmarkDesktopComponent({
   }, [reset]);
 
   return (
-    <Card className={cn('', className)}>
+    <Card className={cn('category-networking', className)}>
       <CardHeader>
         <CardTitle>DNS Server Benchmark</CardTitle>
         <CardDescription>Test response times of all configured DNS servers</CardDescription>
@@ -102,7 +103,7 @@ function DnsBenchmarkDesktopComponent({
           <Button
             onClick={handleRunBenchmark}
             disabled={isLoading}
-            className="gap-2"
+            className="gap-component-sm"
             aria-label="Run DNS server benchmark"
           >
             <PlayCircle className="h-4 w-4" aria-hidden />
@@ -126,7 +127,7 @@ function DnsBenchmarkDesktopComponent({
               className="w-full"
               aria-label={`Benchmark progress: ${progress}%`}
             />
-            <p className="text-sm text-info">Testing DNS servers...</p>
+            <p className="text-sm text-muted-foreground">Testing DNS servers...</p>
           </div>
         )}
 

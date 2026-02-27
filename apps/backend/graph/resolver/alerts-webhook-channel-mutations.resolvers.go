@@ -7,7 +7,7 @@ package resolver
 
 import (
 	"backend/graph/model"
-	"backend/internal/errors"
+	"backend/internal/apperrors"
 	"context"
 	"fmt"
 	"net/url"
@@ -103,7 +103,7 @@ func (r *mutationResolver) TestNotificationChannel(ctx context.Context, channel 
 		}, nil
 	}
 
-	if config == nil || len(config) == 0 {
+	if len(config) == 0 {
 		return &model.TestNotificationPayload{
 			Success: false,
 			Errors: []*model.MutationError{{
@@ -291,16 +291,28 @@ func (r *mutationResolver) TestWebhook(ctx context.Context, id string) (*model.W
 // Immediately triggers digest notification for a channel (ignoring schedule).
 func (r *mutationResolver) TriggerDigestNow(ctx context.Context, channelID string) (*model.DigestSummary, error) {
 	if r.Dispatcher == nil {
-		return nil, errors.NewValidationError("dispatcher", nil, "notification dispatcher service not available")
+		return nil, apperrors.NewValidationError(
+			"dispatcher",
+			nil,
+			"notification dispatcher service not available",
+		)
 	}
 
 	if channelID == "" {
-		return nil, errors.NewValidationError("channelID", channelID, "channel ID is required")
+		return nil, apperrors.NewValidationError(
+			"channelID",
+			channelID,
+			"channel ID is required",
+		)
 	}
 
 	// TODO: Implement manual digest triggering
 	// This should call r.Dispatcher to immediately send digest
 	// Pass ctx to service call for proper context propagation and timeout handling
 	// Ensure channel is configured and has pending alerts before triggering
-	return nil, nil
+	return nil, apperrors.NewValidationError(
+		"TriggerDigestNow",
+		channelID,
+		"not yet implemented",
+	)
 }

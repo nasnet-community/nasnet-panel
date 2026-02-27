@@ -78,17 +78,17 @@ func ParseVersion(s string) (Version, error) {
 func (v Version) String() string {
 	var sb strings.Builder
 
-	sb.WriteString(fmt.Sprintf("%d.%d", v.Major, v.Minor))
+	fmt.Fprintf(&sb, "%d.%d", v.Major, v.Minor)
 
 	if v.Patch > 0 || v.Channel == "" {
-		sb.WriteString(fmt.Sprintf(".%d", v.Patch))
+		fmt.Fprintf(&sb, ".%d", v.Patch)
 	}
 
 	if v.Channel != "" {
 		if strings.HasPrefix(v.Channel, "beta") || strings.HasPrefix(v.Channel, "rc") {
 			sb.WriteString(v.Channel)
 		} else {
-			sb.WriteString(fmt.Sprintf(" (%s)", v.Channel))
+			fmt.Fprintf(&sb, " (%s)", v.Channel)
 		}
 	}
 

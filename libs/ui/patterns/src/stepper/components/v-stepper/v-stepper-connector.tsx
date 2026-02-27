@@ -41,16 +41,16 @@ export function VStepperConnector({
       className={cn(
         // Positioning - left-aligned with step indicator center
         'absolute left-4 top-10 w-0.5 h-8 -translate-x-1/2',
-        // Base state - muted color
+        // Base state - border color (pending)
         'bg-border',
         className
       )}
       aria-hidden="true"
     >
-      {/* Filled portion for completed state */}
+      {/* Filled portion for completed state - success color */}
       {isCompleted && (
         <motion.div
-          className="absolute inset-0 bg-primary origin-top"
+          className="absolute inset-0 bg-success origin-top"
           initial={shouldAnimate ? { scaleY: 0 } : { scaleY: 1 }}
           animate={{ scaleY: 1 }}
           transition={{

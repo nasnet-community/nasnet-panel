@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/upgrade-step",
+  "title": "UpgradeStep",
+  "description": "Single step in an upgrade process",
+  "source": "@site/docs/api/types/objects/upgrade-step.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/upgrade-step",
+  "permalink": "/api/types/objects/upgrade-step",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "upgrade-step",
+    "title": "UpgradeStep"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "UpgradeRecommendation",
+    "permalink": "/api/types/objects/upgrade-recommendation"
+  },
+  "next": {
+    "title": "UptimeDataPoint",
+    "permalink": "/api/types/objects/uptime-data-point"
+  }
+}

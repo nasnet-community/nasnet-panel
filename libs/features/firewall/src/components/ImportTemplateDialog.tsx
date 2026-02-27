@@ -253,7 +253,7 @@ export const ImportTemplateDialog = React.memo(function ImportTemplateDialog({
       {trigger}
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+          <DialogTitle className="flex items-center gap-component-sm">
             <Upload className="h-5 w-5" aria-hidden="true" />
             Import Template
           </DialogTitle>
@@ -264,7 +264,7 @@ export const ImportTemplateDialog = React.memo(function ImportTemplateDialog({
 
         {/* Upload Step */}
         {step === 'upload' && (
-          <div className="space-y-4">
+          <div className="space-y-component-md">
             {/* Drop Zone */}
             <div
               className={`relative flex flex-col items-center justify-center gap-component-md rounded-[var(--semantic-radius-card)] border-2 border-dashed p-component-lg transition-colors ${
@@ -323,7 +323,7 @@ export const ImportTemplateDialog = React.memo(function ImportTemplateDialog({
 
         {/* Validating Step */}
         {step === 'validating' && (
-          <div className="flex flex-col items-center justify-center gap-component-md py-12">
+          <div className="flex flex-col items-center justify-center gap-component-md py-component-xl">
             <div
               className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"
               role="status"
@@ -447,7 +447,7 @@ export const ImportTemplateDialog = React.memo(function ImportTemplateDialog({
 
         {/* Importing Step */}
         {step === 'importing' && (
-          <div className="flex flex-col items-center justify-center gap-component-md py-12">
+          <div className="flex flex-col items-center justify-center gap-component-md py-component-xl">
             <div
               className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"
               role="status"
@@ -459,14 +459,14 @@ export const ImportTemplateDialog = React.memo(function ImportTemplateDialog({
 
         {/* Complete Step */}
         {step === 'complete' && (
-          <div className="flex flex-col items-center justify-center gap-component-md py-12" role="status">
+          <div className="flex flex-col items-center justify-center gap-component-md py-component-xl" role="status">
             <CheckCircle2 className="h-16 w-16 text-success" aria-hidden="true" />
             <p className="text-lg font-display font-medium">Template imported successfully!</p>
           </div>
         )}
 
         {/* Footer */}
-        <DialogFooter>
+        <DialogFooter className="gap-component-sm">
           {step === 'upload' && (
             <Button variant="outline" onClick={() => handleOpenChange(false)}>
               Cancel
@@ -475,14 +475,14 @@ export const ImportTemplateDialog = React.memo(function ImportTemplateDialog({
           {step === 'preview' && (
             <>
               <Button variant="outline" onClick={handleReset}>
-                <X className="mr-2 h-4 w-4" />
+                <X className="mr-component-sm h-4 w-4" />
                 Cancel
               </Button>
               <Button
                 onClick={handleImport}
                 disabled={!parsedData?.validation.success}
               >
-                <Upload className="mr-2 h-4 w-4" />
+                <Upload className="mr-component-sm h-4 w-4" />
                 Import Template
               </Button>
             </>

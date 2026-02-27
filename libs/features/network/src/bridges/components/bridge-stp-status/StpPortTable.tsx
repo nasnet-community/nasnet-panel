@@ -59,7 +59,7 @@ function StpPortTableComponent({ ports, className }: StpPortTableProps) {
   if (ports.length === 0) {
     return (
       <div className="rounded-[var(--semantic-radius-card)] border p-component-lg text-center">
-        <Icon icon={Network} className="mx-auto h-8 w-8 mb-component-md text-muted-foreground opacity-50" aria-hidden="true" />
+        <Icon icon={Network} className="mx-auto h-8 w-8 mb-component-md text-category-networking opacity-50" aria-hidden="true" />
         <p className="text-sm text-muted-foreground">No ports configured</p>
       </div>
     );
@@ -99,7 +99,7 @@ function StpPortTableComponent({ ports, className }: StpPortTableProps) {
                   <span className="text-muted-foreground text-sm">-</span>
                 )}
               </TableCell>
-              <TableCell className="text-right font-mono text-xs">
+              <TableCell className="text-right font-mono font-medium text-xs">
                 {port.pathCost ? (
                   <>{port.pathCost}</>
                 ) : (
@@ -108,7 +108,7 @@ function StpPortTableComponent({ ports, className }: StpPortTableProps) {
               </TableCell>
               <TableCell>
                 {port.edge ? (
-                  <Badge variant="success" className="text-xs">
+                  <Badge variant="success" className="text-xs font-medium">
                     Yes
                   </Badge>
                 ) : (

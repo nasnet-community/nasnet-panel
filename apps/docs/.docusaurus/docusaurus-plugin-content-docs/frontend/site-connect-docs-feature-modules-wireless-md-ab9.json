@@ -1,0 +1,24 @@
+{
+  "id": "feature-modules/wireless",
+  "title": "Wireless Feature Module",
+  "description": "The wireless feature spans two locations:",
+  "source": "@site/../connect/docs/feature-modules/wireless.md",
+  "sourceDirName": "feature-modules",
+  "slug": "/feature-modules/wireless",
+  "permalink": "/docs/frontend/feature-modules/wireless",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../connect/docs/feature-modules/wireless.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "VPN Feature",
+    "permalink": "/docs/frontend/feature-modules/vpn"
+  },
+  "next": {
+    "title": "Form Utilities",
+    "permalink": "/docs/frontend/forms-validation/form-utilities"
+  }
+}

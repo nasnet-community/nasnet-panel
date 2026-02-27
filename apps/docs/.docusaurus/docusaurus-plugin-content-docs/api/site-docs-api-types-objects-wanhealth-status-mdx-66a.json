@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/wanhealth-status",
+  "title": "WANHealthStatus",
+  "description": "WAN health check status",
+  "source": "@site/docs/api/types/objects/wanhealth-status.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/wanhealth-status",
+  "permalink": "/api/types/objects/wanhealth-status",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "wanhealth-status",
+    "title": "WANHealthStatus"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "WANDNSConfig",
+    "permalink": "/api/types/objects/wandnsconfig"
+  },
+  "next": {
+    "title": "WANInterface",
+    "permalink": "/api/types/objects/waninterface"
+  }
+}

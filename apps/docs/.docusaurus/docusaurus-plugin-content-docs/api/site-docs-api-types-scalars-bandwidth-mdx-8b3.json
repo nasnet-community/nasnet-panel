@@ -1,0 +1,26 @@
+{
+  "id": "api/types/scalars/bandwidth",
+  "title": "Bandwidth",
+  "description": "Bandwidth string with unit (e.g., \"10M\", \"1G\", \"100k\")",
+  "source": "@site/docs/api/types/scalars/bandwidth.mdx",
+  "sourceDirName": "api/types/scalars",
+  "slug": "/api/types/scalars/bandwidth",
+  "permalink": "/api/types/scalars/bandwidth",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "bandwidth",
+    "title": "Bandwidth"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "Scalars",
+    "permalink": "/category/scalars"
+  },
+  "next": {
+    "title": "Boolean",
+    "permalink": "/api/types/scalars/boolean"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/auth-payload",
+  "title": "AuthPayload",
+  "description": "Authentication payload returned on successful login",
+  "source": "@site/docs/api/types/objects/auth-payload.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/auth-payload",
+  "permalink": "/api/types/objects/auth-payload",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "auth-payload",
+    "title": "AuthPayload"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ArchiveResourcePayload",
+    "permalink": "/api/types/objects/archive-resource-payload"
+  },
+  "next": {
+    "title": "AuthStatus",
+    "permalink": "/api/types/objects/auth-status"
+  }
+}

@@ -143,8 +143,8 @@ export const PortKnockSequenceManagerDesktop = memo(function PortKnockSequenceMa
       <div className="flex flex-col items-center justify-center py-12 space-y-component-md">
         <ShieldAlert className="h-12 w-12 text-muted-foreground" />
         <div className="text-center">
-          <h3 className="text-lg font-semibold mb-1 font-display">No Port Knock Sequences</h3>
-          <p className="text-sm text-muted-foreground mb-4">
+          <h3 className="text-lg font-semibold mb-component-sm font-display">No Port Knock Sequences</h3>
+          <p className="text-sm text-muted-foreground mb-component-md">
             Create a knock sequence to protect sensitive services.
           </p>
           {onCreate && (
@@ -183,7 +183,7 @@ export const PortKnockSequenceManagerDesktop = memo(function PortKnockSequenceMa
               </TableCell>
 
               <TableCell>
-                <div className="flex items-center gap-component-sm">
+                <div className="flex items-center gap-component-md">
                   <Badge variant="secondary" className="font-mono">
                     {sequence.protectedProtocol.toUpperCase()}:{sequence.protectedPort}
                   </Badge>
@@ -194,7 +194,7 @@ export const PortKnockSequenceManagerDesktop = memo(function PortKnockSequenceMa
               </TableCell>
 
               <TableCell>
-                <div className="flex items-center gap-component-sm">
+                <div className="flex items-center gap-component-md">
                   {sequence.knockPorts.map((port, index) => (
                     <Badge key={index} variant="outline" className="font-mono text-xs">
                       {port.port}
@@ -226,11 +226,11 @@ export const PortKnockSequenceManagerDesktop = memo(function PortKnockSequenceMa
 
               <TableCell>
                 <div className="flex items-center gap-component-md text-xs text-muted-foreground">
-                  <div className="flex items-center gap-component-sm">
+                  <div className="flex items-center gap-component-md">
                     <Clock className="h-3 w-3" aria-hidden="true" />
                     <span>K: {sequence.knockTimeout}</span>
                   </div>
-                  <div className="flex items-center gap-component-sm">
+                  <div className="flex items-center gap-component-md">
                     <Clock className="h-3 w-3" aria-hidden="true" />
                     <span>A: {sequence.accessTimeout}</span>
                   </div>
@@ -238,7 +238,7 @@ export const PortKnockSequenceManagerDesktop = memo(function PortKnockSequenceMa
               </TableCell>
 
               <TableCell>
-                <div className="flex items-center gap-component-sm">
+                <div className="flex items-center gap-component-md">
                   <Button
                     variant="ghost"
                     size="sm"
@@ -272,7 +272,7 @@ export const PortKnockSequenceManagerDesktop = memo(function PortKnockSequenceMa
               Are you sure you want to delete the sequence "{sequenceToDelete?.name}"?
               This will remove all associated firewall rules.
               {sequenceToDelete?.protectedPort === 22 && (
-                <div className="mt-2 p-component-sm bg-warning/10 border border-warning rounded-[var(--semantic-radius-button)] text-sm">
+                <div className="mt-component-sm p-component-sm bg-warning/10 border border-warning rounded-lg text-sm">
                   <strong>Warning:</strong> This sequence protects SSH. Ensure you have alternative
                   access before deleting.
                 </div>

@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/alert-rules",
+  "title": "alertRules",
+  "description": "Get all alert rules, optionally filtered by device",
+  "source": "@site/docs/api/operations/queries/alert-rules.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/alert-rules",
+  "permalink": "/api/operations/queries/alert-rules",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "alert-rules",
+    "title": "alertRules"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "alertRule",
+    "permalink": "/api/operations/queries/alert-rule"
+  },
+  "next": {
+    "title": "alertStormStatus",
+    "permalink": "/api/operations/queries/alert-storm-status"
+  }
+}

@@ -75,7 +75,8 @@ const FirewallRuleItem: React.FC<{
   return (
     <div
       className={cn(
-        'flex items-center gap-3 py-2',
+        'flex items-center gap-component-md py-component-sm',
+        'border-l-4 border-l-category-firewall',
         rule.disabled && 'opacity-50',
       )}
     >
@@ -83,15 +84,15 @@ const FirewallRuleItem: React.FC<{
       <Shield
         className={cn(
           'h-5 w-5 flex-shrink-0',
-          rule.action === 'accept' ? 'text-green-500' :
-          rule.action === 'drop' ? 'text-red-500' :
+          rule.action === 'accept' ? 'text-success' :
+          rule.action === 'drop' ? 'text-error' :
           'text-muted-foreground'
         )}
       />
 
       {/* Rule content */}
       <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-component-sm flex-wrap">
           {/* Action badge */}
           <Badge
             variant="outline"
@@ -101,7 +102,7 @@ const FirewallRuleItem: React.FC<{
           </Badge>
 
           {/* Chain */}
-          <span className="text-xs text-muted-foreground uppercase">
+          <span className="text-xs text-muted-foreground uppercase font-medium">
             {rule.chain}
           </span>
 
@@ -116,14 +117,14 @@ const FirewallRuleItem: React.FC<{
 
         {/* Source/Destination */}
         {(rule.src || rule.dst) && (
-          <div className="text-xs text-muted-foreground mt-0.5 font-mono truncate">
+          <div className="text-xs text-muted-foreground mt-1 font-mono truncate">
             {rule.src ?? 'any'} → {rule.dst ?? 'any'}
           </div>
         )}
 
         {/* Comment */}
         {rule.comment && (
-          <div className="text-xs text-muted-foreground mt-0.5 truncate">
+          <div className="text-xs text-muted-foreground mt-1 truncate">
             {rule.comment}
           </div>
         )}
@@ -131,14 +132,14 @@ const FirewallRuleItem: React.FC<{
 
       {/* Hit count */}
       {rule.hitCount !== undefined && rule.hitCount > 0 && (
-        <span className="text-xs text-muted-foreground font-mono">
+        <span className="text-xs text-muted-foreground font-mono flex-shrink-0">
           {rule.hitCount.toLocaleString()} hits
         </span>
       )}
 
       {/* Disabled indicator */}
       {rule.disabled && (
-        <Badge variant="secondary" className="text-xs">
+        <Badge variant="secondary" className="text-xs flex-shrink-0">
           Disabled
         </Badge>
       )}
@@ -254,7 +255,7 @@ export const FirewallRuleList: React.FC<FirewallRuleListProps> = ({
     return (
       <div className={className}>
         {/* Warning for firewall rule ordering */}
-        <div className="flex items-center gap-2 p-3 mb-3 bg-amber-500/10 border border-amber-500/20 rounded-lg text-sm text-amber-700 dark:text-amber-300">
+        <div className="flex items-center gap-component-md p-component-md mb-3 bg-warning-light border border-warning/20 rounded-[var(--semantic-radius-card)] text-sm text-warning-dark">
           <AlertTriangle className="h-4 w-4 flex-shrink-0" />
           <span>Firewall rules are processed in order. Drag to reorder.</span>
         </div>
@@ -277,7 +278,7 @@ export const FirewallRuleList: React.FC<FirewallRuleListProps> = ({
   return (
     <div className={className}>
       {/* Warning for firewall rule ordering */}
-      <div className="flex items-center gap-2 p-3 mb-3 bg-amber-500/10 border border-amber-500/20 rounded-lg text-sm text-amber-700 dark:text-amber-300">
+      <div className="flex items-center gap-component-md p-component-md mb-3 bg-warning-light border border-warning/20 rounded-[var(--semantic-radius-card)] text-sm text-warning-dark">
         <AlertTriangle className="h-4 w-4 flex-shrink-0" />
         <span>Rules are processed in order.</span>
       </div>

@@ -48,7 +48,7 @@ function BridgeStpStatusComponent({ bridgeId, className }: BridgeStpStatusProps)
 
   if (loading) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-component-lg">
         <Skeleton className="h-48 w-full" />
         <Skeleton className="h-64 w-full" />
       </div>
@@ -79,14 +79,14 @@ function BridgeStpStatusComponent({ bridgeId, className }: BridgeStpStatusProps)
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Icon icon={Shield} className="h-5 w-5" aria-hidden="true" />
+          <CardTitle className="flex items-center gap-component-sm">
+            <Icon icon={Shield} className="h-5 w-5 text-category-networking" aria-hidden="true" />
             Spanning Tree Protocol
           </CardTitle>
         </CardHeader>
         <CardContent>
           <Alert>
-            <Icon icon={AlertCircle} className="h-4 w-4" aria-hidden="true" />
+            <Icon icon={AlertCircle} className="h-4 w-4 text-info" aria-hidden="true" />
             <AlertDescription>
               STP is disabled for this bridge. Set the protocol to STP, RSTP, or MSTP to enable
               spanning tree.
@@ -102,15 +102,15 @@ function BridgeStpStatusComponent({ bridgeId, className }: BridgeStpStatusProps)
       {/* Bridge-Level STP Info */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Icon icon={Shield} className="h-5 w-5" aria-hidden="true" />
+          <CardTitle className="flex items-center gap-component-sm">
+            <Icon icon={Shield} className="h-5 w-5 text-category-networking" aria-hidden="true" />
             Spanning Tree Status
-            <Badge variant="info" className="ml-auto font-mono text-xs">
+            <Badge variant="info" className="ml-auto font-mono text-xs font-medium">
               {bridge.protocol.toUpperCase()}
             </Badge>
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-component-lg">
           {/* Root Bridge Status */}
           <div className="flex items-center justify-between p-component-md rounded-card-sm border">
             <div className="flex items-center gap-component-md">
@@ -137,9 +137,9 @@ function BridgeStpStatusComponent({ bridgeId, className }: BridgeStpStatusProps)
 
           {/* Root Bridge ID */}
           {stpStatus?.rootBridgeId && (
-            <div className="space-y-1">
+            <div className="space-y-component-xs">
               <p className="text-sm font-medium">Root Bridge ID</p>
-              <div className="font-mono text-xs bg-muted px-component-sm py-component-xs rounded-md break-all">
+              <div className="font-mono text-xs bg-muted px-component-sm py-component-xs rounded-md break-all font-medium">
                 {stpStatus.rootBridgeId}
               </div>
             </div>
@@ -147,17 +147,17 @@ function BridgeStpStatusComponent({ bridgeId, className }: BridgeStpStatusProps)
 
           {/* Root Port (only show if not root bridge) */}
           {!stpStatus?.rootBridge && stpStatus?.rootPort && (
-            <div className="space-y-1">
+            <div className="space-y-component-xs">
               <p className="text-sm font-medium">Root Port</p>
-              <Badge variant="info" className="font-mono">{stpStatus.rootPort}</Badge>
+              <Badge variant="info" className="font-mono font-medium">{stpStatus.rootPort}</Badge>
             </div>
           )}
 
           {/* Root Path Cost (only show if not root bridge) */}
           {!stpStatus?.rootBridge && stpStatus?.rootPathCost !== undefined && (
-            <div className="space-y-1">
+            <div className="space-y-component-xs">
               <p className="text-sm font-medium">Root Path Cost</p>
-              <div className="font-mono text-xs bg-muted px-component-sm py-component-xs rounded-md">
+              <div className="font-mono text-xs bg-muted px-component-sm py-component-xs rounded-md font-medium">
                 {stpStatus.rootPathCost}
               </div>
             </div>
@@ -180,7 +180,7 @@ function BridgeStpStatusComponent({ bridgeId, className }: BridgeStpStatusProps)
                 )}
               </div>
             </div>
-            <Badge variant="secondary" className="font-mono text-xs">
+            <Badge variant="secondary" className="font-mono text-xs font-medium">
               {stpStatus?.topologyChangeCount || 0}
             </Badge>
           </div>

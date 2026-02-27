@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/subscriptions/service-logs",
+  "title": "serviceLogs",
+  "description": "Subscribe to real-time log stream for a service instance.",
+  "source": "@site/docs/api/operations/subscriptions/service-logs.mdx",
+  "sourceDirName": "api/operations/subscriptions",
+  "slug": "/api/operations/subscriptions/service-logs",
+  "permalink": "/api/operations/subscriptions/service-logs",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "service-logs",
+    "title": "serviceLogs"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "serviceConfigShared",
+    "permalink": "/api/operations/subscriptions/service-config-shared"
+  },
+  "next": {
+    "title": "serviceTrafficUpdated",
+    "permalink": "/api/operations/subscriptions/service-traffic-updated"
+  }
+}

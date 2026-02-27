@@ -209,7 +209,7 @@ export const PortInputDesktop = memo(function PortInputDesktop(
   // Single mode
   if (mode === 'single') {
     return (
-      <div className={cn('relative space-y-1.5', className)}>
+      <div className={cn('relative space-y-2', className)}>
         {label && (
           <Label htmlFor={inputId} className={cn(required && "after:content-['*'] after:ml-0.5 after:text-error")}>
             {label}
@@ -218,6 +218,7 @@ export const PortInputDesktop = memo(function PortInputDesktop(
 
         <div className="relative">
           <div className="flex items-center gap-2">
+            {/* Port Input - compact, monospace, 24px wide */}
             <Input
               ref={inputRef as any}
               id={inputId}
@@ -231,9 +232,9 @@ export const PortInputDesktop = memo(function PortInputDesktop(
               onBlur={handleInputBlur}
               onFocus={handleInputFocus}
               disabled={disabled}
-              placeholder={placeholder || 'Enter port (1-65535)'}
+              placeholder={placeholder || '8080'}
               className={cn(
-                'font-mono w-32',
+                'font-mono w-24 h-10 text-center',
                 hasError && 'border-error focus-visible:ring-error'
               )}
               aria-invalid={hasError}
@@ -253,13 +254,13 @@ export const PortInputDesktop = memo(function PortInputDesktop(
             />
 
             {/* Protocol badge */}
-            <Badge variant="outline" className="uppercase text-xs">
+            <Badge variant="outline" className="uppercase text-xs font-mono">
               {protocol}
             </Badge>
 
             {/* Service badge */}
             {showServiceBadge && (
-              <Badge variant="secondary" className="text-xs" aria-live="polite">
+              <Badge variant="secondary" className="text-xs font-mono" aria-live="polite">
                 {serviceName}
               </Badge>
             )}
@@ -285,10 +286,10 @@ export const PortInputDesktop = memo(function PortInputDesktop(
     );
   }
 
-  // Range mode
+  // Range mode - two inputs with dash separator
   if (mode === 'range') {
     return (
-      <div className={cn('relative space-y-1.5', className)}>
+      <div className={cn('relative space-y-2', className)}>
         {label && (
           <Label className={cn(required && "after:content-['*'] after:ml-0.5 after:text-error")}>
             {label}
@@ -296,7 +297,9 @@ export const PortInputDesktop = memo(function PortInputDesktop(
         )}
 
         <div className="relative">
-          <div className="flex items-center gap-2">
+          {/* Range input row: start - end + badges */}
+          <div className="flex items-center gap-1">
+            {/* Start port input */}
             <Input
               ref={rangeStartRef as any}
               id={`${inputId}-start`}
@@ -310,17 +313,19 @@ export const PortInputDesktop = memo(function PortInputDesktop(
               onBlur={handleInputBlur}
               onFocus={handleInputFocus}
               disabled={disabled}
-              placeholder="Start"
+              placeholder="1"
               className={cn(
-                'font-mono w-24',
+                'font-mono w-24 h-10 text-center',
                 hasError && 'border-error focus-visible:ring-error'
               )}
               aria-label="Start port"
               aria-invalid={hasError}
             />
 
-            <span className="text-muted-foreground">-</span>
+            {/* Dash separator */}
+            <span className="text-muted-foreground font-mono">-</span>
 
+            {/* End port input */}
             <Input
               ref={rangeEndRef as any}
               id={`${inputId}-end`}
@@ -334,9 +339,9 @@ export const PortInputDesktop = memo(function PortInputDesktop(
               onBlur={handleInputBlur}
               onFocus={handleInputFocus}
               disabled={disabled}
-              placeholder="End"
+              placeholder="65535"
               className={cn(
-                'font-mono w-24',
+                'font-mono w-24 h-10 text-center',
                 hasError && 'border-error focus-visible:ring-error'
               )}
               aria-label="End port"
@@ -344,13 +349,13 @@ export const PortInputDesktop = memo(function PortInputDesktop(
             />
 
             {/* Protocol badge */}
-            <Badge variant="outline" className="uppercase text-xs">
+            <Badge variant="outline" className="uppercase text-xs font-mono">
               {protocol}
             </Badge>
 
             {/* Port count badge */}
             {portCount > 0 && (
-              <Badge variant="secondary" className="text-xs">
+              <Badge variant="secondary" className="text-xs font-mono">
                 {portCount} port{portCount !== 1 ? 's' : ''}
               </Badge>
             )}
@@ -376,9 +381,9 @@ export const PortInputDesktop = memo(function PortInputDesktop(
     );
   }
 
-  // Multi mode
+  // Multi mode - chip-based input
   return (
-    <div className={cn('relative space-y-1.5', className)}>
+    <div className={cn('relative space-y-2', className)}>
       {label && (
         <Label htmlFor={inputId} className={cn(required && "after:content-['*'] after:ml-0.5 after:text-error")}>
           {label}
@@ -386,20 +391,21 @@ export const PortInputDesktop = memo(function PortInputDesktop(
       )}
 
       <div className="relative">
+        {/* Chip container with inline input */}
         <div
           className={cn(
-            'flex flex-wrap items-center gap-1 rounded-md border bg-background p-2 min-h-10',
+            'flex flex-wrap items-center gap-1 rounded-[var(--semantic-radius-input)] border bg-card p-2 min-h-10',
             'focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2',
             hasError && 'border-error focus-within:ring-error',
             disabled && 'cursor-not-allowed opacity-50'
           )}
         >
-          {/* Port chips */}
+          {/* Port chips - monospace */}
           {ports.map((portNum) => (
             <Badge
               key={portNum}
               variant="secondary"
-              className="gap-1 font-mono"
+              className="gap-1 font-mono text-xs"
               aria-label={`Port ${portNum}${showService && serviceName ? `, ${serviceName}` : ''}`}
             >
               {portNum}
@@ -413,7 +419,7 @@ export const PortInputDesktop = memo(function PortInputDesktop(
             </Badge>
           ))}
 
-          {/* Input for adding new ports */}
+          {/* Input for adding new ports - seamless integration */}
           <Input
             ref={inputRef as any}
             id={inputId}
@@ -428,7 +434,7 @@ export const PortInputDesktop = memo(function PortInputDesktop(
             onFocus={handleInputFocus}
             disabled={disabled}
             placeholder={ports.length === 0 ? placeholder || 'Add ports...' : ''}
-            className="flex-1 min-w-20 border-0 p-0 h-6 focus-visible:ring-0 focus-visible:ring-offset-0 font-mono"
+            className="flex-1 min-w-16 border-0 p-0 h-6 focus-visible:ring-0 focus-visible:ring-offset-0 font-mono text-sm bg-transparent"
             aria-label="Add port"
             aria-invalid={hasError}
             aria-describedby={
@@ -446,7 +452,7 @@ export const PortInputDesktop = memo(function PortInputDesktop(
           />
 
           {/* Protocol badge */}
-          <Badge variant="outline" className="uppercase text-xs ml-auto">
+          <Badge variant="outline" className="uppercase text-xs font-mono ml-auto shrink-0">
             {protocol}
           </Badge>
         </div>

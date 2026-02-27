@@ -175,7 +175,7 @@ export function KillSwitchToggleMobile(props: KillSwitchToggleProps) {
                   </SelectContent>
                 </Select>
                 {availableInterfaces.length === 0 && (
-                  <p className="flex items-center gap-1.5 text-sm text-destructive">
+                  <p className="flex items-center gap-1.5 text-sm text-error">
                     <AlertCircle className="size-4 shrink-0" />
                     No fallback services available
                   </p>
@@ -185,11 +185,11 @@ export function KillSwitchToggleMobile(props: KillSwitchToggleProps) {
 
             {/* Active state indicator */}
             {isActive && activationTimeText && (
-              <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-4">
+              <div className="rounded-lg border border-l-4 border-l-error border-error bg-error-light p-4 transition-colors duration-150">
                 <div className="flex items-start gap-3">
-                  <ShieldAlert className="mt-1 size-5 shrink-0 text-destructive" />
+                  <ShieldAlert className="mt-1 size-5 shrink-0 text-error" />
                   <div className="flex-1 space-y-1">
-                    <p className="font-medium text-destructive">Kill Switch Active</p>
+                    <p className="font-medium text-error-dark">Kill Switch Active</p>
                     <p className="text-sm text-muted-foreground">
                       Triggered {activationTimeText} due to service health failure
                     </p>

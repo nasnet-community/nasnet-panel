@@ -2,6 +2,7 @@ package adapters
 
 import (
 	"context"
+	"fmt"
 
 	"backend/internal/network"
 
@@ -39,7 +40,7 @@ func (q *entServiceInstanceQuery) Where(predicates ...interface{}) network.Servi
 func (q *entServiceInstanceQuery) Only(ctx context.Context) (network.ServiceInstanceEntity, error) {
 	instance, err := q.query.Only(ctx)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("query service instance: %w", err)
 	}
 	return &entServiceInstanceEntity{instance: instance}, nil
 }

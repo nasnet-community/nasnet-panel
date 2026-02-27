@@ -2,10 +2,26 @@ name: Docker - Build and Push (GHCR + Docker Hub)
 
 on:
   push:
-    branches: [ "master" ]
-    tags: [ "v*.*.*" ]
+    branches: ["main"]
+    tags: ["v*.*.*"]
+    paths:
+      - 'apps/backend/**'
+      - 'apps/connect/**'
+      - 'libs/**'
+      - 'schema/**'
+      - 'package*.json'
+      - '.dockerignore'
+      - '.github/workflows/docker.yml'
   pull_request:
-    branches: [ "master" ]
+    branches: ["main"]
+    paths:
+      - 'apps/backend/**'
+      - 'apps/connect/**'
+      - 'libs/**'
+      - 'schema/**'
+      - 'package*.json'
+      - '.dockerignore'
+      - '.github/workflows/docker.yml'
   workflow_dispatch:
 
 concurrency:
@@ -15,6 +31,7 @@ concurrency:
 jobs:
   docker:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     permissions:
       contents: read
       packages: write
@@ -22,21 +39,21 @@ jobs:
       PLATFORMS: linux/amd64,linux/arm64,linux/arm/v7
       DOCKERHUB_REPO: ${{ secrets.DOCKERHUB_REPO }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
         with: { node-version: 20 }
-      - run: npm ci
+      - run: npm ci --no-audit --no-fund
 
-      - uses: docker/setup-qemu-action@v3
-      - uses: docker/setup-buildx-action@v3
+      - uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3.7.0
+      - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
 
       - name: Set lowercase repository
         run: echo "GHCR_REPOSITORY=${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
 
       - name: Login to GHCR
         if: github.event_name != 'pull_request'
-        uses: docker/login-action@v3
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -48,7 +65,7 @@ jobs:
           DOCKERHUB_REPO: ${{ secrets.DOCKERHUB_REPO }}
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-        uses: docker/login-action@v3
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -59,15 +76,31 @@ jobs:
           GHCR_REPOSITORY: ${{ env.GHCR_REPOSITORY }}
         run: npx nx run backend:docker:build
 
+      - name: Check Docker image size (PR)
+        if: github.event_name == 'pull_request'
+        run: |
+          # Get the most recently built image
+          IMAGE_ID=$(docker images --format '{{.ID}}' | head -1)
+          if [ -n "$IMAGE_ID" ]; then
+            SIZE=$(docker image inspect "$IMAGE_ID" --format='{{.Size}}')
+            SIZE_MB=$((SIZE / 1024 / 1024))
+            echo "Image size: ${SIZE_MB}MB"
+
+            if [ $SIZE_MB -gt 20 ]; then
+              echo "::error::Docker image size (${SIZE_MB}MB) exceeds hard limit of 20MB"
+              exit 1
+            fi
+
+            if [ $SIZE_MB -gt 15 ]; then
+              echo "::warning::Docker image size (${SIZE_MB}MB) exceeds warning threshold of 15MB"
+            else
+              echo "✓ Docker image size is within limits"
+            fi
+          fi
+
       - name: Build and push (via Nx docker:build)
         if: github.event_name != 'pull_request'
         env:
           GHCR_REPOSITORY: ${{ env.GHCR_REPOSITORY }}
           PUSH: 1
         run: npx nx run backend:docker:build
-
-
-
-
-
-

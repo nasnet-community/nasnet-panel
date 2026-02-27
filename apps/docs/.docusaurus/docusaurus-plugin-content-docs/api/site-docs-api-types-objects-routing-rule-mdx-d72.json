@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/routing-rule",
+  "title": "RoutingRule",
+  "description": "A single routing rule for device-to-service routing.",
+  "source": "@site/docs/api/types/objects/routing-rule.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/routing-rule",
+  "permalink": "/api/types/objects/routing-rule",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "routing-rule",
+    "title": "RoutingRule"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "RoutingChain",
+    "permalink": "/api/types/objects/routing-chain"
+  },
+  "next": {
+    "title": "RoutingSchedule",
+    "permalink": "/api/types/objects/routing-schedule"
+  }
+}

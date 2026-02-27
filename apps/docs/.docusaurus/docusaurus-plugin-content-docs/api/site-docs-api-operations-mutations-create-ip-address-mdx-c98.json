@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/create-ip-address",
+  "title": "createIpAddress",
+  "description": "Assign a new IP address to an interface",
+  "source": "@site/docs/api/operations/mutations/create-ip-address.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/create-ip-address",
+  "permalink": "/api/operations/mutations/create-ip-address",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "create-ip-address",
+    "title": "createIpAddress"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "createEgressVLAN",
+    "permalink": "/api/operations/mutations/create-egress-vlan"
+  },
+  "next": {
+    "title": "createMasqueradeRule",
+    "permalink": "/api/operations/mutations/create-masquerade-rule"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/delete-bridge",
+  "title": "deleteBridge",
+  "description": "Delete a bridge",
+  "source": "@site/docs/api/operations/mutations/delete-bridge.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/delete-bridge",
+  "permalink": "/api/operations/mutations/delete-bridge",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "delete-bridge",
+    "title": "deleteBridge"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "deleteBridgeVlan",
+    "permalink": "/api/operations/mutations/delete-bridge-vlan"
+  },
+  "next": {
+    "title": "deleteChangeSet",
+    "permalink": "/api/operations/mutations/delete-change-set"
+  }
+}

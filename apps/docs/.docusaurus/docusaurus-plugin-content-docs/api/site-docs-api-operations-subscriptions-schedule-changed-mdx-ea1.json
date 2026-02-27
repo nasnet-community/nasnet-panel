@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/subscriptions/schedule-changed",
+  "title": "scheduleChanged",
+  "description": "Subscribe to schedule changes for a router.",
+  "source": "@site/docs/api/operations/subscriptions/schedule-changed.mdx",
+  "sourceDirName": "api/operations/subscriptions",
+  "slug": "/api/operations/subscriptions/schedule-changed",
+  "permalink": "/api/operations/subscriptions/schedule-changed",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "schedule-changed",
+    "title": "scheduleChanged"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "scanProgress",
+    "permalink": "/api/operations/subscriptions/scan-progress"
+  },
+  "next": {
+    "title": "serviceConfigShared",
+    "permalink": "/api/operations/subscriptions/service-config-shared"
+  }
+}

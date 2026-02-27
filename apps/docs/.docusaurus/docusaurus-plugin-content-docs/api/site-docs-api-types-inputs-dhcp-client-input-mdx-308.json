@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/dhcp-client-input",
+  "title": "DhcpClientInput",
+  "description": "Input for creating/updating DHCP client",
+  "source": "@site/docs/api/types/inputs/dhcp-client-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/dhcp-client-input",
+  "permalink": "/api/types/inputs/dhcp-client-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "dhcp-client-input",
+    "title": "DhcpClientInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "DeleteInstanceInput",
+    "permalink": "/api/types/inputs/delete-instance-input"
+  },
+  "next": {
+    "title": "DigestConfigInput",
+    "permalink": "/api/types/inputs/digest-config-input"
+  }
+}

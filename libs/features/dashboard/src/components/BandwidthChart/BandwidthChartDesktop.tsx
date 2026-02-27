@@ -102,11 +102,11 @@ export const BandwidthChartDesktop = memo<BandwidthChartPresenterProps>(
 
     return (
       <Card className={cn('w-full', className)}>
-        <CardHeader className="pb-3">
+        <CardHeader className="pb-component-sm">
           {/* Title and controls */}
           <div className="flex items-center justify-between">
             <CardTitle>Bandwidth Usage</CardTitle>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-component-sm">
               <TimeRangeSelector
                 value={timeRange}
                 onChange={handleTimeRangeChange}
@@ -121,12 +121,12 @@ export const BandwidthChartDesktop = memo<BandwidthChartPresenterProps>(
 
           {/* Current rates display with live region for announcements */}
           <div
-            className="mt-2 flex items-center gap-4 text-sm"
+            className="mt-component-sm flex items-center gap-component-lg text-sm"
             role="region"
             aria-live="polite"
             aria-label="Current bandwidth rates"
           >
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-component-sm">
               <div
                 className="h-3 w-3 rounded-full bg-primary"
                 aria-hidden="true"
@@ -136,7 +136,7 @@ export const BandwidthChartDesktop = memo<BandwidthChartPresenterProps>(
                 {formatBitrate(currentRates.tx)}
               </span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-component-sm">
               <div
                 className="h-3 w-3 rounded-full bg-success"
                 aria-hidden="true"
@@ -218,7 +218,7 @@ export const BandwidthChartDesktop = memo<BandwidthChartPresenterProps>(
           <BandwidthDataTable
             dataPoints={dataPoints}
             timeRange={timeRange}
-            className="mt-4"
+            className="mt-component-md"
           />
         </CardContent>
       </Card>

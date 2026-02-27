@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/device-routing-matrix",
+  "title": "deviceRoutingMatrix",
+  "description": "Get the complete device routing matrix for a router.",
+  "source": "@site/docs/api/operations/queries/device-routing-matrix.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/device-routing-matrix",
+  "permalink": "/api/operations/queries/device-routing-matrix",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "device-routing-matrix",
+    "title": "deviceRoutingMatrix"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "detectWanInterface",
+    "permalink": "/api/operations/queries/detect-wan-interface"
+  },
+  "next": {
+    "title": "deviceRouting",
+    "permalink": "/api/operations/queries/device-routing"
+  }
+}

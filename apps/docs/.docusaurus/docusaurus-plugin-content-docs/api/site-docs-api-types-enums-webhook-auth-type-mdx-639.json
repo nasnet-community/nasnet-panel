@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/webhook-auth-type",
+  "title": "WebhookAuthType",
+  "description": "Webhook authentication types",
+  "source": "@site/docs/api/types/enums/webhook-auth-type.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/webhook-auth-type",
+  "permalink": "/api/types/enums/webhook-auth-type",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "webhook-auth-type",
+    "title": "WebhookAuthType"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "WANStatus",
+    "permalink": "/api/types/enums/wanstatus"
+  },
+  "next": {
+    "title": "WebhookTemplate",
+    "permalink": "/api/types/enums/webhook-template"
+  }
+}

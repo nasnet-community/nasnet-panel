@@ -1,0 +1,24 @@
+{
+  "id": "connection-management",
+  "title": "Connection Management",
+  "description": "Per-router connection pool with circuit breaker protection, exponential-backoff reconnection, periodic health monitoring, and hardware/software capability detection with 24-hour caching.",
+  "source": "@site/../backend/docs/connection-management.md",
+  "sourceDirName": ".",
+  "slug": "/connection-management",
+  "permalink": "/docs/backend/connection-management",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../backend/docs/connection-management.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Config Generation",
+    "permalink": "/docs/backend/config-generation"
+  },
+  "next": {
+    "title": "Data Layer",
+    "permalink": "/docs/backend/data-layer"
+  }
+}

@@ -64,69 +64,74 @@ export const SubnetInputDesktop = memo(function SubnetInputDesktop({
         </Label>
       )}
 
-      {/* Input row: IP + prefix selector */}
-      <div className="flex items-start gap-2">
-        <div className="flex-1 space-y-1">
-          <div className="flex items-center gap-2">
-            {/* IP Address Input */}
-            <Input
-              id={inputId}
-              name={name}
-              type="text"
-              inputMode="numeric"
-              value={state.ipPart}
-              onChange={handleIPChange}
-              onBlur={onBlur}
-              placeholder={placeholder}
-              disabled={disabled}
-              aria-invalid={!!state.error}
-              aria-describedby={cn(
-                state.error && errorId,
-                helpText && helpId
-              )}
-              className={cn(
-                'font-mono flex-1',
-                state.error && 'border-destructive focus-visible:ring-destructive'
-              )}
-            />
-
-            {/* Prefix Selector */}
-            <PrefixSelector
-              value={state.prefixPart}
-              onChange={handlePrefixChange}
-              options={state.prefixOptions}
-              disabled={disabled}
-              ariaLabel="CIDR prefix length"
-            />
-
-            {/* Overlap Warning Badge */}
-            {state.overlap && (
-              <OverlapWarning
-                overlap={state.overlap}
-                className="shrink-0"
-              />
-            )}
-          </div>
-
-          {/* Error message */}
-          {state.error && (
-            <p
-              id={errorId}
-              role="alert"
-              className="text-sm text-destructive"
-            >
-              {state.error}
-            </p>
+      {/* Input row: IP + slash + prefix (inline, desktop style) */}
+      <div className="flex items-center gap-1">
+        {/* IP Address Input */}
+        <Input
+          id={inputId}
+          name={name}
+          type="text"
+          inputMode="numeric"
+          value={state.ipPart}
+          onChange={handleIPChange}
+          onBlur={onBlur}
+          placeholder={placeholder}
+          disabled={disabled}
+          aria-invalid={!!state.error}
+          aria-describedby={cn(
+            state.error && errorId,
+            helpText && helpId
           )}
-
-          {/* Help text */}
-          {helpText && !state.error && (
-            <p id={helpId} className="text-sm text-muted-foreground">
-              {helpText}
-            </p>
+          className={cn(
+            'font-mono flex-1 h-10',
+            state.error && 'border-error focus-visible:ring-error'
           )}
-        </div>
+        />
+
+        {/* Slash Separator */}
+        <span className="text-muted-foreground font-mono text-sm">/</span>
+
+        {/* Prefix Input (compact, right-aligned) */}
+        <Input
+          type="text"
+          inputMode="numeric"
+          value={state.prefixPart}
+          onChange={(e) => handlePrefixChange(parseInt(e.target.value) || 0)}
+          disabled={disabled}
+          aria-label="CIDR prefix length"
+          placeholder="24"
+          className={cn(
+            'font-mono w-16 h-10 text-center',
+            state.error && 'border-error focus-visible:ring-error'
+          )}
+        />
+
+        {/* Overlap Warning Badge */}
+        {state.overlap && (
+          <OverlapWarning
+            overlap={state.overlap}
+            className="shrink-0"
+          />
+        )}
       </div>
+
+      {/* Error message */}
+      {state.error && (
+        <p
+          id={errorId}
+          role="alert"
+          className="text-sm text-error"
+        >
+          {state.error}
+        </p>
+      )}
+
+      {/* Help text */}
+      {helpText && !state.error && (
+        <p id={helpId} className="text-sm text-muted-foreground">
+          {helpText}
+        </p>
+      )}
 
       {/* Calculations Panel (Desktop: always visible when valid) */}
       {showCalculations && state.networkInfo && (

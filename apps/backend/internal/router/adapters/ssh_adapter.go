@@ -111,10 +111,10 @@ func (a *SSHAdapter) Connect(ctx context.Context) error {
 
 	a.client = client
 
-	// Get router info
+	// Get router info (non-fatal if fails)
 	info, err := a.getRouterInfo(ctx)
 	if err != nil {
-		// Not fatal, continue
+		// Not fatal, continue with empty info
 		a.routerInfo = &router.RouterInfo{}
 	} else {
 		a.routerInfo = info
@@ -288,7 +288,7 @@ func (a *SSHAdapter) runCommand(ctx context.Context, command string) (string, er
 	select {
 	case <-ctx.Done():
 		_ = session.Signal(ssh.SIGKILL) //nolint:errcheck // best effort signal
-		return "", ctx.Err()
+		return "", fmt.Errorf("context canceled: %w", ctx.Err())
 	case err := <-done:
 		output := stdout.String()
 		errOutput := stderr.String()
@@ -309,11 +309,11 @@ func (a *SSHAdapter) runCommand(ctx context.Context, command string) (string, er
 }
 
 // getRouterInfo fetches router information via SSH.
-func (a *SSHAdapter) getRouterInfo(ctx context.Context) (*router.RouterInfo, error) { //nolint:dupl // SSH-specific version parsing differs from telnet
+func (a *SSHAdapter) getRouterInfo(ctx context.Context) (*router.RouterInfo, error) {
 	// Get system resource
 	output, err := a.runCommand(ctx, "/system resource print")
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("fetch system resource: %w", err)
 	}
 
 	info := &router.RouterInfo{}

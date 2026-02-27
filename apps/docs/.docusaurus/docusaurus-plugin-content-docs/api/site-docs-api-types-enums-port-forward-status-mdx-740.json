@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/port-forward-status",
+  "title": "PortForwardStatus",
+  "description": "Status of a port forward configuration.",
+  "source": "@site/docs/api/types/enums/port-forward-status.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/port-forward-status",
+  "permalink": "/api/types/enums/port-forward-status",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "port-forward-status",
+    "title": "PortForwardStatus"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "NotificationStatus",
+    "permalink": "/api/types/enums/notification-status"
+  },
+  "next": {
+    "title": "PortMode",
+    "permalink": "/api/types/enums/port-mode"
+  }
+}

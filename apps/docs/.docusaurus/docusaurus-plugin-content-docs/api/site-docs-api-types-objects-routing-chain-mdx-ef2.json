@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/routing-chain",
+  "title": "RoutingChain",
+  "description": "A multi-hop routing chain that routes device traffic through multiple services sequentially.",
+  "source": "@site/docs/api/types/objects/routing-chain.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/routing-chain",
+  "permalink": "/api/types/objects/routing-chain",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "routing-chain",
+    "title": "RoutingChain"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "RoutingChainMutationResult",
+    "permalink": "/api/types/objects/routing-chain-mutation-result"
+  },
+  "next": {
+    "title": "RoutingRule",
+    "permalink": "/api/types/objects/routing-rule"
+  }
+}

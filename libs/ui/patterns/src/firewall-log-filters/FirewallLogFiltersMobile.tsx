@@ -61,21 +61,23 @@ export const FirewallLogFiltersMobile = memo(
     return (
       <Sheet open={open} onOpenChange={onClose}>
         <SheetContent side="bottom" className="h-[90vh] flex flex-col">
-          <SheetHeader>
+          <SheetHeader className="pb-4 border-b border-border">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Filter className="h-5 w-5 text-muted-foreground" />
                 <SheetTitle>Filters</SheetTitle>
                 {hook.activeFilterCount > 0 && (
-                  <Badge variant="secondary">{hook.activeFilterCount}</Badge>
+                  <Badge variant="secondary" className="bg-primary/10 text-primary border border-primary/20">
+                    {hook.activeFilterCount}
+                  </Badge>
                 )}
               </div>
             </div>
           </SheetHeader>
 
-          <div className="flex-1 overflow-y-auto space-y-4 pb-20">
+          <div className="flex-1 overflow-y-auto space-y-4 pb-20 pt-4">
             {/* Time Range Card */}
-            <Card className="p-4 space-y-3">
+            <Card className="bg-muted/50 border border-border p-4 space-y-3">
               <div className="flex items-center gap-2">
                 <Calendar className="h-4 w-4 text-muted-foreground" />
                 <Label className="text-sm font-semibold">Time Range</Label>
@@ -108,7 +110,7 @@ export const FirewallLogFiltersMobile = memo(
             </Card>
 
             {/* Action Filters Card */}
-            <Card className="p-4 space-y-3">
+            <Card className="bg-muted/50 border border-border p-4 space-y-3">
               <Label className="text-sm font-semibold">Action</Label>
               <div className="space-y-2">
                 {(['accept', 'drop', 'reject', 'unknown'] as const).map(
@@ -139,7 +141,7 @@ export const FirewallLogFiltersMobile = memo(
             </Card>
 
             {/* IP Address Filters Card */}
-            <Card className="p-4 space-y-3">
+            <Card className="bg-muted/50 border border-border p-4 space-y-3">
               <div className="flex items-center gap-2">
                 <Network className="h-4 w-4 text-muted-foreground" />
                 <Label className="text-sm font-semibold">IP Addresses</Label>
@@ -196,7 +198,7 @@ export const FirewallLogFiltersMobile = memo(
             </Card>
 
             {/* Port Filters Card */}
-            <Card className="p-4 space-y-3">
+            <Card className="bg-muted/50 border border-border p-4 space-y-3">
               <div className="flex items-center gap-2">
                 <Hash className="h-4 w-4 text-muted-foreground" />
                 <Label className="text-sm font-semibold">Ports</Label>
@@ -253,7 +255,7 @@ export const FirewallLogFiltersMobile = memo(
             </Card>
 
             {/* Prefix Filter Card */}
-            <Card className="p-4 space-y-3">
+            <Card className="bg-muted/50 border border-border p-4 space-y-3">
               <div className="flex items-center gap-2">
                 <Tag className="h-4 w-4 text-muted-foreground" />
                 <Label className="text-sm font-semibold">Log Prefix</Label>

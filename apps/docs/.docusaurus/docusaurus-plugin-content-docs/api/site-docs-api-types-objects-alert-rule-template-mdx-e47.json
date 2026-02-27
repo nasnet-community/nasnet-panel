@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/alert-rule-template",
+  "title": "AlertRuleTemplate",
+  "description": "Alert rule template for quick rule creation",
+  "source": "@site/docs/api/types/objects/alert-rule-template.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/alert-rule-template",
+  "permalink": "/api/types/objects/alert-rule-template",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "alert-rule-template",
+    "title": "AlertRuleTemplate"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "AlertRuleTemplateVariable",
+    "permalink": "/api/types/objects/alert-rule-template-variable"
+  },
+  "next": {
+    "title": "AlertRule",
+    "permalink": "/api/types/objects/alert-rule"
+  }
+}

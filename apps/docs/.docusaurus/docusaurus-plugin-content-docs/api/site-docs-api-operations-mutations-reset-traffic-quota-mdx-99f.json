@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/reset-traffic-quota",
+  "title": "resetTrafficQuota",
+  "description": "Remove traffic quota from a service instance.",
+  "source": "@site/docs/api/operations/mutations/reset-traffic-quota.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/reset-traffic-quota",
+  "permalink": "/api/operations/mutations/reset-traffic-quota",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "reset-traffic-quota",
+    "title": "resetTrafficQuota"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "resetExternalStorage",
+    "permalink": "/api/operations/mutations/reset-external-storage"
+  },
+  "next": {
+    "title": "restartInstance",
+    "permalink": "/api/operations/mutations/restart-instance"
+  }
+}

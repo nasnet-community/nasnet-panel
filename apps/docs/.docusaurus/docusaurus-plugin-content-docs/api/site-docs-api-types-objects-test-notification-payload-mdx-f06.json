@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/test-notification-payload",
+  "title": "TestNotificationPayload",
+  "description": "Test notification payload",
+  "source": "@site/docs/api/types/objects/test-notification-payload.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/test-notification-payload",
+  "permalink": "/api/types/objects/test-notification-payload",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "test-notification-payload",
+    "title": "TestNotificationPayload"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "TestConnectionPayload",
+    "permalink": "/api/types/objects/test-connection-payload"
+  },
+  "next": {
+    "title": "TestPortKnockResult",
+    "permalink": "/api/types/objects/test-port-knock-result"
+  }
+}

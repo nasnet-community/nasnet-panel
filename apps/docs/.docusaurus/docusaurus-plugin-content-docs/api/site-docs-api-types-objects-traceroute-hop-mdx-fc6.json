@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/traceroute-hop",
+  "title": "TracerouteHop",
+  "description": "A single hop in the traceroute path",
+  "source": "@site/docs/api/types/objects/traceroute-hop.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/traceroute-hop",
+  "permalink": "/api/types/objects/traceroute-hop",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "traceroute-hop",
+    "title": "TracerouteHop"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "TopologyPosition",
+    "permalink": "/api/types/objects/topology-position"
+  },
+  "next": {
+    "title": "TracerouteJob",
+    "permalink": "/api/types/objects/traceroute-job"
+  }
+}

@@ -200,23 +200,23 @@ export const DhcpClientForm = memo(function DhcpClientForm({
             </div>
 
             {selectedInterface && (
-              <div className="rounded-card-sm border border-border bg-muted/50 p-component-md space-y-component-sm">
+              <div className="rounded-card-sm border border-border bg-muted/50 p-component-md space-y-component-sm category-networking">
                 <h4 className="font-medium text-sm">
                   Selected Interface Details
                 </h4>
                 <div className="grid grid-cols-2 gap-component-sm text-sm">
                   <div>
                     <span className="text-muted-foreground">Name:</span>
-                    <code className="ml-2 font-mono">{selectedInterface.name}</code>
+                    <code className="ml-component-md font-mono text-xs">{selectedInterface.name}</code>
                   </div>
                   <div>
                     <span className="text-muted-foreground">Type:</span>
-                    <span className="ml-2">{selectedInterface.type}</span>
+                    <span className="ml-component-md">{selectedInterface.type}</span>
                   </div>
                   {selectedInterface.mac && (
                     <div className="col-span-2">
                       <span className="text-muted-foreground">MAC:</span>
-                      <code className="ml-2 font-mono">
+                      <code className="ml-component-md font-mono text-xs">
                         {selectedInterface.mac}
                       </code>
                     </div>

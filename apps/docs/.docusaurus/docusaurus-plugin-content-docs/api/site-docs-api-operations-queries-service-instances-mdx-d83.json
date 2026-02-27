@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/service-instances",
+  "title": "serviceInstances",
+  "description": "List all service instances for a router.",
+  "source": "@site/docs/api/operations/queries/service-instances.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/service-instances",
+  "permalink": "/api/operations/queries/service-instances",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "service-instances",
+    "title": "serviceInstances"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "serviceInstance",
+    "permalink": "/api/operations/queries/service-instance"
+  },
+  "next": {
+    "title": "serviceLogFile",
+    "permalink": "/api/operations/queries/service-log-file"
+  }
+}

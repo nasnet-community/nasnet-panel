@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/change-set",
+  "title": "ChangeSet",
+  "description": "A change set representing an atomic multi-resource operation",
+  "source": "@site/docs/api/types/objects/change-set.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/change-set",
+  "permalink": "/api/types/objects/change-set",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "change-set",
+    "title": "ChangeSet"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ChangeSetValidationResult",
+    "permalink": "/api/types/objects/change-set-validation-result"
+  },
+  "next": {
+    "title": "ChannelConfigPayload",
+    "permalink": "/api/types/objects/channel-config-payload"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/service-config-shared-event",
+  "title": "ServiceConfigSharedEvent",
+  "description": "Service configuration sharing event for subscriptions.",
+  "source": "@site/docs/api/types/objects/service-config-shared-event.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/service-config-shared-event",
+  "permalink": "/api/types/objects/service-config-shared-event",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "service-config-shared-event",
+    "title": "ServiceConfigSharedEvent"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ScheduleEvent",
+    "permalink": "/api/types/objects/schedule-event"
+  },
+  "next": {
+    "title": "ServiceDependency",
+    "permalink": "/api/types/objects/service-dependency"
+  }
+}

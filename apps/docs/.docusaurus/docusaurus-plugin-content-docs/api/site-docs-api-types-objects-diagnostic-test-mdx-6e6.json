@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/diagnostic-test",
+  "title": "DiagnosticTest",
+  "description": "A single diagnostic test definition.",
+  "source": "@site/docs/api/types/objects/diagnostic-test.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/diagnostic-test",
+  "permalink": "/api/types/objects/diagnostic-test",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "diagnostic-test",
+    "title": "DiagnosticTest"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "DiagnosticSuite",
+    "permalink": "/api/types/objects/diagnostic-suite"
+  },
+  "next": {
+    "title": "DiagnosticsProgress",
+    "permalink": "/api/types/objects/diagnostics-progress"
+  }
+}

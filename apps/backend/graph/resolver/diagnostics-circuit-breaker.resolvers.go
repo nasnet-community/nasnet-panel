@@ -7,61 +7,61 @@ package resolver
 
 import (
 	"backend/graph/model"
-	"backend/internal/errors"
+	"backend/internal/apperrors"
 	"context"
 )
 
 // RunDiagnostics is the resolver for the runDiagnostics field.
 func (r *mutationResolver) RunDiagnostics(ctx context.Context, routerID string) (*model.DiagnosticReport, error) {
 	if routerID == "" {
-		panic(errors.NewValidationError("input", nil, "routerID cannot be empty"))
+		panic(apperrors.NewValidationError("input", nil, "routerID cannot be empty"))
 	}
 	// Context used for request timeout handling
 	_ = ctx
-	panic(errors.NewValidationError("input", nil, "not implemented: RunDiagnostics - runDiagnostics"))
+	panic(apperrors.NewValidationError("input", nil, "not implemented: RunDiagnostics - runDiagnostics"))
 }
 
 // ResetCircuitBreaker is the resolver for the resetCircuitBreaker field.
 func (r *mutationResolver) ResetCircuitBreaker(ctx context.Context, routerID string) (*model.CircuitBreakerStatus, error) {
 	if routerID == "" {
-		panic(errors.NewValidationError("input", nil, "routerID cannot be empty"))
+		panic(apperrors.NewValidationError("input", nil, "routerID cannot be empty"))
 	}
 	// Context used for request timeout handling
 	_ = ctx
-	panic(errors.NewValidationError("input", nil, "not implemented: ResetCircuitBreaker - resetCircuitBreaker"))
+	panic(apperrors.NewValidationError("input", nil, "not implemented: ResetCircuitBreaker - resetCircuitBreaker"))
 }
 
 // ConnectionAttempts is the resolver for the connectionAttempts field.
 func (r *queryResolver) ConnectionAttempts(ctx context.Context, routerID string, limit *int) ([]*model.ConnectionAttempt, error) {
 	if routerID == "" {
-		panic(errors.NewValidationError("input", nil, "routerID cannot be empty"))
+		panic(apperrors.NewValidationError("input", nil, "routerID cannot be empty"))
 	}
 	// Validate limit if provided
 	if limit != nil && *limit <= 0 {
-		panic(errors.NewValidationError("input", nil, "limit must be positive if provided"))
+		panic(apperrors.NewValidationError("input", nil, "limit must be positive if provided"))
 	}
 	// Context used for request timeout handling
 	_ = ctx
-	panic(errors.NewValidationError("input", nil, "not implemented: ConnectionAttempts - connectionAttempts"))
+	panic(apperrors.NewValidationError("input", nil, "not implemented: ConnectionAttempts - connectionAttempts"))
 }
 
 // CircuitBreakerStatus is the resolver for the circuitBreakerStatus field.
 func (r *queryResolver) CircuitBreakerStatus(ctx context.Context, routerID string) (*model.CircuitBreakerStatus, error) {
 	if routerID == "" {
-		panic(errors.NewValidationError("input", nil, "routerID cannot be empty"))
+		panic(apperrors.NewValidationError("input", nil, "routerID cannot be empty"))
 	}
 	// Context used for request timeout handling
 	_ = ctx
-	panic(errors.NewValidationError("input", nil, "not implemented: CircuitBreakerStatus - circuitBreakerStatus"))
+	panic(apperrors.NewValidationError("input", nil, "not implemented: CircuitBreakerStatus - circuitBreakerStatus"))
 }
 
 // CircuitBreakerStateChanged is the resolver for the circuitBreakerStateChanged field.
 func (r *subscriptionResolver) CircuitBreakerStateChanged(ctx context.Context, routerID *string) (<-chan *model.CircuitBreakerStatus, error) {
 	// RouterID is optional for subscription (subscribes to all routers if not specified)
 	if routerID != nil && *routerID == "" {
-		panic(errors.NewValidationError("input", nil, "routerID cannot be empty string if provided"))
+		panic(apperrors.NewValidationError("input", nil, "routerID cannot be empty string if provided"))
 	}
 	// Context used for subscription timeout and cancellation
 	_ = ctx
-	panic(errors.NewValidationError("input", nil, "not implemented: CircuitBreakerStateChanged - circuitBreakerStateChanged"))
+	panic(apperrors.NewValidationError("input", nil, "not implemented: CircuitBreakerStateChanged - circuitBreakerStateChanged"))
 }

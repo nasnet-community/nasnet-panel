@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/lannetwork-config",
+  "title": "LANNetworkConfig",
+  "description": "LAN Network configuration",
+  "source": "@site/docs/api/types/objects/lannetwork-config.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/lannetwork-config",
+  "permalink": "/api/types/objects/lannetwork-config",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "lannetwork-config",
+    "title": "LANNetworkConfig"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "L2TPRuntime",
+    "permalink": "/api/types/objects/l2-tpruntime"
+  },
+  "next": {
+    "title": "LANNetworkDeployment",
+    "permalink": "/api/types/objects/lannetwork-deployment"
+  }
+}

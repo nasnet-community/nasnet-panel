@@ -61,26 +61,26 @@ export function HStepperProgress({
 
   return (
     <div
-      className={cn('relative h-1 mx-4 mb-2', className)}
+      className={cn('relative h-0.5 mx-4 mb-2', className)}
       role="progressbar"
       aria-valuenow={activeStep + 1}
       aria-valuemin={1}
       aria-valuemax={steps.length}
       aria-label={`Step ${activeStep + 1} of ${steps.length}`}
     >
-      {/* Background track - muted with reduced opacity */}
+      {/* Background track - border color (pending) */}
       <div
-        className="absolute inset-0 rounded-full bg-gradient-to-r from-primary/20 via-secondary/20 to-primary/20"
+        className="absolute inset-0 rounded-full bg-border"
         aria-hidden="true"
       />
 
-      {/* Progress fill - primary to secondary gradient with smooth transition */}
+      {/* Progress fill - success color for completed portion */}
       <div
         className={cn(
           'absolute inset-y-0 left-0 rounded-full',
-          'bg-gradient-to-r from-primary to-secondary',
-          // CSS transition for smooth width animation (500ms as per spec)
-          'transition-[width] duration-500 ease-out',
+          'bg-success',
+          // CSS transition for smooth width animation (300ms)
+          'transition-[width] duration-300 ease-out',
           // Reduced motion support
           'motion-reduce:transition-none'
         )}

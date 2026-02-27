@@ -254,9 +254,9 @@ export const InterfaceComparison = memo(function InterfaceComparison({
     .filter((iface): iface is InterfaceInfo => iface !== undefined);
 
   return (
-    <div className={cn('space-y-component-lg', className)}>
+    <div className={cn('space-y-component-lg category-networking', className)}>
       {/* Comparison Table */}
-      <Card className="rounded-card-sm">
+      <Card className="rounded-card-sm bg-card">
         <CardHeader>
           <CardTitle>Interface Comparison</CardTitle>
         </CardHeader>
@@ -267,7 +267,7 @@ export const InterfaceComparison = memo(function InterfaceComparison({
             emptyMessage="No interfaces available"
           />
           {selectedInterfaces.length > 0 && (
-            <p className="text-sm text-muted-foreground mt-2" role="status" aria-live="polite">
+            <p className="text-sm text-muted-foreground mt-component-sm" role="status" aria-live="polite">
               {selectedInterfaces.length} interface{selectedInterfaces.length > 1 ? 's' : ''} selected
               (max 3 for comparison charts)
             </p>
@@ -277,7 +277,7 @@ export const InterfaceComparison = memo(function InterfaceComparison({
 
       {/* Side-by-side Bandwidth Charts */}
       {selectedInterfaceDetails.length > 0 && (
-        <Card className="rounded-card-sm">
+        <Card className="rounded-card-sm bg-card">
           <CardHeader>
             <CardTitle>
               Bandwidth Comparison ({selectedInterfaceDetails.length} selected)
@@ -292,7 +292,7 @@ export const InterfaceComparison = memo(function InterfaceComparison({
             >
               {selectedInterfaceDetails.map((iface) => (
                 <div key={iface.id} className="space-y-component-sm">
-                  <h3 className="text-sm font-medium font-display">{iface.name}</h3>
+                  <h3 className="text-sm font-medium font-mono text-foreground">{iface.name}</h3>
                   <BandwidthChart
                     routerId={routerId}
                     interfaceId={iface.id}

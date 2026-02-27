@@ -19,13 +19,7 @@ import * as React from 'react';
 import { motion, AnimatePresence, useDragControls } from 'framer-motion';
 import { Search, Clock, Sparkles, X } from 'lucide-react';
 
-import {
-  Sheet,
-  SheetPortal,
-  SheetOverlay,
-  SheetClose,
-  cn,
-} from '@nasnet/ui/primitives';
+import { Sheet, SheetPortal, SheetOverlay, SheetClose, cn } from '@nasnet/ui/primitives';
 
 import { CommandItem } from './CommandItem';
 import { useCommandPalette } from './useCommandPalette';
@@ -73,7 +67,10 @@ const CommandPaletteMobile = React.memo(function CommandPaletteMobile({
   const dragControls = useDragControls();
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
+    <Sheet
+      open={open}
+      onOpenChange={setOpen}
+    >
       <AnimatePresence>
         {open && (
           <SheetPortal forceMount>
@@ -103,7 +100,7 @@ const CommandPaletteMobile = React.memo(function CommandPaletteMobile({
                 }
               }}
               className={cn(
-                'fixed inset-x-0 bottom-0 z-50 flex max-h-[85vh] flex-col rounded-t-2xl border-t border-border bg-card shadow-xl',
+                'border-border bg-card fixed inset-x-0 bottom-0 z-50 flex max-h-[85vh] flex-col rounded-t-2xl border-t shadow-xl',
                 className
               )}
             >
@@ -112,7 +109,7 @@ const CommandPaletteMobile = React.memo(function CommandPaletteMobile({
                 className="flex justify-center py-2"
                 onPointerDown={(e) => dragControls.start(e)}
               >
-                <div className="h-1 w-12 rounded-full bg-muted-foreground/30" />
+                <div className="bg-muted-foreground/30 h-1 w-12 rounded-full" />
               </div>
 
               {/* Header with close button */}
@@ -120,7 +117,7 @@ const CommandPaletteMobile = React.memo(function CommandPaletteMobile({
                 <h2 className="text-base font-semibold">Search Commands</h2>
                 <SheetClose asChild>
                   <button
-                    className="flex h-11 w-11 items-center justify-center rounded-lg hover:bg-accent focus:outline-none focus:ring-2 focus:ring-ring"
+                    className="hover:bg-muted focus-visible:ring-ring flex h-11 w-11 items-center justify-center rounded-lg transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2"
                     aria-label="Close search"
                   >
                     <X className="h-5 w-5" />
@@ -129,17 +126,17 @@ const CommandPaletteMobile = React.memo(function CommandPaletteMobile({
               </div>
 
               {/* Search Input */}
-              <div className="flex items-center border-y border-border bg-muted/50 px-4">
+              <div className="border-border flex h-12 items-center border-b px-4">
                 <Search
-                  className="mr-3 h-5 w-5 shrink-0 text-muted-foreground"
+                  className="text-muted-foreground mr-3 h-5 w-5 shrink-0"
                   aria-hidden="true"
                 />
                 <CommandPrimitive.Input
                   ref={inputRef}
                   value={query}
                   onValueChange={setQuery}
-                  placeholder="Search..."
-                  className="flex h-14 w-full bg-transparent text-base outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
+                  placeholder="Search commands..."
+                  className="placeholder:text-muted-foreground flex w-full bg-transparent text-base outline-none disabled:cursor-not-allowed disabled:opacity-50"
                   aria-label="Search commands"
                   aria-autocomplete="list"
                   aria-controls="command-list-mobile"
@@ -153,11 +150,11 @@ const CommandPaletteMobile = React.memo(function CommandPaletteMobile({
                 />
                 {query && (
                   <button
-                    className="flex h-11 w-11 items-center justify-center rounded-lg hover:bg-accent focus:outline-none focus:ring-2 focus:ring-ring"
+                    className="hover:bg-muted focus-visible:ring-ring flex h-11 w-11 items-center justify-center rounded-lg transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2"
                     onClick={() => setQuery('')}
                     aria-label="Clear search"
                   >
-                    <X className="h-4 w-4" />
+                    <X className="h-5 w-5" />
                   </button>
                 )}
               </div>
@@ -167,27 +164,32 @@ const CommandPaletteMobile = React.memo(function CommandPaletteMobile({
                 id="command-list-mobile"
                 role="listbox"
                 aria-label={isShowingRecent ? 'Recent commands' : 'Search results'}
-                className="flex-1 overflow-y-auto overflow-x-hidden p-3"
+                className="flex-1 overflow-y-auto overflow-x-hidden px-4 py-3"
               >
                 {/* Empty state */}
-                <CommandPrimitive.Empty className="py-8 text-center text-sm text-muted-foreground">
+                <CommandPrimitive.Empty className="text-muted-foreground py-6 text-center text-sm">
                   No commands found{query && ` for "${query}"`}
                 </CommandPrimitive.Empty>
 
                 {/* Section header */}
                 {hasResults && (
-                  <div className="mb-2 flex items-center gap-2 px-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                    {isShowingRecent ? (
+                  <div className="text-muted-foreground mb-2 flex items-center gap-2 px-4 py-2 text-xs font-semibold uppercase">
+                    {isShowingRecent ?
                       <>
-                        <Clock className="h-3.5 w-3.5" aria-hidden="true" />
+                        <Clock
+                          className="h-3 w-3"
+                          aria-hidden="true"
+                        />
                         <span>Recent</span>
                       </>
-                    ) : (
-                      <>
-                        <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
+                    : <>
+                        <Sparkles
+                          className="h-3 w-3"
+                          aria-hidden="true"
+                        />
                         <span>Results</span>
                       </>
-                    )}
+                    }
                   </div>
                 )}
 
@@ -205,15 +207,18 @@ const CommandPaletteMobile = React.memo(function CommandPaletteMobile({
                       showShortcut={false}
                       isOnline={isOnline}
                       onSelect={() => execute(command)}
-                      className="min-h-[44px]"
+                      className="min-h-[44px] px-4 py-3"
                     />
                   </CommandPrimitive.Item>
                 ))}
 
                 {/* Empty recent state */}
                 {!hasResults && !query && (
-                  <div className="py-8 text-center text-sm text-muted-foreground">
-                    <Clock className="mx-auto mb-2 h-8 w-8 opacity-50" aria-hidden="true" />
+                  <div className="text-muted-foreground py-6 text-center text-sm">
+                    <Clock
+                      className="mx-auto mb-2 h-8 w-8 opacity-50"
+                      aria-hidden="true"
+                    />
                     <p>No recent commands</p>
                     <p className="mt-1 text-xs">Your recent commands will appear here</p>
                   </div>
@@ -222,8 +227,11 @@ const CommandPaletteMobile = React.memo(function CommandPaletteMobile({
 
               {/* Results count */}
               {hasResults && (
-                <div className="border-t border-border px-4 py-2 text-center text-xs text-muted-foreground">
-                  <span aria-live="polite" aria-atomic="true">
+                <div className="border-border text-muted-foreground border-t px-4 py-2 text-center text-xs">
+                  <span
+                    aria-live="polite"
+                    aria-atomic="true"
+                  >
                     {results.length} {results.length === 1 ? 'command' : 'commands'}
                   </span>
                 </div>

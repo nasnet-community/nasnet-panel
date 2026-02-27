@@ -187,9 +187,9 @@ export const ConfigurationInput = memo(function ConfigurationInput({
   }, [disabled, onChange]);
 
   return (
-    <div className={cn('space-y-4', className)}>
+    <div className={cn('space-y-component-md', className)}>
       {/* External Link */}
-      <div className="flex items-center gap-2 p-3 bg-secondary/10 rounded-lg border border-border">
+      <div className="flex items-center gap-component-sm p-component-md bg-secondary/10 rounded-lg border border-border">
         <ExternalLink className="w-4 h-4 text-secondary flex-shrink-0" aria-hidden="true" />
         <p className="text-sm text-foreground">
           Get your configuration from{' '}
@@ -205,7 +205,7 @@ export const ConfigurationInput = memo(function ConfigurationInput({
       </div>
 
       {/* Mode Tabs */}
-      <div className="flex gap-1 p-1 bg-muted rounded-lg" role="tablist" aria-label="Configuration input method">
+      <div className="flex gap-component-sm p-component-sm bg-muted rounded-lg" role="tablist" aria-label="Configuration input method">
         <button
           type="button"
           role="tab"
@@ -213,7 +213,7 @@ export const ConfigurationInput = memo(function ConfigurationInput({
           aria-controls="panel-upload"
           onClick={() => setMode('upload')}
           disabled={disabled}
-          className={`min-h-[44px] flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
+          className={`min-h-[44px] flex-1 flex items-center justify-center gap-component-sm px-component-sm py-component-sm rounded-md text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
             mode === 'upload'
               ? 'bg-card text-foreground shadow-sm'
               : 'text-muted-foreground hover:text-foreground'
@@ -229,7 +229,7 @@ export const ConfigurationInput = memo(function ConfigurationInput({
           aria-controls="panel-paste"
           onClick={() => setMode('paste')}
           disabled={disabled}
-          className={`min-h-[44px] flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
+          className={`min-h-[44px] flex-1 flex items-center justify-center gap-component-sm px-component-sm py-component-sm rounded-md text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
             mode === 'paste'
               ? 'bg-card text-foreground shadow-sm'
               : 'text-muted-foreground hover:text-foreground'
@@ -272,7 +272,7 @@ export const ConfigurationInput = memo(function ConfigurationInput({
               onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleBrowseClick(); } }}
               tabIndex={0}
               className={`
-                relative p-8 border-2 border-dashed rounded-xl cursor-pointer
+                relative p-component-xl border-2 border-dashed rounded-xl cursor-pointer
                 transition-all duration-200
                 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2
                 ${
@@ -344,7 +344,7 @@ export const ConfigurationInput = memo(function ConfigurationInput({
                 onClick={handlePasteFromClipboard}
                 disabled={disabled}
                 aria-label="Paste configuration from clipboard"
-                className="min-h-[44px] flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-secondary hover:bg-secondary/10 rounded-md transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                className="min-h-[44px] flex items-center gap-component-sm px-component-sm py-component-sm text-xs font-medium text-secondary hover:bg-secondary/10 rounded-md transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
                 <Clipboard className="w-3.5 h-3.5" aria-hidden="true" />
                 Paste from clipboard
@@ -360,7 +360,7 @@ export const ConfigurationInput = memo(function ConfigurationInput({
                 aria-label="Router configuration content"
                 placeholder="Paste your RouterOS configuration here..."
                 className={`
-                  w-full h-48 p-4 font-mono text-sm
+                  w-full h-48 p-component-md font-mono text-sm
                   bg-muted
                   border rounded-xl resize-none
                   placeholder:text-muted-foreground
@@ -376,7 +376,7 @@ export const ConfigurationInput = memo(function ConfigurationInput({
                   type="button"
                   onClick={handleClear}
                   aria-label="Clear configuration content"
-                  className="absolute top-2 right-2 p-1.5 min-h-[44px] min-w-[44px] flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  className="absolute top-2 right-2 p-component-sm min-h-[44px] min-w-[44px] flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 >
                   <X className="w-4 h-4" aria-hidden="true" />
                 </button>
@@ -385,7 +385,7 @@ export const ConfigurationInput = memo(function ConfigurationInput({
 
             {/* Character count */}
             <div className="flex justify-end">
-              <span className="text-xs text-muted-foreground font-mono">
+              <span className="text-xs text-muted-foreground font-mono" role="status">
                 {charCount.toLocaleString()} characters
               </span>
             </div>
@@ -395,7 +395,7 @@ export const ConfigurationInput = memo(function ConfigurationInput({
 
       {/* Error message */}
       {error && (
-        <p className="text-sm text-error flex items-center gap-1.5" role="alert">
+        <p className="text-sm text-error flex items-center gap-component-sm" role="alert">
           <span className="w-1 h-1 rounded-full bg-error" aria-hidden="true" />
           {error}
         </p>
@@ -403,7 +403,7 @@ export const ConfigurationInput = memo(function ConfigurationInput({
 
       {/* File name indicator */}
       {fileName && mode === 'paste' && (
-        <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+        <p className="text-xs text-muted-foreground flex items-center gap-component-sm">
           <FileText className="w-3.5 h-3.5" aria-hidden="true" />
           Loaded from: {fileName}
         </p>

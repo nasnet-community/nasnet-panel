@@ -150,13 +150,15 @@ export const NATRuleBuilderDesktop = memo(function NATRuleBuilderDesktop({
           {/* Form Content */}
           <div className="flex-1 overflow-y-auto space-y-6 py-4">
             {/* Chain and Action Section */}
-            <Card className="p-4">
+            <Card className="p-component-md border-t-2 border-t-category-firewall">
               <div className="flex items-center gap-2 mb-4">
-                <Network className="w-4 h-4 text-muted-foreground" />
-                <h3 className="font-medium">Chain & Action</h3>
+                <Network className="w-4 h-4 text-category-firewall" />
+                <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider">
+                  NAT Configuration
+                </h3>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-component-md">
                 {/* Chain Selector */}
                 <RHFFormField
                   name="chain"
@@ -223,13 +225,15 @@ export const NATRuleBuilderDesktop = memo(function NATRuleBuilderDesktop({
             </Card>
 
             {/* Matchers Section */}
-            <Card className="p-4">
+            <Card className="p-component-md">
               <div className="flex items-center gap-2 mb-4">
                 <Settings className="w-4 h-4 text-muted-foreground" />
-                <h3 className="font-medium">Traffic Matchers</h3>
+                <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider">
+                  Traffic Matchers
+                </h3>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-component-md">
                 {/* Protocol */}
                 {isFieldVisible('protocol') && (
                   <RHFFormField
@@ -358,13 +362,15 @@ export const NATRuleBuilderDesktop = memo(function NATRuleBuilderDesktop({
               isFieldVisible('outInterface') ||
               isFieldVisible('inInterfaceList') ||
               isFieldVisible('outInterfaceList')) && (
-              <Card className="p-4">
+              <Card className="p-component-md">
                 <div className="flex items-center gap-2 mb-4">
                   <Globe className="w-4 h-4 text-muted-foreground" />
-                  <h3 className="font-medium">Interfaces</h3>
+                  <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider">
+                    Interfaces
+                  </h3>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-component-md">
                   {/* Input Interface */}
                   {isFieldVisible('inInterface') && (
                     <RHFFormField
@@ -490,13 +496,15 @@ export const NATRuleBuilderDesktop = memo(function NATRuleBuilderDesktop({
 
             {/* Translation Section */}
             {(isFieldVisible('toAddresses') || isFieldVisible('toPorts')) && (
-              <Card className="p-4">
+              <Card className="p-component-md">
                 <div className="flex items-center gap-2 mb-4">
-                  <ArrowRight className="w-4 h-4 text-muted-foreground" />
-                  <h3 className="font-medium">Translation</h3>
+                  <ArrowRight className="w-4 h-4 text-primary" />
+                  <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider">
+                    Translation
+                  </h3>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-component-md">
                   {/* To Addresses */}
                   {isFieldVisible('toAddresses') && (
                     <RHFFormField
@@ -548,10 +556,12 @@ export const NATRuleBuilderDesktop = memo(function NATRuleBuilderDesktop({
             )}
 
             {/* Meta Section */}
-            <Card className="p-4">
+            <Card className="p-component-md">
               <div className="flex items-center gap-2 mb-4">
                 <Info className="w-4 h-4 text-muted-foreground" />
-                <h3 className="font-medium">Options</h3>
+                <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider">
+                  Options
+                </h3>
               </div>
 
               <div className="space-y-4">
@@ -646,10 +656,12 @@ export const NATRuleBuilderDesktop = memo(function NATRuleBuilderDesktop({
             </Card>
 
             {/* Preview Section */}
-            <Card className="p-4 bg-muted/50">
+            <Card className="p-component-md bg-muted/50">
               <div className="flex items-center gap-2 mb-3">
                 <Info className="w-4 h-4 text-muted-foreground" />
-                <h3 className="font-medium">Preview</h3>
+                <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider">
+                  Preview
+                </h3>
               </div>
 
               <div className="space-y-2">

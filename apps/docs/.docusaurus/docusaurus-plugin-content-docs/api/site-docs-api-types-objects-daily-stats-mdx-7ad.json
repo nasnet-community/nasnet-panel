@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/daily-stats",
+  "title": "DailyStats",
+  "description": "Daily statistics",
+  "source": "@site/docs/api/types/objects/daily-stats.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/daily-stats",
+  "permalink": "/api/types/objects/daily-stats",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "daily-stats",
+    "title": "DailyStats"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "CurrentItemInfo",
+    "permalink": "/api/types/objects/current-item-info"
+  },
+  "next": {
+    "title": "DeleteChangeSetPayload",
+    "permalink": "/api/types/objects/delete-change-set-payload"
+  }
+}

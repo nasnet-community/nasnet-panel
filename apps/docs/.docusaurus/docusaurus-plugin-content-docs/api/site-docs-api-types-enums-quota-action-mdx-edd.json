@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/quota-action",
+  "title": "QuotaAction",
+  "description": "Action to take when traffic quota is reached.",
+  "source": "@site/docs/api/types/enums/quota-action.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/quota-action",
+  "permalink": "/api/types/enums/quota-action",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "quota-action",
+    "title": "QuotaAction"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ProvisioningWANLinkType",
+    "permalink": "/api/types/enums/provisioning-wanlink-type"
+  },
+  "next": {
+    "title": "QuotaPeriod",
+    "permalink": "/api/types/enums/quota-period"
+  }
+}

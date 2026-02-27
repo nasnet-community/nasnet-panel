@@ -275,14 +275,14 @@ export const RouterDiscoveryPage = React.memo(function RouterDiscoveryPage() {
   const allRouters = getAllRouters();
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background animate-fade-in-up">
       <div className="max-w-7xl mx-auto px-page-mobile md:px-page-tablet lg:px-page-desktop py-12">
         {/* Header */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-12 brand-gradient-subtle rounded-card-lg py-12 px-6 border border-border/30">
           <img
             src="/favicon.png"
             alt="NasNet"
-            className="w-20 h-20 mx-auto mb-6 rounded-2xl shadow-lg"
+            className="w-20 h-20 mx-auto mb-6 rounded-2xl shadow-lg ring-4 ring-primary/20"
           />
           <h1 className="text-4xl font-bold font-display text-foreground mb-4">
             {t('discovery.title')}
@@ -294,7 +294,7 @@ export const RouterDiscoveryPage = React.memo(function RouterDiscoveryPage() {
 
         {/* View Mode Tabs */}
         <div className="flex justify-center mb-8">
-          <div className="inline-flex rounded-card-sm border border-border bg-card p-1">
+          <div className="inline-flex rounded-card-sm border border-border bg-card p-1 shadow-sm">
             <button
               onClick={() => setViewMode('scan')}
               className={`px-component-md py-component-sm rounded-lg font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-h-[44px] ${
@@ -337,7 +337,7 @@ export const RouterDiscoveryPage = React.memo(function RouterDiscoveryPage() {
             exit={{ opacity: 0, y: -20 }}
           >
             {viewMode === 'scan' && (
-              <div className="bg-card rounded-card-sm shadow-sm border border-border p-6">
+              <div className="bg-card rounded-card-lg shadow-md border border-border p-6">
                 <NetworkScanner
                   onScanComplete={handleScanComplete}
                   onRouterSelect={handleRouterSelectFromScan}
@@ -353,7 +353,7 @@ export const RouterDiscoveryPage = React.memo(function RouterDiscoveryPage() {
             )}
 
             {viewMode === 'list' && (
-              <div className="bg-card rounded-card-sm shadow-sm border border-border p-6">
+              <div className="bg-card rounded-card-lg shadow-md border border-border p-6">
                 <RouterList
                   routers={allRouters}
                   selectedRouterId={selectedRouterId}

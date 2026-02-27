@@ -90,39 +90,39 @@ export const DHCPPoolSummary = React.memo(function DHCPPoolSummary({ servers, le
   }
 
   return (
-    <div className="bg-card rounded-2xl border border-border p-4">
+    <div className="bg-card rounded-2xl border border-border p-4 shadow-sm">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-info/15 flex items-center justify-center">
-            <Server className="w-4 h-4 text-info" />
+          <div className="w-8 h-8 rounded-lg bg-category-dhcp/15 flex items-center justify-center">
+            <Server className="w-4 h-4 text-category-dhcp" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-foreground">{t('dhcp.poolStatus')}</h3>
+            <h3 className="text-sm font-display font-semibold text-foreground">{t('dhcp.poolStatus')}</h3>
             <p className="text-xs text-muted-foreground">{stats.activeServers}/{stats.totalServers} {t('dhcp.serversActive')}</p>
           </div>
         </div>
-        <span className={cn('text-lg font-bold', getUtilizationColor(stats.utilizationPercent))}>{stats.utilizationPercent}%</span>
+        <span className={cn('text-lg font-mono font-bold', getUtilizationColor(stats.utilizationPercent))}>{stats.utilizationPercent}%</span>
       </div>
       <div className="w-full bg-muted rounded-full h-2 mb-4">
         <div className={cn('h-2 rounded-full transition-all duration-300', getUtilizationBarColor(stats.utilizationPercent))} style={{ width: `${Math.min(stats.utilizationPercent, 100)}%` } as React.CSSProperties} />
       </div>
       <div className="grid grid-cols-4 gap-2">
-        <div className="text-center p-2 bg-muted rounded-card-sm">
-          <Users className="w-3 h-3 text-info mx-auto mb-1" />
-          <p className="text-lg font-bold text-foreground">{stats.activeLeases}</p>
+        <div className="text-center p-2 bg-muted rounded-card-sm border border-border/50">
+          <Users className="w-3 h-3 text-category-dhcp mx-auto mb-1" />
+          <p className="text-lg font-mono font-bold text-foreground">{stats.activeLeases}</p>
           <p className="text-xs text-muted-foreground">{t('dhcp.active')}</p>
         </div>
-        <div className="text-center p-2 bg-muted rounded-card-sm">
+        <div className="text-center p-2 bg-muted rounded-card-sm border border-border/50">
           <PieChart className="w-3 h-3 text-success mx-auto mb-1" />
-          <p className="text-lg font-bold text-foreground">{stats.availableIPs}</p>
+          <p className="text-lg font-mono font-bold text-foreground">{stats.availableIPs}</p>
           <p className="text-xs text-muted-foreground">{t('dhcp.available')}</p>
         </div>
-        <div className="text-center p-2 bg-muted rounded-card-sm">
-          <p className="text-lg font-bold text-foreground">{stats.totalPoolSize}</p>
+        <div className="text-center p-2 bg-muted rounded-card-sm border border-border/50">
+          <p className="text-lg font-mono font-bold text-foreground">{stats.totalPoolSize}</p>
           <p className="text-xs text-muted-foreground">{t('dhcp.total')}</p>
         </div>
-        <div className="text-center p-2 bg-muted rounded-card-sm">
-          <p className="text-lg font-bold text-foreground">{pools.length}</p>
+        <div className="text-center p-2 bg-muted rounded-card-sm border border-border/50">
+          <p className="text-lg font-mono font-bold text-foreground">{pools.length}</p>
           <p className="text-xs text-muted-foreground">{t('dhcp.pools')}</p>
         </div>
       </div>

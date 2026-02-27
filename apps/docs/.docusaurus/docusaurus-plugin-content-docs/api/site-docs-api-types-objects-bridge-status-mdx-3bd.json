@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/bridge-status",
+  "title": "BridgeStatus",
+  "description": "Bridge status for service instance network setup.",
+  "source": "@site/docs/api/types/objects/bridge-status.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/bridge-status",
+  "permalink": "/api/types/objects/bridge-status",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "bridge-status",
+    "title": "BridgeStatus"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "BridgeResource",
+    "permalink": "/api/types/objects/bridge-resource"
+  },
+  "next": {
+    "title": "BridgeStpStatus",
+    "permalink": "/api/types/objects/bridge-stp-status"
+  }
+}

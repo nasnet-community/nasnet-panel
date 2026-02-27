@@ -96,7 +96,7 @@ function ToolbarWrapper({
 
   return (
     <MockedProvider mocks={mocks} addTypename={true}>
-      <div className="p-6 bg-background min-h-[120px] flex items-start gap-4 flex-col">
+      <div className="p-component-lg bg-background min-h-[120px] flex items-start gap-component-md flex-col">
         <BatchActionsToolbar
           routerId="router-1"
           selectedIds={selected}

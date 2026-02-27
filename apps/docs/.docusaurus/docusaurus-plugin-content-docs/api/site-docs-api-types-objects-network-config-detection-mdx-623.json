@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/network-config-detection",
+  "title": "NetworkConfigDetection",
+  "description": "Network configuration detection result",
+  "source": "@site/docs/api/types/objects/network-config-detection.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/network-config-detection",
+  "permalink": "/api/types/objects/network-config-detection",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "network-config-detection",
+    "title": "NetworkConfigDetection"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "NatRule",
+    "permalink": "/api/types/objects/nat-rule"
+  },
+  "next": {
+    "title": "NetworkDevice",
+    "permalink": "/api/types/objects/network-device"
+  }
+}

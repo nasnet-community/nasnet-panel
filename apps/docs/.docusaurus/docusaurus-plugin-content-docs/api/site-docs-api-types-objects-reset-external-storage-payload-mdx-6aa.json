@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/reset-external-storage-payload",
+  "title": "ResetExternalStoragePayload",
+  "description": "Payload for resetExternalStorage mutation.",
+  "source": "@site/docs/api/types/objects/reset-external-storage-payload.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/reset-external-storage-payload",
+  "permalink": "/api/types/objects/reset-external-storage-payload",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "reset-external-storage-payload",
+    "title": "ResetExternalStoragePayload"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "RemoveChangeSetItemPayload",
+    "permalink": "/api/types/objects/remove-change-set-item-payload"
+  },
+  "next": {
+    "title": "ResourceConflict",
+    "permalink": "/api/types/objects/resource-conflict"
+  }
+}

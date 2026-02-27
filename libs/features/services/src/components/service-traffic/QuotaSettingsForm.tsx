@@ -259,7 +259,7 @@ export const QuotaSettingsForm = React.memo(function QuotaSettingsForm({
                 form.setValue('period', value as QuotaSettingsFormData['period'])
               }
             >
-              <SelectTrigger id="period" className="min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+              <SelectTrigger id="period" className="min-h-[44px]">
                 <SelectValue placeholder="Select period" />
               </SelectTrigger>
               <SelectContent>
@@ -287,7 +287,7 @@ export const QuotaSettingsForm = React.memo(function QuotaSettingsForm({
               placeholder="100"
               {...form.register('limitGB', { valueAsNumber: true })}
               className={cn(
-                'min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+                'min-h-[44px]',
                 form.formState.errors.limitGB && 'border-error'
               )}
             />
@@ -312,7 +312,7 @@ export const QuotaSettingsForm = React.memo(function QuotaSettingsForm({
               placeholder="80"
               {...form.register('warningThreshold', { valueAsNumber: true })}
               className={cn(
-                'min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+                'min-h-[44px]',
                 form.formState.errors.warningThreshold && 'border-error'
               )}
             />
@@ -335,7 +335,7 @@ export const QuotaSettingsForm = React.memo(function QuotaSettingsForm({
                 form.setValue('action', value as QuotaSettingsFormData['action'])
               }
             >
-              <SelectTrigger id="action" className="min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+              <SelectTrigger id="action" className="min-h-[44px]">
                 <SelectValue placeholder="Select action" />
               </SelectTrigger>
               <SelectContent>
@@ -362,7 +362,7 @@ export const QuotaSettingsForm = React.memo(function QuotaSettingsForm({
 
           {/* Action Buttons */}
           <div className="flex gap-component-sm pt-component-sm">
-            <Button type="submit" disabled={loading} className="flex-1 min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+            <Button type="submit" disabled={loading} className="flex-1 min-h-[44px]">
               {settingQuota && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               <Save className="mr-2 h-4 w-4" />
               {currentQuota ? 'Update Quota' : 'Set Quota'}
@@ -373,7 +373,7 @@ export const QuotaSettingsForm = React.memo(function QuotaSettingsForm({
                 variant="destructive"
                 onClick={handleRemoveQuota}
                 disabled={loading}
-                className="min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                className="min-h-[44px]"
               >
                 {resettingQuota && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 <Trash2 className="mr-2 h-4 w-4" />

@@ -214,23 +214,23 @@ export const StaticIPForm = memo(function StaticIPForm({
             </div>
 
             {selectedInterface && (
-              <div className="rounded-card-sm border border-border bg-muted/50 p-component-md space-y-component-sm">
+              <div className="rounded-card-sm border border-border bg-muted/50 p-component-md space-y-component-sm category-networking">
                 <h4 className="font-medium text-sm">
                   Selected Interface Details
                 </h4>
                 <div className="grid grid-cols-2 gap-component-sm text-sm">
                   <div>
                     <span className="text-muted-foreground">Name:</span>
-                    <span className="ml-2 font-mono text-xs">{selectedInterface.name}</span>
+                    <span className="ml-component-md font-mono text-xs">{selectedInterface.name}</span>
                   </div>
                   <div>
                     <span className="text-muted-foreground">Type:</span>
-                    <span className="ml-2">{selectedInterface.type}</span>
+                    <span className="ml-component-md">{selectedInterface.type}</span>
                   </div>
                   {selectedInterface.mac && (
                     <div className="col-span-2">
                       <span className="text-muted-foreground">MAC:</span>
-                      <span className="ml-2 font-mono text-xs">
+                      <span className="ml-component-md font-mono text-xs">
                         {selectedInterface.mac}
                       </span>
                     </div>
@@ -263,7 +263,7 @@ export const StaticIPForm = memo(function StaticIPForm({
                 {...form.register('address')}
                 aria-describedby="address-error address-help"
                 disabled={isLoading}
-                className="font-mono text-sm"
+                className="font-mono text-sm category-networking"
               />
               {form.formState.errors.address && (
                 <p id="address-error" className="text-sm text-error mt-1" role="alert">
@@ -311,7 +311,7 @@ export const StaticIPForm = memo(function StaticIPForm({
                 {...form.register('gateway')}
                 aria-describedby="gateway-error gateway-help"
                 disabled={isLoading}
-                className="font-mono text-sm"
+                className="font-mono text-sm category-networking"
               />
               {form.formState.errors.gateway && (
                 <p id="gateway-error" className="text-sm text-error mt-1" role="alert">
@@ -365,7 +365,7 @@ export const StaticIPForm = memo(function StaticIPForm({
                 {...form.register('primaryDNS')}
                 aria-describedby="primary-dns-error"
                 disabled={isLoading}
-                className="font-mono text-sm"
+                className="font-mono text-sm category-networking"
               />
               {form.formState.errors.primaryDNS && (
                 <p
@@ -391,7 +391,7 @@ export const StaticIPForm = memo(function StaticIPForm({
                 {...form.register('secondaryDNS')}
                 aria-describedby="secondary-dns-error"
                 disabled={isLoading}
-                className="font-mono text-sm"
+                className="font-mono text-sm category-networking"
               />
               {form.formState.errors.secondaryDNS && (
                 <p

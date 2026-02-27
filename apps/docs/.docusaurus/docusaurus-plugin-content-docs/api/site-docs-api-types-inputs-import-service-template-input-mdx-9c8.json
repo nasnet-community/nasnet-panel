@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/import-service-template-input",
+  "title": "ImportServiceTemplateInput",
+  "description": "Input for importing a template",
+  "source": "@site/docs/api/types/inputs/import-service-template-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/import-service-template-input",
+  "permalink": "/api/types/inputs/import-service-template-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "import-service-template-input",
+    "title": "ImportServiceTemplateInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ImportServiceConfigInput",
+    "permalink": "/api/types/inputs/import-service-config-input"
+  },
+  "next": {
+    "title": "ImportStarStateInput",
+    "permalink": "/api/types/inputs/import-star-state-input"
+  }
+}

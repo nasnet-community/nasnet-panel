@@ -88,7 +88,7 @@ const AppShell = React.memo(
         >
           {header && (
             <header
-              className="sticky top-0 z-40 bg-card border-b border-border shadow-sm"
+              className="sticky top-0 z-40 bg-card border-b border-border"
               style={{ height: 'var(--nav-height, 4rem)' }}
               aria-label="Application header"
             >
@@ -100,7 +100,7 @@ const AppShell = React.memo(
             {sidebar && sidebarPosition === 'left' && (
               <aside
                 className={cn(
-                  'border-r border-border bg-sidebar transition-all duration-200 ease-in-out hidden md:block',
+                  'border-r border-border bg-card transition-all duration-300 ease-in-out hidden lg:block',
                   sidebarCollapsed ? 'w-16' : 'w-64'
                 )}
                 aria-label="Navigation sidebar"
@@ -110,7 +110,7 @@ const AppShell = React.memo(
             )}
             <main
               id="main-content"
-              className="flex-1 overflow-auto bg-background"
+              className="flex-1 overflow-y-auto bg-background"
               role="main"
             >
               {children}
@@ -118,7 +118,7 @@ const AppShell = React.memo(
             {sidebar && sidebarPosition === 'right' && (
               <aside
                 className={cn(
-                  'border-l border-border bg-sidebar transition-all duration-200 ease-in-out hidden md:block',
+                  'border-l border-border bg-card transition-all duration-300 ease-in-out hidden lg:block',
                   sidebarCollapsed ? 'w-16' : 'w-64'
                 )}
                 aria-label="Navigation sidebar"

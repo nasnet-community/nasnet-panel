@@ -5,6 +5,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 
 	"go.uber.org/zap"
 
@@ -27,13 +28,13 @@ func initStorageAndVIF(
 	// 1. Initialize Storage Infrastructure
 	storage, err := bootstrap.InitializeStorage(ctx, systemDB, eventBus, sugar)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, fmt.Errorf("initializing storage infrastructure: %w", err)
 	}
 
 	// 2. Initialize Virtual Interface Factory (VIF)
 	vif, err := bootstrap.InitializeVIF(ctx, systemDB, eventBus, storage.PathResolver, routerPort, zapLogger)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, fmt.Errorf("initializing virtual interface factory: %w", err)
 	}
 
 	return storage, vif, nil

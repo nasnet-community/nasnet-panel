@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/gateway-info",
+  "title": "GatewayInfo",
+  "description": "Gateway monitoring information for SOCKS-to-TUN gateway instances.",
+  "source": "@site/docs/api/types/objects/gateway-info.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/gateway-info",
+  "permalink": "/api/types/objects/gateway-info",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "gateway-info",
+    "title": "GatewayInfo"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "FlushDnsCacheResult",
+    "permalink": "/api/types/objects/flush-dns-cache-result"
+  },
+  "next": {
+    "title": "GatewayReachabilityResult",
+    "permalink": "/api/types/objects/gateway-reachability-result"
+  }
+}

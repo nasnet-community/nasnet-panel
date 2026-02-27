@@ -115,7 +115,11 @@ func (pq *priorityQueueManager) drain(priority Priority) []Event {
 func (pq *priorityQueueManager) drainAll() []Event {
 	pq.mu.Lock()
 	defer pq.mu.Unlock()
-	var all []Event
+	totalCount := 0
+	for priority := range pq.queues {
+		totalCount += len(pq.queues[priority])
+	}
+	all := make([]Event, 0, totalCount)
 	for priority := range pq.queues {
 		all = append(all, pq.queues[priority]...)
 		pq.queues[priority] = make([]Event, 0)

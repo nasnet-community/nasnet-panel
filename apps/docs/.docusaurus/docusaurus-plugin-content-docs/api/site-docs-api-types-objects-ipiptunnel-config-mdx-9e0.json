@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/ipiptunnel-config",
+  "title": "IPIPTunnelConfig",
+  "description": "IPIP tunnel configuration",
+  "source": "@site/docs/api/types/objects/ipiptunnel-config.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/ipiptunnel-config",
+  "permalink": "/api/types/objects/ipiptunnel-config",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "ipiptunnel-config",
+    "title": "IPIPTunnelConfig"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "IpConflict",
+    "permalink": "/api/types/objects/ip-conflict"
+  },
+  "next": {
+    "title": "IPIPTunnelDeployment",
+    "permalink": "/api/types/objects/ipiptunnel-deployment"
+  }
+}

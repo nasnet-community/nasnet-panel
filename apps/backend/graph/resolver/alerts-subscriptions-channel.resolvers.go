@@ -7,7 +7,7 @@ package resolver
 
 import (
 	"backend/graph/model"
-	"backend/internal/errors"
+	"backend/internal/apperrors"
 	"backend/internal/events"
 	"backend/internal/notifications"
 	"context"
@@ -23,7 +23,7 @@ func (r *subscriptionResolver) AlertEvents(ctx context.Context, deviceID *string
 	if r.EventBus == nil {
 		eventChan := make(chan *model.AlertEvent)
 		close(eventChan)
-		return eventChan, errors.NewValidationError("eventBus", nil, "event bus is not available")
+		return eventChan, apperrors.NewValidationError("eventBus", nil, "event bus is not available")
 	}
 
 	// Create a buffered channel to prevent publisher blocking
@@ -78,7 +78,7 @@ func (r *subscriptionResolver) AlertEvents(ctx context.Context, deviceID *string
 	// We subscribe to all events and filter by type in the handler
 	if err := r.EventBus.SubscribeAll(handler); err != nil {
 		close(eventChan)
-		return eventChan, errors.NewProtocolError(errors.CodeCommandFailed, "failed to subscribe to alert events", "graphql").WithCause(err)
+		return eventChan, apperrors.NewProtocolError(apperrors.CodeCommandFailed, "failed to subscribe to alert events", "graphql").WithCause(err)
 	}
 
 	// Goroutine for cleanup on context cancellation

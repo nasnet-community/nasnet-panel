@@ -99,13 +99,13 @@ func (d *RouteLookupDiagnostics) DetectISP(ctx context.Context, wanIP string) (*
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, http.NoBody)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("route lookup: create request: %w", err)
 	}
 
 	client := &http.Client{Timeout: 5 * time.Second}
-	resp, err := client.Do(req)
+	resp, err := client.Do(req) //nolint:gosec // G704: URL is constructed from trusted configuration
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("route lookup: http request: %w", err)
 	}
 	defer resp.Body.Close()
 
@@ -115,7 +115,7 @@ func (d *RouteLookupDiagnostics) DetectISP(ctx context.Context, wanIP string) (*
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("route lookup: read response body: %w", err)
 	}
 
 	var data struct {
@@ -124,7 +124,7 @@ func (d *RouteLookupDiagnostics) DetectISP(ctx context.Context, wanIP string) (*
 	}
 
 	if err := json.Unmarshal(body, &data); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("route lookup: parse response: %w", err)
 	}
 
 	ispName := data.ISP

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/start-instance-input",
+  "title": "StartInstanceInput",
+  "description": "Input for starting a service instance.",
+  "source": "@site/docs/api/types/inputs/start-instance-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/start-instance-input",
+  "permalink": "/api/types/inputs/start-instance-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "start-instance-input",
+    "title": "StartInstanceInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "SingleDeviceRoutingInput",
+    "permalink": "/api/types/inputs/single-device-routing-input"
+  },
+  "next": {
+    "title": "StartProvisioningSessionInput",
+    "permalink": "/api/types/inputs/start-provisioning-session-input"
+  }
+}

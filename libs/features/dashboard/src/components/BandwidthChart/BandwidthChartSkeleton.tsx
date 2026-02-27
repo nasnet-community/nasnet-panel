@@ -46,14 +46,14 @@ export const BandwidthChartSkeleton = memo<BandwidthChartSkeletonProps>(
 
     return (
       <Card className={cn('w-full', className)}>
-        <CardHeader className="pb-3">
+        <CardHeader className="pb-component-sm">
           {/* Header with controls skeleton */}
           <div className="flex items-center justify-between">
             <Skeleton
               className="h-6 w-32"
               style={{ animationDuration: prefersReducedMotion ? '0s' : '2s' }}
             />
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-component-sm">
               {/* Time range selector skeleton */}
               <Skeleton
                 className="h-11 w-48"
@@ -68,7 +68,7 @@ export const BandwidthChartSkeleton = memo<BandwidthChartSkeletonProps>(
           </div>
 
           {/* Current rates skeleton */}
-          <div className="mt-2 flex items-center gap-4">
+          <div className="mt-component-sm flex items-center gap-component-lg">
             <Skeleton
               className="h-4 w-24"
               style={{ animationDuration: prefersReducedMotion ? '0s' : '2s' }}
@@ -89,7 +89,7 @@ export const BandwidthChartSkeleton = memo<BandwidthChartSkeletonProps>(
             />
             {/* Grid lines overlay for visual accuracy */}
             <div
-              className="absolute inset-0 flex flex-col justify-between px-4 py-2"
+              className="absolute inset-0 flex flex-col justify-between px-component-md py-component-sm"
               aria-hidden="true"
             >
               {[...Array(5)].map((_, i) => (
@@ -145,12 +145,12 @@ export const BandwidthChartError = memo<BandwidthChartErrorProps>(
 
     return (
       <Card className={cn('w-full', className)}>
-        <CardContent className="flex min-h-[300px] flex-col items-center justify-center p-8 text-center">
+        <CardContent className="flex min-h-[300px] flex-col items-center justify-center p-component-xl text-center">
           {/* Error icon */}
-          <div className="mb-4 rounded-full bg-destructive/10 p-3">
+          <div className="mb-component-md rounded-full bg-error/10 p-component-md">
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6 text-destructive"
+              className="h-6 w-6 text-error"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -166,8 +166,8 @@ export const BandwidthChartError = memo<BandwidthChartErrorProps>(
           </div>
 
           {/* Error message */}
-          <h3 className="mb-2 text-lg font-semibold">Error Loading Chart</h3>
-          <p className="mb-4 text-sm text-muted-foreground">{message}</p>
+          <h3 className="mb-component-sm text-lg font-semibold">Error Loading Chart</h3>
+          <p className="mb-component-md text-sm text-muted-foreground">{message}</p>
 
           {/* Retry button using Button primitive (44px min height) */}
           {onRetry && (
@@ -212,9 +212,9 @@ export const BandwidthChartEmpty = memo<BandwidthChartEmptyProps>(
   ({ className }) => {
     return (
       <Card className={cn('w-full', className)}>
-        <CardContent className="flex min-h-[300px] flex-col items-center justify-center p-8 text-center">
+        <CardContent className="flex min-h-[300px] flex-col items-center justify-center p-component-xl text-center">
           {/* Empty icon */}
-          <div className="mb-4 rounded-full bg-muted p-3">
+          <div className="mb-component-md rounded-full bg-muted p-component-md">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-6 w-6 text-muted-foreground"
@@ -233,7 +233,7 @@ export const BandwidthChartEmpty = memo<BandwidthChartEmptyProps>(
           </div>
 
           {/* Empty message */}
-          <h3 className="mb-2 text-lg font-semibold">No Bandwidth Data</h3>
+          <h3 className="mb-component-sm text-lg font-semibold">No Bandwidth Data</h3>
           <p className="text-sm text-muted-foreground">
             No bandwidth data available for the selected time range.
             <br />

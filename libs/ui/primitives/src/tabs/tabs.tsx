@@ -41,7 +41,7 @@ const TabsList = React.memo(
     <TabsPrimitive.List
       ref={ref}
       className={cn(
-        'inline-flex items-center justify-center border-b border-border',
+        'inline-flex items-center justify-center bg-muted rounded-lg p-1',
         className
       )}
       {...props}
@@ -72,7 +72,7 @@ const TabsTrigger = React.memo(
     <TabsPrimitive.Trigger
       ref={ref}
       className={cn(
-        'inline-flex items-center justify-center whitespace-nowrap px-4 py-3 text-sm font-medium text-muted-foreground transition-all duration-200 border-b-3 border-transparent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:text-primary data-[state=active]:border-primary',
+        'inline-flex items-center justify-center whitespace-nowrap min-h-[44px] px-3 py-1.5 text-sm font-medium text-muted-foreground rounded-md transition-all duration-200 hover:text-foreground hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm',
         className
       )}
       {...props}

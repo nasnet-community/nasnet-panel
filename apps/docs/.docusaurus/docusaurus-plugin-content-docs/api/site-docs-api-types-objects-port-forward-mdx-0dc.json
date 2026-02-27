@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/port-forward",
+  "title": "PortForward",
+  "description": "Port forward configuration (high-level view).",
+  "source": "@site/docs/api/types/objects/port-forward.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/port-forward",
+  "permalink": "/api/types/objects/port-forward",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "port-forward",
+    "title": "PortForward"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "PortAvailability",
+    "permalink": "/api/types/objects/port-availability"
+  },
+  "next": {
+    "title": "PortKnockAttemptConnection",
+    "permalink": "/api/types/objects/port-knock-attempt-connection"
+  }
+}

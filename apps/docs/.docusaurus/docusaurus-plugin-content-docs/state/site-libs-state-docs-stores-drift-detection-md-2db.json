@@ -1,0 +1,24 @@
+{
+  "id": "stores/drift-detection",
+  "title": "Drift Detection Store & Utilities",
+  "description": "This document covers configuration drift detection between desired state (configuration layer) and actual state (deployment layer) in the Universal State v2 8-layer resource model.",
+  "source": "@site/../../libs/state/docs/stores/drift-detection.md",
+  "sourceDirName": "stores",
+  "slug": "/stores/drift-detection",
+  "permalink": "/docs/state/stores/drift-detection",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/state/docs/stores/drift-detection.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Domain UI Stores",
+    "permalink": "/docs/state/stores/domain-ui-stores"
+  },
+  "next": {
+    "title": "History & Undo/Redo Store",
+    "permalink": "/docs/state/stores/history-undo-redo"
+  }
+}

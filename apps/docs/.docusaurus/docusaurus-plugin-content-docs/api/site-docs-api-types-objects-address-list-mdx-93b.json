@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/address-list",
+  "title": "AddressList",
+  "description": "Aggregated view of an address list with entry statistics.",
+  "source": "@site/docs/api/types/objects/address-list.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/address-list",
+  "permalink": "/api/types/objects/address-list",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "address-list",
+    "title": "AddressList"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "AddressListEntry",
+    "permalink": "/api/types/objects/address-list-entry"
+  },
+  "next": {
+    "title": "AffectedResource",
+    "permalink": "/api/types/objects/affected-resource"
+  }
+}

@@ -66,7 +66,7 @@ export const NetworkDetailSection = React.memo(function NetworkDetailSection({
     return (
       <div
         className={cn(
-          'bg-card rounded-card-lg border border-border p-component-md',
+          'bg-card rounded-card-lg border border-border p-component-md shadow-sm',
           className,
         )}
         aria-busy="true"
@@ -88,7 +88,7 @@ export const NetworkDetailSection = React.memo(function NetworkDetailSection({
   return (
     <section
       className={cn(
-        'bg-card rounded-card-lg border border-border p-component-md',
+        'bg-card rounded-card-lg border border-border p-component-md shadow-sm',
         className,
       )}
       aria-labelledby={`nds-title-${title.replace(/\s+/g, '-').toLowerCase()}`}
@@ -97,7 +97,7 @@ export const NetworkDetailSection = React.memo(function NetworkDetailSection({
       <div className="mb-3">
         <h3
           id={`nds-title-${title.replace(/\s+/g, '-').toLowerCase()}`}
-          className="text-sm font-semibold text-foreground"
+          className="text-sm font-semibold text-foreground font-display category-header category-header-networking"
         >
           {title}
         </h3>

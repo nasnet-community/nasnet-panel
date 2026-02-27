@@ -7,6 +7,7 @@ import (
 
 	"backend/generated/ent"
 	"backend/internal/features"
+	isolationpkg "backend/internal/isolation"
 	"backend/internal/orchestrator/dependencies"
 	"backend/internal/orchestrator/health"
 	"backend/internal/orchestrator/isolation"
@@ -15,6 +16,7 @@ import (
 
 	"backend/internal/events"
 	"backend/internal/network"
+	"backend/internal/registry"
 	"backend/internal/storage"
 
 	"go.uber.org/zap"
@@ -34,9 +36,11 @@ type InstanceManagerConfig struct {
 	DependencyMgr      *dependencies.DependencyManager // Optional - dependency manager for auto-start and lifecycle
 	BridgeOrchestrator BridgeOrchestrator              // Optional - virtual interface factory for network isolation (NAS-8.2)
 	IsolationVerifier  *isolation.IsolationVerifier    // Optional - pre-start isolation checks (NAS-8.4)
+	IsolationStrategy  isolationpkg.Strategy           // Optional - process isolation strategy
 	ResourceLimiter    *resources.ResourceLimiter      // Optional - cgroup memory limits and monitoring (NAS-8.4)
 	ResourceManager    *resources.ResourceManager      // Optional - system resource detection and pre-flight checks (NAS-8.15)
 	ResourcePoller     *resources.ResourcePoller       // Optional - resource usage monitoring and warning emission (NAS-8.15)
+	GitHubClient       *registry.GitHubClient          // Optional - GitHub API client for fetching release info
 	Logger             *zap.Logger
 }
 
@@ -48,6 +52,7 @@ type InstanceManager struct {
 	publisher         *events.Publisher // Event publisher for this instance manager
 	bridgeOrch        BridgeOrchestrator
 	isolationVerifier *isolation.IsolationVerifier
+	isolationStrategy isolationpkg.Strategy
 	resourceLimiter   *resources.ResourceLimiter
 	resourceManager   *resources.ResourceManager
 	resourcePoller    *resources.ResourcePoller
@@ -95,6 +100,7 @@ func NewInstanceManager(cfg InstanceManagerConfig) (*InstanceManager, error) {
 		publisher:         publisher,
 		bridgeOrch:        cfg.BridgeOrchestrator,
 		isolationVerifier: cfg.IsolationVerifier,
+		isolationStrategy: cfg.IsolationStrategy,
 		resourceLimiter:   cfg.ResourceLimiter,
 		resourceManager:   cfg.ResourceManager,
 		resourcePoller:    cfg.ResourcePoller,

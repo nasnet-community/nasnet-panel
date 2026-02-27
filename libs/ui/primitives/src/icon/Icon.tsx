@@ -16,10 +16,10 @@ export interface IconProps extends Omit<LucideProps, 'ref'> {
 }
 
 const sizeMap = {
-  sm: 16,
-  md: 20,
-  lg: 24,
-  xl: 32,
+  sm: 16,    // h-4 w-4
+  md: 20,    // h-5 w-5
+  lg: 24,    // h-6 w-6
+  xl: 32,    // h-8 w-8
 } as const;
 
 /**
@@ -68,7 +68,7 @@ export const Icon = React.forwardRef<SVGSVGElement, IconProps>(
       <IconComponent
         ref={ref}
         size={pixelSize}
-        className={cn('shrink-0', className)}
+        className={cn('shrink-0 transition-colors duration-150', className)}
         aria-hidden={label ? undefined : true}
         aria-label={label}
         role={label ? 'img' : undefined}

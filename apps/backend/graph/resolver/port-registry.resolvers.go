@@ -7,10 +7,8 @@ package resolver
 
 import (
 	graphql1 "backend/graph/model"
-	"backend/internal/errors"
-	"backend/internal/network"
+	"backend/internal/apperrors"
 	"context"
-	"time"
 )
 
 // CleanupOrphanedPorts is the resolver for the cleanupOrphanedPorts field.
@@ -19,7 +17,7 @@ import (
 // If routerID is not provided, returns empty payload (per-router cleanup required).
 func (r *mutationResolver) CleanupOrphanedPorts(ctx context.Context, input graphql1.CleanupOrphanedPortsInput) (*graphql1.OrphanCleanupPayload, error) {
 	if r.PortRegistry == nil {
-		return nil, errors.NewValidationError("portRegistry", "[REDACTED]", "unavailable")
+		return nil, apperrors.NewValidationError("portRegistry", "[REDACTED]", "unavailable")
 	}
 
 	routerID := ""
@@ -38,7 +36,7 @@ func (r *mutationResolver) CleanupOrphanedPorts(ctx context.Context, input graph
 	// Detect orphans first to collect IDs before deletion
 	orphans, err := r.PortRegistry.DetectOrphans(ctx, routerID)
 	if err != nil {
-		return nil, errors.Wrap(err, errors.CodeProtocolError, errors.CategoryProtocol, "failed to detect orphaned ports")
+		return nil, apperrors.Wrap(err, apperrors.CodeProtocolError, apperrors.CategoryProtocol, "failed to detect orphaned ports")
 	}
 
 	// Collect orphaned allocation IDs
@@ -50,7 +48,7 @@ func (r *mutationResolver) CleanupOrphanedPorts(ctx context.Context, input graph
 	// Perform cleanup
 	cleaned, err := r.PortRegistry.CleanupOrphans(ctx, routerID)
 	if err != nil {
-		return nil, errors.Wrap(err, errors.CodeProtocolError, errors.CategoryProtocol, "failed to cleanup orphaned ports")
+		return nil, apperrors.Wrap(err, apperrors.CodeProtocolError, apperrors.CategoryProtocol, "failed to cleanup orphaned ports")
 	}
 
 	// deletedIDs is always initialized above, but ensure empty slice is returned (not nil)
@@ -69,7 +67,7 @@ func (r *mutationResolver) CleanupOrphanedPorts(ctx context.Context, input graph
 // If routerID is not provided, returns an empty list (per-router queries required).
 func (r *queryResolver) PortAllocations(ctx context.Context, routerID *string, protocol *graphql1.PortProtocol, serviceType *string) ([]*graphql1.PortAllocation, error) {
 	if r.PortRegistry == nil {
-		return nil, errors.NewValidationError("portRegistry", "[REDACTED]", "unavailable")
+		return nil, apperrors.NewValidationError("portRegistry", "[REDACTED]", "unavailable")
 	}
 
 	if routerID == nil || *routerID == "" {
@@ -79,7 +77,7 @@ func (r *queryResolver) PortAllocations(ctx context.Context, routerID *string, p
 
 	entities, err := r.PortRegistry.GetAllocationsByRouter(ctx, *routerID)
 	if err != nil {
-		return nil, errors.Wrap(err, errors.CodeProtocolError, errors.CategoryProtocol, "failed to list port allocations")
+		return nil, apperrors.Wrap(err, apperrors.CodeProtocolError, apperrors.CategoryProtocol, "failed to list port allocations")
 	}
 
 	results := make([]*graphql1.PortAllocation, 0, len(entities))
@@ -110,21 +108,21 @@ func (r *queryResolver) PortAllocations(ctx context.Context, routerID *string, p
 // Note: Privileged ports (<1024) may require elevated permissions on the router.
 func (r *queryResolver) IsPortAvailable(ctx context.Context, input graphql1.CheckPortAvailabilityInput) (*graphql1.PortAvailability, error) {
 	if r.PortRegistry == nil {
-		return nil, errors.NewValidationError("portRegistry", "[REDACTED]", "unavailable")
+		return nil, apperrors.NewValidationError("portRegistry", "[REDACTED]", "unavailable")
 	}
 
 	// Validate input parameters
 	if input.RouterID == "" {
-		return nil, errors.NewValidationError("routerID", "[REDACTED]", "required")
+		return nil, apperrors.NewValidationError("routerID", "[REDACTED]", "required")
 	}
 
 	if input.Port <= 0 || input.Port > 65535 {
-		return nil, errors.NewValidationError("port", "[REDACTED]", "must be between 1 and 65535")
+		return nil, apperrors.NewValidationError("port", "[REDACTED]", "must be between 1 and 65535")
 	}
 
 	protocol := string(input.Protocol)
 	if protocol == "" {
-		return nil, errors.NewValidationError("protocol", "[REDACTED]", "required")
+		return nil, apperrors.NewValidationError("protocol", "[REDACTED]", "required")
 	}
 
 	// Check port availability
@@ -150,7 +148,7 @@ func (r *queryResolver) IsPortAvailable(ctx context.Context, input graphql1.Chec
 // no longer exist or are marked for deletion. If routerID is not provided, returns empty list.
 func (r *queryResolver) DetectOrphanedPorts(ctx context.Context, routerID *string) ([]*graphql1.OrphanedPort, error) {
 	if r.PortRegistry == nil {
-		return nil, errors.NewValidationError("portRegistry", "[REDACTED]", "unavailable")
+		return nil, apperrors.NewValidationError("portRegistry", "[REDACTED]", "unavailable")
 	}
 
 	rid := ""
@@ -160,7 +158,7 @@ func (r *queryResolver) DetectOrphanedPorts(ctx context.Context, routerID *strin
 
 	orphans, err := r.PortRegistry.DetectOrphans(ctx, rid)
 	if err != nil {
-		return nil, errors.Wrap(err, errors.CodeProtocolError, errors.CategoryProtocol, "failed to detect orphaned ports")
+		return nil, apperrors.Wrap(err, apperrors.CodeProtocolError, apperrors.CategoryProtocol, "failed to detect orphaned ports")
 	}
 
 	results := make([]*graphql1.OrphanedPort, 0, len(orphans))
@@ -172,40 +170,4 @@ func (r *queryResolver) DetectOrphanedPorts(ctx context.Context, routerID *strin
 	}
 
 	return results, nil
-}
-
-type portEntityExtended interface {
-	network.PortAllocationEntity
-	GetServiceType() string
-	GetNotes() string
-	GetAllocatedAt() time.Time
-}
-
-func entityToPortAllocation(entity network.PortAllocationEntity) *graphql1.PortAllocation {
-	allocatedAt := time.Now()
-
-	alloc := &graphql1.PortAllocation{
-		ID:          entity.GetID(),
-		RouterID:    entity.GetRouterID(),
-		Port:        entity.GetPort(),
-		Protocol:    graphql1.PortProtocol(entity.GetProtocol()),
-		InstanceID:  entity.GetInstanceID(),
-		AllocatedAt: allocatedAt,
-	}
-
-	// Check for extended interface with optional fields
-	if ext, ok := entity.(portEntityExtended); ok {
-		alloc.ServiceType = ext.GetServiceType()
-		// Use the actual allocation time from the entity if available
-		if actualTime := ext.GetAllocatedAt(); !actualTime.IsZero() {
-			alloc.AllocatedAt = actualTime
-		}
-		// Only set notes if they are provided
-		if notes := ext.GetNotes(); notes != "" {
-			n := notes
-			alloc.Notes = &n
-		}
-	}
-
-	return alloc
 }

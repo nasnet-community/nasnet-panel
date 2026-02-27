@@ -70,7 +70,8 @@ export function DeviceCardCompact({
     <Card
       id={id}
       className={cn(
-        'group relative p-2 transition-all duration-200',
+        'group relative p-component-sm transition-all duration-200',
+        'bg-card border border-border rounded-[var(--semantic-radius-card)]',
         onClick && 'cursor-pointer hover:bg-muted/50',
         isSelected && 'bg-primary/10 border-primary/30',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
@@ -84,7 +85,7 @@ export function DeviceCardCompact({
     >
       <div className="flex items-center gap-2">
         {/* Device icon */}
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-muted/50">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-muted border border-border">
           <Icon className="h-4 w-4 text-foreground" aria-hidden="true" />
         </div>
 

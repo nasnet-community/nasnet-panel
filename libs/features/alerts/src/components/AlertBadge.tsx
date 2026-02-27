@@ -52,7 +52,7 @@ const AlertBadge = ({ deviceId, className }: AlertBadgeProps) => {
   return (
     <span
       className={cn(
-        'inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold rounded-[var(--semantic-radius-badge)]',
+        'inline-flex items-center justify-center px-component-sm py-0.5 text-xs font-bold rounded-[var(--semantic-radius-badge)]',
         'bg-error/10 text-error',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
         className

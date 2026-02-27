@@ -98,7 +98,7 @@ function VlanTopologyMobileComponent({
     return (
       <Card className={className}>
         <CardContent className="py-12">
-          <p className="text-center text-destructive">
+          <p className="text-center text-error">
             Failed to load VLAN topology: {error.message}
           </p>
         </CardContent>
@@ -112,7 +112,7 @@ function VlanTopologyMobileComponent({
         <CardContent className="py-12 text-center">
           <Icon
             icon={Network}
-            className="h-12 w-12 mx-auto mb-4 text-muted-foreground"
+            className="h-12 w-12 mx-auto mb-component-md text-muted-foreground"
             aria-hidden="true"
           />
           <p className="text-muted-foreground">No VLANs configured</p>
@@ -262,7 +262,7 @@ function VlanTopologyMobileComponent({
                       )}
 
                       {vlan.mtu && (
-                        <Badge variant="outline" className="font-mono text-xs">
+                        <Badge variant="outline" className="font-mono text-xs category-networking">
                           MTU {vlan.mtu}
                         </Badge>
                       )}

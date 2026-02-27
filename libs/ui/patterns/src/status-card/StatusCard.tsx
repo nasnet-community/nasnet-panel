@@ -23,7 +23,7 @@ import { useCallback, useMemo } from 'react';
 
 import { CheckCircle2, AlertTriangle, XCircle, Loader2 } from 'lucide-react';
 
-import { Card, CardContent, cn } from '@nasnet/ui/primitives';
+import { cn } from '@nasnet/ui/primitives';
 
 /**
  * Network health status types
@@ -138,15 +138,17 @@ const StatusCardBase = React.forwardRef<HTMLDivElement, StatusCardProps>(
     const cardClassName = useMemo(
       () =>
         cn(
+          'bg-card border border-border rounded-[var(--semantic-radius-card)]',
+          'shadow-[var(--semantic-shadow-card)] dark:shadow-none',
           'transition-all duration-200',
-          onClick && 'cursor-pointer hover:shadow-md hover:-translate-y-1',
+          onClick && 'cursor-pointer hover:shadow-[var(--semantic-shadow-card)] hover:-translate-y-1',
           className
         ),
       [onClick, className]
     );
 
     return (
-      <Card
+      <div
         ref={ref}
         className={cardClassName}
         onClick={onClick}
@@ -154,24 +156,24 @@ const StatusCardBase = React.forwardRef<HTMLDivElement, StatusCardProps>(
         aria-label={`Network status: ${message}`}
         {...props}
       >
-        <CardContent className="p-6">
+        <div className="p-component-md md:p-component-lg">
           {/* Status Header */}
           <div className="flex items-center justify-between mb-6">
             <div className="flex-1">
               {subtitle && (
-                <p className="text-sm text-muted-foreground mb-1">{subtitle}</p>
+                <p className="text-sm font-medium text-muted-foreground mb-1">{subtitle}</p>
               )}
               <div className="flex items-center gap-2">
                 <span
                   className={cn(
-                    'w-2 h-2 rounded-full',
+                    'h-2 w-2 rounded-full',
                     config.iconColor,
                     status === 'healthy' && config.pulseClass
                   )}
                   aria-hidden="true"
                 />
                 <p
-                  className={cn('text-lg font-semibold', config.textColor)}
+                  className={cn('text-lg font-semibold font-display', config.textColor)}
                   role="status"
                   aria-live="polite"
                 >
@@ -181,13 +183,13 @@ const StatusCardBase = React.forwardRef<HTMLDivElement, StatusCardProps>(
             </div>
             <div
               className={cn(
-                'w-12 h-12 rounded-2xl flex items-center justify-center',
+                'h-12 w-12 rounded-lg flex items-center justify-center flex-shrink-0',
                 config.bgColor
               )}
             >
               <Icon
                 className={cn(
-                  'w-6 h-6',
+                  'h-6 w-6',
                   config.iconColor,
                   config.pulseClass
                 )}
@@ -201,7 +203,7 @@ const StatusCardBase = React.forwardRef<HTMLDivElement, StatusCardProps>(
             <div className="grid grid-cols-3 gap-4 text-center">
               {metrics.map((metric, index) => (
                 <div key={index}>
-                  <p className="text-2xl font-semibold text-foreground">
+                  <p className="text-2xl font-bold font-display text-foreground">
                     {metric.value}
                     {metric.unit && (
                       <span className="text-sm text-muted-foreground ml-1">
@@ -216,8 +218,8 @@ const StatusCardBase = React.forwardRef<HTMLDivElement, StatusCardProps>(
               ))}
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     );
   }
 );

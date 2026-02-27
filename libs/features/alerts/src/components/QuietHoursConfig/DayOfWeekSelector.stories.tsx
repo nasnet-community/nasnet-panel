@@ -158,7 +158,7 @@ export const WithCustomClass: Story = {
   args: {
     value: [1, 3, 5] as DayOfWeek[],
     onChange: fn(),
-    className: 'p-4 border border-border rounded-lg bg-muted/30',
+    className: 'p-component-md border border-border rounded-lg bg-muted/30',
   },
   parameters: {
     docs: {

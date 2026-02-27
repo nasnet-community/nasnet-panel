@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/dns-servers",
+  "title": "dnsServers",
+  "description": "Get configured DNS servers for a device.",
+  "source": "@site/docs/api/operations/queries/dns-servers.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/dns-servers",
+  "permalink": "/api/operations/queries/dns-servers",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "dns-servers",
+    "title": "dnsServers"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "dnsCacheStats",
+    "permalink": "/api/operations/queries/dns-cache-stats"
+  },
+  "next": {
+    "title": "egressVLANs",
+    "permalink": "/api/operations/queries/egress-vlans"
+  }
+}

@@ -100,7 +100,7 @@ function BulkActionsToolbarComponent({
     <>
       <div
         className={cn(
-          'flex items-center justify-between rounded-[var(--semantic-radius-card)] border border-primary/50 bg-primary/5 p-component-sm',
+          'flex items-center justify-between rounded-[var(--semantic-radius-card)] border border-category-networking/50 bg-category-networking/5 p-component-sm',
           className
         )}
         role="toolbar"
@@ -120,7 +120,7 @@ function BulkActionsToolbarComponent({
             size="sm"
             onClick={() => setShowMakeStaticConfirm(true)}
             disabled={isLoading}
-            className="gap-2"
+            className="gap-component-sm"
             aria-label="Make selected leases static"
           >
             <Icon icon={Lock} className="h-4 w-4" aria-hidden="true" />
@@ -132,7 +132,7 @@ function BulkActionsToolbarComponent({
             size="sm"
             onClick={() => setShowDeleteConfirm(true)}
             disabled={isLoading}
-            className="gap-2"
+            className="gap-component-sm"
             aria-label="Delete selected leases"
           >
             <Icon icon={Trash2} className="h-4 w-4" aria-hidden="true" />

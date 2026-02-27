@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/configure-pppoe-wan",
+  "title": "configurePppoeWAN",
+  "description": "Configure PPPoE client on a WAN interface",
+  "source": "@site/docs/api/operations/mutations/configure-pppoe-wan.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/configure-pppoe-wan",
+  "permalink": "/api/operations/mutations/configure-pppoe-wan",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "configure-pppoe-wan",
+    "title": "configurePppoeWAN"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "configureLteWAN",
+    "permalink": "/api/operations/mutations/configure-lte-wan"
+  },
+  "next": {
+    "title": "configureStaticWAN",
+    "permalink": "/api/operations/mutations/configure-static-wan"
+  }
+}

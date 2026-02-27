@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/telemetry-data",
+  "title": "TelemetryData",
+  "description": "Layer 5: Time-series metrics and historical data.",
+  "source": "@site/docs/api/types/objects/telemetry-data.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/telemetry-data",
+  "permalink": "/api/types/objects/telemetry-data",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "telemetry-data",
+    "title": "TelemetryData"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "SystemResources",
+    "permalink": "/api/types/objects/system-resources"
+  },
+  "next": {
+    "title": "TemplateConflict",
+    "permalink": "/api/types/objects/template-conflict"
+  }
+}

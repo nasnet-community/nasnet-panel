@@ -322,7 +322,7 @@ func TestResponseTranslator_NilRegistry(t *testing.T) {
 
 	data := result.Data.(map[string]interface{})
 	assert.Equal(t, "test", data["name"])
-	assert.Equal(t, 42, data["count"]) // Auto-converted to int
+	assert.Equal(t, 42, data["count"])    // Auto-converted to int
 	assert.Equal(t, true, data["active"]) // Auto-converted to bool
 }
 

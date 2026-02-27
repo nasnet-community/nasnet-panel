@@ -119,10 +119,10 @@ function VariableField({ variable, form, disabled }: VariableFieldProps) {
   // Use dropdown for INTERFACE with options
   if (variable.type === 'INTERFACE' && variable.options && variable.options.length > 0) {
     return (
-      <div className="space-y-2">
+      <div className="space-y-component-sm">
         <Label htmlFor={variable.name}>
           {variable.label}
-          {variable.isRequired && <span className="text-destructive ml-1">*</span>}
+          {variable.isRequired && <span className="text-destructive ml-component-sm">*</span>}
         </Label>
 
         <Controller
@@ -136,7 +136,9 @@ function VariableField({ variable, form, disabled }: VariableFieldProps) {
             >
               <SelectTrigger
                 id={variable.name}
-                className={cn(hasError && 'border-destructive')}
+                className={cn(
+                  hasError && 'border-destructive focus-visible:ring-destructive'
+                )}
                 aria-invalid={hasError}
                 aria-describedby={hasError ? `${variable.name}-error` : undefined}
               >
@@ -168,10 +170,10 @@ function VariableField({ variable, form, disabled }: VariableFieldProps) {
 
   // Default input field
   return (
-    <div className="space-y-2">
+    <div className="space-y-component-sm">
       <Label htmlFor={variable.name}>
         {variable.label}
-        {variable.isRequired && <span className="text-destructive ml-1">*</span>}
+        {variable.isRequired && <span className="text-destructive ml-component-sm">*</span>}
       </Label>
 
       <Input
@@ -233,7 +235,7 @@ export function TemplateVariableEditor({
   }
 
   return (
-    <div className={cn('space-y-4', className)}>
+    <div className={cn('space-y-component-lg', className)}>
       {variables.map((variable) => (
         <VariableField
           key={variable.name}

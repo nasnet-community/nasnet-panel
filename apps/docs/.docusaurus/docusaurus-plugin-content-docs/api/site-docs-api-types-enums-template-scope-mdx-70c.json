@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/template-scope",
+  "title": "TemplateScope",
+  "description": "Template deployment scope",
+  "source": "@site/docs/api/types/enums/template-scope.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/template-scope",
+  "permalink": "/api/types/enums/template-scope",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "template-scope",
+    "title": "TemplateScope"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "TemplateInstallationStatus",
+    "permalink": "/api/types/enums/template-installation-status"
+  },
+  "next": {
+    "title": "TemplateVariableType",
+    "permalink": "/api/types/enums/template-variable-type"
+  }
+}

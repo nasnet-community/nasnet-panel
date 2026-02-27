@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/validate-provisioning-session",
+  "title": "validateProvisioningSession",
+  "description": "Validate all resources and configurations in the provisioning session.",
+  "source": "@site/docs/api/operations/mutations/validate-provisioning-session.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/validate-provisioning-session",
+  "permalink": "/api/operations/mutations/validate-provisioning-session",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "validate-provisioning-session",
+    "title": "validateProvisioningSession"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "validateChangeSet",
+    "permalink": "/api/operations/mutations/validate-change-set"
+  },
+  "next": {
+    "title": "validateResource",
+    "permalink": "/api/operations/mutations/validate-resource"
+  }
+}

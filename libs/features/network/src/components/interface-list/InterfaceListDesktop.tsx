@@ -47,7 +47,7 @@ export const InterfaceListDesktop = memo(function InterfaceListDesktop({
       key: 'name',
       header: 'Name',
       cell: (row: any) => (
-        <span className="font-medium font-mono">{row.name}</span>
+        <span className="font-medium font-mono category-networking">{row.name}</span>
       ),
     },
     {
@@ -83,7 +83,7 @@ export const InterfaceListDesktop = memo(function InterfaceListDesktop({
       key: 'ip',
       header: 'IP Address',
       cell: (row: any) => (
-        <span className="text-sm text-muted-foreground font-mono">
+        <span className="text-sm text-muted-foreground font-mono category-networking">
           {row.ip?.join(', ') || '-'}
         </span>
       ),
@@ -108,7 +108,7 @@ export const InterfaceListDesktop = memo(function InterfaceListDesktop({
 
   if (error) {
     return (
-      <div className="space-y-component-md">
+      <div className="space-y-component-md category-networking">
         <div className="flex items-center justify-between">
           <InterfaceListFilters filters={filters} onChange={onFilterChange} />
         </div>
@@ -126,7 +126,7 @@ export const InterfaceListDesktop = memo(function InterfaceListDesktop({
   }
 
   return (
-    <div className="space-y-component-md">
+    <div className="space-y-component-md category-networking">
       {/* Toolbar */}
       <div className="flex items-center justify-between">
         <InterfaceListFilters filters={filters} onChange={onFilterChange} />

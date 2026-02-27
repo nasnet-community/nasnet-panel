@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/delete-change-set",
+  "title": "deleteChangeSet",
+  "description": "Delete a change set (only if not applying)",
+  "source": "@site/docs/api/operations/mutations/delete-change-set.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/delete-change-set",
+  "permalink": "/api/operations/mutations/delete-change-set",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "delete-change-set",
+    "title": "deleteChangeSet"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "deleteBridge",
+    "permalink": "/api/operations/mutations/delete-bridge"
+  },
+  "next": {
+    "title": "deleteCustomAlertRuleTemplate",
+    "permalink": "/api/operations/mutations/delete-custom-alert-rule-template"
+  }
+}

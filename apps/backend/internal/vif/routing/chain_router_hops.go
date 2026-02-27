@@ -64,7 +64,7 @@ func (cr *ChainRouter) createChainHops(
 		// Step 1: Create mangle rule
 		mangleRuleID, err := cr.createHopMangleRule(ctx, chain, input, i, hopOrder, routingMark, interfaceMap)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("create hop mangle rule: %w", err)
 		}
 		cleanups = append(cleanups, cr.removeMangleCleanup(ctx, mangleRuleID))
 
@@ -77,7 +77,7 @@ func (cr *ChainRouter) createChainHops(
 		// Step 3: Create route
 		routeID, err = cr.createHopRoute(ctx, iface, routeTableName, hopOrder)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("create hop route: %w", err)
 		}
 		cleanups = append(cleanups, cr.removeRouteCleanup(ctx, routeID))
 
@@ -85,7 +85,7 @@ func (cr *ChainRouter) createChainHops(
 		if input.KillSwitchEnabled {
 			killSwitchRuleID, err = cr.createHopKillSwitch(ctx, chain, input, hopOrder)
 			if err != nil {
-				return nil, err
+				return nil, fmt.Errorf("create hop kill switch: %w", err)
 			}
 			cleanups = append(cleanups, cr.removeFilterCleanup(ctx, killSwitchRuleID))
 		}
@@ -131,7 +131,7 @@ func (cr *ChainRouter) createHopMangleRule(
 ) (string, error) {
 
 	var mangleCmd router.Command
-	if hopOrder == 1 || hopIndex == 0 {
+	if hopOrder == 1 || hopIndex == 0 { //nolint:nestif // complex hop routing configuration
 		// First hop: match by device MAC/IP
 		mangleCmd = router.Command{
 			Path:   "/ip/firewall/mangle",
@@ -154,6 +154,9 @@ func (cr *ChainRouter) createHopMangleRule(
 		// Subsequent hops: match by previous hop's interface
 		prevHopInput := input.Hops[hopIndex-1]
 		prevIface := interfaceMap[prevHopInput.InterfaceID]
+		if prevIface == nil {
+			return "", fmt.Errorf("previous hop interface %s not found in map for hop %d", prevHopInput.InterfaceID, hopOrder)
+		}
 
 		mangleCmd = router.Command{
 			Path:   "/ip/firewall/mangle",
@@ -202,7 +205,10 @@ func (cr *ChainRouter) createRoutingTable(ctx context.Context, tableName string)
 		},
 	}
 	_, err := cr.router.ExecuteCommand(ctx, tableCmd)
-	return err
+	if err != nil {
+		return fmt.Errorf("create routing table: %w", err)
+	}
+	return nil
 }
 
 // createHopRoute creates a default route for a hop.
@@ -305,7 +311,10 @@ func (cr *ChainRouter) removeMangleCleanup(ctx context.Context, ruleID string) f
 			Args:   map[string]string{".id": ruleID},
 		}
 		_, err := cr.router.ExecuteCommand(ctx, cmd)
-		return err
+		if err != nil {
+			return fmt.Errorf("remove mangle rule cleanup: %w", err)
+		}
+		return nil
 	}
 }
 
@@ -317,7 +326,10 @@ func (cr *ChainRouter) removeRoutingTableCleanup(ctx context.Context, tableName 
 			Args:   map[string]string{"name": tableName},
 		}
 		_, err := cr.router.ExecuteCommand(ctx, cmd)
-		return err
+		if err != nil {
+			return fmt.Errorf("remove routing table cleanup: %w", err)
+		}
+		return nil
 	}
 }
 
@@ -329,7 +341,10 @@ func (cr *ChainRouter) removeRouteCleanup(ctx context.Context, routeID string) f
 			Args:   map[string]string{".id": routeID},
 		}
 		_, err := cr.router.ExecuteCommand(ctx, cmd)
-		return err
+		if err != nil {
+			return fmt.Errorf("remove route cleanup: %w", err)
+		}
+		return nil
 	}
 }
 
@@ -341,6 +356,9 @@ func (cr *ChainRouter) removeFilterCleanup(ctx context.Context, ruleID string) f
 			Args:   map[string]string{".id": ruleID},
 		}
 		_, err := cr.router.ExecuteCommand(ctx, cmd)
-		return err
+		if err != nil {
+			return fmt.Errorf("remove filter cleanup: %w", err)
+		}
+		return nil
 	}
 }

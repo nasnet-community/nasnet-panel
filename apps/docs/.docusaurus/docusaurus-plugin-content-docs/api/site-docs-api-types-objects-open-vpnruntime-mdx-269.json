@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/open-vpnruntime",
+  "title": "OpenVPNRuntime",
+  "description": "OpenVPN runtime state",
+  "source": "@site/docs/api/types/objects/open-vpnruntime.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/open-vpnruntime",
+  "permalink": "/api/types/objects/open-vpnruntime",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "open-vpnruntime",
+    "title": "OpenVPNRuntime"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "OpenVPNDeployment",
+    "permalink": "/api/types/objects/open-vpndeployment"
+  },
+  "next": {
+    "title": "OperationCounts",
+    "permalink": "/api/types/objects/operation-counts"
+  }
+}

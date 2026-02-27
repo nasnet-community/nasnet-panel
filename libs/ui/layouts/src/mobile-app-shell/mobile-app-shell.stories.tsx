@@ -120,8 +120,6 @@ export const WithGreeting: Story = {
   args: {
     header: {
       title: 'Dashboard',
-      greeting: true,
-      subtitle: 'MikroTik hEX S · 192.168.88.1',
     },
     navigation: defaultNavigation,
     children: MockContent,
@@ -178,7 +176,7 @@ export const WithDesktopSidebar: Story = {
     ),
   ],
   args: {
-    header: { title: 'Dashboard', subtitle: 'MikroTik hEX S' },
+    header: { title: 'Dashboard' },
     navigation: defaultNavigation,
     sidebar: MockSidebarContent,
     showSidebarOnDesktop: true,
@@ -189,7 +187,7 @@ export const WithDesktopSidebar: Story = {
 export const NoNavigation: Story = {
   name: 'No Navigation (Wizard Layout)',
   args: {
-    header: { title: 'Setup Wizard', subtitle: 'Step 1 of 4' },
+    header: { title: 'Setup Wizard' },
     children: (
       <div className="p-4 flex flex-col gap-4 items-center">
         <div className="h-40 w-full rounded-xl bg-muted flex items-center justify-center text-muted-foreground text-sm">
@@ -219,7 +217,7 @@ export const Mobile375px: Story = {
     },
   },
   args: {
-    header: { title: 'Dashboard', greeting: true, subtitle: 'MikroTik hEX S' },
+    header: { title: 'Dashboard' },
     navigation: defaultNavigation,
     children: MockContent,
   },
@@ -240,7 +238,7 @@ export const Tablet768px: Story = {
     },
   },
   args: {
-    header: { title: 'Dashboard', greeting: true, subtitle: 'MikroTik hEX S' },
+    header: { title: 'Dashboard' },
     navigation: defaultNavigation,
     sidebar: MockSidebarContent,
     showSidebarOnDesktop: true,
@@ -270,7 +268,7 @@ export const Desktop1280px: Story = {
     ),
   ],
   args: {
-    header: { title: 'Dashboard', greeting: true, subtitle: 'MikroTik hEX S' },
+    header: { title: 'Dashboard' },
     navigation: defaultNavigation,
     sidebar: MockSidebarContent,
     showSidebarOnDesktop: true,
@@ -285,7 +283,7 @@ export const Desktop1280px: Story = {
 export const WithLoadingState: Story = {
   name: 'Loading Content',
   args: {
-    header: { title: 'Dashboard', greeting: true },
+    header: { title: 'Dashboard' },
     navigation: defaultNavigation,
     children: (
       <div className="p-4 flex flex-col gap-4">

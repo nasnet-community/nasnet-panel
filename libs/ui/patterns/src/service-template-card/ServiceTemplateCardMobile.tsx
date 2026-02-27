@@ -59,14 +59,18 @@ function ServiceTemplateCardMobileComponent(props: ServiceTemplateCardProps) {
   return (
     <Card
       className={`
-        transition-all active:scale-[0.98]
+        bg-card border border-border rounded-[var(--semantic-radius-card)]
+        shadow-[var(--semantic-shadow-card)]
+        hover:shadow-lg cursor-pointer
+        transition-shadow duration-200
+        min-h-[44px]
         ${className || ''}
       `.trim()}
       onClick={handleClick}
       role="article"
       aria-label={`${name} template - ${scopeColors.label}`}
     >
-      <CardHeader className="pb-3">
+      <CardHeader className="pb-3 p-4">
         <div className="flex items-start gap-3">
           {/* Template icon */}
           {icon && (
@@ -102,14 +106,14 @@ function ServiceTemplateCardMobileComponent(props: ServiceTemplateCardProps) {
               {/* Scope badge */}
               <Badge
                 variant="outline"
-                className={`${scopeColors.bg} ${scopeColors.text} border-0`}
+                className={`${scopeColors.bg} ${scopeColors.text} border-0 rounded-[var(--semantic-radius-badge)]`}
               >
                 {scopeColors.label}
               </Badge>
 
               {/* Version */}
               {version && (
-                <span className="text-xs text-muted-foreground">
+                <span className="text-xs font-mono text-muted-foreground">
                   v{version}
                 </span>
               )}
@@ -124,7 +128,7 @@ function ServiceTemplateCardMobileComponent(props: ServiceTemplateCardProps) {
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 p-4">
         {/* Description */}
         {description && (
           <p className="text-sm text-muted-foreground line-clamp-2">

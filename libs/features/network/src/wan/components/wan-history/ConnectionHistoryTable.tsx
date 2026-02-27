@@ -165,9 +165,7 @@ function ConnectionHistoryTableComponent({
             className="h-8 w-8 animate-spin text-muted-foreground"
             aria-hidden="true"
           />
-          <p className="text-sm text-muted-foreground">
-            Loading connection history...
-          </p>
+          <p className="text-sm text-muted-foreground">Loading connection history...</p>
         </div>
       </div>
     );
@@ -179,16 +177,14 @@ function ConnectionHistoryTableComponent({
    */
   if (error && events.length === 0) {
     return (
-      <div className={cn('rounded-[var(--semantic-radius-card)] border border-destructive/20 bg-destructive/5 p-component-lg', className)}>
+      <div className={cn('rounded-[var(--semantic-radius-card)] border border-error/20 bg-error/5 px-component-lg py-component-lg', className)}>
         <div className="flex items-start gap-component-md">
           <History
-            className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5"
+            className="h-5 w-5 text-error flex-shrink-0 mt-0.5"
             aria-hidden="true"
           />
           <div className="flex-1">
-            <h3 className="font-semibold text-destructive">
-              Failed to load connection history
-            </h3>
+            <h3 className="font-semibold text-error">Failed to load connection history</h3>
             <p className="text-sm text-muted-foreground mt-2">
               {error.message || 'An unexpected error occurred. Please try again.'}
             </p>
@@ -347,7 +343,7 @@ function ConnectionHistoryTableComponent({
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between pt-component-md border-t">
+        <div className="flex items-center justify-between pt-component-md border-t border-border">
           <div className="text-sm text-muted-foreground">
             Page {currentPage} of {totalPages}
           </div>

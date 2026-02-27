@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/subscriptions/change-set-status-changed",
+  "title": "changeSetStatusChanged",
+  "description": "Subscribe to change set status changes",
+  "source": "@site/docs/api/operations/subscriptions/change-set-status-changed.mdx",
+  "sourceDirName": "api/operations/subscriptions",
+  "slug": "/api/operations/subscriptions/change-set-status-changed",
+  "permalink": "/api/operations/subscriptions/change-set-status-changed",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "change-set-status-changed",
+    "title": "changeSetStatusChanged"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "changeSetProgress",
+    "permalink": "/api/operations/subscriptions/change-set-progress"
+  },
+  "next": {
+    "title": "circuitBreakerChanged",
+    "permalink": "/api/operations/subscriptions/circuit-breaker-changed"
+  }
+}

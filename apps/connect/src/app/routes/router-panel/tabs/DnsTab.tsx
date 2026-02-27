@@ -18,7 +18,11 @@ import { DnsPage } from '@nasnet/features/network';
  * The DnsPage component handles all DNS management functionality.
  */
 export function DnsTab() {
-  return <DnsPage />;
+  return (
+    <div className="animate-fade-in-up">
+      <DnsPage />
+    </div>
+  );
 }
 
 DnsTab.displayName = 'DnsTab';

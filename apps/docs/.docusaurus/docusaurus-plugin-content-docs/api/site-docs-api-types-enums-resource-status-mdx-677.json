@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/resource-status",
+  "title": "ResourceStatus",
+  "description": "Resource status indicating health of resource usage.",
+  "source": "@site/docs/api/types/enums/resource-status.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/resource-status",
+  "permalink": "/api/types/enums/resource-status",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "resource-status",
+    "title": "ResourceStatus"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ResourceRelationshipType",
+    "permalink": "/api/types/enums/resource-relationship-type"
+  },
+  "next": {
+    "title": "RollbackOperation",
+    "permalink": "/api/types/enums/rollback-operation"
+  }
+}

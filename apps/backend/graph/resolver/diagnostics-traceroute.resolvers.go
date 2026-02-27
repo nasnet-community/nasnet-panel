@@ -7,7 +7,7 @@ package resolver
 
 import (
 	"backend/graph/model"
-	"backend/internal/errors"
+	"backend/internal/apperrors"
 	"context"
 )
 
@@ -15,32 +15,32 @@ import (
 func (r *mutationResolver) RunTraceroute(ctx context.Context, deviceID string, input model.TracerouteInput) (*model.TracerouteJob, error) {
 	// Validate required inputs
 	if deviceID == "" {
-		panic(errors.NewValidationError("input", nil, "deviceID cannot be empty"))
+		panic(apperrors.NewValidationError("input", nil, "deviceID cannot be empty"))
 	}
 	if input.Target == "" {
-		panic(errors.NewValidationError("input", nil, "target address cannot be empty"))
+		panic(apperrors.NewValidationError("input", nil, "target address cannot be empty"))
 	}
 	// Context used for request timeout and potential cancellation
 	_ = ctx
-	panic(errors.NewValidationError("input", nil, "not implemented: RunTraceroute - runTraceroute"))
+	panic(apperrors.NewValidationError("input", nil, "not implemented: RunTraceroute - runTraceroute"))
 }
 
 // CancelTraceroute is the resolver for the cancelTraceroute field.
 func (r *mutationResolver) CancelTraceroute(ctx context.Context, jobID string) (bool, error) {
 	if jobID == "" {
-		panic(errors.NewValidationError("input", nil, "jobID cannot be empty"))
+		panic(apperrors.NewValidationError("input", nil, "jobID cannot be empty"))
 	}
 	// Context used for request timeout handling
 	_ = ctx
-	panic(errors.NewValidationError("input", nil, "not implemented: CancelTraceroute - cancelTraceroute"))
+	panic(apperrors.NewValidationError("input", nil, "not implemented: CancelTraceroute - cancelTraceroute"))
 }
 
 // TracerouteProgress is the resolver for the tracerouteProgress field.
 func (r *subscriptionResolver) TracerouteProgress(ctx context.Context, jobID string) (<-chan *model.TracerouteProgressEvent, error) {
 	if jobID == "" {
-		panic(errors.NewValidationError("input", nil, "jobID cannot be empty"))
+		panic(apperrors.NewValidationError("input", nil, "jobID cannot be empty"))
 	}
 	// Context used for subscription timeout and cancellation
 	_ = ctx
-	panic(errors.NewValidationError("input", nil, "not implemented: TracerouteProgress - tracerouteProgress"))
+	panic(apperrors.NewValidationError("input", nil, "not implemented: TracerouteProgress - tracerouteProgress"))
 }

@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/subscriptions/interface-status-changed",
+  "title": "interfaceStatusChanged",
+  "description": "Subscribe to interface status changes for real-time updates",
+  "source": "@site/docs/api/operations/subscriptions/interface-status-changed.mdx",
+  "sourceDirName": "api/operations/subscriptions",
+  "slug": "/api/operations/subscriptions/interface-status-changed",
+  "permalink": "/api/operations/subscriptions/interface-status-changed",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "interface-status-changed",
+    "title": "interfaceStatusChanged"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "interfaceStatsUpdated",
+    "permalink": "/api/operations/subscriptions/interface-stats-updated"
+  },
+  "next": {
+    "title": "interfaceTraffic",
+    "permalink": "/api/operations/subscriptions/interface-traffic"
+  }
+}

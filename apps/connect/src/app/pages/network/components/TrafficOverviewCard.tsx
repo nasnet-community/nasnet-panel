@@ -43,12 +43,12 @@ export const TrafficOverviewCard = React.memo(function TrafficOverviewCard({ int
   const trafficBars = [40, 60, 45, 80, 55, 70, 90, 65, 75, 50, 85, 60];
 
   return (
-    <div className="bg-card rounded-card-sm p-4">
+    <div className="bg-card rounded-card-sm p-4 shadow-sm border border-border">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <Activity className="w-4 h-4 text-primary" aria-hidden="true" />
-          <span className="text-muted-foreground text-xs uppercase tracking-wide">{t('traffic.title')}</span>
+          <span className="text-muted-foreground text-xs uppercase tracking-wide font-display">{t('traffic.title')}</span>
         </div>
         <span className="text-xs text-muted-foreground" role="status">{t('status.live', { ns: 'common' })}</span>
       </div>
@@ -70,7 +70,7 @@ export const TrafficOverviewCard = React.memo(function TrafficOverviewCard({ int
 
       {/* Download/Upload Stats */}
       <div className="grid grid-cols-2 gap-3">
-        <div className="bg-muted rounded-card-sm p-3">
+        <div className="bg-muted rounded-card-sm p-3 border border-border/50">
           <div className="flex items-center gap-2 mb-1">
             <ArrowDown className="w-3.5 h-3.5 text-info" aria-hidden="true" />
             <span className="text-muted-foreground text-xs">{t('traffic.download')}</span>
@@ -81,7 +81,7 @@ export const TrafficOverviewCard = React.memo(function TrafficOverviewCard({ int
           </p>
         </div>
 
-        <div className="bg-muted rounded-card-sm p-3">
+        <div className="bg-muted rounded-card-sm p-3 border border-border/50">
           <div className="flex items-center gap-2 mb-1">
             <ArrowUp className="w-3.5 h-3.5 text-secondary" aria-hidden="true" />
             <span className="text-muted-foreground text-xs">{t('traffic.upload')}</span>

@@ -13,6 +13,7 @@
 
 import React from 'react';
 import { usePlatform } from '@nasnet/ui/layouts';
+import { cn } from '@nasnet/ui/utils';
 import { InterfaceStatsPanelDesktop } from './interface-stats-panel-desktop';
 import { InterfaceStatsPanelMobile } from './interface-stats-panel-mobile';
 import type { InterfaceStatsPanelProps } from './interface-stats-panel.types';
@@ -45,9 +46,9 @@ const InterfaceStatsPanel = React.memo(function InterfaceStatsPanel(
   const platform = usePlatform();
 
   return platform === 'mobile' ? (
-    <InterfaceStatsPanelMobile {...props} />
+    <InterfaceStatsPanelMobile {...props} className={cn('category-networking', props.className)} />
   ) : (
-    <InterfaceStatsPanelDesktop {...props} />
+    <InterfaceStatsPanelDesktop {...props} className={cn('category-networking', props.className)} />
   );
 });
 

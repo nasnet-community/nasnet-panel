@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/update-nat-rule",
+  "title": "updateNatRule",
+  "description": "Update an existing NAT rule.",
+  "source": "@site/docs/api/operations/mutations/update-nat-rule.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/update-nat-rule",
+  "permalink": "/api/operations/mutations/update-nat-rule",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "update-nat-rule",
+    "title": "updateNatRule"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "updateIpAddress",
+    "permalink": "/api/operations/mutations/update-ip-address"
+  },
+  "next": {
+    "title": "updateNotificationChannelConfig",
+    "permalink": "/api/operations/mutations/update-notification-channel-config"
+  }
+}

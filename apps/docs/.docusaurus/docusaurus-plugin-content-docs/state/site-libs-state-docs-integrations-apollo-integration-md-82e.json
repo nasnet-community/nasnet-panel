@@ -1,0 +1,24 @@
+{
+  "id": "integrations/apollo-integration",
+  "title": "Apollo Client & Zustand Integration",
+  "description": "Apollo Client manages all server state (router config, logs, VPN lists, etc.) while Zustand stores manage UI state. The two systems are integrated through Apollo Links that access Zustand stores using .getState() to read current context (router ID, authentication tokens) without React hooks.",
+  "source": "@site/../../libs/state/docs/integrations/apollo-integration.md",
+  "sourceDirName": "integrations",
+  "slug": "/integrations/apollo-integration",
+  "permalink": "/docs/state/integrations/apollo-integration",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/state/docs/integrations/apollo-integration.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Accessibility (a11y) Provider",
+    "permalink": "/docs/state/integrations/a11y-provider"
+  },
+  "next": {
+    "title": "Cross-Feature Communication via Stores",
+    "permalink": "/docs/state/integrations/cross-feature-sharing"
+  }
+}

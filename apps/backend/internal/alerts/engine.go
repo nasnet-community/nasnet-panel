@@ -24,9 +24,15 @@ type eventBusAdapter struct {
 
 func (a *eventBusAdapter) Publish(ctx context.Context, event interface{}) error {
 	if e, ok := event.(events.Event); ok {
-		return a.bus.Publish(ctx, e)
+		if err := a.bus.Publish(ctx, e); err != nil {
+			return fmt.Errorf("publish event: %w", err)
+		}
+		return nil
 	}
-	return a.bus.Publish(ctx, events.NewGenericEvent("unknown", events.PriorityNormal, "alerts", map[string]interface{}{"data": event}))
+	if err := a.bus.Publish(ctx, events.NewGenericEvent("unknown", events.PriorityNormal, "alerts", map[string]interface{}{"data": event})); err != nil {
+		return fmt.Errorf("publish generic event: %w", err)
+	}
+	return nil
 }
 
 // Engine is the main alert rules engine that evaluates events against rules.
@@ -105,16 +111,15 @@ func (e *Engine) Start(ctx context.Context) error {
 		return fmt.Errorf("failed to load initial rules: %w", err)
 	}
 
-	err := e.eventBus.SubscribeAll(e.HandleEvent)
-	if err != nil {
-		return fmt.Errorf("failed to subscribe to events: %w", err)
+	if err := e.eventBus.SubscribeAll(e.HandleEvent); err != nil {
+		return fmt.Errorf("subscribe to all events: %w", err)
 	}
 
 	subs := []string{"alert.rule.created", "alert.rule.updated", "alert.rule.deleted"}
 	for _, eventType := range subs {
 		if err := e.eventBus.Subscribe(eventType, e.handleRuleChange); err != nil {
 			e.log.Warnw("failed to subscribe to rule change event",
-				"event_type", eventType, "error", err)
+				"event_type", eventType, "error", fmt.Errorf("subscription failed: %w", err))
 		}
 	}
 
@@ -123,7 +128,7 @@ func (e *Engine) Start(ctx context.Context) error {
 
 	if e.escalationEngine != nil {
 		if err := e.escalationEngine.Start(ctx); err != nil {
-			return fmt.Errorf("failed to start escalation engine: %w", err)
+			return fmt.Errorf("start escalation engine: %w", err)
 		}
 		e.log.Info("escalation engine started")
 	}

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/gateway-reachability-result",
+  "title": "GatewayReachabilityResult",
+  "description": "Result of checking gateway reachability",
+  "source": "@site/docs/api/types/objects/gateway-reachability-result.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/gateway-reachability-result",
+  "permalink": "/api/types/objects/gateway-reachability-result",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "gateway-reachability-result",
+    "title": "GatewayReachabilityResult"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "GatewayInfo",
+    "permalink": "/api/types/objects/gateway-info"
+  },
+  "next": {
+    "title": "GenerateConfigQRPayload",
+    "permalink": "/api/types/objects/generate-config-qrpayload"
+  }
+}

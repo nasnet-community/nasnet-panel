@@ -40,12 +40,12 @@ export interface TopologyTooltipProps {
  */
 function StatusIndicator({ status }: { status: string }) {
   const statusConfig: Record<string, { color: string; label: string }> = {
-    online: { color: 'bg-green-500', label: 'Online' },
-    offline: { color: 'bg-gray-400', label: 'Offline' },
-    connected: { color: 'bg-green-500', label: 'Connected' },
-    disconnected: { color: 'bg-gray-400', label: 'Disconnected' },
-    pending: { color: 'bg-amber-400', label: 'Pending' },
-    unknown: { color: 'bg-gray-400', label: 'Unknown' },
+    online: { color: 'bg-success', label: 'Online' },
+    offline: { color: 'bg-muted-foreground', label: 'Offline' },
+    connected: { color: 'bg-success', label: 'Connected' },
+    disconnected: { color: 'bg-muted-foreground', label: 'Disconnected' },
+    pending: { color: 'bg-warning', label: 'Pending' },
+    unknown: { color: 'bg-muted-foreground', label: 'Unknown' },
   };
 
   const config = statusConfig[status] || statusConfig.unknown;
@@ -95,7 +95,8 @@ export const TopologyTooltip = memo(function TopologyTooltip({
           align={align}
           sideOffset={8}
           className={cn(
-            'z-50 max-w-[280px] rounded-lg border bg-popover px-3 py-2 shadow-md',
+            'z-50 max-w-[280px] rounded-[var(--semantic-radius-input)] border border-border bg-popover px-3 py-2',
+            'shadow-[var(--semantic-shadow-tooltip)]',
             'animate-in fade-in-0 zoom-in-95',
             className
           )}

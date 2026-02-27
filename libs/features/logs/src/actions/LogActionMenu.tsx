@@ -136,7 +136,7 @@ export const LogActionMenu = React.memo(
         {trigger || (
           <button
             className={cn(
-              'min-h-[44px] min-w-[44px] p-1 rounded-button hover:bg-muted transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+              'min-h-[44px] min-w-[44px] p-component-sm rounded-button hover:bg-muted transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
               className
             )}
             aria-label="Log entry actions"

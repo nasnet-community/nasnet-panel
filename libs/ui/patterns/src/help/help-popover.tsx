@@ -84,8 +84,11 @@ export const HelpPopover = React.memo(function HelpPopover({
         align={align}
         sideOffset={8}
         className={cn(
-          'w-80 max-w-[calc(100vw-32px)]',
-          'p-4',
+          // Container styling per spec
+          'bg-popover border border-border rounded-[var(--semantic-radius-card)]',
+          'shadow-[var(--semantic-shadow-dropdown)]',
+          'max-w-xs',
+          'p-3',
           // Focus trap styling
           'focus:outline-none'
         )}
@@ -97,34 +100,31 @@ export const HelpPopover = React.memo(function HelpPopover({
         <div className="space-y-3">
           {/* Title */}
           {content.title && (
-            <h4 className="font-medium text-foreground leading-none">
+            <h4 className="text-sm font-semibold text-foreground">
               {content.title}
             </h4>
           )}
 
           {/* Description */}
           {content.description && (
-            <p className="text-sm text-muted-foreground leading-relaxed">
+            <p className="text-xs text-muted-foreground leading-relaxed">
               {content.description}
             </p>
           )}
 
           {/* Examples */}
           {hasExamples && (
-            <div className="space-y-1.5">
-              <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+            <div className="space-y-2">
+              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                 Examples
               </span>
-              <ul className="text-sm text-foreground space-y-1">
+              <div className="bg-muted rounded-[var(--semantic-radius-input)] p-2 space-y-1">
                 {content.examples!.map((example, index) => (
-                  <li key={index} className="flex items-start gap-2">
-                    <span className="text-muted-foreground select-none">•</span>
-                    <code className="font-mono text-xs bg-muted px-1.5 py-0.5 rounded">
-                      {example}
-                    </code>
-                  </li>
+                  <div key={index} className="font-mono text-xs text-muted-foreground break-all">
+                    {example}
+                  </div>
                 ))}
-              </ul>
+              </div>
             </div>
           )}
 
@@ -135,14 +135,14 @@ export const HelpPopover = React.memo(function HelpPopover({
               target="_blank"
               rel="noopener noreferrer"
               className={cn(
-                'inline-flex items-center gap-1.5',
-                'text-sm text-primary hover:text-primary/80',
+                'inline-flex items-center gap-1',
+                'text-sm text-primary hover:text-primary',
                 'transition-colors duration-150',
                 'focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded'
               )}
             >
               <span>Learn more</span>
-              <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
+              <ExternalLink className="h-3 w-3" aria-hidden="true" />
             </a>
           )}
         </div>

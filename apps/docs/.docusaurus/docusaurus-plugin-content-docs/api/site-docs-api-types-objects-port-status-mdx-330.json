@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/port-status",
+  "title": "PortStatus",
+  "description": "Status of a single port check",
+  "source": "@site/docs/api/types/objects/port-status.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/port-status",
+  "permalink": "/api/types/objects/port-status",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "port-status",
+    "title": "PortStatus"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "PortMirror",
+    "permalink": "/api/types/objects/port-mirror"
+  },
+  "next": {
+    "title": "PppoeClient",
+    "permalink": "/api/types/objects/pppoe-client"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/mtu-guidance",
+  "title": "MtuGuidance",
+  "description": "MTU guidance for tunnel configuration",
+  "source": "@site/docs/api/types/objects/mtu-guidance.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/mtu-guidance",
+  "permalink": "/api/types/objects/mtu-guidance",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "mtu-guidance",
+    "title": "MtuGuidance"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "MissingDependency",
+    "permalink": "/api/types/objects/missing-dependency"
+  },
+  "next": {
+    "title": "MultiLinkConfig",
+    "permalink": "/api/types/objects/multi-link-config"
+  }
+}

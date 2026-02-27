@@ -118,7 +118,7 @@ export const InterfaceSelectorMobile = memo(function InterfaceSelectorMobile(
         </label>
       )}
 
-      {/* Trigger button - 44px minimum height for touch */}
+      {/* Trigger button - 44px touch target minimum */}
       <Button
         id={id}
         variant="outline"
@@ -130,9 +130,9 @@ export const InterfaceSelectorMobile = memo(function InterfaceSelectorMobile(
         disabled={disabled}
         onClick={() => setIsOpen(true)}
         className={cn(
-          'w-full h-11 justify-between font-normal',
+          'w-full min-h-[44px] justify-between font-normal font-mono',
           !displayValue && 'text-muted-foreground',
-          displayError && 'border-destructive'
+          displayError && 'border-error'
         )}
       >
         <span className="truncate">
@@ -155,7 +155,7 @@ export const InterfaceSelectorMobile = memo(function InterfaceSelectorMobile(
 
           {/* Search and filter */}
           <div className="px-4 py-3 space-y-3 border-b shrink-0">
-            {/* Search input - 44px height */}
+            {/* Search input - 44px minimum touch target */}
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
@@ -163,7 +163,7 @@ export const InterfaceSelectorMobile = memo(function InterfaceSelectorMobile(
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search interfaces..."
-                className="pl-9 h-11"
+                className="pl-9 h-11 font-mono"
                 aria-label="Search interfaces"
               />
               {searchQuery && (

@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/create-masquerade-rule",
+  "title": "createMasqueradeRule",
+  "description": "Create a masquerade rule for internet sharing.",
+  "source": "@site/docs/api/operations/mutations/create-masquerade-rule.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/create-masquerade-rule",
+  "permalink": "/api/operations/mutations/create-masquerade-rule",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "create-masquerade-rule",
+    "title": "createMasqueradeRule"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "createIpAddress",
+    "permalink": "/api/operations/mutations/create-ip-address"
+  },
+  "next": {
+    "title": "createNatRule",
+    "permalink": "/api/operations/mutations/create-nat-rule"
+  }
+}

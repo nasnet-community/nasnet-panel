@@ -131,7 +131,7 @@ export const DnsSettingsForm = memo(function DnsSettingsForm({
 
   return (
     <>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-component-lg">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-component-lg category-networking">
         {/* Remote Requests Toggle */}
         <div className="flex items-center justify-between gap-component-md">
           <div className="flex items-center gap-component-xs">

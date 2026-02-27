@@ -43,7 +43,7 @@ func (job *Job) executeAPICommand(ctx context.Context, client *mikrotik.ROSClien
 
 	reply, err := client.RunWithContext(ctx, apiCmd.Command, args...)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to execute API command: %w", err)
 	}
 
 	if cliCmd.Action == "add" && reply.Done.Map != nil {

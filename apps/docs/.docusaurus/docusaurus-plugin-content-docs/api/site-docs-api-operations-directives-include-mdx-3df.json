@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/directives/include",
+  "title": "include",
+  "description": "Directs the executor to include this field or fragment only when the if argument is true.",
+  "source": "@site/docs/api/operations/directives/include.mdx",
+  "sourceDirName": "api/operations/directives",
+  "slug": "/api/operations/directives/include",
+  "permalink": "/api/operations/directives/include",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "include",
+    "title": "include"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "Directives",
+    "permalink": "/category/directives"
+  },
+  "next": {
+    "title": "skip",
+    "permalink": "/api/operations/directives/skip"
+  }
+}

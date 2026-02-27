@@ -4,6 +4,8 @@
 package main
 
 import (
+	"fmt"
+
 	"go.uber.org/zap"
 
 	"backend/generated/ent"
@@ -30,13 +32,13 @@ func initCoreAndDiagnostics(
 		encryptionService,
 	)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, fmt.Errorf("initializing core services: %w", err)
 	}
 
 	// Initialize Diagnostics Services (diagnostics, traceroute, DNS)
 	diagnostics, err := bootstrap.InitializeDiagnostics(routerPort, sugar)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, fmt.Errorf("initializing diagnostics services: %w", err)
 	}
 
 	return core, diagnostics, nil

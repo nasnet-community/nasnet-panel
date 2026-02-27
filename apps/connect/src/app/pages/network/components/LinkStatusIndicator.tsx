@@ -40,9 +40,13 @@ export const LinkStatusIndicator = React.memo(function LinkStatusIndicator({
         colorClass,
         className
       )}
+      role="status"
+      aria-live="polite"
     >
-      <Icon className="w-3 h-3" />
-      {linkStatus === 'up' ? t('interfaces.linkUp') : linkStatus === 'down' ? t('interfaces.linkDown') : t('status.unknown', { ns: 'common' })}
+      <Icon className="w-3.5 h-3.5 flex-shrink-0" aria-hidden="true" />
+      <span className="font-mono">
+        {linkStatus === 'up' ? t('interfaces.linkUp') : linkStatus === 'down' ? t('interfaces.linkDown') : t('status.unknown', { ns: 'common' })}
+      </span>
     </span>
   );
 });

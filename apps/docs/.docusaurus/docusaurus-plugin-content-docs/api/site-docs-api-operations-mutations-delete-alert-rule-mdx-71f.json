@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/delete-alert-rule",
+  "title": "deleteAlertRule",
+  "description": "Delete an alert rule",
+  "source": "@site/docs/api/operations/mutations/delete-alert-rule.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/delete-alert-rule",
+  "permalink": "/api/operations/mutations/delete-alert-rule",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "delete-alert-rule",
+    "title": "deleteAlertRule"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "deleteAddressListEntry",
+    "permalink": "/api/operations/mutations/delete-address-list-entry"
+  },
+  "next": {
+    "title": "deleteAlertTemplate",
+    "permalink": "/api/operations/mutations/delete-alert-template"
+  }
+}

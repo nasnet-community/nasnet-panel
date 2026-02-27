@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/condition-operator",
+  "title": "ConditionOperator",
+  "description": "Condition comparison operators",
+  "source": "@site/docs/api/types/enums/condition-operator.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/condition-operator",
+  "permalink": "/api/types/enums/condition-operator",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "condition-operator",
+    "title": "ConditionOperator"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "CircuitBreakerState",
+    "permalink": "/api/types/enums/circuit-breaker-state"
+  },
+  "next": {
+    "title": "ConfigApplyStatus",
+    "permalink": "/api/types/enums/config-apply-status"
+  }
+}

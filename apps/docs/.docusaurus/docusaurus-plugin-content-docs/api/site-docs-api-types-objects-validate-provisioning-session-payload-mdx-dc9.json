@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/validate-provisioning-session-payload",
+  "title": "ValidateProvisioningSessionPayload",
+  "description": "Payload for provisioning session validation",
+  "source": "@site/docs/api/types/objects/validate-provisioning-session-payload.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/validate-provisioning-session-payload",
+  "permalink": "/api/types/objects/validate-provisioning-session-payload",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "validate-provisioning-session-payload",
+    "title": "ValidateProvisioningSessionPayload"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ValidateChangeSetPayload",
+    "permalink": "/api/types/objects/validate-change-set-payload"
+  },
+  "next": {
+    "title": "ValidateResourcePayload",
+    "permalink": "/api/types/objects/validate-resource-payload"
+  }
+}

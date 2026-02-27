@@ -131,12 +131,12 @@ const RuleCard = ({ rule, maxBytes, onEdit, onDuplicate, onDelete, onToggle, isH
         isHighlighted && 'animate-highlight bg-warning/20'
       )}
     >
-      <CardHeader className="pb-3">
+      <CardHeader className="pb-component-sm">
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <div className="flex items-center gap-2 mb-1">
+            <div className="flex items-center gap-component-sm mb-component-sm">
               <span className="font-mono text-xs text-muted-foreground">#{rule.order}</span>
-              <Badge variant="secondary" className="text-xs">
+              <Badge variant="secondary" className="text-xs font-mono">
                 {rule.chain}
               </Badge>
               <ActionBadge action={rule.action} />
@@ -153,13 +153,13 @@ const RuleCard = ({ rule, maxBytes, onEdit, onDuplicate, onDelete, onToggle, isH
       <CardContent className="pt-0">
         {/* Matchers */}
         {matchers.length > 0 && (
-          <div className="text-sm text-muted-foreground mb-3 font-mono">
+          <div className="text-sm text-muted-foreground mb-component-md font-mono">
             {matchers.join(' ')}
           </div>
         )}
 
         {/* Counters */}
-        <div className="mb-3">
+        <div className="mb-component-md">
           <CounterCell
             packets={rule.packets ?? 0}
             bytes={rule.bytes ?? 0}
@@ -172,20 +172,20 @@ const RuleCard = ({ rule, maxBytes, onEdit, onDuplicate, onDelete, onToggle, isH
 
         {/* Comment */}
         {rule.comment && (
-          <div className="text-sm text-muted-foreground italic mb-3">
+          <div className="text-sm text-muted-foreground italic mb-component-md">
             {rule.comment}
           </div>
         )}
 
         {/* Actions */}
-        <div className="flex gap-2">
+        <div className="flex gap-component-sm">
           <Button
             variant="outline"
             size="sm"
             onClick={() => onEdit(rule)}
             className="flex-1"
           >
-            <Pencil className="h-4 w-4 mr-1" />
+            <Pencil className="h-4 w-4 mr-component-sm" />
             {t('raw.buttons.edit', 'Edit')}
           </Button>
           <Button
@@ -199,7 +199,7 @@ const RuleCard = ({ rule, maxBytes, onEdit, onDuplicate, onDelete, onToggle, isH
             variant="outline"
             size="sm"
             onClick={() => onDelete(rule)}
-            className="text-destructive hover:bg-destructive/10"
+            className="text-error hover:bg-error/10"
           >
             <Trash2 className="h-4 w-4" aria-hidden="true" />
           </Button>
@@ -346,7 +346,7 @@ export const RawRulesTableMobile = ({ className, chain }: RawRulesTableMobilePro
 
   if (isLoading) {
     return (
-      <div className={cn('p-4 space-y-4 animate-pulse', className)}>
+      <div className={cn('p-component-md space-y-component-md animate-pulse', className)}>
         <div className="h-32 bg-muted rounded-lg" />
         <div className="h-32 bg-muted rounded-lg" />
         <div className="h-32 bg-muted rounded-lg" />
@@ -356,16 +356,16 @@ export const RawRulesTableMobile = ({ className, chain }: RawRulesTableMobilePro
 
   if (error) {
     return (
-      <div className={cn('p-component-md text-error rounded-[var(--semantic-radius-card)] bg-error/10', className)}>
+      <div className={cn('p-component-md text-error rounded-lg bg-error/10', className)}>
         <p className="font-medium">{t('raw.notifications.error.loadRules', 'Error loading RAW rules')}</p>
-        <p className="text-sm mt-1">{error.message}</p>
+        <p className="text-sm mt-component-xs">{error.message}</p>
       </div>
     );
   }
 
   if (!rules || rules.length === 0) {
     return (
-      <div className={cn('p-8 text-center space-y-2', className)}>
+      <div className={cn('p-component-xl text-center space-y-component-sm', className)}>
         <p className="font-semibold text-foreground">
           {chain
             ? t('raw.emptyStates.noRulesInChain.title', 'No rules in {{chain}}', { chain })
@@ -382,7 +382,7 @@ export const RawRulesTableMobile = ({ className, chain }: RawRulesTableMobilePro
 
   return (
     <>
-      <div className={`space-y-4 p-4 ${className || ''}`}>
+      <div className={`space-y-component-md p-component-md ${className || ''}`}>
         {sortedRules.map((rule) => (
           <RuleCard
             key={rule.id}
@@ -420,8 +420,8 @@ export const RawRulesTableMobile = ({ className, chain }: RawRulesTableMobilePro
               {t('raw.dialogs.deleteRule.warning', 'This action cannot be undone. The rule will be permanently removed.')}
             </DialogDescription>
           </DialogHeader>
-          <div className="py-4">
-            <p className="text-sm font-semibold mb-2">{t('raw.dialogs.deleteRule.message', 'This will:')}</p>
+          <div className="py-component-md">
+            <p className="text-sm font-semibold mb-component-sm">{t('raw.dialogs.deleteRule.message', 'This will:')}</p>
             <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
               <li>Remove the rule from the {deleteConfirmRule?.chain} chain</li>
               <li>Reorder subsequent rules automatically</li>

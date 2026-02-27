@@ -219,7 +219,7 @@ function VlanPortConfigComponent({
       </CardHeader>
 
       <form onSubmit={handleSubmit(onSubmit)}>
-        <CardContent className="space-y-component-lg">
+        <CardContent className="space-y-component-md">
           {/* Mode Selection */}
           <div className="space-y-component-sm">
             <Label>Port Mode</Label>
@@ -227,7 +227,7 @@ function VlanPortConfigComponent({
               value={mode}
               onValueChange={handleModeChange}
             >
-              <div className="flex items-start gap-component-md rounded-card-sm border border-border p-component-md">
+              <div className="flex items-start gap-component-sm rounded-card-sm border border-border p-component-sm">
                 <RadioGroupItem value="access" id="access-mode" />
                 <div className="flex-1">
                   <Label htmlFor="access-mode" className="font-medium">
@@ -240,7 +240,7 @@ function VlanPortConfigComponent({
                 </div>
               </div>
 
-              <div className="flex items-start gap-component-md rounded-card-sm border border-border p-component-md">
+              <div className="flex items-start gap-component-sm rounded-card-sm border border-border p-component-sm">
                 <RadioGroupItem value="trunk" id="trunk-mode" />
                 <div className="flex-1">
                   <Label htmlFor="trunk-mode" className="font-medium">
@@ -267,6 +267,7 @@ function VlanPortConfigComponent({
               min={1}
               max={4094}
               placeholder={mode === 'access' ? '10' : 'Optional (e.g., 1)'}
+              className="font-mono"
               {...register('pvid', { valueAsNumber: true })}
               aria-invalid={errors.pvid ? 'true' : 'false'}
               aria-describedby={errors.pvid ? 'pvid-error' : undefined}
@@ -290,7 +291,7 @@ function VlanPortConfigComponent({
 
               {/* VLAN List */}
               {taggedVlanIds.length > 0 && (
-                <div className="flex flex-wrap gap-component-sm">
+                <div className="flex flex-wrap gap-component-xs">
                   {taggedVlanIds.sort((a, b) => a - b).map((vlanId) => (
                     <Badge key={vlanId} variant="outline" className="font-mono">
                       {vlanId}
@@ -318,6 +319,7 @@ function VlanPortConfigComponent({
                   min={1}
                   max={4094}
                   placeholder="VLAN ID (e.g., 10)"
+                  className="font-mono"
                   value={newVlanId}
                   onChange={(e) => setNewVlanId(e.target.value)}
                   onKeyDown={(e) => {
@@ -371,7 +373,7 @@ function VlanPortConfigComponent({
           )}
         </CardContent>
 
-        <CardFooter className="flex justify-between">
+        <CardFooter className="flex justify-between gap-component-md">
           <div className="flex gap-component-sm">
             {onCancel && (
               <Button type="button" variant="outline" onClick={onCancel}>
@@ -391,7 +393,7 @@ function VlanPortConfigComponent({
             {loading && (
               <Icon
                 icon={Loader2}
-                className="mr-2 h-4 w-4 animate-spin"
+                className="mr-component-sm h-4 w-4 animate-spin"
                 aria-hidden="true"
               />
             )}

@@ -180,7 +180,7 @@ func (e *UpdateEngine) phaseStaging(ctx context.Context, instanceID, featureID, 
 		"checksumURL": checksumURL,
 	})
 	if err != nil {
-		return err
+		return fmt.Errorf("begin staging phase: %w", err)
 	}
 
 	// Download binary to staging directory
@@ -218,7 +218,7 @@ func (e *UpdateEngine) phaseBackup(ctx context.Context, instanceID, featureID, c
 
 	_, err := e.config.Journal.BeginPhase(ctx, instanceID, featureID, currentVersion, targetVersion, PhaseBackup, nil)
 	if err != nil {
-		return err
+		return fmt.Errorf("begin backup phase: %w", err)
 	}
 
 	// Get paths
@@ -257,7 +257,7 @@ func (e *UpdateEngine) phaseSwap(ctx context.Context, instanceID, featureID, cur
 
 	_, err := e.config.Journal.BeginPhase(ctx, instanceID, featureID, currentVersion, targetVersion, PhaseSwap, nil)
 	if err != nil {
-		return err
+		return fmt.Errorf("begin swap phase: %w", err)
 	}
 
 	// Stop the instance (if running)
@@ -308,7 +308,7 @@ func (e *UpdateEngine) phaseMigration(ctx context.Context, instanceID, featureID
 
 	_, err := e.config.Journal.BeginPhase(ctx, instanceID, featureID, currentVersion, targetVersion, PhaseMigration, nil)
 	if err != nil {
-		return err
+		return fmt.Errorf("begin migration phase: %w", err)
 	}
 
 	// Get migrator for feature
@@ -499,9 +499,12 @@ func (e *UpdateEngine) RecoverFromCrash(ctx context.Context) error {
 func copyFile(src, dst string) error {
 	data, err := os.ReadFile(src)
 	if err != nil {
-		return err
+		return fmt.Errorf("read source file: %w", err)
 	}
-	return os.WriteFile(dst, data, 0o644)
+	if err := os.WriteFile(dst, data, 0o644); err != nil {
+		return fmt.Errorf("write destination file: %w", err)
+	}
+	return nil
 }
 
 // copyDir recursively copies a directory from src to dst.
@@ -511,11 +514,11 @@ func copyDir(src, dst string) error {
 		if os.IsNotExist(err) {
 			return nil // Source dir doesn't exist, nothing to copy
 		}
-		return err
+		return fmt.Errorf("read source directory: %w", err)
 	}
 
 	if err := os.MkdirAll(dst, 0o755); err != nil {
-		return err
+		return fmt.Errorf("create destination directory: %w", err)
 	}
 
 	for _, entry := range entries {
@@ -547,7 +550,7 @@ func fetchChecksum(ctx context.Context, checksumURL, targetFilename string) (str
 		return "", fmt.Errorf("failed to create checksum request: %w", err)
 	}
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := http.DefaultClient.Do(req) //nolint:gosec // G704: URL is constructed from trusted configuration
 	if err != nil {
 		return "", fmt.Errorf("failed to fetch checksum: %w", err)
 	}

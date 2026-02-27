@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/add-router-payload",
+  "title": "AddRouterPayload",
+  "description": "Payload returned from the addRouter mutation.",
+  "source": "@site/docs/api/types/objects/add-router-payload.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/add-router-payload",
+  "permalink": "/api/types/objects/add-router-payload",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "add-router-payload",
+    "title": "AddRouterPayload"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "AddChangeSetItemPayload",
+    "permalink": "/api/types/objects/add-change-set-item-payload"
+  },
+  "next": {
+    "title": "AddressListEntryConnection",
+    "permalink": "/api/types/objects/address-list-entry-connection"
+  }
+}

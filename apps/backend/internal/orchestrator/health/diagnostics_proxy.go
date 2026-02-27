@@ -234,7 +234,7 @@ func (t *ProxyAPITest) Run(ctx context.Context) DiagnosticResult {
 		Timeout: 5 * time.Second,
 	}
 
-	resp, err := client.Do(req)
+	resp, err := client.Do(req) //nolint:gosec // G704: URL is constructed from trusted configuration
 	if err != nil {
 		// API might not be enabled, this is a warning not a failure
 		return t.newResult(

@@ -1,6 +1,7 @@
 package bootstrap
 
 import (
+	"fmt"
 	"log/slog"
 
 	"go.uber.org/zap"
@@ -8,6 +9,7 @@ import (
 	"backend/generated/ent"
 	"backend/internal/adapters"
 	"backend/internal/features"
+	isolationpkg "backend/internal/isolation"
 	"backend/internal/orchestrator/boot"
 	"backend/internal/orchestrator/dependencies"
 	"backend/internal/orchestrator/isolation"
@@ -18,6 +20,7 @@ import (
 
 	"backend/internal/events"
 	"backend/internal/network"
+	"backend/internal/registry"
 	"backend/internal/router"
 	"backend/internal/storage"
 )
@@ -32,6 +35,8 @@ type OrchestratorComponents struct {
 	ConfigValidator     *isolation.ConfigValidatorAdapter
 	IsolationVerifier   *isolation.IsolationVerifier
 	ResourceLimiter     *resources.ResourceLimiter
+	ResourceManager     *resources.ResourceManager
+	ResourcePoller      *resources.ResourcePoller
 	InstanceManager     *lifecycle.InstanceManager
 	DependencyManager   *dependencies.DependencyManager
 	BootSequenceManager *boot.BootSequenceManager
@@ -46,6 +51,8 @@ type OrchestratorComponents struct {
 // - Config validator (validates service configs)
 // - Isolation verifier (4-layer isolation defense)
 // - Resource limiter (cgroups v2 memory limits)
+// - Resource manager (system resource detection and pre-flight checks)
+// - Resource poller (resource usage monitoring and warning emission)
 // - Instance manager (orchestrates service lifecycle)
 // - Dependency manager (manages service dependencies)
 // - Boot sequence manager (orchestrates boot startup)
@@ -68,7 +75,7 @@ func InitializeOrchestrator(
 	// 1. Feature Registry - loads service manifests (Tor, sing-box, Xray, etc.)
 	featureRegistry, err := features.NewFeatureRegistry()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("init feature registry: %w", err)
 	}
 	logger.Infow("Feature registry initialized", "manifests", featureRegistry.Count())
 
@@ -90,7 +97,7 @@ func InitializeOrchestrator(
 		ReservedPorts: []int{22, 53, 80, 443, 8080, 8291, 8728, 8729},
 	})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("init port registry: %w", err)
 	}
 	logger.Infow("Port registry initialized")
 
@@ -110,7 +117,7 @@ func InitializeOrchestrator(
 		AllowedBaseDir:         "/data/services",
 	})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("init isolation verifier: %w", err)
 	}
 	logger.Infow("Isolation verifier initialized", "layers", "4-layer defense")
 
@@ -120,9 +127,38 @@ func InitializeOrchestrator(
 		Logger:   logger.Desugar(),
 	})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("init resource limiter: %w", err)
 	}
 	logger.Infow("Resource limiter initialized", "cgroups_v2_enabled", resourceLimiter.IsCgroupsEnabled())
+
+	// 8a. Resource Manager - system resource detection and pre-flight checks
+	resourceManager, err := resources.NewResourceManager(resources.ResourceManagerConfig{
+		Store:  systemDB,
+		Logger: logger.Desugar(),
+	})
+	if err != nil {
+		return nil, fmt.Errorf("init resource manager: %w", err)
+	}
+	logger.Infow("Resource manager initialized")
+
+	// 8b. Resource Poller - resource usage monitoring and warning emission
+	resourcePoller, err := resources.NewResourcePoller(resources.ResourcePollerConfig{
+		ResourceLimiter: resourceLimiter,
+		EventBus:        eventBus,
+		Logger:          logger.Desugar(),
+	})
+	if err != nil {
+		return nil, fmt.Errorf("init resource poller: %w", err)
+	}
+	logger.Infow("Resource poller initialized")
+
+	// 8c. GitHub Client - used by instance manager for fetching release binaries
+	githubClient := registry.NewGitHubClient()
+	logger.Infow("GitHub client initialized for binary resolution")
+
+	// 8d. Isolation Strategy - detects best process isolation strategy
+	isolationStrategy := isolationpkg.DetectStrategy(logger.Desugar())
+	logger.Infow("Isolation strategy detected", "strategy", isolationStrategy.Name())
 
 	// 9. Instance Manager - orchestrates complete service instance lifecycle
 	instanceManager, err := lifecycle.NewInstanceManager(lifecycle.InstanceManagerConfig{
@@ -137,11 +173,15 @@ func InitializeOrchestrator(
 		VLANAllocator:      vlanAllocator,
 		BridgeOrchestrator: bridgeOrchestrator,
 		IsolationVerifier:  isolationVerifier,
+		IsolationStrategy:  isolationStrategy,
 		ResourceLimiter:    resourceLimiter,
+		ResourceManager:    resourceManager,
+		ResourcePoller:     resourcePoller,
+		GitHubClient:       githubClient,
 		Logger:             logger.Desugar(),
 	})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("init instance manager: %w", err)
 	}
 	logger.Infow("Instance manager initialized", "isolation", "enabled")
 
@@ -152,7 +192,7 @@ func InitializeOrchestrator(
 		Logger:   logger.Desugar(),
 	})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("init dependency manager: %w", err)
 	}
 	logger.Infow("Dependency manager initialized")
 
@@ -165,7 +205,7 @@ func InitializeOrchestrator(
 		Logger:        logger.Desugar(),
 	})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("init boot sequence manager: %w", err)
 	}
 	logger.Infow("Boot sequence manager initialized")
 
@@ -178,6 +218,8 @@ func InitializeOrchestrator(
 		ConfigValidator:     configValidator,
 		IsolationVerifier:   isolationVerifier,
 		ResourceLimiter:     resourceLimiter,
+		ResourceManager:     resourceManager,
+		ResourcePoller:      resourcePoller,
 		InstanceManager:     instanceManager,
 		DependencyManager:   dependencyManager,
 		BootSequenceManager: bootSequenceManager,

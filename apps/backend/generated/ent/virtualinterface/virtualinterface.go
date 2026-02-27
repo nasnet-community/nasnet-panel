@@ -33,6 +33,14 @@ const (
 	FieldRoutingMark = "routing_mark"
 	// FieldStatus holds the string denoting the status field in the database.
 	FieldStatus = "status"
+	// FieldRoutingMode holds the string denoting the routing_mode field in the database.
+	FieldRoutingMode = "routing_mode"
+	// FieldIngressVlanID holds the string denoting the ingress_vlan_id field in the database.
+	FieldIngressVlanID = "ingress_vlan_id"
+	// FieldEgressVlanIds holds the string denoting the egress_vlan_ids field in the database.
+	FieldEgressVlanIds = "egress_vlan_ids"
+	// FieldContainerIP holds the string denoting the container_ip field in the database.
+	FieldContainerIP = "container_ip"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
 	FieldCreatedAt = "created_at"
 	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
@@ -71,6 +79,10 @@ var Columns = []string{
 	FieldTunName,
 	FieldRoutingMark,
 	FieldStatus,
+	FieldRoutingMode,
+	FieldIngressVlanID,
+	FieldEgressVlanIds,
+	FieldContainerIP,
 	FieldCreatedAt,
 	FieldUpdatedAt,
 }
@@ -98,6 +110,10 @@ var (
 	TunNameValidator func(string) error
 	// RoutingMarkValidator is a validator for the "routing_mark" field. It is called by the builders before save.
 	RoutingMarkValidator func(string) error
+	// IngressVlanIDValidator is a validator for the "ingress_vlan_id" field. It is called by the builders before save.
+	IngressVlanIDValidator func(int) error
+	// ContainerIPValidator is a validator for the "container_ip" field. It is called by the builders before save.
+	ContainerIPValidator func(string) error
 	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
 	DefaultCreatedAt func() time.Time
 	// DefaultUpdatedAt holds the default value on creation for the "updated_at" field.
@@ -192,6 +208,33 @@ func StatusValidator(s Status) error {
 	}
 }
 
+// RoutingMode defines the type for the "routing_mode" enum field.
+type RoutingMode string
+
+// RoutingModeLegacy is the default value of the RoutingMode enum.
+const DefaultRoutingMode = RoutingModeLegacy
+
+// RoutingMode values.
+const (
+	RoutingModeBridge   RoutingMode = "bridge"
+	RoutingModeAdvanced RoutingMode = "advanced"
+	RoutingModeLegacy   RoutingMode = "legacy"
+)
+
+func (rm RoutingMode) String() string {
+	return string(rm)
+}
+
+// RoutingModeValidator is a validator for the "routing_mode" field enum values. It is called by the builders before save.
+func RoutingModeValidator(rm RoutingMode) error {
+	switch rm {
+	case RoutingModeBridge, RoutingModeAdvanced, RoutingModeLegacy:
+		return nil
+	default:
+		return fmt.Errorf("virtualinterface: invalid enum value for routing_mode field: %q", rm)
+	}
+}
+
 // OrderOption defines the ordering options for the VirtualInterface queries.
 type OrderOption func(*sql.Selector)
 
@@ -243,6 +286,21 @@ func ByRoutingMark(opts ...sql.OrderTermOption) OrderOption {
 // ByStatus orders the results by the status field.
 func ByStatus(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldStatus, opts...).ToFunc()
+}
+
+// ByRoutingMode orders the results by the routing_mode field.
+func ByRoutingMode(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRoutingMode, opts...).ToFunc()
+}
+
+// ByIngressVlanID orders the results by the ingress_vlan_id field.
+func ByIngressVlanID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldIngressVlanID, opts...).ToFunc()
+}
+
+// ByContainerIP orders the results by the container_ip field.
+func ByContainerIP(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldContainerIP, opts...).ToFunc()
 }
 
 // ByCreatedAt orders the results by the created_at field.

@@ -79,10 +79,10 @@ export const ServiceConfigFormMobile = React.memo(
 
     if (loading.schema || loading.config) {
       return (
-        <div className="flex items-center justify-center p-8">
+        <div className="flex items-center justify-center p-component-lg">
           <Icon
             icon={Loader2}
-            className="h-6 w-6 animate-spin text-muted-foreground"
+            className="h-6 w-6 animate-spin text-primary"
             aria-hidden="true"
           />
           <span className="sr-only">Loading configuration...</span>
@@ -99,7 +99,7 @@ export const ServiceConfigFormMobile = React.memo(
     }
 
     return (
-      <div className={cn('pb-20', className)}>
+      <div className={cn('pb-20 space-y-component-md', className)}>
         <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-component-md">
           {Object.entries(groupedFields).map(([groupName, fields]) => (
             <Card key={groupName}>

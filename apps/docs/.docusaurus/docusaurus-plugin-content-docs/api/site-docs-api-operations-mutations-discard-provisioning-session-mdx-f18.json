@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/discard-provisioning-session",
+  "title": "discardProvisioningSession",
+  "description": "Discard a provisioning session and clean up resources",
+  "source": "@site/docs/api/operations/mutations/discard-provisioning-session.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/discard-provisioning-session",
+  "permalink": "/api/operations/mutations/discard-provisioning-session",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "discard-provisioning-session",
+    "title": "discardProvisioningSession"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "disablePortMirror",
+    "permalink": "/api/operations/mutations/disable-port-mirror"
+  },
+  "next": {
+    "title": "disconnectRouter",
+    "permalink": "/api/operations/mutations/disconnect-router"
+  }
+}

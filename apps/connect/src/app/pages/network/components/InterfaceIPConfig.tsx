@@ -139,9 +139,9 @@ export const InterfaceIPConfig = React.memo(function InterfaceIPConfig({
                 >
                   <div className="flex items-center gap-component-md">
                     {isExpanded ?
-                      <ChevronDown className="text-muted-foreground h-4 w-4" />
-                    : <ChevronRight className="text-muted-foreground h-4 w-4" />}
-                    <span className="text-foreground text-sm font-medium">{interfaceName}</span>
+                      <ChevronDown className="text-muted-foreground h-4 w-4" aria-hidden="true" />
+                    : <ChevronRight className="text-muted-foreground h-4 w-4" aria-hidden="true" />}
+                    <span className="font-display font-semibold text-foreground text-sm">{interfaceName}</span>
                     <span className="bg-muted text-muted-foreground rounded px-2 py-0.5 text-xs font-medium">
                       {t('ipConfig.addressCount', { count: ips.length })}
                     </span>
@@ -149,7 +149,7 @@ export const InterfaceIPConfig = React.memo(function InterfaceIPConfig({
 
                   {/* Quick preview of first IP */}
                   {!isExpanded && ips.length > 0 && (
-                    <span className="text-muted-foreground hidden font-mono text-xs sm:block">
+                    <span className="text-muted-foreground hidden font-mono text-xs sm:block break-all">
                       {ips[0].address}
                     </span>
                   )}
@@ -167,7 +167,7 @@ export const InterfaceIPConfig = React.memo(function InterfaceIPConfig({
                           className="border-border border-b p-3 last:border-b-0 md:p-4"
                         >
                           <div className="mb-2 flex flex-wrap items-center justify-between gap-component-sm">
-                            <span className="text-foreground font-mono text-sm font-medium">
+                            <span className="text-foreground font-mono text-sm font-medium break-all">
                               {ip.address}
                             </span>
                             {getTypeBadge(ip)}
@@ -175,27 +175,27 @@ export const InterfaceIPConfig = React.memo(function InterfaceIPConfig({
 
                           {networkInfo && (
                             <div className="mt-3 grid grid-cols-1 gap-component-sm sm:grid-cols-3">
-                              <div className="bg-muted rounded-lg p-2">
-                                <p className="text-muted-foreground mb-0.5 text-xs">
+                              <div className="bg-muted rounded-card-sm p-2">
+                                <p className="text-muted-foreground mb-0.5 text-xs font-medium">
                                   {t('ipConfig.network')}
                                 </p>
-                                <p className="text-foreground font-mono text-xs">
+                                <p className="text-foreground font-mono text-xs break-all">
                                   {networkInfo.network}
                                 </p>
                               </div>
-                              <div className="bg-muted rounded-lg p-2">
-                                <p className="text-muted-foreground mb-0.5 text-xs">
+                              <div className="bg-muted rounded-card-sm p-2">
+                                <p className="text-muted-foreground mb-0.5 text-xs font-medium">
                                   {t('ipConfig.netmask')}
                                 </p>
-                                <p className="text-foreground font-mono text-xs">
+                                <p className="text-foreground font-mono text-xs break-all">
                                   {networkInfo.netmask}
                                 </p>
                               </div>
-                              <div className="bg-muted rounded-lg p-2">
-                                <p className="text-muted-foreground mb-0.5 text-xs">
+                              <div className="bg-muted rounded-card-sm p-2">
+                                <p className="text-muted-foreground mb-0.5 text-xs font-medium">
                                   {t('ipConfig.broadcast')}
                                 </p>
-                                <p className="text-foreground font-mono text-xs">
+                                <p className="text-foreground font-mono text-xs break-all">
                                   {networkInfo.broadcast}
                                 </p>
                               </div>

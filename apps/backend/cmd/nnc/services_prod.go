@@ -5,6 +5,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 
 	"go.uber.org/zap"
 
@@ -46,13 +47,13 @@ func initProdServices(
 	// 0. Initialize Encryption Service (shared by core and integration services)
 	encSvc, err := initEncryptionService(logger)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("initializing encryption service: %w", err)
 	}
 
 	// 1-2. Initialize Storage and VIF
 	storage, vif, err := initStorageAndVIF(ctx, systemDB, eventBus, routerPort, logger.Sugar(), logger)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("initializing storage and VIF: %w", err)
 	}
 
 	// 3. Initialize Service Orchestrator
@@ -65,7 +66,7 @@ func initProdServices(
 	// 3b. Initialize Routing Engine (depends on orchestrator for featureRegistry)
 	routingComponents, err := bootstrap.InitializeRouting(systemDB, eventBus, routerPort, orchestrator.FeatureRegistry, logger.Sugar())
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("initialize routing: %w", err)
 	}
 
 	// 4-5. Initialize Update Manager and Template System
@@ -133,7 +134,7 @@ func initEncryptionService(logger *zap.Logger) (*encryption.Service, error) {
 			KeyVersion: 1,
 		})
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("creating encryption service with dummy key: %w", err)
 		}
 	}
 	logger.Info("Encryption service initialized")

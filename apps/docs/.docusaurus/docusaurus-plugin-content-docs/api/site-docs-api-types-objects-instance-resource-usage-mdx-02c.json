@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/instance-resource-usage",
+  "title": "InstanceResourceUsage",
+  "description": "Resource usage details for a single service instance.",
+  "source": "@site/docs/api/types/objects/instance-resource-usage.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/instance-resource-usage",
+  "permalink": "/api/types/objects/instance-resource-usage",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "instance-resource-usage",
+    "title": "InstanceResourceUsage"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "InstallProgress",
+    "permalink": "/api/types/objects/install-progress"
+  },
+  "next": {
+    "title": "InstanceStatusChanged",
+    "permalink": "/api/types/objects/instance-status-changed"
+  }
+}

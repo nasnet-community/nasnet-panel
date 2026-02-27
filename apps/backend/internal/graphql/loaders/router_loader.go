@@ -79,6 +79,6 @@ func (l *RouterLoader) ClearAll() {
 
 // Prime adds a value to the cache.
 // Useful when you've already fetched a router and want to cache it for future loads.
-func (l *RouterLoader) Prime(ctx context.Context, id string, router *ent.Router) {
-	l.loader.Prime(ctx, id, router)
+func (l *RouterLoader) Prime(ctx context.Context, id string, rtr *ent.Router) {
+	l.loader.Prime(ctx, id, rtr)
 }

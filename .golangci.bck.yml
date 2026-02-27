@@ -1,0 +1,359 @@
+# golangci-lint configuration for NasNetConnect
+# Configured per Tech Spec Story 1.3: 50+ linters including staticcheck, gosec, govet, errcheck, gofmt, goimports
+
+run:
+  timeout: 15m
+  tests: false
+  modules-download-mode: readonly
+  go: "1.26"
+
+linters:
+  disable:
+    - godot
+  # Enable a comprehensive set of 50+ linters
+  enable:
+    # Default/Essential linters
+    - errcheck          # Check for unchecked errors
+    - gosimple          # Simplify code
+    - govet             # Vet examines Go source code
+    - ineffassign       # Detect ineffectual assignments
+    - staticcheck       # Static analysis
+    - unused            # Check for unused code
+    - typecheck         # Parses and type-checks Go code
+
+    # Code Quality
+    - bodyclose         # Check HTTP response body is closed
+    - contextcheck      # Check context.Context usage
+    - dogsled           # Check for blank identifier assignments
+    - dupl              # Detect duplicate code
+    - durationcheck     # Check for time.Duration mistakes
+    - errorlint         # Check error handling
+    - exhaustive        # Check exhaustiveness of enum switch statements
+    - copyloopvar       # Check for loop variable capture (Go 1.22+)
+    - gochecknoinits    # Check for init functions
+    - goconst           # Find repeated strings that could be constants
+    - gocritic          # Check for bugs, performance, style issues
+    - gocyclo           # Check cyclomatic complexity
+    #- godot             # Check that comments end in a period
+    - gofmt             # Check code is formatted
+    - goimports         # Check imports are formatted
+    - goprintffuncname  # Check printf-like function names
+    - gosec             # Security checks
+    - lll               # Check line length
+    - makezero          # Find slice declarations not initialized to zero
+    - misspell          # Find misspelled words
+    - nakedret          # Find naked returns in large functions
+    - nestif            # Check for deeply nested if statements
+    - nilerr            # Check for nil error returns
+    - nilnil            # Check for nil/nil returns
+    - noctx             # Check for http requests without context
+    - nolintlint        # Check ill-formed nolint directives
+    - prealloc          # Find slice preallocations
+    - predeclared       # Find shadowed predeclared identifiers
+    - revive            # Configurable linter
+    - rowserrcheck      # Check sql.Rows.Err is called
+    - sqlclosecheck     # Check SQL rows/statements are closed
+    - stylecheck        # Style checks
+    - usetesting        # Check test environment usage
+    - tparallel         # Check test parallelization
+    - unconvert         # Remove unnecessary type conversions
+    - unparam           # Check for unused function parameters
+    - wastedassign      # Find wasted assignments
+    - whitespace        # Check for unnecessary whitespace
+
+    # Additional security and quality
+    - asciicheck        # Check for non-ASCII identifiers
+    - bidichk           # Check for dangerous unicode characters
+    - decorder          # Check declaration order
+    - errchkjson        # Check json error handling
+    - errname           # Check error naming conventions
+    - protogetter       # Check for direct proto field access
+    - forcetypeassert   # Check type assertions
+    - gomoddirectives   # Check go.mod directives
+    - grouper           # Check grouping declarations
+    - importas          # Enforce import aliases
+    - interfacebloat    # Check interface size
+    - loggercheck       # Check logger arguments
+    - maintidx          # Check maintainability index
+    - musttag           # Check struct tags
+    - nosprintfhostport # Check sprintf host:port
+    - promlinter        # Check Prometheus metrics
+    - reassign          # Check variable reassignment
+    - tagalign          # Check struct tag alignment
+    - thelper           # Check test helpers
+    - usestdlibvars     # Check for standard library vars
+    - zerologlint       # Check zerolog usage
+
+    # Architecture & safety linters
+    - nilaway           # Detect nil pointer dereferences across function boundaries
+    - wrapcheck         # Ensure errors from external packages are wrapped with context
+    - depguard          # Enforce import dependency rules (architecture boundaries)
+
+linters-settings:
+  govet:
+    enable:
+      - shadow
+    settings:
+      printf:
+        funcs:
+          - (github.com/golangci/golangci-lint/pkg/logutils.Log).Infof
+          - (github.com/golangci/golangci-lint/pkg/logutils.Log).Warnf
+          - (github.com/golangci/golangci-lint/pkg/logutils.Log).Errorf
+          - (github.com/golangci/golangci-lint/pkg/logutils.Log).Fatalf
+
+  errcheck:
+    check-type-assertions: true
+    check-blank: true
+    exclude-functions:
+      - io.Copy
+      - io.WriteString
+      - (io.Closer).Close
+      - (net/http.ResponseWriter).Write
+
+  gocyclo:
+    min-complexity: 15
+
+  gocognit:
+    min-complexity: 20
+
+  goconst:
+    min-len: 3
+    min-occurrences: 3
+
+  gocritic:
+    enabled-tags:
+      - diagnostic
+      - experimental
+      - opinionated
+      - performance
+      - style
+    disabled-checks:
+      - whyNoLint
+      - wrapperFunc
+      - commentFormatting  # Too opinionated for existing code
+      - hugeParam          # Will be addressed gradually
+    settings:
+      rangeValCopy:
+        sizeThreshold: 512  # Allow larger value copies for now
+
+  gofmt:
+    simplify: true
+
+  goimports:
+    local-prefixes: github.com/nasnet
+
+  gomoddirectives:
+    replace-allow-list:
+      - github.com/nasnet
+
+  gosec:
+    excludes:
+      - G101  # Look for hard coded credentials (too many false positives)
+    config:
+      G306: "0644"
+
+  gosimple:
+    checks: ["all"]
+
+  lll:
+    line-length: 140
+    tab-width: 4
+
+  misspell:
+    locale: US
+
+  nakedret:
+    max-func-lines: 30
+
+  nestif:
+    min-complexity: 4
+
+  nolintlint:
+    allow-unused: false
+    require-explanation: true
+    require-specific: true
+
+  prealloc:
+    simple: true
+    range-loops: true
+    for-loops: false
+
+  revive:
+    ignore-generated-header: true
+    severity: warning
+    rules:
+      - name: blank-imports
+      - name: context-as-argument
+      - name: context-keys-type
+      - name: dot-imports
+      - name: error-return
+      - name: error-strings
+      - name: error-naming
+      - name: exported
+      - name: if-return
+      - name: increment-decrement
+      - name: var-naming
+      - name: var-declaration
+      - name: package-comments
+      - name: range
+      - name: receiver-naming
+      - name: time-naming
+      - name: unexported-return
+      - name: indent-error-flow
+      - name: errorf
+      - name: empty-block
+      - name: superfluous-else
+      - name: unused-parameter
+      - name: unreachable-code
+      - name: redefines-builtin-id
+
+  staticcheck:
+    checks:
+      - all
+
+  stylecheck:
+    checks:
+      - all
+      - -ST1000  # Package comment check (too strict)
+      - -ST1003  # Underscore in package names (allows _test)
+
+  tagliatelle:
+    case:
+      use-field-name: true
+      rules:
+        json: snake
+        yaml: snake
+
+  unparam:
+    check-exported: false
+
+  wrapcheck:
+    ignoreSigs:
+      - ".Errorf("
+      - "errors.New("
+      - "errors.Unwrap("
+      - ".Wrap("
+      - ".Wrapf("
+      - ".WithMessage("
+      - ".WithMessagef("
+      - ".WithStack("
+    ignorePackageGlobs:
+      - encoding/*
+      - io
+      - io/fs
+
+  depguard:
+    rules:
+      prevent-internal-leaks:
+        files:
+          - "!$test"
+        deny:
+          - pkg: "backend/cmd"
+            desc: "internal packages must not import from cmd/"
+          - pkg: "backend/graph/resolver"
+            desc: "internal packages must not import resolver layer"
+      resolver-isolation:
+        files:
+          - "**/graph/resolver/**"
+        deny:
+          - pkg: "backend/cmd"
+            desc: "resolvers must not import cmd package"
+
+  whitespace:
+    multi-if: true
+    multi-func: true
+
+issues:
+  exclude-rules:
+    # Exclude some linters from running on tests files
+    - path: _test\.go
+      linters:
+        - errcheck
+        - gosec
+        - dupl
+        - goconst
+        - gocyclo
+        - funlen
+
+    # Exclude lll for files with long lines expected
+    - path: (cmd|internal)/
+      linters:
+        - lll
+
+    # Exclude some security checks in test code
+    - path: _test\.go
+      text: "G"
+      linters:
+        - gosec
+
+    # Temporary exclusions for migration - will be addressed in phases
+    # Phase 1: Suppress unused parameter warnings (will fix in Task 7)
+    - linters:
+        - revive
+      text: "unused-parameter"
+
+    # Phase 2: Suppress naming convention warnings (will fix in Task 7)
+    - linters:
+        - revive
+      text: "(var-naming|receiver-naming)"
+
+
+    # Phase 4: Suppress goconst warnings in generated code
+    - path: generated/
+      linters:
+        - goconst
+        - revive
+        - stylecheck
+
+    # Phase 5: Suppress complexity warnings in bootstrap/initialization code
+    - path: (cmd/nnc/|internal/bootstrap/)
+      linters:
+        - gocyclo
+        - gocognit
+        - maintidx
+
+    # Phase: nilaway graduated rollout (suppress in complex bootstrap/resolver code)
+    - path: (cmd/nnc/|internal/bootstrap/)
+      linters:
+        - nilaway
+
+    - path: graph/resolver/
+      linters:
+        - nilaway
+
+    # Phase: wrapcheck graduated rollout (suppress in resolvers initially)
+    - path: graph/resolver/
+      linters:
+        - wrapcheck
+
+    # Generated code: exempt from new linters
+    - path: generated/
+      linters:
+        - nilaway
+        - wrapcheck
+        - depguard
+
+  max-issues-per-linter: 0
+  max-same-issues: 0
+  new: false
+
+severity:
+  default-severity: warning
+  case-sensitive: false
+  rules:
+    - linters:
+        - errcheck
+        - gosec
+        - govet
+      severity: error
+    - linters:
+        - stylecheck
+        - revive
+      severity: warning
+
+output:
+  formats:
+    - format: colored-line-number
+  print-issued-lines: true
+  print-linter-name: true
+  sort-results: true

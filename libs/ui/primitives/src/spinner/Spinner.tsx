@@ -25,7 +25,7 @@ import { cn } from '../lib/utils';
 
 export interface SpinnerProps extends React.SVGAttributes<SVGSVGElement> {
   /** Size of the spinner */
-  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  size?: 'sm' | 'md' | 'lg' | 'xl';
   /** Screen reader label */
   label?: string;
 }
@@ -35,11 +35,10 @@ export interface SpinnerProps extends React.SVGAttributes<SVGSVGElement> {
 // ============================================================================
 
 const sizeClasses = {
-  xs: 'h-3 w-3',
-  sm: 'h-4 w-4',
-  md: 'h-5 w-5',
-  lg: 'h-6 w-6',
-  xl: 'h-8 w-8',
+  sm: 'h-4 w-4',    // 16px
+  md: 'h-6 w-6',    // 24px (default)
+  lg: 'h-8 w-8',    // 32px
+  xl: 'h-12 w-12',  // 48px
 } as const;
 
 // ============================================================================
@@ -59,8 +58,9 @@ const sizeClasses = {
  *
  * // Different sizes
  * <Spinner size="sm" />  // 16px - for buttons
- * <Spinner size="md" />  // 20px - default
- * <Spinner size="lg" />  // 24px - for overlays
+ * <Spinner size="md" />  // 24px - default
+ * <Spinner size="lg" />  // 32px - for overlays
+ * <Spinner size="xl" />  // 48px - for loading screens
  *
  * // With custom label
  * <Spinner label="Saving configuration..." />
@@ -78,7 +78,7 @@ const Spinner = React.memo(
             className={cn(
               sizeClasses[size],
               !prefersReducedMotion && 'animate-spin',
-              'text-current',
+              'text-primary',
               className
             )}
             aria-hidden="true"

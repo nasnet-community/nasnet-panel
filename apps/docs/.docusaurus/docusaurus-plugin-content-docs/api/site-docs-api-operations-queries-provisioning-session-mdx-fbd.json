@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/provisioning-session",
+  "title": "provisioningSession",
+  "description": "Get a provisioning session by ID",
+  "source": "@site/docs/api/operations/queries/provisioning-session.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/provisioning-session",
+  "permalink": "/api/operations/queries/provisioning-session",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "provisioning-session",
+    "title": "provisioningSession"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "previewAlertTemplate",
+    "permalink": "/api/operations/queries/preview-alert-template"
+  },
+  "next": {
+    "title": "provisioningSessions",
+    "permalink": "/api/operations/queries/provisioning-sessions"
+  }
+}

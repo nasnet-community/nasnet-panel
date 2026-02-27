@@ -123,7 +123,7 @@ function TemplateInstallWizardDesktopComponent({
                   <div className="flex items-center gap-component-md">
                     <div
                       className={cn(
-                        'w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+                        'w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors',
                         isActive &&
                           'bg-primary text-primary-foreground ring-2 ring-primary ring-offset-2',
                         isCompleted && 'bg-primary text-primary-foreground',
@@ -194,7 +194,7 @@ function TemplateInstallWizardDesktopComponent({
         </div>
 
         {/* Footer */}
-        <div className="border-border px-6 py-4 bg-card border-t">
+        <div className="border-border px-component-lg py-component-md bg-card border-t">
           <div className="flex items-center justify-between">
             <div className="text-sm text-muted-foreground">
               {isInstalling

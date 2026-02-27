@@ -119,6 +119,102 @@ func (dm *DownloadManager) Download(ctx context.Context, featureID, url, expecte
 	return nil
 }
 
+// DownloadAndExtract downloads a binary, optionally extracts it from an archive, and verifies its checksum.
+// For archiveFormat "none" or empty, delegates to Download().
+// For "tar.gz" or "zip", downloads the archive, verifies checksum, extracts the binary, then cleans up.
+func (dm *DownloadManager) DownloadAndExtract(ctx context.Context, featureID, url, expectedChecksum, archiveFormat, extractPath string) error {
+	// For raw binaries, delegate to existing Download
+	if archiveFormat == "" || archiveFormat == "none" {
+		return dm.Download(ctx, featureID, url, expectedChecksum)
+	}
+
+	// Archive download flow
+	dm.mu.Lock()
+	if _, exists := dm.activeDownloads[featureID]; exists {
+		dm.mu.Unlock()
+		return fmt.Errorf("download already in progress for feature %s", featureID)
+	}
+
+	progress := &DownloadProgress{
+		FeatureID: featureID,
+		Status:    "starting",
+	}
+	dm.activeDownloads[featureID] = progress
+	dm.mu.Unlock()
+
+	defer func() {
+		dm.mu.Lock()
+		delete(dm.activeDownloads, featureID)
+		dm.mu.Unlock()
+	}()
+
+	dm.emitProgressEvent(ctx, featureID, 0, 0, 0, "starting", nil)
+
+	// Create archive directory
+	archiveDir := filepath.Join(dm.baseDir, featureID, "archive")
+	if err := os.MkdirAll(archiveDir, 0o755); err != nil {
+		dm.emitProgressEvent(ctx, featureID, 0, 0, 0, "failed", err)
+		return fmt.Errorf("failed to create archive directory: %w", err)
+	}
+
+	// Determine archive file extension
+	archiveExt := ".tar.gz"
+	if archiveFormat == "zip" {
+		archiveExt = ".zip"
+	}
+
+	archivePath := filepath.Join(archiveDir, featureID+archiveExt)
+
+	// Clean up any existing archive file
+	os.Remove(archivePath)
+
+	// Download archive
+	if err := dm.downloadToFile(ctx, url, archivePath, featureID, progress); err != nil {
+		os.RemoveAll(archiveDir)
+		dm.emitProgressEvent(ctx, featureID, 0, 0, 0, "failed", err)
+		return fmt.Errorf("archive download failed: %w", err)
+	}
+
+	// Verify SHA256 checksum if provided
+	if expectedChecksum != "" {
+		dm.emitProgressEvent(ctx, featureID, progress.TotalBytes, progress.TotalBytes, 100, "verifying", nil)
+
+		if err := VerifySHA256(archivePath, expectedChecksum); err != nil {
+			os.RemoveAll(archiveDir)
+			dm.emitProgressEvent(ctx, featureID, 0, 0, 0, "verification_failed", err)
+			return fmt.Errorf("checksum verification failed: %w", err)
+		}
+	}
+
+	// Extract binary from archive
+	dm.emitProgressEvent(ctx, featureID, progress.TotalBytes, progress.TotalBytes, 100, "extracting", nil)
+
+	// Create bin directory and extract
+	binDir := filepath.Join(dm.baseDir, featureID, "bin")
+	if err := os.MkdirAll(binDir, 0o755); err != nil {
+		os.RemoveAll(archiveDir)
+		dm.emitProgressEvent(ctx, featureID, 0, 0, 0, "failed", err)
+		return fmt.Errorf("failed to create bin directory: %w", err)
+	}
+
+	targetPath := filepath.Join(binDir, featureID)
+	extractor := NewArchiveExtractor()
+
+	if err := extractor.Extract(archivePath, archiveFormat, extractPath, targetPath); err != nil {
+		os.RemoveAll(archiveDir)
+		dm.emitProgressEvent(ctx, featureID, 0, 0, 0, "failed", err)
+		return fmt.Errorf("archive extraction failed: %w", err)
+	}
+
+	// Clean up archive directory
+	os.RemoveAll(archiveDir)
+
+	// Emit completion event
+	dm.emitProgressEvent(ctx, featureID, progress.TotalBytes, progress.TotalBytes, 100, "completed", nil)
+
+	return nil
+}
+
 // downloadToFile downloads content from URL to a file with progress tracking and resumable support
 func (dm *DownloadManager) downloadToFile(ctx context.Context, url, filePath, featureID string, progress *DownloadProgress) error {
 	// Check if file already exists and is resumable
@@ -141,7 +237,7 @@ func (dm *DownloadManager) downloadToFile(ctx context.Context, url, filePath, fe
 	}
 
 	// Execute request
-	resp, err := dm.httpClient.Do(req)
+	resp, err := dm.httpClient.Do(req) //nolint:gosec // G704: URL is constructed from trusted configuration
 	if err != nil {
 		return fmt.Errorf("failed to execute request: %w", err)
 	}

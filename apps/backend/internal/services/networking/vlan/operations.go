@@ -16,7 +16,11 @@ func parseInt(s string) (int, error) {
 	if s == "" {
 		return 0, nil
 	}
-	return strconv.Atoi(s)
+	val, err := strconv.Atoi(s)
+	if err != nil {
+		return 0, fmt.Errorf("failed to parse integer: %w", err)
+	}
+	return val, nil
 }
 
 // parseBool parses RouterOS boolean values.
@@ -42,7 +46,7 @@ func (s *VlanService) CheckVlanIDAvailable(ctx context.Context, routerID string,
 	}
 
 	if !result.Success {
-		return false, fmt.Errorf("command failed: %w", result.Error)
+		return false, fmt.Errorf("vlan availability check failed: %w", result.Error)
 	}
 
 	// If no VLANs found, the ID is available
@@ -103,7 +107,7 @@ func (s *VlanService) ConfigureVlanPort(ctx context.Context, routerID string, in
 	}
 
 	if !result.Success {
-		return nil, fmt.Errorf("command failed: %w", result.Error)
+		return nil, fmt.Errorf("vlan port configuration failed: %w", result.Error)
 	}
 
 	return &VlanPortConfigResult{

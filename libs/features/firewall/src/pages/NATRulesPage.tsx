@@ -70,13 +70,13 @@ const EmptyState = memo(function EmptyState({ chain, onAddRule, onQuickMasquerad
             Create masquerade rules to hide internal IPs behind your router's WAN interface.
           </CardDescription>
         </CardHeader>
-        <CardContent className="flex flex-col sm:flex-row gap-2 justify-center">
+        <CardContent className="flex flex-col sm:flex-row gap-component-sm justify-center">
           <Button onClick={onQuickMasquerade} aria-label="Quick Masquerade">
-            <Zap className="h-4 w-4 mr-2" aria-hidden="true" />
+            <Zap className="h-4 w-4 mr-component-sm" aria-hidden="true" />
             Quick Masquerade
           </Button>
           <Button variant="outline" onClick={onAddRule} aria-label="Add Custom Rule">
-            <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
+            <Plus className="h-4 w-4 mr-component-sm" aria-hidden="true" />
             Add Custom Rule
           </Button>
         </CardContent>
@@ -93,13 +93,13 @@ const EmptyState = memo(function EmptyState({ chain, onAddRule, onQuickMasquerad
             Create port forwarding rules to expose internal services to the internet.
           </CardDescription>
         </CardHeader>
-        <CardContent className="flex flex-col sm:flex-row gap-2 justify-center">
+        <CardContent className="flex flex-col sm:flex-row gap-component-sm justify-center">
           <Button onClick={onPortForward} aria-label="Port Forward Wizard">
-            <Globe className="h-4 w-4 mr-2" aria-hidden="true" />
+            <Globe className="h-4 w-4 mr-component-sm" aria-hidden="true" />
             Port Forward Wizard
           </Button>
           <Button variant="outline" onClick={onAddRule} aria-label="Add Custom Rule">
-            <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
+            <Plus className="h-4 w-4 mr-component-sm" aria-hidden="true" />
             Add Custom Rule
           </Button>
         </CardContent>
@@ -116,17 +116,17 @@ const EmptyState = memo(function EmptyState({ chain, onAddRule, onQuickMasquerad
           Get started by creating a masquerade rule or setting up port forwarding.
         </CardDescription>
       </CardHeader>
-      <CardContent className="flex flex-col sm:flex-row gap-2 justify-center">
+      <CardContent className="flex flex-col sm:flex-row gap-component-sm justify-center">
         <Button onClick={onQuickMasquerade} aria-label="Quick Masquerade">
-          <Zap className="h-4 w-4 mr-2" aria-hidden="true" />
+          <Zap className="h-4 w-4 mr-component-sm" aria-hidden="true" />
           Quick Masquerade
         </Button>
         <Button onClick={onPortForward} aria-label="Port Forward Wizard">
-          <Globe className="h-4 w-4 mr-2" aria-hidden="true" />
+          <Globe className="h-4 w-4 mr-component-sm" aria-hidden="true" />
           Port Forward Wizard
         </Button>
         <Button variant="outline" onClick={onAddRule} aria-label="Add NAT Rule">
-          <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
+          <Plus className="h-4 w-4 mr-component-sm" aria-hidden="true" />
           Add NAT Rule
         </Button>
       </CardContent>
@@ -222,17 +222,17 @@ export const NATRulesPage = memo(function NATRulesPage() {
             {!isMobile && (
               <>
                 <Button variant="outline" onClick={handleQuickMasquerade} aria-label="Quick Masquerade">
-                  <Zap className="h-4 w-4 mr-2" aria-hidden="true" />
+                  <Zap className="h-4 w-4 mr-component-sm" aria-hidden="true" />
                   Quick Masquerade
                 </Button>
                 <Button variant="outline" onClick={handlePortForward} aria-label="Port Forward Wizard">
-                  <Globe className="h-4 w-4 mr-2" aria-hidden="true" />
+                  <Globe className="h-4 w-4 mr-component-sm" aria-hidden="true" />
                   Port Forward Wizard
                 </Button>
               </>
             )}
             <Button onClick={handleAddRule} aria-label="Add NAT Rule">
-              <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
+              <Plus className="h-4 w-4 mr-component-sm" aria-hidden="true" />
               Add NAT Rule
             </Button>
           </div>
@@ -242,11 +242,11 @@ export const NATRulesPage = memo(function NATRulesPage() {
         {isMobile && (
           <div className="flex gap-component-sm px-component-md pb-component-md">
             <Button variant="outline" size="sm" onClick={handleQuickMasquerade} className="flex-1" aria-label="Masquerade">
-              <Zap className="h-4 w-4 mr-2" aria-hidden="true" />
+              <Zap className="h-4 w-4 mr-component-sm" aria-hidden="true" />
               Masquerade
             </Button>
             <Button variant="outline" size="sm" onClick={handlePortForward} className="flex-1" aria-label="Port Forward">
-              <Globe className="h-4 w-4 mr-2" aria-hidden="true" />
+              <Globe className="h-4 w-4 mr-component-sm" aria-hidden="true" />
               Port Forward
             </Button>
           </div>
@@ -272,8 +272,8 @@ export const NATRulesPage = memo(function NATRulesPage() {
             {/* All Chains Tab */}
             <TabsContent value="all" className="p-component-md m-0">
               {isLoading ? (
-                <div className="space-y-4" role="status" aria-label={t('common:loading', { defaultValue: 'Loading' })}>
-                  <div className="animate-pulse space-y-4">
+                <div className="space-y-component-md" role="status" aria-label={t('common:loading', { defaultValue: 'Loading' })}>
+                  <div className="animate-pulse space-y-component-md">
                     <div className="h-16 bg-muted rounded" />
                     <div className="h-16 bg-muted rounded" />
                     <div className="h-16 bg-muted rounded" />
@@ -296,8 +296,8 @@ export const NATRulesPage = memo(function NATRulesPage() {
             {chains.map((chain) => (
               <TabsContent key={chain} value={chain} className="p-component-md m-0">
                 {isLoading ? (
-                  <div className="space-y-4" role="status" aria-label={t('common:loading', { defaultValue: 'Loading' })}>
-                    <div className="animate-pulse space-y-4">
+                  <div className="space-y-component-md" role="status" aria-label={t('common:loading', { defaultValue: 'Loading' })}>
+                    <div className="animate-pulse space-y-component-md">
                       <div className="h-16 bg-muted rounded" />
                       <div className="h-16 bg-muted rounded" />
                     </div>

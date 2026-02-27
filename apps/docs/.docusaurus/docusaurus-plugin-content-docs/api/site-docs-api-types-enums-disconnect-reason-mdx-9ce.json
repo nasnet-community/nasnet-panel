@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/disconnect-reason",
+  "title": "DisconnectReason",
+  "description": "Reason for router disconnection",
+  "source": "@site/docs/api/types/enums/disconnect-reason.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/disconnect-reason",
+  "permalink": "/api/types/enums/disconnect-reason",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "disconnect-reason",
+    "title": "DisconnectReason"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "DiagnosticStatus",
+    "permalink": "/api/types/enums/diagnostic-status"
+  },
+  "next": {
+    "title": "DnsLookupStatus",
+    "permalink": "/api/types/enums/dns-lookup-status"
+  }
+}

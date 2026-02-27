@@ -1,0 +1,28 @@
+{
+  "id": "testing-and-accessibility",
+  "title": "Testing & Accessibility",
+  "description": "This document covers the testing infrastructure and WCAG AAA accessibility compliance for NasNetConnect's UI libraries. Our testing strategy enables rigorous accessibility verification while supporting rapid iteration through platform-responsive testing utilities.",
+  "source": "@site/../../libs/ui/docs/testing-and-accessibility.md",
+  "sourceDirName": ".",
+  "slug": "/testing-and-accessibility",
+  "permalink": "/docs/ui/testing-and-accessibility",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/ui/docs/testing-and-accessibility.md",
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 11,
+  "frontMatter": {
+    "sidebar_position": 11,
+    "title": "Testing & Accessibility"
+  },
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Multi-Package Flows",
+    "permalink": "/docs/ui/multi-package-flows"
+  },
+  "next": {
+    "title": "Error Handling",
+    "permalink": "/docs/ui/error-handling"
+  }
+}

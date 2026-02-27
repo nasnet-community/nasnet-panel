@@ -1,0 +1,24 @@
+{
+  "id": "guides/adding-a-machine",
+  "title": "Adding a New XState Machine",
+  "description": "Step-by-step guide for creating XState v5 machines following NasNet conventions.",
+  "source": "@site/../../libs/state/docs/guides/adding-a-machine.md",
+  "sourceDirName": "guides",
+  "slug": "/guides/adding-a-machine",
+  "permalink": "/docs/state/guides/adding-a-machine",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/state/docs/guides/adding-a-machine.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Testing Strategy",
+    "permalink": "/docs/state/guides/testing"
+  },
+  "next": {
+    "title": "Adding a New Zustand Store",
+    "permalink": "/docs/state/guides/adding-a-store"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/install-service-template",
+  "title": "installServiceTemplate",
+  "description": "Install a service template on a router.",
+  "source": "@site/docs/api/operations/mutations/install-service-template.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/install-service-template",
+  "permalink": "/api/operations/mutations/install-service-template",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "install-service-template",
+    "title": "installServiceTemplate"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "importStarState",
+    "permalink": "/api/operations/mutations/import-star-state"
+  },
+  "next": {
+    "title": "installService",
+    "permalink": "/api/operations/mutations/install-service"
+  }
+}

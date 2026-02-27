@@ -98,7 +98,7 @@ function TemplateInstallWizardMobileComponent({
                 variant="ghost"
                 size="icon"
                 onClick={handleCancel}
-                className="shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                className="shrink-0"
                 aria-label="Close"
               >
                 <X className="h-5 w-5" />
@@ -146,7 +146,7 @@ function TemplateInstallWizardMobileComponent({
               <Button
                 variant="outline"
                 onClick={() => send({ type: 'PREV' })}
-                className="flex-1 min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                className="flex-1 min-h-[44px]"
                 disabled={isInstalling}
               >
                 Previous
@@ -156,13 +156,13 @@ function TemplateInstallWizardMobileComponent({
               <Button
                 onClick={handleNext}
                 disabled={!canGoNext && currentStep === 1}
-                className={cn('min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2', canGoPrev ? 'flex-1' : 'w-full')}
+                className={cn('min-h-[44px]', canGoPrev ? 'flex-1' : 'w-full')}
               >
                 {currentStep === 2 ? 'Install' : 'Next'}
               </Button>
             )}
             {currentStep === 4 && !isInstalling && (
-              <Button onClick={handleNext} className="flex-1 min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+              <Button onClick={handleNext} className="flex-1 min-h-[44px]">
                 {context.selectedRoutingRules.length > 0
                   ? 'Apply & Finish'
                   : 'Skip & Finish'}
@@ -172,7 +172,7 @@ function TemplateInstallWizardMobileComponent({
               <Button
                 variant="ghost"
                 onClick={handleCancel}
-                className="flex-1 min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                className="flex-1 min-h-[44px]"
               >
                 Cancel
               </Button>

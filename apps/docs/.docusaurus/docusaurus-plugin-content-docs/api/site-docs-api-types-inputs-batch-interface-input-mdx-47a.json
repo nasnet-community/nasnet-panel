@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/batch-interface-input",
+  "title": "BatchInterfaceInput",
+  "description": "Input for batch interface operations",
+  "source": "@site/docs/api/types/inputs/batch-interface-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/batch-interface-input",
+  "permalink": "/api/types/inputs/batch-interface-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "batch-interface-input",
+    "title": "BatchInterfaceInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "AssignDeviceRoutingInput",
+    "permalink": "/api/types/inputs/assign-device-routing-input"
+  },
+  "next": {
+    "title": "BridgePortVlanInput",
+    "permalink": "/api/types/inputs/bridge-port-vlan-input"
+  }
+}

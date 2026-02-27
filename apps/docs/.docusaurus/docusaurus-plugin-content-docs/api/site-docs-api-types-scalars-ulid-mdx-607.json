@@ -1,0 +1,26 @@
+{
+  "id": "api/types/scalars/ulid",
+  "title": "ULID",
+  "description": "ULID (Universally Unique Lexicographically Sortable Identifier)",
+  "source": "@site/docs/api/types/scalars/ulid.mdx",
+  "sourceDirName": "api/types/scalars",
+  "slug": "/api/types/scalars/ulid",
+  "permalink": "/api/types/scalars/ulid",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "ulid",
+    "title": "ULID"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "String",
+    "permalink": "/api/types/scalars/string"
+  },
+  "next": {
+    "title": "Unions",
+    "permalink": "/category/unions"
+  }
+}

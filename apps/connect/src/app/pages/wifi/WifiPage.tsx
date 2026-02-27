@@ -32,6 +32,7 @@ import {
 export const WifiPage = React.memo(function WifiPage() {
   const { t } = useTranslation('wifi');
   const routerIp = useConnectionStore((state) => state.currentRouterIp) || '';
+  const routerId = useConnectionStore((state) => state.currentRouterId) || '';
   const queryClient = useQueryClient();
 
   const {
@@ -86,11 +87,11 @@ export const WifiPage = React.memo(function WifiPage() {
   }
 
   return (
-    <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-page-mobile md:py-page-tablet lg:py-page-desktop space-y-component-lg max-w-7xl mx-auto">
+    <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-page-mobile md:py-page-tablet lg:py-page-desktop space-y-component-lg max-w-7xl mx-auto animate-fade-in-up">
       {/* Page Header with Quick Actions */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-component-md">
         <div>
-          <h1 className="text-2xl font-semibold text-foreground">
+          <h1 className="text-2xl font-display font-semibold text-foreground category-header category-header-wifi">
             {t('title')}
           </h1>
           <p className="text-sm text-muted-foreground">
@@ -108,7 +109,7 @@ export const WifiPage = React.memo(function WifiPage() {
       />
 
       {/* Wireless Interfaces List */}
-      <WifiInterfaceList routerId="" />
+      <WifiInterfaceList routerId={routerId} />
 
       {/* Connected Clients Table */}
       <ConnectedClientsTable

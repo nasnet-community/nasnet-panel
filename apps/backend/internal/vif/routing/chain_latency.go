@@ -212,7 +212,8 @@ func (m *ChainLatencyMeasurer) measureHopLatency(
 		address := net.JoinHostPort(vlanIP, strconv.Itoa(port))
 
 		start := time.Now()
-		conn, err := net.DialTimeout("tcp", address, timeout)
+		dialer := &net.Dialer{Timeout: timeout}
+		conn, err := dialer.DialContext(ctx, "tcp", address)
 		elapsed := time.Since(start)
 
 		if err == nil {

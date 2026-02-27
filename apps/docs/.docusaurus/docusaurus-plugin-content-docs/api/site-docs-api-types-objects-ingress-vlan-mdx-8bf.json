@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/ingress-vlan",
+  "title": "IngressVLAN",
+  "description": "Ingress VLAN running DHCP server inside the NNC container.",
+  "source": "@site/docs/api/types/objects/ingress-vlan.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/ingress-vlan",
+  "permalink": "/api/types/objects/ingress-vlan",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "ingress-vlan",
+    "title": "IngressVLAN"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ImportValidationWarning",
+    "permalink": "/api/types/objects/import-validation-warning"
+  },
+  "next": {
+    "title": "InstallProgress",
+    "permalink": "/api/types/objects/install-progress"
+  }
+}

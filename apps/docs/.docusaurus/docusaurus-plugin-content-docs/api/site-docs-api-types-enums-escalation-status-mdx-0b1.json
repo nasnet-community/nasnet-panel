@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/escalation-status",
+  "title": "EscalationStatus",
+  "description": "Escalation status (NAS-18.9)",
+  "source": "@site/docs/api/types/enums/escalation-status.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/escalation-status",
+  "permalink": "/api/types/enums/escalation-status",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "escalation-status",
+    "title": "EscalationStatus"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ErrorCategory",
+    "permalink": "/api/types/enums/error-category"
+  },
+  "next": {
+    "title": "FirewallTable",
+    "permalink": "/api/types/enums/firewall-table"
+  }
+}

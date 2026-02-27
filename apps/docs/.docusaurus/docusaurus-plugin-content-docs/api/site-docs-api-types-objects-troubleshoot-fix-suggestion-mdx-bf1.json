@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/troubleshoot-fix-suggestion",
+  "title": "TroubleshootFixSuggestion",
+  "description": "Suggested fix for a failed diagnostic step",
+  "source": "@site/docs/api/types/objects/troubleshoot-fix-suggestion.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/troubleshoot-fix-suggestion",
+  "permalink": "/api/types/objects/troubleshoot-fix-suggestion",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "troubleshoot-fix-suggestion",
+    "title": "TroubleshootFixSuggestion"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "TrafficStatsEvent",
+    "permalink": "/api/types/objects/traffic-stats-event"
+  },
+  "next": {
+    "title": "TroubleshootSession",
+    "permalink": "/api/types/objects/troubleshoot-session"
+  }
+}

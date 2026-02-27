@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/subscriptions/storage-space-changed",
+  "title": "storageSpaceChanged",
+  "description": "Subscribe to storage space threshold events.",
+  "source": "@site/docs/api/operations/subscriptions/storage-space-changed.mdx",
+  "sourceDirName": "api/operations/subscriptions",
+  "slug": "/api/operations/subscriptions/storage-space-changed",
+  "permalink": "/api/operations/subscriptions/storage-space-changed",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "storage-space-changed",
+    "title": "storageSpaceChanged"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "storageMountChanged",
+    "permalink": "/api/operations/subscriptions/storage-mount-changed"
+  },
+  "next": {
+    "title": "templateInstallProgress",
+    "permalink": "/api/operations/subscriptions/template-install-progress"
+  }
+}

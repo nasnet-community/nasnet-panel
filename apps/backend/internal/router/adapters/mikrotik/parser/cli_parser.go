@@ -230,7 +230,7 @@ func GenerateRollback(cmd *CLICommand, createdID string, originalValues map[stri
 		}
 	case "set":
 		if len(originalValues) > 0 {
-			var args []string
+			args := make([]string, 0, len(originalValues))
 			for k, v := range originalValues {
 				args = append(args, fmt.Sprintf("=%s=%s", k, v))
 			}
@@ -241,7 +241,7 @@ func GenerateRollback(cmd *CLICommand, createdID string, originalValues map[stri
 		}
 	case "remove":
 		if len(originalValues) > 0 {
-			var args []string
+			args := make([]string, 0, len(originalValues))
 			for k, v := range originalValues {
 				if k != ".id" {
 					args = append(args, fmt.Sprintf("=%s=%s", k, v))

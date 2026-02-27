@@ -1,0 +1,26 @@
+{
+  "id": "api/types/scalars/float",
+  "title": "Float",
+  "description": "The Float scalar type represents signed double-precision fractional values as specified by IEEE 754.",
+  "source": "@site/docs/api/types/scalars/float.mdx",
+  "sourceDirName": "api/types/scalars",
+  "slug": "/api/types/scalars/float",
+  "permalink": "/api/types/scalars/float",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "float",
+    "title": "Float"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "Duration",
+    "permalink": "/api/types/scalars/duration"
+  },
+  "next": {
+    "title": "ID",
+    "permalink": "/api/types/scalars/id"
+  }
+}

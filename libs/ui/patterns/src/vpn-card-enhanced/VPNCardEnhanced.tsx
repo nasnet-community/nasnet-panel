@@ -17,6 +17,7 @@
 import { memo, useCallback } from 'react';
 import { Loader2, Shield } from 'lucide-react';
 
+import { cn } from '@nasnet/ui/utils';
 import { Card, CardContent, Switch, Icon } from '@nasnet/ui/primitives';
 
 /**
@@ -110,35 +111,30 @@ function VPNCardEnhancedComponent({
   }, [disabled, isLoading, onToggle]);
 
   return (
-    <Card className={className} aria-label={`VPN status: ${config.label}`}>
-      <CardContent className="p-5">
-        <div className="flex items-center justify-between">
+    <Card className={cn('bg-card border border-border rounded-[var(--semantic-radius-card)] shadow-[var(--semantic-shadow-card)]', className)} aria-label={`VPN status: ${config.label}`}>
+      <CardContent className="p-4 sm:p-6">
+        <div className="flex items-center justify-between gap-4">
           {/* Left: Icon and Info */}
-          <div className="flex items-center gap-4">
-            <div
-              className={`
-                w-10 h-10 rounded-xl flex items-center justify-center
-                ${config.bgColor}
-              `}
-            >
+          <div className="flex items-center gap-3 min-w-0">
+            <div className={cn('h-10 w-10 rounded-[var(--semantic-radius-button)] flex items-center justify-center flex-shrink-0', config.bgColor)}>
               {isLoading ? (
-                <Icon icon={Loader2} className={`w-5 h-5 ${config.color} animate-spin`} />
+                <Icon icon={Loader2} className={cn('h-5 w-5 animate-spin', config.color)} />
               ) : (
-                <Icon icon={Shield} className={`w-5 h-5 ${config.color}`} aria-hidden="true" />
+                <Icon icon={Shield} className={cn('h-5 w-5', config.color)} aria-hidden="true" />
               )}
             </div>
-            <div>
+            <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2">
                 <p className="font-medium text-foreground">VPN</p>
                 {status === 'connected' && (
                   <span
-                    className="w-2 h-2 rounded-full bg-success animate-pulse-glow"
+                    className="h-2 w-2 rounded-full bg-success flex-shrink-0"
                     aria-label="Connected indicator"
                   />
                 )}
               </div>
               {profile ? (
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-muted-foreground truncate">
                   {profile.flag && <span className="mr-1">{profile.flag}</span>}
                   {profile.name}
                   {profile.location && ` - ${profile.location}`}

@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/export-as-template",
+  "title": "exportAsTemplate",
+  "description": "Export existing service instances as a reusable template.",
+  "source": "@site/docs/api/operations/mutations/export-as-template.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/export-as-template",
+  "permalink": "/api/operations/mutations/export-as-template",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "export-as-template",
+    "title": "exportAsTemplate"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "exportAlertRuleTemplate",
+    "permalink": "/api/operations/mutations/export-alert-rule-template"
+  },
+  "next": {
+    "title": "exportRouterConfig",
+    "permalink": "/api/operations/mutations/export-router-config"
+  }
+}

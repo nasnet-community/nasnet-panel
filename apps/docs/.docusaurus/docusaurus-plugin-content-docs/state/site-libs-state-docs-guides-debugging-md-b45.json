@@ -1,0 +1,24 @@
+{
+  "id": "guides/debugging",
+  "title": "Debugging Zustand & XState",
+  "description": "Essential debugging techniques for state management in development and production.",
+  "source": "@site/../../libs/state/docs/guides/debugging.md",
+  "sourceDirName": "guides",
+  "slug": "/guides/debugging",
+  "permalink": "/docs/state/guides/debugging",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/state/docs/guides/debugging.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Adding a New Zustand Store",
+    "permalink": "/docs/state/guides/adding-a-store"
+  },
+  "next": {
+    "title": "Quickstart Guide: State Management in 10 Minutes",
+    "permalink": "/docs/state/guides/quickstart"
+  }
+}

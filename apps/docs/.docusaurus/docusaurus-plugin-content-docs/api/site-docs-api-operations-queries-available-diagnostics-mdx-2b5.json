@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/available-diagnostics",
+  "title": "availableDiagnostics",
+  "description": "Get available diagnostic tests for a service type.",
+  "source": "@site/docs/api/operations/queries/available-diagnostics.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/available-diagnostics",
+  "permalink": "/api/operations/queries/available-diagnostics",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "available-diagnostics",
+    "title": "availableDiagnostics"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "alerts",
+    "permalink": "/api/operations/queries/alerts"
+  },
+  "next": {
+    "title": "availableInterfacesForBridge",
+    "permalink": "/api/operations/queries/available-interfaces-for-bridge"
+  }
+}

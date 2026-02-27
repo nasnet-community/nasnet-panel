@@ -14,9 +14,10 @@ import (
 
 // GatewayConfig represents the configuration for hev-socks5-tunnel
 type GatewayConfig struct {
-	Tunnel TunnelConfig `yaml:"tunnel"`
-	Socks5 Socks5Config `yaml:"socks5"`
-	Misc   MiscConfig   `yaml:"misc"`
+	Tunnel          TunnelConfig `yaml:"tunnel"`
+	Socks5          Socks5Config `yaml:"socks5"`
+	Misc            MiscConfig   `yaml:"misc"`
+	EgressInterface string       `yaml:"-"` // not serialized to YAML config, used internally
 }
 
 // TunnelConfig represents the tunnel interface configuration
@@ -70,6 +71,11 @@ func GenerateGatewayConfig(instance *ent.ServiceInstance, manifest *features.Man
 	if udpEnabled {
 		udpValue := "udp"
 		config.Socks5.UDP = &udpValue
+	}
+
+	// Extract egress interface from instance config (bridge mode)
+	if egressIface, ok := instance.Config["egress_interface"].(string); ok && egressIface != "" {
+		config.EgressInterface = egressIface
 	}
 
 	return config, tunName, nil

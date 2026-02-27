@@ -1,0 +1,24 @@
+{
+  "id": "guides/firewall-system",
+  "title": "Firewall System Guide",
+  "description": "Cross-cutting guide for firewall rule types, configuration, log parsing, and port reference integration.",
+  "source": "@site/../../libs/core/docs/guides/firewall-system.md",
+  "sourceDirName": "guides",
+  "slug": "/guides/firewall-system",
+  "permalink": "/docs/core/guides/firewall-system",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/core/docs/guides/firewall-system.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Device Detection Pipeline Guide",
+    "permalink": "/docs/core/guides/device-detection-pipeline"
+  },
+  "next": {
+    "title": "Internationalization Flow Guide",
+    "permalink": "/docs/core/guides/internationalization-flow"
+  }
+}

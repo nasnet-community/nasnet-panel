@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/validate-service-config-input",
+  "title": "ValidateServiceConfigInput",
+  "description": "Input for validating service configuration",
+  "source": "@site/docs/api/types/inputs/validate-service-config-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/validate-service-config-input",
+  "permalink": "/api/types/inputs/validate-service-config-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "validate-service-config-input",
+    "title": "ValidateServiceConfigInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "UpdateWebhookInput",
+    "permalink": "/api/types/inputs/update-webhook-input"
+  },
+  "next": {
+    "title": "VlanFilter",
+    "permalink": "/api/types/inputs/vlan-filter"
+  }
+}

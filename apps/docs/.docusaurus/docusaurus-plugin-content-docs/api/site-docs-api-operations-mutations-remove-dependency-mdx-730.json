@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/remove-dependency",
+  "title": "removeDependency",
+  "description": "Remove an existing dependency relationship.",
+  "source": "@site/docs/api/operations/mutations/remove-dependency.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/remove-dependency",
+  "permalink": "/api/operations/mutations/remove-dependency",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "remove-dependency",
+    "title": "removeDependency"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "removeChangeSetItem",
+    "permalink": "/api/operations/mutations/remove-change-set-item"
+  },
+  "next": {
+    "title": "removeDeviceRouting",
+    "permalink": "/api/operations/mutations/remove-device-routing"
+  }
+}

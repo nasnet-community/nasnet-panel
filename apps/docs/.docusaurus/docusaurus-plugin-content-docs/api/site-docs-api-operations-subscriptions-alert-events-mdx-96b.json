@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/subscriptions/alert-events",
+  "title": "alertEvents",
+  "description": "Subscribe to alert events for real-time updates",
+  "source": "@site/docs/api/operations/subscriptions/alert-events.mdx",
+  "sourceDirName": "api/operations/subscriptions",
+  "slug": "/api/operations/subscriptions/alert-events",
+  "permalink": "/api/operations/subscriptions/alert-events",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "alert-events",
+    "title": "alertEvents"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "Subscriptions",
+    "permalink": "/category/subscriptions"
+  },
+  "next": {
+    "title": "bootSequenceEvents",
+    "permalink": "/api/operations/subscriptions/boot-sequence-events"
+  }
+}

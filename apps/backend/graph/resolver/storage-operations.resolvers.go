@@ -7,51 +7,51 @@ package resolver
 
 import (
 	graphql1 "backend/graph/model"
-	"backend/internal/errors"
+	"backend/internal/apperrors"
 	"context"
 )
 
 // ConfigureExternalStorage is the resolver for the configureExternalStorage field.
 func (r *mutationResolver) ConfigureExternalStorage(ctx context.Context, input graphql1.ConfigureExternalStorageInput) (*graphql1.ConfigureExternalStoragePayload, error) {
-	panic(errors.NewProtocolError("NOT_IMPLEMENTED", "ConfigureExternalStorage - configureExternalStorage", "graphql"))
+	panic(apperrors.NewProtocolError("NOT_IMPLEMENTED", "ConfigureExternalStorage - configureExternalStorage", "graphql"))
 }
 
 // ResetExternalStorage is the resolver for the resetExternalStorage field.
 func (r *mutationResolver) ResetExternalStorage(ctx context.Context, input *graphql1.ResetExternalStorageInput) (*graphql1.ResetExternalStoragePayload, error) {
-	panic(errors.NewProtocolError("NOT_IMPLEMENTED", "ResetExternalStorage - resetExternalStorage", "graphql"))
+	panic(apperrors.NewProtocolError("NOT_IMPLEMENTED", "ResetExternalStorage - resetExternalStorage", "graphql"))
 }
 
 // ScanStorage is the resolver for the scanStorage field.
 func (r *mutationResolver) ScanStorage(ctx context.Context) (*graphql1.ScanStoragePayload, error) {
-	panic(errors.NewProtocolError("NOT_IMPLEMENTED", "ScanStorage - scanStorage", "graphql"))
+	panic(apperrors.NewProtocolError("NOT_IMPLEMENTED", "ScanStorage - scanStorage", "graphql"))
 }
 
 // StorageInfo is the resolver for the storageInfo field.
 func (r *queryResolver) StorageInfo(ctx context.Context) ([]*graphql1.StorageInfo, error) {
-	panic(errors.NewProtocolError("NOT_IMPLEMENTED", "StorageInfo - storageInfo", "graphql"))
+	panic(apperrors.NewProtocolError("NOT_IMPLEMENTED", "StorageInfo - storageInfo", "graphql"))
 }
 
 // StorageUsage is the resolver for the storageUsage field.
 func (r *queryResolver) StorageUsage(ctx context.Context, routerID *string) (*graphql1.StorageUsage, error) {
-	panic(errors.NewProtocolError("NOT_IMPLEMENTED", "StorageUsage - storageUsage", "graphql"))
+	panic(apperrors.NewProtocolError("NOT_IMPLEMENTED", "StorageUsage - storageUsage", "graphql"))
 }
 
 // StorageConfig is the resolver for the storageConfig field.
 func (r *queryResolver) StorageConfig(ctx context.Context) (*graphql1.StorageConfig, error) {
-	panic(errors.NewProtocolError("NOT_IMPLEMENTED", "StorageConfig - storageConfig", "graphql"))
+	panic(apperrors.NewProtocolError("NOT_IMPLEMENTED", "StorageConfig - storageConfig", "graphql"))
 }
 
 // UnavailableFeatures is the resolver for the unavailableFeatures field.
 func (r *queryResolver) UnavailableFeatures(ctx context.Context, routerID *string) ([]*graphql1.ServiceInstance, error) {
-	panic(errors.NewProtocolError("NOT_IMPLEMENTED", "UnavailableFeatures - unavailableFeatures", "graphql"))
+	panic(apperrors.NewProtocolError("NOT_IMPLEMENTED", "UnavailableFeatures - unavailableFeatures", "graphql"))
 }
 
 // StorageMountChanged is the resolver for the storageMountChanged field.
 func (r *subscriptionResolver) StorageMountChanged(ctx context.Context, path *string) (<-chan graphql1.StorageMountEvent, error) {
-	panic(errors.NewProtocolError("NOT_IMPLEMENTED", "StorageMountChanged - storageMountChanged", "graphql"))
+	panic(apperrors.NewProtocolError("NOT_IMPLEMENTED", "StorageMountChanged - storageMountChanged", "graphql"))
 }
 
 // StorageSpaceChanged is the resolver for the storageSpaceChanged field.
 func (r *subscriptionResolver) StorageSpaceChanged(ctx context.Context, path *string) (<-chan *graphql1.StorageSpaceEvent, error) {
-	panic(errors.NewProtocolError("NOT_IMPLEMENTED", "StorageSpaceChanged - storageSpaceChanged", "graphql"))
+	panic(apperrors.NewProtocolError("NOT_IMPLEMENTED", "StorageSpaceChanged - storageSpaceChanged", "graphql"))
 }

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/bridge-vlan",
+  "title": "BridgeVlan",
+  "description": "No description",
+  "source": "@site/docs/api/types/objects/bridge-vlan.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/bridge-vlan",
+  "permalink": "/api/types/objects/bridge-vlan",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "bridge-vlan",
+    "title": "BridgeVlan"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "BridgeVlanMutationResult",
+    "permalink": "/api/types/objects/bridge-vlan-mutation-result"
+  },
+  "next": {
+    "title": "Bridge",
+    "permalink": "/api/types/objects/bridge"
+  }
+}

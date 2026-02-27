@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/tlsstatus",
+  "title": "TLSStatus",
+  "description": "TLS certificate status for secure connections",
+  "source": "@site/docs/api/types/objects/tlsstatus.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/tlsstatus",
+  "permalink": "/api/types/objects/tlsstatus",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "tlsstatus",
+    "title": "TLSStatus"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ThrottleStatus",
+    "permalink": "/api/types/objects/throttle-status"
+  },
+  "next": {
+    "title": "TopologyEdgeStyle",
+    "permalink": "/api/types/objects/topology-edge-style"
+  }
+}

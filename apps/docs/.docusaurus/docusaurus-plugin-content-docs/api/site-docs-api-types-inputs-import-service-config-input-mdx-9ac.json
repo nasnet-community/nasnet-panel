@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/import-service-config-input",
+  "title": "ImportServiceConfigInput",
+  "description": "Input for importing a service configuration.",
+  "source": "@site/docs/api/types/inputs/import-service-config-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/import-service-config-input",
+  "permalink": "/api/types/inputs/import-service-config-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "import-service-config-input",
+    "title": "ImportServiceConfigInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "GenerateConfigQRInput",
+    "permalink": "/api/types/inputs/generate-config-qrinput"
+  },
+  "next": {
+    "title": "ImportServiceTemplateInput",
+    "permalink": "/api/types/inputs/import-service-template-input"
+  }
+}

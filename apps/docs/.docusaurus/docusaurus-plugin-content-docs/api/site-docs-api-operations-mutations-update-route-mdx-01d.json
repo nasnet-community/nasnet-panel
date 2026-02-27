@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/update-route",
+  "title": "updateRoute",
+  "description": "Update an existing route",
+  "source": "@site/docs/api/operations/mutations/update-route.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/update-route",
+  "permalink": "/api/operations/mutations/update-route",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "update-route",
+    "title": "updateRoute"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "updateResource",
+    "permalink": "/api/operations/mutations/update-resource"
+  },
+  "next": {
+    "title": "updateRouterCredentials",
+    "permalink": "/api/operations/mutations/update-router-credentials"
+  }
+}

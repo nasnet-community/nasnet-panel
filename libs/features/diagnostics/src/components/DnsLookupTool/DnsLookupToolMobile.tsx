@@ -86,7 +86,7 @@ export const DnsLookupToolMobile = memo(function DnsLookupToolMobile({
       {/* Form Card */}
       <Card>
         <CardHeader>
-          <h2 className="text-lg font-semibold font-display">DNS Lookup</h2>
+          <h2 className="text-lg font-semibold font-display text-category-networking">DNS Lookup</h2>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-component-md">
@@ -196,7 +196,7 @@ export const DnsLookupToolMobile = memo(function DnsLookupToolMobile({
       {(result || isLoading) && (
         <Card>
           <CardHeader>
-            <h2 className="text-lg font-semibold font-display">Results</h2>
+            <h2 className="text-lg font-semibold font-display text-category-networking">Results</h2>
           </CardHeader>
           <CardContent>
             {isLoading && (

@@ -90,7 +90,11 @@ function VPNIssueAlertComponent({
   return (
     <Alert
       variant={config.variant}
-      className={`relative ${className}`}
+      className={`relative border-l-4 ${
+        issue.severity === 'error'
+          ? 'border-l-error bg-error-light/50 dark:bg-error/10'
+          : 'border-l-warning bg-warning-light/50 dark:bg-warning/10'
+      } ${className}`}
     >
       <div className="flex items-start gap-3">
         <Icon icon={config.icon} className={`w-5 h-5 ${config.iconClass} flex-shrink-0 mt-0.5`} />

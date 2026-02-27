@@ -71,9 +71,7 @@ export interface CommandPaletteProps {
  * }
  * ```
  */
-const CommandPalette = React.memo(function CommandPalette({
-  className,
-}: CommandPaletteProps) {
+const CommandPalette = React.memo(function CommandPalette({ className }: CommandPaletteProps) {
   const platform = usePlatform();
 
   // Mobile and Tablet use bottom sheet; Desktop uses centered modal

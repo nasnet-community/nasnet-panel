@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/create-vlan",
+  "title": "createVlan",
+  "description": "Create a new VLAN interface",
+  "source": "@site/docs/api/operations/mutations/create-vlan.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/create-vlan",
+  "permalink": "/api/operations/mutations/create-vlan",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "create-vlan",
+    "title": "createVlan"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "createTunnel",
+    "permalink": "/api/operations/mutations/create-tunnel"
+  },
+  "next": {
+    "title": "createWebhook",
+    "permalink": "/api/operations/mutations/create-webhook"
+  }
+}

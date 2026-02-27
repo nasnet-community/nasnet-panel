@@ -56,14 +56,16 @@ export const FirewallLogFiltersDesktop = memo(
     });
 
     return (
-      <aside className="w-80 border-r border-border bg-background p-4 space-y-6 overflow-y-auto">
+      <aside className="w-80 border-r border-border bg-card p-4 space-y-6 overflow-y-auto">
         {/* Header with badge */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between border-b border-border pb-4">
           <div className="flex items-center gap-2">
             <Filter className="h-5 w-5 text-muted-foreground" />
             <h2 className="text-lg font-semibold">Filters</h2>
             {hook.activeFilterCount > 0 && (
-              <Badge variant="secondary">{hook.activeFilterCount}</Badge>
+              <Badge variant="secondary" className="bg-primary/10 text-primary border border-primary/20">
+                {hook.activeFilterCount}
+              </Badge>
             )}
           </div>
           {hook.activeFilterCount > 0 && (
@@ -71,7 +73,7 @@ export const FirewallLogFiltersDesktop = memo(
               variant="ghost"
               size="sm"
               onClick={hook.clearFilters}
-              className="h-8"
+              className="h-8 text-muted-foreground hover:text-foreground"
             >
               <X className="h-4 w-4 mr-1" />
               Clear
@@ -79,10 +81,8 @@ export const FirewallLogFiltersDesktop = memo(
           )}
         </div>
 
-        <Separator />
-
         {/* Time Range Section */}
-        <div className="space-y-3">
+        <div className="space-y-3 pt-4">
           <div className="flex items-center gap-2">
             <Calendar className="h-4 w-4 text-muted-foreground" />
             <Label className="text-sm font-medium">Time Range</Label>
@@ -111,10 +111,8 @@ export const FirewallLogFiltersDesktop = memo(
           )}
         </div>
 
-        <Separator />
-
         {/* Action Filters Section */}
-        <div className="space-y-3">
+        <div className="space-y-3 pt-4 border-t border-border">
           <Label className="text-sm font-medium">Action</Label>
           <div className="space-y-2">
             {(['accept', 'drop', 'reject', 'unknown'] as const).map(
@@ -144,10 +142,8 @@ export const FirewallLogFiltersDesktop = memo(
           </div>
         </div>
 
-        <Separator />
-
         {/* IP Address Filters Section */}
-        <div className="space-y-3">
+        <div className="space-y-3 pt-4 border-t border-border">
           <div className="flex items-center gap-2">
             <Network className="h-4 w-4 text-muted-foreground" />
             <Label className="text-sm font-medium">IP Addresses</Label>
@@ -195,10 +191,8 @@ export const FirewallLogFiltersDesktop = memo(
           </p>
         </div>
 
-        <Separator />
-
         {/* Port Filters Section */}
-        <div className="space-y-3">
+        <div className="space-y-3 pt-4 border-t border-border">
           <div className="flex items-center gap-2">
             <Hash className="h-4 w-4 text-muted-foreground" />
             <Label className="text-sm font-medium">Ports</Label>
@@ -248,10 +242,8 @@ export const FirewallLogFiltersDesktop = memo(
           </p>
         </div>
 
-        <Separator />
-
         {/* Prefix Filter Section */}
-        <div className="space-y-3">
+        <div className="space-y-3 pt-4 border-t border-border">
           <div className="flex items-center gap-2">
             <Tag className="h-4 w-4 text-muted-foreground" />
             <Label className="text-sm font-medium">Log Prefix</Label>

@@ -1,0 +1,24 @@
+{
+  "id": "service-lifecycle",
+  "title": "Service Lifecycle",
+  "description": "This document covers the complete lifecycle of a Feature Marketplace service instance — from discovery and installation through boot, health monitoring, configuration, networking/isolation, dependency management, traffic control, logging, updates, rollback, sharing/templates, device routing, scheduling, and system resource budgeting. All hooks live under libs/api-client/queries/src/services/.",
+  "source": "@site/../../libs/api-client/docs/service-lifecycle.md",
+  "sourceDirName": ".",
+  "slug": "/service-lifecycle",
+  "permalink": "/docs/api-client/service-lifecycle",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/api-client/docs/service-lifecycle.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Domain Query Hooks",
+    "permalink": "/docs/api-client/domain-query-hooks"
+  },
+  "next": {
+    "title": "Testing and Code Generation",
+    "permalink": "/docs/api-client/testing-and-codegen"
+  }
+}

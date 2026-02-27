@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/resource",
+  "title": "resource",
+  "description": "Get a resource by ID",
+  "source": "@site/docs/api/operations/queries/resource.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/resource",
+  "permalink": "/api/operations/queries/resource",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "resource",
+    "title": "resource"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "pushoverUsage",
+    "permalink": "/api/operations/queries/pushover-usage"
+  },
+  "next": {
+    "title": "resources",
+    "permalink": "/api/operations/queries/resources"
+  }
+}

@@ -119,7 +119,7 @@ func CheckRouterOSAPI(ctx context.Context, ip string, port int, timeout time.Dur
 	}
 	req.SetBasicAuth("admin", "")
 
-	resp, err := client.Do(req)
+	resp, err := client.Do(req) //nolint:gosec // G704: URL is constructed from trusted configuration
 	if err != nil {
 		return nil
 	}
@@ -184,7 +184,8 @@ func ScanGatewayIP(ctx context.Context, ip string, ports []int, timeout time.Dur
 
 	if routerOSInfo != nil && routerOSInfo.IsValid {
 		hostname := ""
-		if names, err := net.LookupAddr(ip); err == nil && len(names) > 0 {
+		resolver := &net.Resolver{}
+		if names, err := resolver.LookupAddr(ctx, ip); err == nil && len(names) > 0 {
 			hostname = names[0]
 		}
 

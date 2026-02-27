@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/routing-schedule",
+  "title": "RoutingSchedule",
+  "description": "Time-based schedule for activating/deactivating device routing rules.",
+  "source": "@site/docs/api/types/objects/routing-schedule.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/routing-schedule",
+  "permalink": "/api/types/objects/routing-schedule",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "routing-schedule",
+    "title": "RoutingSchedule"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "RoutingRule",
+    "permalink": "/api/types/objects/routing-rule"
+  },
+  "next": {
+    "title": "RunDiagnosticsPayload",
+    "permalink": "/api/types/objects/run-diagnostics-payload"
+  }
+}

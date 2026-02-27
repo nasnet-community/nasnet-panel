@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/trigger-boot-sequence",
+  "title": "triggerBootSequence",
+  "description": "Manually trigger the boot sequence for auto-start instances.",
+  "source": "@site/docs/api/operations/mutations/trigger-boot-sequence.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/trigger-boot-sequence",
+  "permalink": "/api/operations/mutations/trigger-boot-sequence",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "trigger-boot-sequence",
+    "title": "triggerBootSequence"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "togglePortKnockSequence",
+    "permalink": "/api/operations/mutations/toggle-port-knock-sequence"
+  },
+  "next": {
+    "title": "triggerDigestNow",
+    "permalink": "/api/operations/mutations/trigger-digest-now"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/gretunnel",
+  "title": "GRETunnel",
+  "description": "GRE Tunnel resource implementing 8-layer model",
+  "source": "@site/docs/api/types/objects/gretunnel.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/gretunnel",
+  "permalink": "/api/types/objects/gretunnel",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "gretunnel",
+    "title": "GRETunnel"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "GRETunnelRuntime",
+    "permalink": "/api/types/objects/gretunnel-runtime"
+  },
+  "next": {
+    "title": "HardwareInfo",
+    "permalink": "/api/types/objects/hardware-info"
+  }
+}

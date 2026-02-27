@@ -1,0 +1,24 @@
+{
+  "id": "config-generation",
+  "title": "Config Generation",
+  "description": "Overview",
+  "source": "@site/../backend/docs/config-generation.md",
+  "sourceDirName": ".",
+  "slug": "/config-generation",
+  "permalink": "/docs/backend/config-generation",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../backend/docs/config-generation.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Build and Deploy",
+    "permalink": "/docs/backend/build-and-deploy"
+  },
+  "next": {
+    "title": "Connection Management",
+    "permalink": "/docs/backend/connection-management"
+  }
+}

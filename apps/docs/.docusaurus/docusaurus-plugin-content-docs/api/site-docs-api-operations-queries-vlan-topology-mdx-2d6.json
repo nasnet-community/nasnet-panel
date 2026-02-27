@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/vlan-topology",
+  "title": "vlanTopology",
+  "description": "Get VLAN topology for a bridge",
+  "source": "@site/docs/api/operations/queries/vlan-topology.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/vlan-topology",
+  "permalink": "/api/operations/queries/vlan-topology",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "vlan-topology",
+    "title": "vlanTopology"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "vlanPoolStatus",
+    "permalink": "/api/operations/queries/vlan-pool-status"
+  },
+  "next": {
+    "title": "vlan",
+    "permalink": "/api/operations/queries/vlan"
+  }
+}

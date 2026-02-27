@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/subscriptions/tunnel-changed",
+  "title": "tunnelChanged",
+  "description": "Subscribe to tunnel status changes (create, update, delete)",
+  "source": "@site/docs/api/operations/subscriptions/tunnel-changed.mdx",
+  "sourceDirName": "api/operations/subscriptions",
+  "slug": "/api/operations/subscriptions/tunnel-changed",
+  "permalink": "/api/operations/subscriptions/tunnel-changed",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "tunnel-changed",
+    "title": "tunnelChanged"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "troubleshootProgress",
+    "permalink": "/api/operations/subscriptions/troubleshoot-progress"
+  },
+  "next": {
+    "title": "updateProgress",
+    "permalink": "/api/operations/subscriptions/update-progress"
+  }
+}

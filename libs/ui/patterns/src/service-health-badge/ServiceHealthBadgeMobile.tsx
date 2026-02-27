@@ -1,6 +1,7 @@
 import { memo } from 'react';
 
-import { ResourceHealthDot } from '../resource-health-indicator';
+import { cn } from '@nasnet/ui/primitives';
+
 import { useServiceHealthBadge } from './useServiceHealthBadge';
 
 import type { ServiceHealthBadgeProps } from './ServiceHealthBadge';
@@ -10,6 +11,7 @@ import type { ServiceHealthBadgeProps } from './ServiceHealthBadge';
  *
  * Shows compact dot indicator only - no text or metrics
  * to conserve space on mobile screens.
+ * Uses semantic color tokens matching the visual spec.
  */
 function ServiceHealthBadgeMobileComponent({
   health,
@@ -19,15 +21,33 @@ function ServiceHealthBadgeMobileComponent({
 }: ServiceHealthBadgeProps) {
   const { healthState } = useServiceHealthBadge(health);
 
-  if (loading) {
-    return <ResourceHealthDot health="UNKNOWN" animate className={className} />;
-  }
+  const getDotColor = () => {
+    switch (healthState) {
+      case 'HEALTHY':
+        return 'bg-success dark:bg-green-400';
+      case 'FAILED':
+        return 'bg-error dark:bg-red-400';
+      case 'DEGRADED':
+        return 'bg-warning dark:bg-amber-400';
+      case 'UNKNOWN':
+      default:
+        return 'bg-muted-foreground';
+    }
+  };
+
+  const shouldPulse = !loading && (healthState === 'DEGRADED' || healthState === 'HEALTHY');
 
   return (
-    <ResourceHealthDot
-      health={healthState}
-      animate={animate}
-      className={className}
+    <span
+      className={cn(
+        'inline-block h-2 w-2 rounded-full',
+        getDotColor(),
+        shouldPulse && 'animate-pulse',
+        'transition-colors duration-150',
+        className
+      )}
+      aria-label={loading ? 'Loading health status' : healthState}
+      title={loading ? 'Checking health status...' : healthState}
     />
   );
 }

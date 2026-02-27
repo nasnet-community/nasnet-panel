@@ -81,13 +81,13 @@ const EmptyState = memo(function EmptyState({ onAddEntry, onImport }: EmptyState
           {t('addressLists.emptyStates.noLists.description')}
         </CardDescription>
       </CardHeader>
-      <CardContent className="flex justify-center gap-2">
+      <CardContent className="flex justify-center gap-component-sm">
         <Button onClick={onAddEntry} aria-label={t('addressLists.emptyStates.noLists.actions.create')}>
-          <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
+          <Plus className="h-4 w-4 mr-component-sm" aria-hidden="true" />
           {t('addressLists.emptyStates.noLists.actions.create')}
         </Button>
         <Button variant="outline" onClick={onImport} aria-label={t('addressLists.emptyStates.noLists.actions.import')}>
-          <Upload className="h-4 w-4 mr-2" aria-hidden="true" />
+          <Upload className="h-4 w-4 mr-component-sm" aria-hidden="true" />
           {t('addressLists.emptyStates.noLists.actions.import')}
         </Button>
       </CardContent>
@@ -105,8 +105,8 @@ const EmptyState = memo(function EmptyState({ onAddEntry, onImport }: EmptyState
  */
 const LoadingSkeleton = memo(function LoadingSkeleton() {
   return (
-    <div className="space-y-4">
-      <div className="animate-pulse space-y-4">
+    <div className="space-y-component-md">
+      <div className="animate-pulse space-y-component-md">
         <div className="h-16 bg-muted rounded" />
         <div className="h-16 bg-muted rounded" />
         <div className="h-16 bg-muted rounded" />
@@ -208,11 +208,11 @@ export const AddressListView = memo(function AddressListView() {
           </div>
           <div className="flex gap-component-sm">
             <Button variant="outline" onClick={handleImport} aria-label={t('addressLists.buttons.import')}>
-              <Upload className="h-4 w-4 mr-2" aria-hidden="true" />
+              <Upload className="h-4 w-4 mr-component-sm" aria-hidden="true" />
               {t('addressLists.buttons.import')}
             </Button>
             <Button onClick={handleAddEntry} aria-label={t('addressLists.buttons.addEntry')}>
-              <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
+              <Plus className="h-4 w-4 mr-component-sm" aria-hidden="true" />
               {t('addressLists.buttons.addEntry')}
             </Button>
           </div>
@@ -223,7 +223,7 @@ export const AddressListView = memo(function AddressListView() {
       <div className="flex-1 overflow-y-auto p-component-md" role="main" aria-label="Address lists content">
         {/* Error State */}
         {error && (
-          <Alert variant="destructive" className="mb-4">
+          <Alert variant="destructive" className="mb-component-md">
             <AlertCircle className="h-4 w-4" aria-hidden="true" />
             <AlertDescription>
               {t('addressLists.notifications.error.load')}: {error.message}

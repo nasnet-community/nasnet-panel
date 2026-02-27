@@ -82,7 +82,7 @@ func (bsm *BootSequenceManager) ExecuteBootSequence(ctx context.Context) error {
 
 	instanceIDs, err := bsm.collectAutoStartInstances(ctx)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to collect auto-start instances: %w", err)
 	}
 	if len(instanceIDs) == 0 {
 		bsm.logger.Info("no auto-start instances found")
@@ -97,12 +97,12 @@ func (bsm *BootSequenceManager) ExecuteBootSequence(ctx context.Context) error {
 
 	layers, err := bsm.computeStartupLayers(ctx, instanceIDs)
 	if err != nil {
-		return err
+		return fmt.Errorf("compute startup layers: %w", err)
 	}
 
 	successfulStarts, failedStarts, err := bsm.executeLayers(ctx, layers)
 	if err != nil {
-		return err
+		return fmt.Errorf("execute startup layers: %w", err)
 	}
 
 	totalDuration := time.Since(startTime)
@@ -275,7 +275,7 @@ func (bsm *BootSequenceManager) startLayer(ctx context.Context, instanceIDs []st
 	// Wait for all instances to complete
 	if err := g.Wait(); err != nil {
 		// At least one instance failed - this is a critical layer failure
-		return successIDs, failedIDs, err
+		return successIDs, failedIDs, fmt.Errorf("execute boot layer: %w", err)
 	}
 
 	return successIDs, failedIDs, nil

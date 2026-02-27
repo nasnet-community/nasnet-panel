@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/configure-health-check",
+  "title": "configureHealthCheck",
+  "description": "Configure health check settings for a service instance",
+  "source": "@site/docs/api/operations/mutations/configure-health-check.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/configure-health-check",
+  "permalink": "/api/operations/mutations/configure-health-check",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "configure-health-check",
+    "title": "configureHealthCheck"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "configureExternalStorage",
+    "permalink": "/api/operations/mutations/configure-external-storage"
+  },
+  "next": {
+    "title": "configureLteWAN",
+    "permalink": "/api/operations/mutations/configure-lte-wan"
+  }
+}

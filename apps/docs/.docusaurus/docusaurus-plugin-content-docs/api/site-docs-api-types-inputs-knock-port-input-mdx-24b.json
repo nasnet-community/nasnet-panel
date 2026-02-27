@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/knock-port-input",
+  "title": "KnockPortInput",
+  "description": "Input for knock port.",
+  "source": "@site/docs/api/types/inputs/knock-port-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/knock-port-input",
+  "permalink": "/api/types/inputs/knock-port-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "knock-port-input",
+    "title": "KnockPortInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "IpAddressInput",
+    "permalink": "/api/types/inputs/ip-address-input"
+  },
+  "next": {
+    "title": "LteModemInput",
+    "permalink": "/api/types/inputs/lte-modem-input"
+  }
+}

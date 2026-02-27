@@ -90,9 +90,9 @@ export const PingToolDesktop = memo(function PingToolDesktop({
           <CardTitle>Ping Diagnostic</CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-component-md">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-component-lg">
             {/* Target input with semantic tokens and monospace for IPs */}
-            <div className="space-y-component-xs">
+            <div className="space-y-component-sm">
               <Label htmlFor="ping-target">
                 Target <span className="text-error">*</span>
               </Label>
@@ -106,12 +106,12 @@ export const PingToolDesktop = memo(function PingToolDesktop({
               />
               <p
                 id="ping-target-description"
-                className="text-sm text-muted-foreground"
+                className="text-xs text-muted-foreground"
               >
                 IPv4, IPv6, or hostname
               </p>
               {errors.target && (
-                <p className="text-sm text-error" role="alert">
+                <p className="text-xs text-error" role="alert">
                   {errors.target.message}
                 </p>
               )}
@@ -120,12 +120,12 @@ export const PingToolDesktop = memo(function PingToolDesktop({
             <Separator />
 
             {/* Advanced options */}
-            <div className="space-y-component-md">
+            <div className="space-y-component-lg">
               <h4 className="text-sm font-semibold">Advanced Options</h4>
 
-              <div className="grid grid-cols-2 gap-component-md">
+              <div className="grid grid-cols-2 gap-component-lg">
                 {/* Count */}
-                <div className="space-y-component-xs">
+                <div className="space-y-component-sm">
                   <Label htmlFor="ping-count">Count</Label>
                   <Input
                     id="ping-count"
@@ -136,14 +136,14 @@ export const PingToolDesktop = memo(function PingToolDesktop({
                     {...register('count')}
                   />
                   {errors.count && (
-                    <p className="text-sm text-error" role="alert">
+                    <p className="text-xs text-error" role="alert">
                       {errors.count.message}
                     </p>
                   )}
                 </div>
 
                 {/* Size */}
-                <div className="space-y-component-xs">
+                <div className="space-y-component-sm">
                   <Label htmlFor="ping-size">Size (bytes)</Label>
                   <Input
                     id="ping-size"
@@ -154,14 +154,14 @@ export const PingToolDesktop = memo(function PingToolDesktop({
                     {...register('size')}
                   />
                   {errors.size && (
-                    <p className="text-sm text-error" role="alert">
+                    <p className="text-xs text-error" role="alert">
                       {errors.size.message}
                     </p>
                   )}
                 </div>
 
                 {/* Timeout */}
-                <div className="space-y-component-xs">
+                <div className="space-y-component-sm">
                   <Label htmlFor="ping-timeout">Timeout (ms)</Label>
                   <Input
                     id="ping-timeout"
@@ -172,14 +172,14 @@ export const PingToolDesktop = memo(function PingToolDesktop({
                     {...register('timeout')}
                   />
                   {errors.timeout && (
-                    <p className="text-sm text-error" role="alert">
+                    <p className="text-xs text-error" role="alert">
                       {errors.timeout.message}
                     </p>
                   )}
                 </div>
 
                 {/* Source Interface */}
-                <div className="space-y-component-xs">
+                <div className="space-y-component-sm">
                   <Label htmlFor="ping-source">Source Interface</Label>
                   <Input
                     id="ping-source"
@@ -192,7 +192,7 @@ export const PingToolDesktop = memo(function PingToolDesktop({
             </div>
 
             {/* Action buttons */}
-            <div className="flex gap-component-sm">
+            <div className="flex gap-component-md">
               {!ping.isRunning ? (
                 <Button
                   type="submit"
@@ -239,7 +239,7 @@ export const PingToolDesktop = memo(function PingToolDesktop({
             {/* Error display */}
             {ping.error && (
               <div
-                className="p-component-sm border border-error bg-error/10 rounded-card-sm text-sm text-error"
+                className="p-component-md border border-error bg-error/10 rounded-card-sm text-xs text-error"
                 role="alert"
               >
                 {ping.error}

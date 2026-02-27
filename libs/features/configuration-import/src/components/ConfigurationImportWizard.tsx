@@ -85,7 +85,7 @@ function StepIndicator({
   currentIndex: number;
 }) {
   return (
-    <div className="flex items-center justify-center gap-2 mb-6" role="navigation" aria-label="Wizard steps">
+    <div className="flex items-center justify-center gap-component-sm mb-component-lg" role="navigation" aria-label="Wizard steps">
       {steps.map((step, index) => (
         <div key={step.id} className="flex items-center">
           <div
@@ -384,14 +384,14 @@ export const ConfigurationImportWizard = memo(function ConfigurationImportWizard
         </AnimatePresence>
 
         {/* Action Buttons */}
-        <div className="flex justify-between items-center mt-6 pt-4 border-t border-border">
+        <div className="flex justify-between items-center mt-component-lg pt-component-md border-t border-border">
           {/* Left side */}
           <div>
             {step === 'input' && (
               <button
                 onClick={handleSkip}
                 aria-label="Skip configuration import"
-                className="min-h-[44px] min-w-[44px] text-sm text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-md px-2"
+                className="min-h-[44px] min-w-[44px] text-sm text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-md px-component-sm"
               >
                 Skip for now
               </button>
@@ -400,7 +400,7 @@ export const ConfigurationImportWizard = memo(function ConfigurationImportWizard
               <button
                 onClick={handleBack}
                 aria-label="Go back to configuration input"
-                className="min-h-[44px] min-w-[44px] flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-md px-2"
+                className="min-h-[44px] min-w-[44px] flex items-center gap-component-sm text-sm text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-md px-component-sm"
               >
                 <ChevronLeft className="w-4 h-4" aria-hidden="true" />
                 Back
@@ -409,12 +409,12 @@ export const ConfigurationImportWizard = memo(function ConfigurationImportWizard
           </div>
 
           {/* Right side */}
-          <div className="flex gap-3">
+          <div className="flex gap-component-md">
             {step !== 'execute' && (
               <button
                 onClick={handleClose}
                 aria-label="Cancel configuration import"
-                className="min-h-[44px] px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-md"
+                className="min-h-[44px] px-component-md py-component-sm text-sm font-medium text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-md"
               >
                 Cancel
               </button>
@@ -425,7 +425,7 @@ export const ConfigurationImportWizard = memo(function ConfigurationImportWizard
                 onClick={handleNext}
                 disabled={!canProceed}
                 aria-label="Continue to protocol selection"
-                className="min-h-[44px] btn-action px-4 py-2 rounded-lg text-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                className="min-h-[44px] btn-action px-component-md py-component-sm rounded-lg text-sm flex items-center gap-component-sm disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
                 Continue
                 <ChevronRight className="w-4 h-4" aria-hidden="true" />
@@ -437,7 +437,7 @@ export const ConfigurationImportWizard = memo(function ConfigurationImportWizard
                 onClick={handleNext}
                 disabled={!canProceed || createJob.isPending}
                 aria-label={createJob.isPending ? 'Starting batch job' : 'Apply configuration'}
-                className="min-h-[44px] btn-action px-4 py-2 rounded-lg text-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                className="min-h-[44px] btn-action px-component-md py-component-sm rounded-lg text-sm flex items-center gap-component-sm disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
                 {createJob.isPending ? (
                   <>
@@ -457,7 +457,7 @@ export const ConfigurationImportWizard = memo(function ConfigurationImportWizard
               <button
                 onClick={handleComplete}
                 aria-label="Close wizard after successful configuration"
-                className="min-h-[44px] btn-action px-4 py-2 rounded-lg text-sm flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                className="min-h-[44px] btn-action px-component-md py-component-sm rounded-lg text-sm flex items-center gap-component-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
                 <CheckCircle className="w-4 h-4" aria-hidden="true" />
                 Done
@@ -468,7 +468,7 @@ export const ConfigurationImportWizard = memo(function ConfigurationImportWizard
               <button
                 onClick={handleClose}
                 aria-label="Close wizard after failed configuration"
-                className="min-h-[44px] px-4 py-2 rounded-lg text-sm font-medium bg-muted text-foreground hover:bg-muted/80 transition-colors flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                className="min-h-[44px] px-component-md py-component-sm rounded-lg text-sm font-medium bg-muted text-foreground hover:bg-muted/80 transition-colors flex items-center gap-component-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
                 <X className="w-4 h-4" aria-hidden="true" />
                 Close

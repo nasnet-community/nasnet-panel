@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/router-health",
+  "title": "routerHealth",
+  "description": "Get health check result for a router",
+  "source": "@site/docs/api/operations/queries/router-health.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/router-health",
+  "permalink": "/api/operations/queries/router-health",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "router-health",
+    "title": "routerHealth"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "routerCredentials",
+    "permalink": "/api/operations/queries/router-credentials"
+  },
+  "next": {
+    "title": "router",
+    "permalink": "/api/operations/queries/router"
+  }
+}

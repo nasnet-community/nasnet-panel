@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/login",
+  "title": "login",
+  "description": "Authenticate and receive a JWT token",
+  "source": "@site/docs/api/operations/mutations/login.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/login",
+  "permalink": "/api/operations/mutations/login",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "login",
+    "title": "login"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "installService",
+    "permalink": "/api/operations/mutations/install-service"
+  },
+  "next": {
+    "title": "logout",
+    "permalink": "/api/operations/mutations/logout"
+  }
+}

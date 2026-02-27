@@ -89,7 +89,7 @@ export function ResourceListSkeleton({
       )}
 
       {/* Table */}
-      <div className="rounded-card-sm border border-border bg-card">
+      <div className="rounded-card-sm border border-border bg-card shadow-sm">
         <SkeletonTable
           rows={rows}
           columns={columns}

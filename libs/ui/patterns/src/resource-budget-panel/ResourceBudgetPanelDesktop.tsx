@@ -33,13 +33,13 @@ import { useResourceBudgetPanel } from './useResourceBudgetPanel';
 import type { ResourceBudgetPanelProps, SortColumn } from './types';
 
 /**
- * Status badge color mapping
+ * Status badge color mapping (semantic tokens)
  */
 const STATUS_COLORS = {
-  running: 'bg-semantic-success text-white',
-  stopped: 'bg-gray-400 dark:bg-gray-600 text-white',
-  pending: 'bg-semantic-warning text-white',
-  error: 'bg-semantic-error text-white',
+  running: 'bg-success text-success-foreground',
+  stopped: 'bg-muted text-muted-foreground',
+  pending: 'bg-warning text-warning-foreground',
+  error: 'bg-error text-error-foreground',
 } as const;
 
 /**
@@ -118,12 +118,12 @@ export const ResourceBudgetPanelDesktop = React.memo(function ResourceBudgetPane
     <div className={cn('space-y-4', className)}>
       {/* System Totals */}
       {showSystemTotals && (
-        <Card>
+        <Card className="border border-border rounded-[var(--semantic-radius-card)]">
           <CardHeader>
-            <h3 className="text-lg font-semibold">System Resources</h3>
+            <h3 className="text-lg font-semibold font-display">System Resources</h3>
           </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 gap-6">
+          <CardContent className="p-4 sm:p-6">
+            <div className="grid grid-cols-2 gap-4 sm:gap-6">
               <div>
                 <ResourceUsageBar
                   used={state.systemTotals.totalMemoryUsed}
@@ -136,18 +136,18 @@ export const ResourceBudgetPanelDesktop = React.memo(function ResourceBudgetPane
                   variant="desktop"
                 />
               </div>
-              <div className="flex items-center gap-8">
+              <div className="flex items-center gap-6 sm:gap-8">
                 <div className="flex flex-col">
                   <span className="text-sm text-muted-foreground mb-1">
-                    Running Instances
+                    Running
                   </span>
-                  <span className="text-2xl font-bold text-semantic-success">
+                  <span className="text-2xl font-bold text-success">
                     {state.systemTotals.runningInstances}
                   </span>
                 </div>
                 <div className="flex flex-col">
                   <span className="text-sm text-muted-foreground mb-1">
-                    Stopped Instances
+                    Stopped
                   </span>
                   <span className="text-2xl font-bold text-muted-foreground">
                     {state.systemTotals.stoppedInstances}
@@ -160,9 +160,9 @@ export const ResourceBudgetPanelDesktop = React.memo(function ResourceBudgetPane
       )}
 
       {/* Instance Table */}
-      <Card>
+      <Card className="border border-border rounded-[var(--semantic-radius-card)]">
         <CardHeader>
-          <h3 className="text-lg font-semibold">
+          <h3 className="text-lg font-semibold font-display">
             Service Instances ({state.totalInstances})
           </h3>
         </CardHeader>

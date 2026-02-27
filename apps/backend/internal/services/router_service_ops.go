@@ -29,7 +29,11 @@ func (s *RouterService) GetActiveRouter(ctx context.Context, sessionID string) (
 		return nil, nil //nolint:nilnil // intentional nil return for not-found
 	}
 
-	return s.db.Router.Get(ctx, routerID)
+	routerEnt, err := s.db.Router.Get(ctx, routerID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get router: %w", err)
+	}
+	return routerEnt, nil
 }
 
 // SetActiveRouter stores the active router for a session.
@@ -77,7 +81,7 @@ func (s *RouterService) clearActiveRouterIfMatches(routerID string) {
 func (s *RouterService) GetRouterStatus(ctx context.Context, routerID string) (string, error) {
 	routerEntity, err := s.db.Router.Get(ctx, routerID)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to get router status: %w", err)
 	}
 	return string(routerEntity.Status), nil
 }
@@ -114,7 +118,11 @@ func (s *RouterService) UpdateRouterStatus(ctx context.Context, routerID, newSta
 // GetAllRouters returns all routers from the database.
 // Used by the health check service to iterate over routers.
 func (s *RouterService) GetAllRouters(ctx context.Context) ([]*ent.Router, error) {
-	return s.db.Router.Query().All(ctx)
+	routers, err := s.db.Router.Query().All(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query all routers: %w", err)
+	}
+	return routers, nil
 }
 
 // TestCredentials tests if the provided credentials can authenticate with the router.

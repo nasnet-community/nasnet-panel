@@ -1,0 +1,24 @@
+{
+  "id": "machines/vpn-connection",
+  "title": "VPN Connection Machine (Feature Example)",
+  "description": "The VPN Connection Machine demonstrates a practical XState machine for VPN lifecycle management. It handles connection, disconnection, automatic reconnection with exponential backoff, and real-time metrics collection.",
+  "source": "@site/../../libs/state/docs/machines/vpn-connection.md",
+  "sourceDirName": "machines",
+  "slug": "/machines/vpn-connection",
+  "permalink": "/docs/state/machines/vpn-connection",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/state/docs/machines/vpn-connection.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Resource Lifecycle Machine (Universal State v2)",
+    "permalink": "/docs/state/machines/resource-lifecycle"
+  },
+  "next": {
+    "title": "Wizard Machine (Multi-Step Flows)",
+    "permalink": "/docs/state/machines/wizard"
+  }
+}

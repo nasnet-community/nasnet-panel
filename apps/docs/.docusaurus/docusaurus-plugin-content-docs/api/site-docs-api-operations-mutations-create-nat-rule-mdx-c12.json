@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/create-nat-rule",
+  "title": "createNatRule",
+  "description": "Create a NAT rule.",
+  "source": "@site/docs/api/operations/mutations/create-nat-rule.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/create-nat-rule",
+  "permalink": "/api/operations/mutations/create-nat-rule",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "create-nat-rule",
+    "title": "createNatRule"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "createMasqueradeRule",
+    "permalink": "/api/operations/mutations/create-masquerade-rule"
+  },
+  "next": {
+    "title": "createNotificationChannelConfig",
+    "permalink": "/api/operations/mutations/create-notification-channel-config"
+  }
+}

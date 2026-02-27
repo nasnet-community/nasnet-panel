@@ -123,7 +123,7 @@ function FingerprintDetailPanelComponent({
     <Card className={cn('w-full max-w-md', className)}>
       <CardHeader>
         <div className="flex items-start justify-between">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-component-md">
             <DeviceTypeIcon
               deviceType={identification.deviceType}
               deviceCategory={identification.deviceCategory}
@@ -145,7 +145,7 @@ function FingerprintDetailPanelComponent({
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-3">
+      <CardContent className="space-y-component-md">
         {/* Field 1: Detected Type */}
         <DetailField
           label="Detected Type"
@@ -200,7 +200,7 @@ function FingerprintDetailPanelComponent({
         {/* Field 8: Source badge - already shown in header */}
 
         {/* Action Buttons */}
-        <div className="flex gap-2 pt-2">
+        <div className="flex gap-component-sm pt-component-sm">
           {onEdit && (
             <Button
               variant="outline"
@@ -247,7 +247,7 @@ interface DetailFieldProps {
 
 const DetailField = memo(function DetailField({ label, value, mono = false }: DetailFieldProps) {
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex flex-col gap-component-xs">
       <dt className="text-xs font-medium text-muted-foreground">{label}</dt>
       <dd className={cn('text-sm', mono && 'font-mono')}>
         {value}

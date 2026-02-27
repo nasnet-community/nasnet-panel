@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/create-bridge-vlan",
+  "title": "createBridgeVlan",
+  "description": "Create a bridge VLAN entry",
+  "source": "@site/docs/api/operations/mutations/create-bridge-vlan.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/create-bridge-vlan",
+  "permalink": "/api/operations/mutations/create-bridge-vlan",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "create-bridge-vlan",
+    "title": "createBridgeVlan"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "createAlertRule",
+    "permalink": "/api/operations/mutations/create-alert-rule"
+  },
+  "next": {
+    "title": "createBridge",
+    "permalink": "/api/operations/mutations/create-bridge"
+  }
+}

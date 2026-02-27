@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/notification-log",
+  "title": "NotificationLog",
+  "description": "Notification delivery log entry",
+  "source": "@site/docs/api/types/objects/notification-log.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/notification-log",
+  "permalink": "/api/types/objects/notification-log",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "notification-log",
+    "title": "NotificationLog"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "NotificationChannelConfig",
+    "permalink": "/api/types/objects/notification-channel-config"
+  },
+  "next": {
+    "title": "NotificationTemplatePreview",
+    "permalink": "/api/types/objects/notification-template-preview"
+  }
+}

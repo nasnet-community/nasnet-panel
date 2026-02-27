@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/me",
+  "title": "me",
+  "description": "Get current authenticated user",
+  "source": "@site/docs/api/operations/queries/me.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/me",
+  "permalink": "/api/operations/queries/me",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "me",
+    "title": "me"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "killSwitchStatus",
+    "permalink": "/api/operations/queries/kill-switch-status"
+  },
+  "next": {
+    "title": "mySessions",
+    "permalink": "/api/operations/queries/my-sessions"
+  }
+}

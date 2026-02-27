@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/create-resource-payload",
+  "title": "CreateResourcePayload",
+  "description": "No description",
+  "source": "@site/docs/api/types/objects/create-resource-payload.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/create-resource-payload",
+  "permalink": "/api/types/objects/create-resource-payload",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "create-resource-payload",
+    "title": "CreateResourcePayload"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "CreateChangeSetPayload",
+    "permalink": "/api/types/objects/create-change-set-payload"
+  },
+  "next": {
+    "title": "CreateRouterPayload",
+    "permalink": "/api/types/objects/create-router-payload"
+  }
+}

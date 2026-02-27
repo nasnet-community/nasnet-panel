@@ -33,7 +33,10 @@ func (im *InstanceManager) updateInstanceStatus(ctx context.Context, instanceID 
 	_, err := im.config.Store.ServiceInstance.UpdateOneID(instanceID).
 		SetStatus(serviceinstance.Status(status)).
 		Save(ctx)
-	return err
+	if err != nil {
+		return fmt.Errorf("failed to update instance status: %w", err)
+	}
+	return nil
 }
 
 // emitStateChangeEvent publishes a state change event for an instance

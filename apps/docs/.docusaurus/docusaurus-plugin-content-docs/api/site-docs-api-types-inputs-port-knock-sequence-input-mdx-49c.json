@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/port-knock-sequence-input",
+  "title": "PortKnockSequenceInput",
+  "description": "Input for creating/updating port knock sequence.",
+  "source": "@site/docs/api/types/inputs/port-knock-sequence-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/port-knock-sequence-input",
+  "permalink": "/api/types/inputs/port-knock-sequence-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "port-knock-sequence-input",
+    "title": "PortKnockSequenceInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "PortKnockLogFilters",
+    "permalink": "/api/types/inputs/port-knock-log-filters"
+  },
+  "next": {
+    "title": "PppoeClientInput",
+    "permalink": "/api/types/inputs/pppoe-client-input"
+  }
+}

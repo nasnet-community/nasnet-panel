@@ -66,6 +66,10 @@ func (db *Database) load() {
 // Accepts formats: AA:BB:CC:DD:EE:FF, AA-BB-CC-DD-EE-FF, or AABBCCDDEEFF
 // Returns vendor name and true if found, empty string and false otherwise
 func (db *Database) Lookup(macAddress string) (string, bool) {
+	if db == nil {
+		return "", false
+	}
+
 	db.mu.RLock()
 	defer db.mu.RUnlock()
 
@@ -82,6 +86,10 @@ func (db *Database) Lookup(macAddress string) (string, bool) {
 // LookupBatch performs batch lookup for multiple MAC addresses
 // Returns a map of MAC address -> vendor name
 func (db *Database) LookupBatch(macAddresses []string) map[string]string {
+	if db == nil {
+		return make(map[string]string)
+	}
+
 	results := make(map[string]string)
 
 	for _, mac := range macAddresses {
@@ -95,6 +103,10 @@ func (db *Database) LookupBatch(macAddresses []string) map[string]string {
 
 // Size returns the number of OUI entries in the database
 func (db *Database) Size() int {
+	if db == nil {
+		return 0
+	}
+
 	db.mu.RLock()
 	defer db.mu.RUnlock()
 	return len(db.entries)

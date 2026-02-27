@@ -201,7 +201,6 @@ function VariablesStepComponent({
                         <Switch
                           checked={field.value as boolean}
                           onCheckedChange={field.onChange}
-                          className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                         />
                         <span className="text-sm">
                           {field.value ? 'Enabled' : 'Disabled'}
@@ -229,7 +228,7 @@ function VariablesStepComponent({
                         placeholder={variable.default ? String(variable.default) : ''}
                         {...field}
                         value={field.value as string | number}
-                        className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                        className={variable.type === 'PORT' || variable.type === 'NUMBER' ? 'font-mono' : ''}
                       />
                     )}
                   </FormControl>

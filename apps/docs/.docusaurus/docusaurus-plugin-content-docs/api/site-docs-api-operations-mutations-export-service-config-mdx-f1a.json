@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/export-service-config",
+  "title": "exportServiceConfig",
+  "description": "Export a service configuration as a JSON package.",
+  "source": "@site/docs/api/operations/mutations/export-service-config.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/export-service-config",
+  "permalink": "/api/operations/mutations/export-service-config",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "export-service-config",
+    "title": "exportServiceConfig"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "exportRouterConfig",
+    "permalink": "/api/operations/mutations/export-router-config"
+  },
+  "next": {
+    "title": "flushDnsCache",
+    "permalink": "/api/operations/mutations/flush-dns-cache"
+  }
+}

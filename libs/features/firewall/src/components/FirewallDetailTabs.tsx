@@ -58,12 +58,12 @@ function FirewallDetailTabsContent({
   return (
     <div className={className}>
       <Tabs value={activeTab} onValueChange={handleTabChange}>
-        <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-4">
-          <TabsList className="bg-muted p-1 rounded-lg">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-component-md mb-component-md">
+          <TabsList className="bg-muted p-component-xs rounded-lg">
             <TabsTrigger
               value="filter"
               className={cn(
-                'flex items-center gap-2 px-4 py-2 rounded-md',
+                'flex items-center gap-component-sm px-component-md py-component-sm rounded-md',
                 'data-[state=active]:bg-background'
               )}
             >
@@ -74,7 +74,7 @@ function FirewallDetailTabsContent({
             <TabsTrigger
               value="nat"
               className={cn(
-                'flex items-center gap-2 px-4 py-2 rounded-md',
+                'flex items-center gap-component-sm px-component-md py-component-sm rounded-md',
                 'data-[state=active]:bg-background'
               )}
             >
@@ -85,7 +85,7 @@ function FirewallDetailTabsContent({
             <TabsTrigger
               value="routing"
               className={cn(
-                'flex items-center gap-2 px-4 py-2 rounded-md',
+                'flex items-center gap-component-sm px-component-md py-component-sm rounded-md',
                 'data-[state=active]:bg-background'
               )}
             >
@@ -96,7 +96,7 @@ function FirewallDetailTabsContent({
             <TabsTrigger
               value="mangle"
               className={cn(
-                'flex items-center gap-2 px-4 py-2 rounded-md',
+                'flex items-center gap-component-sm px-component-md py-component-sm rounded-md',
                 'data-[state=active]:bg-background'
               )}
             >
@@ -107,7 +107,7 @@ function FirewallDetailTabsContent({
             <TabsTrigger
               value="raw"
               className={cn(
-                'flex items-center gap-2 px-4 py-2 rounded-md',
+                'flex items-center gap-component-sm px-component-md py-component-sm rounded-md',
                 'data-[state=active]:bg-background'
               )}
             >
@@ -118,7 +118,7 @@ function FirewallDetailTabsContent({
             <TabsTrigger
               value="rateLimiting"
               className={cn(
-                'flex items-center gap-2 px-4 py-2 rounded-md',
+                'flex items-center gap-component-sm px-component-md py-component-sm rounded-md',
                 'data-[state=active]:bg-background'
               )}
             >
@@ -129,7 +129,7 @@ function FirewallDetailTabsContent({
             <TabsTrigger
               value="addressLists"
               className={cn(
-                'flex items-center gap-2 px-4 py-2 rounded-md',
+                'flex items-center gap-component-sm px-component-md py-component-sm rounded-md',
                 'data-[state=active]:bg-background'
               )}
             >
@@ -140,7 +140,7 @@ function FirewallDetailTabsContent({
             <TabsTrigger
               value="connections"
               className={cn(
-                'flex items-center gap-2 px-4 py-2 rounded-md',
+                'flex items-center gap-component-sm px-component-md py-component-sm rounded-md',
                 'data-[state=active]:bg-background'
               )}
             >
@@ -151,7 +151,7 @@ function FirewallDetailTabsContent({
             <TabsTrigger
               value="templates"
               className={cn(
-                'flex items-center gap-2 px-4 py-2 rounded-md',
+                'flex items-center gap-component-sm px-component-md py-component-sm rounded-md',
                 'data-[state=active]:bg-background'
               )}
             >
@@ -162,7 +162,7 @@ function FirewallDetailTabsContent({
             <TabsTrigger
               value="logs"
               className={cn(
-                'flex items-center gap-2 px-4 py-2 rounded-md',
+                'flex items-center gap-component-sm px-component-md py-component-sm rounded-md',
                 'data-[state=active]:bg-background'
               )}
             >
@@ -173,7 +173,7 @@ function FirewallDetailTabsContent({
           </TabsList>
         </div>
 
-        <TabsContent value="filter" className="space-y-4">
+        <TabsContent value="filter" className="space-y-component-md">
           <RuleSearchFilters
             filters={filters}
             onChange={setFilters}
@@ -204,26 +204,26 @@ function FirewallDetailTabsContent({
         </TabsContent>
 
         <TabsContent value="raw">
-          <div className="text-center py-8 text-muted-foreground">
+          <div className="text-center py-component-lg text-muted-foreground">
             <p className="font-medium">RAW Firewall Rules</p>
-            <p className="font-mono text-sm mt-2 text-foreground/70">/router/$id/firewall/raw</p>
-            <p className="text-xs mt-4">Use the navigation menu to access the full RAW Rules page.</p>
+            <p className="font-mono text-sm mt-component-md text-foreground/70">/router/$id/firewall/raw</p>
+            <p className="text-xs mt-component-md">Use the navigation menu to access the full RAW Rules page.</p>
           </div>
         </TabsContent>
 
         <TabsContent value="rateLimiting">
-          <div className="text-center py-8 text-muted-foreground">
+          <div className="text-center py-component-lg text-muted-foreground">
             <p className="font-medium">Rate Limiting Configuration</p>
-            <p className="font-mono text-sm mt-2 text-foreground/70">/router/$id/firewall/rate-limiting</p>
-            <p className="text-xs mt-4">Use the navigation menu to access the full Rate Limiting page.</p>
+            <p className="font-mono text-sm mt-component-md text-foreground/70">/router/$id/firewall/rate-limiting</p>
+            <p className="text-xs mt-component-md">Use the navigation menu to access the full Rate Limiting page.</p>
           </div>
         </TabsContent>
 
         <TabsContent value="addressLists">
-          <div className="text-center py-8 text-muted-foreground">
+          <div className="text-center py-component-lg text-muted-foreground">
             <p className="font-medium">Firewall Address Lists</p>
-            <p className="font-mono text-sm mt-2 text-foreground/70">/router/$id/firewall/address-lists</p>
-            <p className="text-xs mt-4">Use the navigation menu to access the full Address Lists page.</p>
+            <p className="font-mono text-sm mt-component-md text-foreground/70">/router/$id/firewall/address-lists</p>
+            <p className="text-xs mt-component-md">Use the navigation menu to access the full Address Lists page.</p>
           </div>
         </TabsContent>
 
@@ -232,18 +232,18 @@ function FirewallDetailTabsContent({
         </TabsContent>
 
         <TabsContent value="templates">
-          <div className="text-center py-8 text-muted-foreground">
+          <div className="text-center py-component-lg text-muted-foreground">
             <p className="font-medium">Firewall Rule Templates</p>
-            <p className="font-mono text-sm mt-2 text-foreground/70">/router/$id/firewall/templates</p>
-            <p className="text-xs mt-4">Use the navigation menu to access the full Templates page.</p>
+            <p className="font-mono text-sm mt-component-md text-foreground/70">/router/$id/firewall/templates</p>
+            <p className="text-xs mt-component-md">Use the navigation menu to access the full Templates page.</p>
           </div>
         </TabsContent>
 
         <TabsContent value="logs">
-          <div className="text-center py-8 text-muted-foreground">
+          <div className="text-center py-component-lg text-muted-foreground">
             <p className="font-medium">Firewall Activity Logs</p>
-            <p className="font-mono text-sm mt-2 text-foreground/70">/router/$id/firewall/logs</p>
-            <p className="text-xs mt-4">Use the navigation menu to access the full Firewall Logs page.</p>
+            <p className="font-mono text-sm mt-component-md text-foreground/70">/router/$id/firewall/logs</p>
+            <p className="text-xs mt-component-md">Use the navigation menu to access the full Firewall Logs page.</p>
           </div>
         </TabsContent>
       </Tabs>

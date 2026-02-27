@@ -38,7 +38,7 @@ export const InterfaceCard = memo(function InterfaceCard({ interface: iface }: I
   return (
     <div
       className={cn(
-        'bg-card border rounded-xl transition-all duration-200',
+        'bg-card border rounded-card-lg shadow-sm transition-all duration-200',
         isRunning
           ? 'border-border hover:border-border/80'
           : 'border-border opacity-60'
@@ -46,7 +46,7 @@ export const InterfaceCard = memo(function InterfaceCard({ interface: iface }: I
     >
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full text-left p-component-md md:p-component-lg min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-card-sm"
+        className="w-full text-left p-component-md md:p-component-lg min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-card-sm transition-all duration-200"
         aria-expanded={isExpanded}
         aria-label={`${iface.name} interface details, ${isRunning ? 'running' : 'disabled'}`}
       >
@@ -76,7 +76,7 @@ export const InterfaceCard = memo(function InterfaceCard({ interface: iface }: I
                 className="w-4 h-4 text-muted-foreground"
               />
               <div>
-                <span className="font-medium text-foreground text-sm">
+                <span className="font-display font-semibold text-foreground text-sm">
                   {iface.name}
                 </span>
                 <span className="text-xs text-muted-foreground ml-2 capitalize">
@@ -111,7 +111,7 @@ export const InterfaceCard = memo(function InterfaceCard({ interface: iface }: I
         {/* MAC Address - always visible */}
         <div className="mt-2 text-xs font-mono text-muted-foreground pl-5">
           {iface.macAddress || t('interfaces.noMac')}
-          {iface.mtu && <span className="ml-3">{t('interfaces.mtu')}: {iface.mtu}</span>}
+          {iface.mtu && <span className="ml-3 font-mono">{t('interfaces.mtu')}: {iface.mtu}</span>}
         </div>
       </button>
 

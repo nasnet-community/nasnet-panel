@@ -542,8 +542,8 @@ func TestRollbackStore(t *testing.T) {
 	defer store.Close()
 
 	state := &RollbackState{
-		ID:       "rollback-1",
-		RouterID: "router-1",
+		ID:        "rollback-1",
+		RouterID:  "router-1",
 		ExpiresAt: time.Now().Add(5 * time.Minute),
 	}
 

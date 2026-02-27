@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/connection-test-result",
+  "title": "ConnectionTestResult",
+  "description": "Result of a connection test attempt, including protocol detection results.",
+  "source": "@site/docs/api/types/objects/connection-test-result.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/connection-test-result",
+  "permalink": "/api/types/objects/connection-test-result",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "connection-test-result",
+    "title": "ConnectionTestResult"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ConnectionStats",
+    "permalink": "/api/types/objects/connection-stats"
+  },
+  "next": {
+    "title": "ContainerInfo",
+    "permalink": "/api/types/objects/container-info"
+  }
+}

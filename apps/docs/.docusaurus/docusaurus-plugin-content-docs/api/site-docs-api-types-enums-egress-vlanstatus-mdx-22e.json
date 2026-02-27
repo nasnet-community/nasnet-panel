@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/egress-vlanstatus",
+  "title": "EgressVLANStatus",
+  "description": "Egress VLAN lifecycle status.",
+  "source": "@site/docs/api/types/enums/egress-vlanstatus.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/egress-vlanstatus",
+  "permalink": "/api/types/enums/egress-vlanstatus",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "egress-vlanstatus",
+    "title": "EgressVLANStatus"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "DriftAction",
+    "permalink": "/api/types/enums/drift-action"
+  },
+  "next": {
+    "title": "ErrorCategory",
+    "permalink": "/api/types/enums/error-category"
+  }
+}

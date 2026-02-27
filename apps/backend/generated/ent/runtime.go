@@ -3124,12 +3124,20 @@ func init() {
 			return nil
 		}
 	}()
+	// virtualinterfaceDescIngressVlanID is the schema descriptor for ingress_vlan_id field.
+	virtualinterfaceDescIngressVlanID := virtualinterfaceFields[11].Descriptor()
+	// virtualinterface.IngressVlanIDValidator is a validator for the "ingress_vlan_id" field. It is called by the builders before save.
+	virtualinterface.IngressVlanIDValidator = virtualinterfaceDescIngressVlanID.Validators[0].(func(int) error)
+	// virtualinterfaceDescContainerIP is the schema descriptor for container_ip field.
+	virtualinterfaceDescContainerIP := virtualinterfaceFields[13].Descriptor()
+	// virtualinterface.ContainerIPValidator is a validator for the "container_ip" field. It is called by the builders before save.
+	virtualinterface.ContainerIPValidator = virtualinterfaceDescContainerIP.Validators[0].(func(string) error)
 	// virtualinterfaceDescCreatedAt is the schema descriptor for created_at field.
-	virtualinterfaceDescCreatedAt := virtualinterfaceFields[10].Descriptor()
+	virtualinterfaceDescCreatedAt := virtualinterfaceFields[14].Descriptor()
 	// virtualinterface.DefaultCreatedAt holds the default value on creation for the created_at field.
 	virtualinterface.DefaultCreatedAt = virtualinterfaceDescCreatedAt.Default.(func() time.Time)
 	// virtualinterfaceDescUpdatedAt is the schema descriptor for updated_at field.
-	virtualinterfaceDescUpdatedAt := virtualinterfaceFields[11].Descriptor()
+	virtualinterfaceDescUpdatedAt := virtualinterfaceFields[15].Descriptor()
 	// virtualinterface.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	virtualinterface.DefaultUpdatedAt = virtualinterfaceDescUpdatedAt.Default.(func() time.Time)
 	// virtualinterface.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.

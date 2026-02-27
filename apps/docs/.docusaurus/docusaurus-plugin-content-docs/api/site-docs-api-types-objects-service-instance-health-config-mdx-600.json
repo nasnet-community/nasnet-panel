@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/service-instance-health-config",
+  "title": "ServiceInstanceHealthConfig",
+  "description": "Health check configuration for a service instance",
+  "source": "@site/docs/api/types/objects/service-instance-health-config.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/service-instance-health-config",
+  "permalink": "/api/types/objects/service-instance-health-config",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "service-instance-health-config",
+    "title": "ServiceInstanceHealthConfig"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ServiceExportPackage",
+    "permalink": "/api/types/objects/service-export-package"
+  },
+  "next": {
+    "title": "ServiceInstanceHealth",
+    "permalink": "/api/types/objects/service-instance-health"
+  }
+}

@@ -51,7 +51,7 @@ export const BridgeListMobile = memo(function BridgeListMobile({
       {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">Bridges</h2>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-component-sm">
           <Button
             variant="ghost"
             size="icon"
@@ -74,14 +74,14 @@ export const BridgeListMobile = memo(function BridgeListMobile({
           placeholder="Search bridges..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-8"
+          className="pl-component-lg"
           aria-label="Search bridges"
         />
       </div>
 
       {/* Loading State */}
       {isLoading && (
-        <div className="flex items-center justify-center py-8">
+        <div className="flex items-center justify-center py-component-xl">
           <RefreshCw className="h-6 w-6 animate-spin text-muted-foreground" />
         </div>
       )}
@@ -89,7 +89,7 @@ export const BridgeListMobile = memo(function BridgeListMobile({
       {/* Error State */}
       {hasError && (
         <Card className="border-error">
-          <CardContent className="pt-6">
+          <CardContent className="pt-component-lg">
             <p className="text-sm text-error">
               Failed to load bridges: {hasError.message}
             </p>
@@ -99,26 +99,26 @@ export const BridgeListMobile = memo(function BridgeListMobile({
 
       {/* Empty State */}
       {!isLoading && !hasError && bridges.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-12 text-center">
+        <div className="flex flex-col items-center justify-center py-component-xl text-center">
           <p className="text-lg font-medium text-muted-foreground">
             No bridges configured
           </p>
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="text-sm text-muted-foreground mt-component-xs">
             Create a bridge to connect multiple interfaces
           </p>
           <Button
             onClick={() => setSelectedBridgeId('new')}
-            className="mt-4"
+            className="mt-component-lg"
             size="sm"
           >
-            <Plus className="h-4 w-4 mr-2" />
+            <Plus className="h-4 w-4 mr-component-sm" />
             Add Bridge
           </Button>
         </div>
       )}
 
       {/* Bridge Cards */}
-      <div className="flex flex-col gap-3" role="list" aria-label="Bridge list">
+      <div className="flex flex-col gap-component-md" role="list" aria-label="Bridge list">
         {bridges.map((bridge: Bridge) => (
           <Card
             key={bridge.id}
@@ -128,11 +128,11 @@ export const BridgeListMobile = memo(function BridgeListMobile({
             role="listitem"
             aria-label={`Bridge ${bridge.name}`}
           >
-            <CardContent className="p-4">
-              <div className="flex items-start justify-between gap-2">
+            <CardContent className="p-component-md">
+              <div className="flex items-start justify-between gap-component-sm">
                 <div className="flex-1 min-w-0">
                   {/* Name and Comment */}
-                  <div className="flex items-center gap-2 mb-2">
+                  <div className="flex items-center gap-component-sm mb-component-sm">
                     <h3 className="font-medium truncate">{bridge.name}</h3>
                     {bridge.disabled && (
                       <Badge variant="secondary" className="text-xs">
@@ -141,13 +141,13 @@ export const BridgeListMobile = memo(function BridgeListMobile({
                     )}
                   </div>
                   {bridge.comment && (
-                    <p className="text-sm text-muted-foreground mb-2 line-clamp-2">
+                    <p className="text-sm text-muted-foreground mb-component-sm line-clamp-2">
                       {bridge.comment}
                     </p>
                   )}
 
                   {/* Status Row */}
-                  <div className="flex flex-wrap items-center gap-2 text-xs">
+                  <div className="flex flex-wrap items-center gap-component-sm text-xs">
                     {/* Running Status */}
                     <Badge
                       variant={bridge.running ? 'success' : 'warning'}
@@ -184,7 +184,7 @@ export const BridgeListMobile = memo(function BridgeListMobile({
                   </div>
 
                   {/* MAC Address */}
-                  <div className="mt-2">
+                  <div className="mt-component-sm">
                     <code className="text-xs font-mono text-muted-foreground">
                       {bridge.macAddress}
                     </code>

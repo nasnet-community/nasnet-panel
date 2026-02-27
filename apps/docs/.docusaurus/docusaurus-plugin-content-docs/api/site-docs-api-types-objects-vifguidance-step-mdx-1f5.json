@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/vifguidance-step",
+  "title": "VIFGuidanceStep",
+  "description": "Single step in VIF enablement guidance",
+  "source": "@site/docs/api/types/objects/vifguidance-step.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/vifguidance-step",
+  "permalink": "/api/types/objects/vifguidance-step",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "vifguidance-step",
+    "title": "VIFGuidanceStep"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "VerificationEvent",
+    "permalink": "/api/types/objects/verification-event"
+  },
+  "next": {
+    "title": "VIFRequirements",
+    "permalink": "/api/types/objects/vifrequirements"
+  }
+}

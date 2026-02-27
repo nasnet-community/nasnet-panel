@@ -58,7 +58,7 @@ func NewUpdateJournal(dbPath string) (*UpdateJournal, error) {
 		"PRAGMA synchronous=FULL",
 	}
 	for _, pragma := range pragmas {
-		if _, err := db.Exec(pragma); err != nil {
+		if _, err := db.ExecContext(context.Background(), pragma); err != nil {
 			db.Close()
 			return nil, fmt.Errorf("failed to execute %s: %w", pragma, err)
 		}
@@ -97,8 +97,11 @@ func (j *UpdateJournal) initSchema() error {
 	CREATE INDEX IF NOT EXISTS idx_status ON update_journal(status);
 	`
 
-	_, err := j.db.Exec(schema)
-	return err
+	_, err := j.db.ExecContext(context.Background(), schema)
+	if err != nil {
+		return fmt.Errorf("initialize update journal schema: %w", err)
+	}
+	return nil
 }
 
 // BeginPhase records the start of an update phase
@@ -123,7 +126,11 @@ func (j *UpdateJournal) BeginPhase(ctx context.Context, instanceID, featureID, f
 		return 0, fmt.Errorf("failed to begin phase: %w", err)
 	}
 
-	return result.LastInsertId()
+	id, err := result.LastInsertId()
+	if err != nil {
+		return 0, fmt.Errorf("get last insert id: %w", err)
+	}
+	return id, nil
 }
 
 // CompletePhase marks a phase as successfully completed
@@ -170,7 +177,11 @@ func (j *UpdateJournal) GetIncompleteUpdates(ctx context.Context) ([]JournalEntr
 	}
 	defer rows.Close()
 
-	return j.scanEntries(rows)
+	entries, err := j.scanEntries(rows)
+	if err != nil {
+		return nil, fmt.Errorf("scan entries: %w", err)
+	}
+	return entries, nil
 }
 
 // GetUpdateHistory returns recent update history for an instance
@@ -188,7 +199,11 @@ func (j *UpdateJournal) GetUpdateHistory(ctx context.Context, instanceID string,
 	}
 	defer rows.Close()
 
-	return j.scanEntries(rows)
+	entries, err := j.scanEntries(rows)
+	if err != nil {
+		return nil, fmt.Errorf("scan entries: %w", err)
+	}
+	return entries, nil
 }
 
 // scanEntries scans rows from the update_journal table into JournalEntry slices.
@@ -232,10 +247,16 @@ func (j *UpdateJournal) scanEntries(rows *sql.Rows) ([]JournalEntry, error) {
 		entries = append(entries, entry)
 	}
 
-	return entries, rows.Err()
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("rows iteration error: %w", err)
+	}
+	return entries, nil
 }
 
 // Close closes the database connection
 func (j *UpdateJournal) Close() error {
-	return j.db.Close()
+	if err := j.db.Close(); err != nil {
+		return fmt.Errorf("close update journal database: %w", err)
+	}
+	return nil
 }

@@ -51,15 +51,15 @@ export function HomePage() {
   const diskStatus = calculateStatus(diskPercentage);
 
   return (
-    <div className="min-h-screen bg-background p-component-lg">
+    <div className="min-h-screen bg-background p-component-lg animate-fade-in-up">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
       >
         <div className="max-w-4xl mx-auto space-y-6">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight mb-2">{t('dashboard.title')}</h1>
+          <div className="brand-gradient-subtle rounded-card-lg p-6 border border-border/50">
+            <h1 className="text-3xl font-bold font-display tracking-tight mb-2">{t('dashboard.title')}</h1>
             <p className="text-muted-foreground">
               {t('dashboard.subtitle')}
             </p>
@@ -74,10 +74,10 @@ export function HomePage() {
           />
 
           {/* System Resources Card */}
-          <Card>
+          <Card className="shadow-md border-border">
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle>{t('dashboard.systemResources')}</CardTitle>
+                <CardTitle className="font-display">{t('dashboard.systemResources')}</CardTitle>
                 <LastUpdated timestamp={dataUpdatedAt} />
               </div>
             </CardHeader>

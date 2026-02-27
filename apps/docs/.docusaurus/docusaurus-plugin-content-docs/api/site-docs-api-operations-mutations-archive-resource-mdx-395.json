@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/archive-resource",
+  "title": "archiveResource",
+  "description": "Archive a resource (transitions DEPRECATED -&#x003E; ARCHIVED)",
+  "source": "@site/docs/api/operations/mutations/archive-resource.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/archive-resource",
+  "permalink": "/api/operations/mutations/archive-resource",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "archive-resource",
+    "title": "archiveResource"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "applyTroubleshootFix",
+    "permalink": "/api/operations/mutations/apply-troubleshoot-fix"
+  },
+  "next": {
+    "title": "assignDeviceRouting",
+    "permalink": "/api/operations/mutations/assign-device-routing"
+  }
+}

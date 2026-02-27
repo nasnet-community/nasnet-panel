@@ -1,0 +1,115 @@
+# ============================================
+# ROUTING MODE TYPES
+# ============================================
+
+"""
+Ingress VLAN routing mode.
+Determines how traffic flows between ingress and egress VLANs.
+"""
+enum IngressRoutingMode {
+    """
+    Bridge mode: Add ingress VLAN to router bridge.
+    All bridge devices are routed through the service via DHCP.
+    Zero mangle rules needed.
+    """
+    BRIDGE
+
+    """
+    Advanced mode: Per-device PBR mangle rules.
+    Selective routing with DMZ support.
+    """
+    ADVANCED
+}
+
+"""
+Ingress VLAN running DHCP server inside the NNC container.
+Connected devices receive IPs from the container's udhcpd.
+"""
+type IngressVLAN {
+    """VLAN ID (100-149 range)"""
+    vlanId: Int!
+
+    """Service name this ingress VLAN serves"""
+    serviceName: String!
+
+    """Service instance ID"""
+    instanceId: ID!
+
+    """Router-side VLAN interface name"""
+    routerInterface: String!
+
+    """Container-side VLAN sub-interface"""
+    containerInterface: String!
+
+    """Container's IP address on this VLAN"""
+    ipAddress: String!
+
+    """Egress VLAN IDs traffic is forwarded to"""
+    egressVlanIds: [Int!]!
+
+    """Current routing mode"""
+    routingMode: IngressRoutingMode!
+
+    """Router bridge this VLAN belongs to (if in bridge mode)"""
+    bridgeName: String
+
+    """Lifecycle status"""
+    status: IngressVLANStatus!
+
+    """Creation timestamp"""
+    createdAt: DateTime!
+}
+
+"""Ingress VLAN lifecycle status."""
+enum IngressVLANStatus {
+    """VLAN is being created"""
+    CREATING
+    """VLAN is active and ready"""
+    ACTIVE
+    """VLAN creation/operation failed"""
+    FAILED
+    """VLAN is being removed"""
+    REMOVING
+}
+
+# ============================================
+# DUAL-VLAN BRIDGE OPERATIONS
+# ============================================
+
+"""Input for setting up a dual-VLAN bridge (ingress + egress VLANs)."""
+input SetupDualVLANBridgeInput {
+    """Service instance ID to set up bridge routing for"""
+    instanceId: ID!
+
+    """Egress VLAN IDs to route traffic through"""
+    egressVlanIds: [Int!]!
+
+    """Router bridge name to add the ingress VLAN to (optional)"""
+    bridgeName: String
+}
+
+extend type Mutation {
+    """
+    Set up a dual-VLAN bridge for a service instance.
+    Creates an ingress VLAN (udhcpd) and links to egress VLANs.
+    Optionally adds ingress to a router bridge for whole-bridge routing.
+    """
+    setupDualVLANBridge(input: SetupDualVLANBridgeInput!): VirtualInterface!
+
+    """
+    Tear down a dual-VLAN bridge for a service instance.
+    Removes ingress VLAN, iptables rules, and releases resources.
+    """
+    teardownDualVLANBridge(instanceId: ID!): Boolean!
+
+    """
+    Add an ingress VLAN to a router bridge.
+    All bridge devices will be routed through this service.
+    """
+    addIngressToBridge(vlanId: Int!, bridgeName: String!): Boolean!
+
+    """
+    Remove an ingress VLAN from its router bridge.
+    """
+    removeIngressFromBridge(vlanId: Int!): Boolean!
+}

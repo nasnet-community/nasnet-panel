@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/suggested-routing-rule",
+  "title": "SuggestedRoutingRule",
+  "description": "Routing suggestion for a template",
+  "source": "@site/docs/api/types/objects/suggested-routing-rule.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/suggested-routing-rule",
+  "permalink": "/api/types/objects/suggested-routing-rule",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "suggested-routing-rule",
+    "title": "SuggestedRoutingRule"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "StormStatus",
+    "permalink": "/api/types/objects/storm-status"
+  },
+  "next": {
+    "title": "SystemResources",
+    "permalink": "/api/types/objects/system-resources"
+  }
+}

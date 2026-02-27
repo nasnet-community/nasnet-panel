@@ -436,7 +436,7 @@ func (p *PBREngine) findExistingRule(ctx context.Context, deviceID string) (*ent
 		if ent.IsNotFound(err) {
 			return nil, nil //nolint:nilnil // nil device routing is valid not-found
 		}
-		return nil, err
+		return nil, fmt.Errorf("find existing rule: %w", err)
 	}
 
 	return record, nil

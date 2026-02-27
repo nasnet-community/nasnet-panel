@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/subscriptions/service-traffic-updated",
+  "title": "serviceTrafficUpdated",
+  "description": "Subscribe to traffic statistics updates for a service instance.",
+  "source": "@site/docs/api/operations/subscriptions/service-traffic-updated.mdx",
+  "sourceDirName": "api/operations/subscriptions",
+  "slug": "/api/operations/subscriptions/service-traffic-updated",
+  "permalink": "/api/operations/subscriptions/service-traffic-updated",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "service-traffic-updated",
+    "title": "serviceTrafficUpdated"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "serviceLogs",
+    "permalink": "/api/operations/subscriptions/service-logs"
+  },
+  "next": {
+    "title": "storageMountChanged",
+    "permalink": "/api/operations/subscriptions/storage-mount-changed"
+  }
+}

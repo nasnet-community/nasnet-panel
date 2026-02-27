@@ -117,7 +117,7 @@ export const Critical: Story = {
  */
 export const AllSizes: Story = {
   render: () => (
-    <div className="flex items-end gap-8">
+    <div className="flex items-end gap-component-xl">
       <CircularGauge value={55} label="Small" size="sm" thresholds={{ warning: 70, critical: 90 }} />
       <CircularGauge value={55} label="Medium" size="md" thresholds={{ warning: 70, critical: 90 }} />
       <CircularGauge value={55} label="Large" size="lg" thresholds={{ warning: 70, critical: 90 }} />
@@ -160,7 +160,7 @@ export const Clickable: Story = {
  */
 export const EdgeCases: Story = {
   render: () => (
-    <div className="flex items-end gap-8">
+    <div className="flex items-end gap-component-xl">
       <CircularGauge value={0} label="Idle" sublabel="0%" size="md" thresholds={{ warning: 70, critical: 90 }} />
       <CircularGauge
         value={100}

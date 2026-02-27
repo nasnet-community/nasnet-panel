@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/validation-stage",
+  "title": "ValidationStage",
+  "description": "Validation pipeline stages",
+  "source": "@site/docs/api/types/enums/validation-stage.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/validation-stage",
+  "permalink": "/api/types/enums/validation-stage",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "validation-stage",
+    "title": "ValidationStage"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ValidationSeverity",
+    "permalink": "/api/types/enums/validation-severity"
+  },
+  "next": {
+    "title": "VariableType",
+    "permalink": "/api/types/enums/variable-type"
+  }
+}

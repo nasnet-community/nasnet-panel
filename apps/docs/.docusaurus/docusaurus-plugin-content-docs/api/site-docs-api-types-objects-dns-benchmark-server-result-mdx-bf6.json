@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/dns-benchmark-server-result",
+  "title": "DnsBenchmarkServerResult",
+  "description": "Benchmark result for a single DNS server",
+  "source": "@site/docs/api/types/objects/dns-benchmark-server-result.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/dns-benchmark-server-result",
+  "permalink": "/api/types/objects/dns-benchmark-server-result",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "dns-benchmark-server-result",
+    "title": "DnsBenchmarkServerResult"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "DnsBenchmarkResult",
+    "permalink": "/api/types/objects/dns-benchmark-result"
+  },
+  "next": {
+    "title": "DnsCacheStats",
+    "permalink": "/api/types/objects/dns-cache-stats"
+  }
+}

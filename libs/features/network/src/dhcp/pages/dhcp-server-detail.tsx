@@ -178,10 +178,10 @@ export function DHCPServerDetail() {
 
   if (!server) {
     return (
-      <div className="container mx-auto py-6">
+      <div className="container mx-auto py-component-lg">
         <div className="text-center">
-          <h2 className="font-display text-2xl font-bold mb-2">DHCP Server Not Found</h2>
-          <p className="text-muted-foreground mb-4">
+          <h2 className="font-display text-2xl font-bold mb-component-xs">DHCP Server Not Found</h2>
+          <p className="text-muted-foreground mb-component-sm">
             The DHCP server you're looking for doesn't exist.
           </p>
           <Button
@@ -196,14 +196,14 @@ export function DHCPServerDetail() {
   }
 
   return (
-    <div className="container mx-auto py-6">
+    <div className="container mx-auto py-component-lg category-networking">
       {/* Header */}
-      <div className="mb-6">
+      <div className="mb-component-lg">
         <Button
           variant="ghost"
           size="sm"
           onClick={() => navigate({ to: '/network/dhcp' })}
-          className="mb-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          className="mb-component-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           aria-label="Back to DHCP servers"
         >
           <ArrowLeft className="h-4 w-4 mr-2" aria-hidden="true" />
@@ -211,7 +211,7 @@ export function DHCPServerDetail() {
         </Button>
         <h1 className="font-display text-3xl font-bold">{server.name}</h1>
         <p className="text-muted-foreground mt-2">
-          DHCP server on <code className="font-mono">{server.interface}</code>
+          DHCP server on <code className="font-mono text-sm">{server.interface}</code>
         </p>
       </div>
 
@@ -264,6 +264,7 @@ export function DHCPServerDetail() {
                 )}
               </div>
             </CardContent>
+
           </Card>
         </TabsContent>
 

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/directives/openwrt",
+  "title": "openwrt",
+  "description": "Maps field to OpenWrt ubus call",
+  "source": "@site/docs/api/types/directives/openwrt.mdx",
+  "sourceDirName": "api/types/directives",
+  "slug": "/api/types/directives/openwrt",
+  "permalink": "/api/types/directives/openwrt",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "openwrt",
+    "title": "openwrt"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "oneOf",
+    "permalink": "/api/types/directives/one-of"
+  },
+  "next": {
+    "title": "realtime",
+    "permalink": "/api/types/directives/realtime"
+  }
+}

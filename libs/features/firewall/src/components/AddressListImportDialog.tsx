@@ -173,7 +173,7 @@ function AddressListImportDialogContent({
   const renderSelectStep = () => (
     <div className="space-y-component-md">
       {/* Target List Selection */}
-      <div className="space-y-component-sm">
+      <div className="space-y-component-sm gap-component-sm">
         <Label htmlFor="target-list">Target Address List</Label>
         <Input
           id="target-list"
@@ -193,7 +193,7 @@ function AddressListImportDialogContent({
       </div>
 
       {/* Format Selection */}
-      <div className="space-y-component-sm">
+      <div className="space-y-component-sm gap-component-sm">
         <Label htmlFor="format">File Format</Label>
         <Select value={format} onValueChange={(v) => setFormat(v as typeof format)}>
           <SelectTrigger id="format">
@@ -211,7 +211,7 @@ function AddressListImportDialogContent({
       {/* File Upload / Drag-and-Drop */}
       <div
         className={cn(
-          'border-2 border-dashed rounded-card-sm p-component-lg text-center transition-colors',
+          'border-2 border-dashed rounded-md p-component-lg text-center transition-colors',
           isDragging
             ? 'border-primary bg-primary/5'
             : 'border-border hover:border-primary/50'
@@ -231,8 +231,8 @@ function AddressListImportDialogContent({
           }}
         />
         <label htmlFor="file-upload" className="cursor-pointer">
-          <Upload className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-          <p className="text-sm font-medium mb-1">
+          <Upload className="w-12 h-12 mx-auto mb-component-md text-muted-foreground" />
+          <p className="text-sm font-medium mb-component-xs">
             Drop file here or click to browse
           </p>
           <p className="text-xs text-muted-foreground">
@@ -242,7 +242,7 @@ function AddressListImportDialogContent({
       </div>
 
       {/* Text Area Paste */}
-      <div className="space-y-component-sm">
+      <div className="space-y-component-sm gap-component-sm">
         <Label htmlFor="paste-content">Or paste content here</Label>
         <Textarea
           id="paste-content"
@@ -268,7 +268,7 @@ function AddressListImportDialogContent({
       </Alert>
 
       {/* Actions */}
-      <div className="flex justify-end gap-component-sm">
+      <div className="flex justify-end gap-component-md">
         <Button variant="outline" onClick={handleClose}>
           Cancel
         </Button>
@@ -286,14 +286,14 @@ function AddressListImportDialogContent({
     <div className="space-y-component-md">
       {/* Summary */}
       <div className="grid grid-cols-2 gap-component-md">
-        <div className="rounded-card-sm border p-component-md">
+        <div className="rounded-md border p-component-md">
           <div className="flex items-center gap-component-sm mb-component-sm">
             <CheckCircle2 className="w-5 h-5 text-success" />
             <span className="font-medium">Valid Entries</span>
           </div>
           <p className="text-2xl font-bold">{parseResult?.data.length || 0}</p>
         </div>
-        <div className="rounded-card-sm border p-component-md">
+        <div className="rounded-md border p-component-md">
           <div className="flex items-center gap-component-sm mb-component-sm">
             <AlertCircle className="w-5 h-5 text-error" />
             <span className="font-medium">Errors</span>
@@ -304,7 +304,7 @@ function AddressListImportDialogContent({
 
       {/* Error List (limit to first 100) */}
       {parseResult && parseResult.errors.length > 0 && (
-        <div className="space-y-component-sm">
+        <div className="space-y-component-sm gap-component-sm">
           <div className="flex items-center justify-between">
             <Label>Validation Errors</Label>
             {parseResult.errors.length > 100 && (
@@ -333,10 +333,10 @@ function AddressListImportDialogContent({
 
       {/* Preview of valid entries */}
       {parseResult && parseResult.data.length > 0 && (
-        <div className="space-y-component-sm">
+        <div className="space-y-component-sm gap-component-sm">
           <Label>Preview (first 10 entries)</Label>
-          <ScrollArea className="h-48 rounded-card-sm border p-component-md">
-            <div className="space-y-component-sm">
+          <ScrollArea className="h-48 rounded-md border p-component-md">
+            <div className="space-y-component-sm gap-component-sm">
               {parseResult.data.slice(0, 10).map((entry, index) => (
                 <div key={index} className="text-sm font-mono">
                   {entry.address}
@@ -363,11 +363,11 @@ function AddressListImportDialogContent({
       )}
 
       {/* Actions */}
-      <div className="flex justify-between gap-component-sm">
+      <div className="flex justify-between gap-component-md">
         <Button variant="outline" onClick={handleReset}>
           Back
         </Button>
-        <div className="flex gap-component-sm">
+        <div className="flex gap-component-md">
           <Button variant="outline" onClick={handleClose}>
             Cancel
           </Button>
@@ -383,9 +383,9 @@ function AddressListImportDialogContent({
   );
 
   const renderImportingStep = () => (
-    <div className="space-y-component-md py-component-lg">
+    <div className="space-y-component-md py-component-xl">
       <div className="text-center">
-        <div className="mb-component-md">
+        <div className="mb-component-lg">
           <div className="w-16 h-16 mx-auto rounded-full bg-primary/10 flex items-center justify-center">
             <Upload className="w-8 h-8 text-primary animate-pulse" />
           </div>
@@ -403,9 +403,9 @@ function AddressListImportDialogContent({
   );
 
   const renderCompleteStep = () => (
-    <div className="space-y-component-md py-component-lg">
+    <div className="space-y-component-md py-component-xl">
       <div className="text-center">
-        <div className="mb-component-md">
+        <div className="mb-component-lg">
           <div className="w-16 h-16 mx-auto rounded-full bg-success/10 flex items-center justify-center">
             <CheckCircle2 className="w-8 h-8 text-success" />
           </div>
@@ -415,7 +415,7 @@ function AddressListImportDialogContent({
           Successfully imported {parseResult?.data.length || 0} entries to {targetList}
         </p>
       </div>
-      <div className="flex justify-end gap-component-sm">
+      <div className="flex justify-end gap-component-md">
         <Button onClick={handleReset}>Import More</Button>
         <Button variant="default" onClick={handleClose}>
           Close

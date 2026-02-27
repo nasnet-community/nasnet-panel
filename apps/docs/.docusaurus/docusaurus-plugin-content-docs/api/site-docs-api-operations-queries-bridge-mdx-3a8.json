@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/bridge",
+  "title": "bridge",
+  "description": "Get a single bridge by UUID",
+  "source": "@site/docs/api/operations/queries/bridge.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/bridge",
+  "permalink": "/api/operations/queries/bridge",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "bridge",
+    "title": "bridge"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "bridgeVlans",
+    "permalink": "/api/operations/queries/bridge-vlans"
+  },
+  "next": {
+    "title": "bridges",
+    "permalink": "/api/operations/queries/bridges"
+  }
+}

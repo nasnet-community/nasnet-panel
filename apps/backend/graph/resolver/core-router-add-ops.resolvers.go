@@ -7,7 +7,7 @@ package resolver
 
 import (
 	"backend/graph/model"
-	"backend/internal/errors"
+	"backend/internal/apperrors"
 	"backend/internal/events"
 	"context"
 )
@@ -22,20 +22,20 @@ import (
 func (r *mutationResolver) AddRouter(ctx context.Context, input model.AddRouterInput) (*model.AddRouterPayload, error) {
 	// Validate inputs
 	if input.Host == "" {
-		return nil, errors.NewValidationError("host", input.Host, "required")
+		return nil, apperrors.NewValidationError("host", input.Host, "required")
 	}
 	if portPtr, ok := input.Port.ValueOK(); ok && portPtr != nil {
 		if *portPtr <= 0 || *portPtr > 65535 {
-			return nil, errors.NewValidationError("port", *portPtr, "must be between 1 and 65535").WithCode(errors.CodeOutOfRange)
+			return nil, apperrors.NewValidationError("port", *portPtr, "must be between 1 and 65535").WithCode(apperrors.CodeOutOfRange)
 		}
 	}
 	if input.Username == "" || input.Password == "" {
-		return nil, errors.NewValidationError("credentials", "[REDACTED]", "username and password are required")
+		return nil, apperrors.NewValidationError("credentials", "[REDACTED]", "username and password are required")
 	}
 
 	// Verify credential service is configured
-	if r.Resolver.CredentialService == nil {
-		return nil, errors.NewInternalError("credential service not configured", nil)
+	if r.CredentialService == nil {
+		return nil, apperrors.NewInternalError("credential service not configured", nil)
 	}
 
 	// TODO: Validate host is valid IP or hostname format
@@ -47,7 +47,7 @@ func (r *mutationResolver) AddRouter(ctx context.Context, input model.AddRouterI
 	// TODO: Return AddRouterPayload with router ID
 	// TODO: Publish RouterAddedEvent when successful
 
-	return nil, errors.NewInternalError("not implemented: AddRouter - addRouter", nil)
+	return nil, apperrors.NewInternalError("not implemented: AddRouter - addRouter", nil)
 }
 
 // TestRouterCredentials is the resolver for the testRouterCredentials field.
@@ -61,20 +61,20 @@ func (r *mutationResolver) AddRouter(ctx context.Context, input model.AddRouterI
 func (r *mutationResolver) TestRouterCredentials(ctx context.Context, input model.AddRouterInput) (*model.ConnectionTestResult, error) {
 	// Validate inputs
 	if input.Host == "" {
-		return nil, errors.NewValidationError("host", input.Host, "required")
+		return nil, apperrors.NewValidationError("host", input.Host, "required")
 	}
 	if portPtr, ok := input.Port.ValueOK(); ok && portPtr != nil {
 		if *portPtr <= 0 || *portPtr > 65535 {
-			return nil, errors.NewValidationError("port", *portPtr, "must be between 1 and 65535").WithCode(errors.CodeOutOfRange)
+			return nil, apperrors.NewValidationError("port", *portPtr, "must be between 1 and 65535").WithCode(apperrors.CodeOutOfRange)
 		}
 	}
 	if input.Username == "" || input.Password == "" {
-		return nil, errors.NewValidationError("credentials", "[REDACTED]", "username and password are required")
+		return nil, apperrors.NewValidationError("credentials", "[REDACTED]", "username and password are required")
 	}
 
 	// Verify diagnostic service is configured
-	if r.Resolver.DiagnosticsService == nil {
-		return nil, errors.NewInternalError("diagnostics service not configured", nil)
+	if r.DiagnosticsService == nil {
+		return nil, apperrors.NewInternalError("diagnostics service not configured", nil)
 	}
 
 	// TODO: Validate host is valid IP or hostname format
@@ -86,7 +86,7 @@ func (r *mutationResolver) TestRouterCredentials(ctx context.Context, input mode
 	// SECURITY: Never persist credentials or router data during test
 	// SECURITY: Do not log credentials in error messages
 
-	return nil, errors.NewInternalError("not implemented: TestRouterCredentials - testRouterCredentials", nil)
+	return nil, apperrors.NewInternalError("not implemented: TestRouterCredentials - testRouterCredentials", nil)
 }
 
 // RouterAdded is the resolver for the routerAdded field.
@@ -99,7 +99,7 @@ func (r *mutationResolver) TestRouterCredentials(ctx context.Context, input mode
 func (r *subscriptionResolver) RouterAdded(ctx context.Context) (<-chan *model.RouterAddedEvent, error) {
 	// Verify event bus is configured
 	if r.EventBus == nil {
-		return nil, errors.NewInternalError("event bus not configured", nil)
+		return nil, apperrors.NewInternalError("event bus not configured", nil)
 	}
 
 	// Create channel for events
@@ -122,7 +122,7 @@ func (r *subscriptionResolver) RouterAdded(ctx context.Context) (<-chan *model.R
 	})
 	if err != nil {
 		close(ch)
-		return nil, errors.Wrap(err, errors.CodeProtocolError, errors.CategoryProtocol, "failed to subscribe to router add events")
+		return nil, apperrors.Wrap(err, apperrors.CodeProtocolError, apperrors.CategoryProtocol, "failed to subscribe to router add events")
 	}
 
 	// Ensure channel is closed when context is canceled

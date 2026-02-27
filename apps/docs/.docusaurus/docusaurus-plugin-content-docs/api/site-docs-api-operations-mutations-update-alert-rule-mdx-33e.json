@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/update-alert-rule",
+  "title": "updateAlertRule",
+  "description": "Update an existing alert rule",
+  "source": "@site/docs/api/operations/mutations/update-alert-rule.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/update-alert-rule",
+  "permalink": "/api/operations/mutations/update-alert-rule",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "update-alert-rule",
+    "title": "updateAlertRule"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "undoBridgeOperation",
+    "permalink": "/api/operations/mutations/undo-bridge-operation"
+  },
+  "next": {
+    "title": "updateAllInstances",
+    "permalink": "/api/operations/mutations/update-all-instances"
+  }
+}

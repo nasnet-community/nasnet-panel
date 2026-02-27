@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/kill-switch-status",
+  "title": "killSwitchStatus",
+  "description": "Get kill switch status for a specific device routing.",
+  "source": "@site/docs/api/operations/queries/kill-switch-status.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/kill-switch-status",
+  "permalink": "/api/operations/queries/kill-switch-status",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "kill-switch-status",
+    "title": "killSwitchStatus"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "isPortAvailable",
+    "permalink": "/api/operations/queries/is-port-available"
+  },
+  "next": {
+    "title": "me",
+    "permalink": "/api/operations/queries/me"
+  }
+}

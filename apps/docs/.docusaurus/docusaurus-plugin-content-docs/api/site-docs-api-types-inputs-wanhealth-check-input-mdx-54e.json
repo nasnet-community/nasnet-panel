@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/wanhealth-check-input",
+  "title": "WANHealthCheckInput",
+  "description": "Input for configuring WAN health check",
+  "source": "@site/docs/api/types/inputs/wanhealth-check-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/wanhealth-check-input",
+  "permalink": "/api/types/inputs/wanhealth-check-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "wanhealth-check-input",
+    "title": "WANHealthCheckInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "VlanInput",
+    "permalink": "/api/types/inputs/vlan-input"
+  },
+  "next": {
+    "title": "Interfaces",
+    "permalink": "/category/interfaces"
+  }
+}

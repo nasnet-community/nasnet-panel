@@ -1,0 +1,22 @@
+# ============================================
+# UPDATE ROLLBACK AND SCHEDULE MUTATIONS
+# ============================================
+
+extend type Mutation {
+  """
+  Rollback an instance to its backed-up version.
+  Only works if a backup exists (has_backup=true).
+  """
+  rollbackInstance(
+    """Router ID"""
+    routerID: ID!
+
+    """Instance ID to rollback"""
+    instanceID: ID!
+  ): UpdateResult!
+
+  """
+  Configure update schedule and auto-apply policy for an instance.
+  """
+  configureUpdateSchedule(input: UpdateCheckScheduleInput!): ServiceInstance!
+}

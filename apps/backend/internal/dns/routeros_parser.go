@@ -144,9 +144,10 @@ func parseRouterOSServers(resp string) *Servers {
 				IsSecondary: i == 1,
 			})
 
-			if i == 0 {
+			switch i {
+			case 0:
 				result.Primary = addr
-			} else if i == 1 {
+			case 1:
 				// Store secondary safely (make a copy to avoid dangling pointer)
 				secAddr := addr
 				result.Secondary = &secAddr

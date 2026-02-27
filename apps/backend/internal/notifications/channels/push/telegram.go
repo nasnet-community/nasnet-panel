@@ -100,7 +100,7 @@ func (t *TelegramChannel) Send(ctx context.Context, notification notifications.N
 	}
 
 	if firstErr != nil {
-		return firstErr
+		return fmt.Errorf("send telegram messages: %w", firstErr)
 	}
 
 	return nil
@@ -131,7 +131,7 @@ func (t *TelegramChannel) sendMessageToChat(ctx context.Context, chatID, text st
 	}
 	req.Header.Set("Content-Type", "application/json")
 
-	resp, err := t.client.Do(req)
+	resp, err := t.client.Do(req) //nolint:gosec // G704: URL is constructed from trusted configuration
 	if err != nil {
 		return fmt.Errorf("failed to send message: %w", err)
 	}
@@ -175,7 +175,10 @@ func (t *TelegramChannel) Test(ctx context.Context, config map[string]interface{
 		Data:     map[string]interface{}{},
 	}
 
-	return t.Send(ctx, testNotification)
+	if err := t.Send(ctx, testNotification); err != nil {
+		return fmt.Errorf("send telegram test message: %w", err)
+	}
+	return nil
 }
 
 // MarkdownV2 special characters that need escaping.

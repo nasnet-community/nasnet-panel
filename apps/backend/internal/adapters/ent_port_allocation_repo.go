@@ -2,6 +2,7 @@ package adapters
 
 import (
 	"context"
+	"fmt"
 
 	"backend/internal/network"
 
@@ -60,7 +61,7 @@ func (q *entPortAllocationQuery) Where(predicates ...interface{}) network.PortAl
 func (q *entPortAllocationQuery) All(ctx context.Context) ([]network.PortAllocationEntity, error) {
 	allocations, err := q.query.All(ctx)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("query port allocations: %w", err)
 	}
 
 	result := make([]network.PortAllocationEntity, 0, len(allocations))
@@ -74,7 +75,11 @@ func (q *entPortAllocationQuery) All(ctx context.Context) ([]network.PortAllocat
 }
 
 func (q *entPortAllocationQuery) Exist(ctx context.Context) (bool, error) {
-	return q.query.Exist(ctx)
+	exists, err := q.query.Exist(ctx)
+	if err != nil {
+		return false, fmt.Errorf("check port allocation existence: %w", err)
+	}
+	return exists, nil
 }
 
 func (q *entPortAllocationQuery) Aggregate(aggFunc interface{}) network.PortAllocationAggregate {
@@ -97,7 +102,11 @@ type entPortAllocationAggregate struct {
 func (a *entPortAllocationAggregate) Int(ctx context.Context) (int, error) {
 	// This is a simplified implementation
 	// In production, you'd need to extract the aggregate value properly
-	return a.query.Count(ctx)
+	count, err := a.query.Count(ctx)
+	if err != nil {
+		return 0, fmt.Errorf("count port allocations: %w", err)
+	}
+	return count, nil
 }
 
 // entPortAllocationCreate wraps ent.PortAllocationCreate.
@@ -143,7 +152,7 @@ func (c *entPortAllocationCreate) SetNillableNotes(notes *string) network.PortAl
 func (c *entPortAllocationCreate) Save(ctx context.Context) (network.PortAllocationEntity, error) {
 	alloc, err := c.create.Save(ctx)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("save port allocation: %w", err)
 	}
 	return &entPortAllocationEntity{allocation: alloc}, nil
 }
@@ -165,7 +174,11 @@ func (d *entPortAllocationDelete) Where(predicates ...interface{}) network.PortA
 }
 
 func (d *entPortAllocationDelete) Exec(ctx context.Context) (int, error) {
-	return d.delete.Exec(ctx)
+	count, err := d.delete.Exec(ctx)
+	if err != nil {
+		return 0, fmt.Errorf("delete port allocations: %w", err)
+	}
+	return count, nil
 }
 
 // entPortAllocationDeleteOne wraps ent.PortAllocationDeleteOne.
@@ -181,7 +194,7 @@ func (d *entPortAllocationDeleteOne) Where(predicates ...interface{}) network.Po
 func (d *entPortAllocationDeleteOne) Exec(ctx context.Context) (int, error) {
 	err := d.deleteOne.Exec(ctx)
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("delete port allocation: %w", err)
 	}
 	return 1, nil
 }

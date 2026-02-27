@@ -36,10 +36,10 @@ export function VLANPoolGaugeMobile({
   const strokeDashoffset = circumference - (utilization / 100) * circumference;
 
   return (
-    <Card className={cn('p-4', className)}>
+    <Card className={cn('bg-card border border-border rounded-[var(--semantic-radius-card)] p-component-md', className)}>
       <CardContent className="p-0">
         {/* Circular gauge */}
-        <div className="flex flex-col items-center gap-4">
+        <div className="flex flex-col items-center gap-component-lg">
           <div className="relative inline-flex items-center justify-center">
             <svg height={radius * 2} width={radius * 2}>
               {/* Background circle */}
@@ -81,7 +81,7 @@ export function VLANPoolGaugeMobile({
           </div>
 
           {/* Stats */}
-          <div className="w-full space-y-2 text-center">
+          <div className="w-full space-y-component-sm text-center">
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Allocated:</span>
               <span className="font-medium">{allocated.toLocaleString()}</span>
@@ -98,8 +98,8 @@ export function VLANPoolGaugeMobile({
 
           {/* Warning indicator */}
           {shouldWarn && (
-            <div className="w-full p-3 bg-warning/10 border border-warning rounded-md">
-              <p className="text-xs text-warning text-center font-medium">
+            <div className="w-full p-component-md bg-warning-light border border-warning rounded-[var(--semantic-radius-input)]">
+              <p className="text-xs text-warning-dark text-center font-medium">
                 Pool capacity running low
               </p>
             </div>

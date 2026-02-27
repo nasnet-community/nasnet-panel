@@ -255,18 +255,18 @@ function InstallDialogComponent({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="py-4">
+        <div className="py-component-md">
           {/* Step 1: Select service */}
           {step === 'select' && (
-            <div className="space-y-4" role="group" aria-label={t('services:wizard.selectServiceGroup', 'Select a service')}>
+            <div className="space-y-component-md" role="group" aria-label={t('services:wizard.selectServiceGroup', 'Select a service')}>
               {servicesLoading ? (
-                <div className="space-y-3">
+                <div className="space-y-component-md">
                   {[...Array(3)].map((_, i) => (
                     <Skeleton key={i} className="h-20 w-full" />
                   ))}
                 </div>
               ) : (
-                <div className="space-y-2">
+                <div className="space-y-component-sm">
                   {services?.map((service: any) => (
                     <button
                       key={service.id}
@@ -274,14 +274,14 @@ function InstallDialogComponent({
                       aria-label={t('common:selectOption', `Select ${service.name}`)}
                       aria-pressed={selectedServiceId === service.id}
                       className={cn(
-                        'w-full p-4 text-left rounded-lg border-2 transition-all min-h-[44px]',
+                        'w-full p-component-md text-left rounded-lg border-2 transition-all min-h-[44px]',
                         'focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 outline-none',
                         selectedServiceId === service.id
                           ? 'border-primary bg-primary/5'
                           : 'border-border hover:border-primary/50'
                       )}
                     >
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-component-md">
                         {service.icon && (
                           <div className="w-10 h-10 shrink-0">
                             {service.icon}
@@ -293,7 +293,7 @@ function InstallDialogComponent({
                             {service.description}
                           </p>
                         </div>
-                        <div className="text-xs text-muted-foreground">
+                        <div className="text-xs text-muted-foreground font-mono">
                           v{service.version}
                         </div>
                       </div>
@@ -306,9 +306,9 @@ function InstallDialogComponent({
 
           {/* Step 2: Configure */}
           {step === 'configure' && selectedService && (
-            <div className="space-y-4" role="group" aria-label={t('services:wizard.configureGroup', 'Configure instance')}>
+            <div className="space-y-component-md" role="group" aria-label={t('services:wizard.configureGroup', 'Configure instance')}>
               {/* Instance name */}
-              <div className="space-y-2">
+              <div className="space-y-component-sm">
                 <Label htmlFor="instance-name">
                   {t('services:wizard.instanceName', 'Instance Name')} <span aria-label="required">*</span>
                 </Label>
@@ -323,7 +323,7 @@ function InstallDialogComponent({
               </div>
 
               {/* VLAN ID (optional) */}
-              <div className="space-y-2">
+              <div className="space-y-component-sm">
                 <Label htmlFor="vlan-id">
                   {t('services:wizard.vlanId', 'VLAN ID')} ({t('common.optional', 'optional')})
                 </Label>
@@ -343,7 +343,7 @@ function InstallDialogComponent({
               </div>
 
               {/* Bind IP (optional) */}
-              <div className="space-y-2">
+              <div className="space-y-component-sm">
                 <Label htmlFor="bind-ip">
                   {t('services:wizard.bindIp', 'Bind IP')} ({t('common.optional', 'optional')})
                 </Label>
@@ -353,6 +353,7 @@ function InstallDialogComponent({
                   onChange={(e) => setBindIp(e.target.value)}
                   placeholder="192.168.1.100"
                   aria-describedby="bind-ip-help"
+                  className="font-mono"
                 />
                 <p id="bind-ip-help" className="text-xs text-muted-foreground">
                   {t('services:wizard.bindIpHelp', 'Specific IP address to bind the service to')}
@@ -360,7 +361,7 @@ function InstallDialogComponent({
               </div>
 
               {/* Ports (optional) */}
-              <div className="space-y-2">
+              <div className="space-y-component-sm">
                 <Label htmlFor="ports">
                   {t('services:wizard.ports', 'Ports')} ({t('common.optional', 'optional')})
                 </Label>
@@ -370,6 +371,7 @@ function InstallDialogComponent({
                   onChange={(e) => setPorts(e.target.value)}
                   placeholder="9050, 9051"
                   aria-describedby="ports-help"
+                  className="font-mono"
                 />
                 <p id="ports-help" className="text-xs text-muted-foreground">
                   {t('services:wizard.portsHelp', 'Comma-separated list of ports (default ports will be used if not specified)')}
@@ -380,8 +382,8 @@ function InstallDialogComponent({
 
           {/* Step 3: Installing */}
           {step === 'installing' && (
-            <div className="space-y-4" role="status" aria-label={t('services:wizard.installingStatus', 'Installation in progress')}>
-              <div className="space-y-2">
+            <div className="space-y-component-md" role="status" aria-label={t('services:wizard.installingStatus', 'Installation in progress')}>
+              <div className="space-y-component-sm">
                 <div className="flex items-center justify-between text-sm">
                   <span>{t('services:wizard.downloadingBinary', 'Downloading binary...')}</span>
                   <span className="text-muted-foreground font-mono">
@@ -401,11 +403,11 @@ function InstallDialogComponent({
 
           {/* Step 4: Complete */}
           {step === 'complete' && (
-            <div className="text-center py-8" role="status" aria-label={t('services:wizard.installationCompleteStatus', 'Installation complete')}>
-              <div className="w-16 h-16 bg-success/10 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="text-center py-component-lg" role="status" aria-label={t('services:wizard.installationCompleteStatus', 'Installation complete')}>
+              <div className="w-16 h-16 bg-success/10 rounded-full flex items-center justify-center mx-auto mb-component-md">
                 <Icon icon={CheckCircle} className="h-8 w-8 text-success" aria-hidden="true" />
               </div>
-              <h3 className="text-lg font-semibold mb-2">
+              <h3 className="text-lg font-semibold mb-component-sm">
                 {t('services:wizard.serviceInstalledSuccessfully', 'Service Installed Successfully')}
               </h3>
               <p className="text-sm text-muted-foreground font-mono">
@@ -417,13 +419,13 @@ function InstallDialogComponent({
           {/* Error message */}
           {error && (
             <div
-              className="p-3 bg-error/10 border border-error rounded-md"
+              className="p-component-sm bg-error/10 border border-error rounded-md"
               role="alert"
               aria-live="polite"
               id="install-error"
             >
               <p className="text-sm text-error font-semibold">{t('common.error', 'Error')}</p>
-              <p className="text-sm text-error mt-1">{error}</p>
+              <p className="text-sm text-error mt-component-xs">{error}</p>
             </div>
           )}
         </div>

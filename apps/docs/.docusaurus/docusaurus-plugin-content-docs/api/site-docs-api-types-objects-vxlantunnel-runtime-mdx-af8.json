@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/vxlantunnel-runtime",
+  "title": "VXLANTunnelRuntime",
+  "description": "VXLAN tunnel runtime state",
+  "source": "@site/docs/api/types/objects/vxlantunnel-runtime.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/vxlantunnel-runtime",
+  "permalink": "/api/types/objects/vxlantunnel-runtime",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "vxlantunnel-runtime",
+    "title": "VXLANTunnelRuntime"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "VXLANTunnelDeployment",
+    "permalink": "/api/types/objects/vxlantunnel-deployment"
+  },
+  "next": {
+    "title": "VXLANTunnel",
+    "permalink": "/api/types/objects/vxlantunnel"
+  }
+}

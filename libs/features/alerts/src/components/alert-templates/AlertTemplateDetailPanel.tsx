@@ -159,24 +159,24 @@ const DetailContent = React.memo(function DetailContent({
       </div>
 
       {/* Description */}
-      <div>
-        <h4 className="text-sm font-medium mb-component-sm">Description</h4>
+      <div className="space-y-component-sm">
+        <h4 className="text-sm font-medium">Description</h4>
         <p className="text-sm text-muted-foreground">{template.description}</p>
       </div>
 
       <Separator />
 
       {/* Event type */}
-      <div>
-        <h4 className="text-sm font-medium mb-component-sm">Event Type</h4>
-        <code className="text-xs bg-muted px-2 py-1 rounded-[var(--semantic-radius-button)]">{template.eventType}</code>
+      <div className="space-y-component-sm">
+        <h4 className="text-sm font-medium">Event Type</h4>
+        <code className="font-mono text-xs bg-muted px-component-sm py-component-xs rounded-[var(--semantic-radius-button)]">{template.eventType}</code>
       </div>
 
       <Separator />
 
       {/* Conditions */}
-      <div>
-        <h4 className="text-sm font-medium mb-component-sm">
+      <div className="space-y-component-sm">
+        <h4 className="text-sm font-medium">
           Conditions ({template.conditions.length})
         </h4>
         <div className="space-y-component-sm">
@@ -188,7 +188,7 @@ const DetailContent = React.memo(function DetailContent({
                   <Badge variant="outline" className="text-xs">
                     {operatorLabels[condition.operator] || condition.operator}
                   </Badge>
-                  <code className="font-mono text-xs bg-background px-2 py-1 rounded-[var(--semantic-radius-button)]">
+                  <code className="font-mono text-xs bg-card px-component-sm py-component-xs rounded-[var(--semantic-radius-button)]">
                     {condition.value}
                   </code>
                 </div>
@@ -201,8 +201,8 @@ const DetailContent = React.memo(function DetailContent({
       <Separator />
 
       {/* Channels */}
-      <div>
-        <h4 className="text-sm font-medium mb-component-sm">
+      <div className="space-y-component-sm">
+        <h4 className="text-sm font-medium">
           Notification Channels ({template.channels.length})
         </h4>
         <div className="flex flex-wrap gap-component-sm">
@@ -218,8 +218,8 @@ const DetailContent = React.memo(function DetailContent({
       {hasVariables && (
         <>
           <Separator />
-          <div>
-            <h4 className="text-sm font-medium mb-component-sm">
+          <div className="space-y-component-sm">
+            <h4 className="text-sm font-medium">
               Variables ({template.variables.length})
             </h4>
             <div className="space-y-component-sm">
@@ -269,8 +269,8 @@ const DetailContent = React.memo(function DetailContent({
       {template.throttle && (
         <>
           <Separator />
-          <div>
-            <h4 className="text-sm font-medium mb-component-sm">Throttle Configuration</h4>
+          <div className="space-y-component-sm">
+            <h4 className="text-sm font-medium">Throttle Configuration</h4>
             <Card className="bg-muted/50">
               <CardContent className="p-component-sm">
                 <div className="space-y-component-sm text-sm">
@@ -364,9 +364,9 @@ const DetailContent = React.memo(function DetailContent({
         </TabsTrigger>
       </TabsList>
 
-      <TabsContent value="details" className="mt-component-lg">
+      <TabsContent value="details" className="mt-component-md">
         {detailsContent}
-        <div className="flex gap-component-sm mt-component-lg">
+        <div className="flex gap-component-sm mt-component-md">
           {onExport && (
             <Button
               variant="outline"
@@ -394,7 +394,7 @@ const DetailContent = React.memo(function DetailContent({
         </div>
       </TabsContent>
 
-      <TabsContent value="configure" className="mt-component-lg">
+      <TabsContent value="configure" className="mt-component-md">
         <AlertTemplateVariableInputForm
           template={template}
           onSubmit={handleVariableSubmit}

@@ -108,7 +108,7 @@ function FirewallQuickStatsContent({ className }: FirewallQuickStatsProps) {
           <div className="h-4 bg-muted rounded w-24" />
           <div className="space-y-component-sm">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="space-y-2">
+              <div key={i} className="space-y-component-sm">
                 <div className="h-3 bg-muted rounded w-16" />
                 <div className="h-2 bg-muted rounded-full" />
               </div>
@@ -140,7 +140,7 @@ function FirewallQuickStatsContent({ className }: FirewallQuickStatsProps) {
       <div className="space-y-component-md mb-component-lg">
         {chainStats.map((stat) => (
           <div key={stat.chain}>
-            <div className="flex items-center justify-between mb-1">
+            <div className="flex items-center justify-between mb-component-xs">
               <span className="text-xs font-medium text-foreground uppercase">
                 {stat.chain}
               </span>
@@ -193,19 +193,19 @@ function FirewallQuickStatsContent({ className }: FirewallQuickStatsProps) {
       </div>
 
       <div className="grid grid-cols-2 gap-component-sm text-xs">
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-component-xs">
           <span className="w-2.5 h-2.5 rounded-[var(--semantic-radius-badge)] bg-success" aria-hidden="true" />
           <span className="text-muted-foreground">
             Accept <span className="font-medium">{actionTotals.accept}</span>
           </span>
         </div>
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-component-xs">
           <span className="w-2.5 h-2.5 rounded-[var(--semantic-radius-badge)] bg-error" aria-hidden="true" />
           <span className="text-muted-foreground">
             Drop <span className="font-medium">{actionTotals.drop}</span>
           </span>
         </div>
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-component-xs">
           <span className="w-2.5 h-2.5 rounded-[var(--semantic-radius-badge)] bg-warning" aria-hidden="true" />
           <span className="text-muted-foreground">
             Reject <span className="font-medium">{actionTotals.reject}</span>

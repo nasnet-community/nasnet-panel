@@ -4,9 +4,12 @@ package resolver
 // Query, mutation, and subscription resolvers are in device_routing.resolvers.go.
 
 import (
-	"backend/graph/model"
+	"context"
 
 	"backend/generated/ent"
+	"backend/graph/model"
+	"backend/internal/apperrors"
+	"backend/internal/events"
 	"backend/internal/vif/routing"
 )
 
@@ -158,6 +161,56 @@ func convertMatrixStats(stats *routing.DeviceRoutingMatrixStats) *model.DeviceRo
 		ArpOnlyDevices:   stats.ARPOnlyDevices,
 		ActiveRoutings:   stats.ActiveRoutings,
 	}
+}
+
+// subscribeToDeviceRoutingEvents subscribes to device routing events on the event bus
+// and returns a channel of DeviceRoutingEvent for GraphQL subscriptions.
+func (r *subscriptionResolver) subscribeToDeviceRoutingEvents(
+	ctx context.Context,
+	routerID string,
+	topic string,
+	errMsg string,
+) (<-chan *model.DeviceRoutingEvent, error) {
+
+	eventChan := make(chan *model.DeviceRoutingEvent, 10)
+
+	if r.EventBus == nil {
+		close(eventChan)
+		return eventChan, apperrors.NewInternalError("event bus not available", nil)
+	}
+
+	handler := func(_ context.Context, event events.Event) error {
+		routingEvent := &model.DeviceRoutingEvent{
+			ID:        event.GetID().String(),
+			EventType: event.GetType(),
+			RouterID:  routerID,
+			Timestamp: event.GetTimestamp(),
+		}
+
+		select {
+		case eventChan <- routingEvent:
+		case <-ctx.Done():
+		}
+		return nil
+	}
+
+	if err := r.EventBus.Subscribe(topic, handler); err != nil {
+		close(eventChan)
+		return eventChan, apperrors.NewInternalError(errMsg, err)
+	}
+
+	go func() {
+		defer func() {
+			if rec := recover(); rec != nil {
+				_ = rec
+			}
+			close(eventChan)
+		}()
+
+		<-ctx.Done()
+	}()
+
+	return eventChan, nil
 }
 
 // convertBulkRoutingResult converts engine results to GraphQL model.

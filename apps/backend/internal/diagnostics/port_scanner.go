@@ -159,8 +159,12 @@ func (s *PortScanner) CheckTLSCertificate(ctx context.Context, host string, port
 		InsecureSkipVerify: true, // We'll verify manually to get full cert info
 	}
 
-	dialer := &net.Dialer{Timeout: s.timeout}
-	conn, err := tls.DialWithDialer(dialer, "tcp", address, tlsConfig)
+	// Create context with timeout for TLS connection
+	tlsCtx, cancel := context.WithTimeout(ctx, s.timeout)
+	defer cancel()
+
+	dialer := &tls.Dialer{Config: tlsConfig}
+	conn, err := dialer.DialContext(tlsCtx, "tcp", address)
 	if err != nil {
 		errMsg := err.Error()
 		return &TLSStatus{
@@ -170,8 +174,18 @@ func (s *PortScanner) CheckTLSCertificate(ctx context.Context, host string, port
 	}
 	defer conn.Close()
 
+	// Assert to tls.Conn to access ConnectionState()
+	tlsConn, ok := conn.(*tls.Conn)
+	if !ok {
+		errMsg := "connection is not a TLS connection"
+		return &TLSStatus{
+			Valid: false,
+			Error: &errMsg,
+		}
+	}
+
 	// Get certificate info
-	certs := conn.ConnectionState().PeerCertificates
+	certs := tlsConn.ConnectionState().PeerCertificates
 	if len(certs) == 0 {
 		errMsg := "no certificates presented"
 		return &TLSStatus{

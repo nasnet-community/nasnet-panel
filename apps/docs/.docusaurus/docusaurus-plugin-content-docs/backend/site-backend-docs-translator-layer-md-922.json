@@ -1,0 +1,24 @@
+{
+  "id": "translator-layer",
+  "title": "Translator Layer",
+  "description": "Bidirectional translation between GraphQL field names and RouterOS property names, with type conversion, SSH response parsing, and protocol-specific command formatting.",
+  "source": "@site/../backend/docs/translator-layer.md",
+  "sourceDirName": ".",
+  "slug": "/translator-layer",
+  "permalink": "/docs/backend/translator-layer",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../backend/docs/translator-layer.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Service Orchestrator",
+    "permalink": "/docs/backend/service-orchestrator"
+  },
+  "next": {
+    "title": "Validation Pipeline",
+    "permalink": "/docs/backend/validation-pipeline"
+  }
+}

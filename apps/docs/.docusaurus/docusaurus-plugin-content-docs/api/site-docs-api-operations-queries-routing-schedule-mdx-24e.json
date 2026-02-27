@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/routing-schedule",
+  "title": "routingSchedule",
+  "description": "Get a specific routing schedule by ID.",
+  "source": "@site/docs/api/operations/queries/routing-schedule.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/routing-schedule",
+  "permalink": "/api/operations/queries/routing-schedule",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "routing-schedule",
+    "title": "routingSchedule"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "routingChains",
+    "permalink": "/api/operations/queries/routing-chains"
+  },
+  "next": {
+    "title": "routingSchedules",
+    "permalink": "/api/operations/queries/routing-schedules"
+  }
+}

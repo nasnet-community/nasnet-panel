@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/change-set-error",
+  "title": "ChangeSetError",
+  "description": "Detailed error for failed change sets",
+  "source": "@site/docs/api/types/objects/change-set-error.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/change-set-error",
+  "permalink": "/api/types/objects/change-set-error",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "change-set-error",
+    "title": "ChangeSetError"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ChangeSetConflict",
+    "permalink": "/api/types/objects/change-set-conflict"
+  },
+  "next": {
+    "title": "ChangeSetItem",
+    "permalink": "/api/types/objects/change-set-item"
+  }
+}

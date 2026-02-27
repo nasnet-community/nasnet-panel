@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/multi-link-config",
+  "title": "MultiLinkConfig",
+  "description": "Multi-link configuration for load balancing and failover",
+  "source": "@site/docs/api/types/objects/multi-link-config.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/multi-link-config",
+  "permalink": "/api/types/objects/multi-link-config",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "multi-link-config",
+    "title": "MultiLinkConfig"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "MtuGuidance",
+    "permalink": "/api/types/objects/mtu-guidance"
+  },
+  "next": {
+    "title": "MultiLinkLinkConfig",
+    "permalink": "/api/types/objects/multi-link-link-config"
+  }
+}

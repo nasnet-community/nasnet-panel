@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/change-set-status-event",
+  "title": "ChangeSetStatusEvent",
+  "description": "Change set status change event",
+  "source": "@site/docs/api/types/objects/change-set-status-event.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/change-set-status-event",
+  "permalink": "/api/types/objects/change-set-status-event",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "change-set-status-event",
+    "title": "ChangeSetStatusEvent"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ChangeSetProgressEvent",
+    "permalink": "/api/types/objects/change-set-progress-event"
+  },
+  "next": {
+    "title": "ChangeSetSummary",
+    "permalink": "/api/types/objects/change-set-summary"
+  }
+}

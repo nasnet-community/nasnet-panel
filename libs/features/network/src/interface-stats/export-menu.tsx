@@ -21,6 +21,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@nasnet/ui/primitives';
+import { cn } from '@nasnet/ui/utils';
 
 export interface ExportMenuProps {
   /** Handler for CSV export */
@@ -80,13 +81,13 @@ export const ExportMenu = memo(function ExportMenu({
           size="sm"
           disabled={isDisabled}
           aria-label="Export statistics data in CSV, JSON, or PNG format"
-          className={className}
+          className={cn('category-networking', className)}
         >
-          <Download className="h-4 w-4 mr-2" aria-hidden="true" />
+          <Download className="h-4 w-4 mr-component-sm" aria-hidden="true" />
           Export
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
+      <DropdownMenuContent align="end" className="bg-card border-border">
         <DropdownMenuItem onClick={handleExportCsv}>
           Export as CSV
         </DropdownMenuItem>

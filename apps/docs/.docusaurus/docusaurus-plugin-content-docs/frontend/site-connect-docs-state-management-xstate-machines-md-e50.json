@@ -1,0 +1,24 @@
+{
+  "id": "state-management/xstate-machines",
+  "title": "XState State Machines",
+  "description": "All machines live in libs/state/machines/src/. Import from @nasnet/state/machines.",
+  "source": "@site/../connect/docs/state-management/xstate-machines.md",
+  "sourceDirName": "state-management",
+  "slug": "/state-management/xstate-machines",
+  "permalink": "/docs/frontend/state-management/xstate-machines",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../connect/docs/state-management/xstate-machines.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "State Management Overview",
+    "permalink": "/docs/frontend/state-management/overview"
+  },
+  "next": {
+    "title": "Zustand Stores Inventory",
+    "permalink": "/docs/frontend/state-management/zustand-stores"
+  }
+}

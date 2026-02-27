@@ -1,6 +1,8 @@
 package bootstrap
 
 import (
+	"fmt"
+
 	"go.uber.org/zap"
 
 	"backend/generated/ent"
@@ -41,7 +43,7 @@ func InitializeRouting(
 		EventBus:   eventBus,
 	})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("init chain router: %w", err)
 	}
 	logger.Infow("Chain router initialized")
 

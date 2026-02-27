@@ -79,7 +79,7 @@ const FilterBadge = memo(function FilterBadge({
     <Badge
       variant="secondary"
       className={cn(
-        'gap-component-sm pr-1 cursor-pointer hover:bg-secondary',
+        'gap-component-sm pr-component-sm cursor-pointer hover:bg-secondary',
         'transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
       )}
       onClick={onRemove}
@@ -97,7 +97,7 @@ const FilterBadge = memo(function FilterBadge({
       <Icon
         icon={X}
         className={cn(
-          'ml-1 w-3 h-3 text-muted-foreground',
+          'ml-component-xs w-3 h-3 text-muted-foreground',
           'group-hover:text-foreground'
         )}
         aria-hidden="true"
@@ -258,7 +258,7 @@ export const RuleSearchFilters = memo(function RuleSearchFilters({
 
       {/* Filter controls */}
       <div className={cn(
-        'bg-card rounded-[var(--semantic-radius-card)] border border-border p-component-md'
+        'bg-card rounded-md border border-border p-component-md'
       )}>
         {/* Search row */}
         <div className="flex flex-col md:flex-row gap-component-sm">
@@ -284,7 +284,7 @@ export const RuleSearchFilters = memo(function RuleSearchFilters({
           >
             {isExpanded ? 'Hide Filters' : 'Show Filters'}
             {activeFilterCount > 0 && (
-              <Badge variant="secondary" className="ml-2">
+              <Badge variant="secondary" className="ml-component-sm">
                 {activeFilterCount}
               </Badge>
             )}

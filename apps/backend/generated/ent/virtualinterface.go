@@ -5,6 +5,7 @@ package ent
 import (
 	"backend/generated/ent/serviceinstance"
 	"backend/generated/ent/virtualinterface"
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -37,6 +38,14 @@ type VirtualInterface struct {
 	RoutingMark string `json:"routing_mark,omitempty"`
 	// Virtual interface lifecycle status
 	Status virtualinterface.Status `json:"status,omitempty"`
+	// Routing mode: bridge (DHCP), advanced (PBR mangle), legacy (single VLAN)
+	RoutingMode virtualinterface.RoutingMode `json:"routing_mode,omitempty"`
+	// Ingress VLAN ID (100-149 range, for DHCP bridge mode)
+	IngressVlanID int `json:"ingress_vlan_id,omitempty"`
+	// Egress VLAN IDs for outbound traffic (150-199 range)
+	EgressVlanIds []int `json:"egress_vlan_ids,omitempty"`
+	// Container IP for DHCP bridge mode (e.g., 10.99.101.1)
+	ContainerIP string `json:"container_ip,omitempty"`
 	// Timestamp when the virtual interface was created
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// Timestamp when the virtual interface was last updated
@@ -83,9 +92,11 @@ func (*VirtualInterface) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case virtualinterface.FieldVlanID:
+		case virtualinterface.FieldEgressVlanIds:
+			values[i] = new([]byte)
+		case virtualinterface.FieldVlanID, virtualinterface.FieldIngressVlanID:
 			values[i] = new(sql.NullInt64)
-		case virtualinterface.FieldID, virtualinterface.FieldInstanceID, virtualinterface.FieldInterfaceName, virtualinterface.FieldIPAddress, virtualinterface.FieldGatewayType, virtualinterface.FieldGatewayStatus, virtualinterface.FieldTunName, virtualinterface.FieldRoutingMark, virtualinterface.FieldStatus:
+		case virtualinterface.FieldID, virtualinterface.FieldInstanceID, virtualinterface.FieldInterfaceName, virtualinterface.FieldIPAddress, virtualinterface.FieldGatewayType, virtualinterface.FieldGatewayStatus, virtualinterface.FieldTunName, virtualinterface.FieldRoutingMark, virtualinterface.FieldStatus, virtualinterface.FieldRoutingMode, virtualinterface.FieldContainerIP:
 			values[i] = new(sql.NullString)
 		case virtualinterface.FieldCreatedAt, virtualinterface.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -163,6 +174,32 @@ func (_m *VirtualInterface) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field status", values[i])
 			} else if value.Valid {
 				_m.Status = virtualinterface.Status(value.String)
+			}
+		case virtualinterface.FieldRoutingMode:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field routing_mode", values[i])
+			} else if value.Valid {
+				_m.RoutingMode = virtualinterface.RoutingMode(value.String)
+			}
+		case virtualinterface.FieldIngressVlanID:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field ingress_vlan_id", values[i])
+			} else if value.Valid {
+				_m.IngressVlanID = int(value.Int64)
+			}
+		case virtualinterface.FieldEgressVlanIds:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field egress_vlan_ids", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &_m.EgressVlanIds); err != nil {
+					return fmt.Errorf("unmarshal field egress_vlan_ids: %w", err)
+				}
+			}
+		case virtualinterface.FieldContainerIP:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field container_ip", values[i])
+			} else if value.Valid {
+				_m.ContainerIP = value.String
 			}
 		case virtualinterface.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -248,6 +285,18 @@ func (_m *VirtualInterface) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("status=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Status))
+	builder.WriteString(", ")
+	builder.WriteString("routing_mode=")
+	builder.WriteString(fmt.Sprintf("%v", _m.RoutingMode))
+	builder.WriteString(", ")
+	builder.WriteString("ingress_vlan_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.IngressVlanID))
+	builder.WriteString(", ")
+	builder.WriteString("egress_vlan_ids=")
+	builder.WriteString(fmt.Sprintf("%v", _m.EgressVlanIds))
+	builder.WriteString(", ")
+	builder.WriteString("container_ip=")
+	builder.WriteString(_m.ContainerIP)
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
 	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/provisioning-apply-status",
+  "title": "ProvisioningApplyStatus",
+  "description": "Status of provisioning session apply operation",
+  "source": "@site/docs/api/types/enums/provisioning-apply-status.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/provisioning-apply-status",
+  "permalink": "/api/types/enums/provisioning-apply-status",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "provisioning-apply-status",
+    "title": "ProvisioningApplyStatus"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "Protocol",
+    "permalink": "/api/types/enums/protocol"
+  },
+  "next": {
+    "title": "ProvisioningFirmware",
+    "permalink": "/api/types/enums/provisioning-firmware"
+  }
+}

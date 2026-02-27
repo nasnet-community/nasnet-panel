@@ -66,7 +66,7 @@ export function FormSectionHeader({
     <div className="flex-1 min-w-0">
       <div className="flex items-center gap-2 flex-wrap">
         {/* Title */}
-        <h3 className="text-base font-semibold text-foreground">
+        <h3 className="text-lg font-semibold font-display text-foreground">
           {title}
         </h3>
 
@@ -129,17 +129,13 @@ export function FormSectionHeader({
         aria-controls={contentId}
         className={cn(
           'w-full flex items-center justify-between gap-3',
-          'py-3 px-4',
           'text-left',
-          'bg-muted',
-          'hover:bg-muted/80',
           'cursor-pointer',
-          'transition-colors duration-200',
+          'transition-colors duration-150',
+          'hover:text-foreground',
           // Focus ring
           'focus-visible:outline-none focus-visible:ring-2',
-          'focus-visible:ring-ring focus-visible:ring-offset-2',
-          // Mobile tap target (minimum 44px)
-          'min-h-[44px]'
+          'focus-visible:ring-ring focus-visible:ring-offset-2'
         )}
       >
         {/* Chevron icon */}
@@ -178,9 +174,7 @@ export function FormSectionHeader({
   return (
     <div
       className={cn(
-        'flex items-center justify-between gap-3',
-        'py-3 px-4',
-        'bg-muted'
+        'flex items-center justify-between gap-3'
       )}
     >
       {headerContent}

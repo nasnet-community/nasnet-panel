@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/set-kill-switch",
+  "title": "setKillSwitch",
+  "description": "Enable or update kill switch for a device routing.",
+  "source": "@site/docs/api/operations/mutations/set-kill-switch.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/set-kill-switch",
+  "permalink": "/api/operations/mutations/set-kill-switch",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "set-kill-switch",
+    "title": "setKillSwitch"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "scanStorage",
+    "permalink": "/api/operations/mutations/scan-storage"
+  },
+  "next": {
+    "title": "setPreferredProtocol",
+    "permalink": "/api/operations/mutations/set-preferred-protocol"
+  }
+}

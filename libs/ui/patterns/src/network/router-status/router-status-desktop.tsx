@@ -22,22 +22,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
   Skeleton,
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
 } from '@nasnet/ui/primitives';
 
-import { STATUS_BG_COLORS, STATUS_TEXT_COLORS, StatusIndicator } from './status-indicator';
+import { STATUS_TEXT_COLORS, StatusIndicator } from './status-indicator';
 
 import type { RouterStatusPresenterProps } from './types';
-
-// ===== Protocol Labels =====
-
-const PROTOCOL_LABELS = {
-  REST_API: 'REST API',
-  SSH: 'SSH',
-  TELNET: 'Telnet',
-};
 
 // ===== Component =====
 
@@ -59,7 +48,7 @@ import { memo } from 'react';
  * ```
  */
 function RouterStatusDesktopComponent({ state, className }: RouterStatusPresenterProps) {
-  const { data, loading, error, isOnline, statusLabel, lastSeenRelative } = state;
+  const { data, loading, error, isOnline } = state;
 
   // Loading state
   if (loading) {
@@ -109,34 +98,32 @@ function RouterStatusDesktopComponent({ state, className }: RouterStatusPresente
     );
   }
 
-  const showReconnecting = data.status === 'CONNECTING' && data.reconnectAttempt > 0;
-
   return (
     <Card className={cn('w-full', className)}>
-      <CardContent className="p-4">
-        <div className="flex items-center justify-between gap-4">
+      <CardContent className="p-component-md lg:p-component-lg">
+        <div className="flex items-center justify-between gap-component-lg">
           {/* Status Section */}
-          <div className="flex items-center gap-3 min-w-0">
-            {/* Status Indicator */}
+          <div className="flex items-center gap-component-lg min-w-0">
+            {/* Router Icon Container */}
             <div
               className={cn(
-                'flex items-center justify-center w-10 h-10 rounded-full shrink-0',
-                STATUS_BG_COLORS[data.status]
+                'flex items-center justify-center h-12 w-12 rounded-lg shrink-0',
+                'bg-primary/10'
               )}
             >
               {data.status === 'CONNECTING' ? (
                 <RefreshCw
-                  className={cn('h-5 w-5 animate-spin', STATUS_TEXT_COLORS[data.status])}
+                  className={cn('h-6 w-6 animate-spin', STATUS_TEXT_COLORS[data.status])}
                   aria-hidden="true"
                 />
               ) : data.status === 'DISCONNECTED' || data.status === 'ERROR' ? (
                 <WifiOff
-                  className={cn('h-5 w-5', STATUS_TEXT_COLORS[data.status])}
+                  className={cn('h-6 w-6', STATUS_TEXT_COLORS[data.status])}
                   aria-hidden="true"
                 />
               ) : (
                 <Wifi
-                  className={cn('h-5 w-5', STATUS_TEXT_COLORS[data.status])}
+                  className={cn('h-6 w-6', STATUS_TEXT_COLORS[data.status])}
                   aria-hidden="true"
                 />
               )}
@@ -144,85 +131,28 @@ function RouterStatusDesktopComponent({ state, className }: RouterStatusPresente
 
             {/* Status Text */}
             <div className="min-w-0">
-              <div className="flex items-center gap-2">
-                <StatusIndicator status={data.status} size="sm" />
-                <span className={cn('text-sm font-medium', STATUS_TEXT_COLORS[data.status])}>
-                  {statusLabel}
-                </span>
+              <h3 className={cn('text-lg font-semibold text-foreground')}>
+                Router
+              </h3>
 
-                {/* Reconnect Attempts */}
-                {showReconnecting && (
-                  <span className="text-xs text-muted-foreground">
-                    (Attempt {data.reconnectAttempt} of {data.maxReconnectAttempts})
-                  </span>
-                )}
-              </div>
+              {/* Router Model */}
+              {data.model && (
+                <p className="text-sm text-muted-foreground">
+                  {data.model}
+                </p>
+              )}
 
-              {/* Secondary Info */}
-              <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
-                {/* Protocol */}
-                {isOnline && data.protocol && (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <span className="cursor-help">
-                        {PROTOCOL_LABELS[data.protocol] || data.protocol}
-                      </span>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Connection protocol: {PROTOCOL_LABELS[data.protocol] || data.protocol}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                )}
+              {/* Uptime */}
+              {data.uptime && (
+                <p className="font-mono text-sm text-muted-foreground">
+                  Uptime: {data.uptime}
+                </p>
+              )}
 
-                {/* Latency */}
-                {isOnline && data.latencyMs !== null && (
-                  <>
-                    <span className="text-muted-foreground/50">•</span>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <span
-                          className={cn(
-                            'font-mono cursor-help',
-                            data.latencyMs < 100
-                              ? 'text-semantic-success'
-                              : data.latencyMs < 300
-                                ? 'text-semantic-warning'
-                                : 'text-semantic-error'
-                          )}
-                        >
-                          {data.latencyMs}ms
-                        </span>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>
-                          Latency:{' '}
-                          {data.latencyMs < 100
-                            ? 'Excellent'
-                            : data.latencyMs < 300
-                              ? 'Good'
-                              : 'Poor'}
-                        </p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </>
-                )}
-
-                {/* Last Connected */}
-                {!isOnline && lastSeenRelative && (
-                  <span>Last connected: {lastSeenRelative}</span>
-                )}
-              </div>
+              {/* Status Badge */}
+              <StatusIndicator status={data.status} size="sm" />
             </div>
           </div>
-
-          {/* Router Info */}
-          {isOnline && (data.model || data.version) && (
-            <div className="hidden lg:flex flex-col items-end text-right text-xs text-muted-foreground">
-              {data.model && <span className="font-medium">{data.model}</span>}
-              {data.version && <span>RouterOS {data.version}</span>}
-              {data.uptime && <span className="text-muted-foreground/70">Uptime: {data.uptime}</span>}
-            </div>
-          )}
 
           {/* Action Menu */}
           <DropdownMenu>

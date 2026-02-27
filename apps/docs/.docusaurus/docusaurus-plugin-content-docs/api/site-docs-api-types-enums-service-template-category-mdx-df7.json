@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/service-template-category",
+  "title": "ServiceTemplateCategory",
+  "description": "Service template category enum",
+  "source": "@site/docs/api/types/enums/service-template-category.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/service-template-category",
+  "permalink": "/api/types/enums/service-template-category",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "service-template-category",
+    "title": "ServiceTemplateCategory"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ServiceStatus",
+    "permalink": "/api/types/enums/service-status"
+  },
+  "next": {
+    "title": "StorageLocationType",
+    "permalink": "/api/types/enums/storage-location-type"
+  }
+}

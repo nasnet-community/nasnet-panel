@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/wan-interfaces",
+  "title": "wanInterfaces",
+  "description": "Get all WAN interfaces on a router",
+  "source": "@site/docs/api/operations/queries/wan-interfaces.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/wan-interfaces",
+  "permalink": "/api/operations/queries/wan-interfaces",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "wan-interfaces",
+    "title": "wanInterfaces"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "wanInterface",
+    "permalink": "/api/operations/queries/wan-interface"
+  },
+  "next": {
+    "title": "webhook",
+    "permalink": "/api/operations/queries/webhook"
+  }
+}

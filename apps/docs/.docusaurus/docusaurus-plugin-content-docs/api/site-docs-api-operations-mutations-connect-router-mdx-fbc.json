@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/connect-router",
+  "title": "connectRouter",
+  "description": "Connect to a router",
+  "source": "@site/docs/api/operations/mutations/connect-router.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/connect-router",
+  "permalink": "/api/operations/mutations/connect-router",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "connect-router",
+    "title": "connectRouter"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "configureWANHealthCheck",
+    "permalink": "/api/operations/mutations/configure-wanhealth-check"
+  },
+  "next": {
+    "title": "createAddressListEntry",
+    "permalink": "/api/operations/mutations/create-address-list-entry"
+  }
+}

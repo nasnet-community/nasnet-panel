@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/config-schema",
+  "title": "ConfigSchema",
+  "description": "Configuration schema for a service type",
+  "source": "@site/docs/api/types/objects/config-schema.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/config-schema",
+  "permalink": "/api/types/objects/config-schema",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "config-schema",
+    "title": "ConfigSchema"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ConfigSchemaField",
+    "permalink": "/api/types/objects/config-schema-field"
+  },
+  "next": {
+    "title": "ConfigValidationError",
+    "permalink": "/api/types/objects/config-validation-error"
+  }
+}

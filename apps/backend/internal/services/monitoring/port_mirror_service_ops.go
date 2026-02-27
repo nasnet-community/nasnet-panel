@@ -17,7 +17,7 @@ func (s *PortMirrorService) EnablePortMirror(
 ) (*model.PortMirror, error) {
 
 	if err := s.EnsureConnected(ctx); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("ensure connected: %w", err)
 	}
 
 	adapter, ok := s.Port().(interface {
@@ -29,7 +29,7 @@ func (s *PortMirrorService) EnablePortMirror(
 
 	mirror, err := adapter.EnablePortMirror(ctx, routerID, mirrorID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to enable port mirror: %w", err)
+		return nil, fmt.Errorf("enable port mirror: %w", err)
 	}
 
 	// Publish event
@@ -54,7 +54,7 @@ func (s *PortMirrorService) DisablePortMirror(
 ) (*model.PortMirror, error) {
 
 	if err := s.EnsureConnected(ctx); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("ensure connected: %w", err)
 	}
 
 	adapter, ok := s.Port().(interface {
@@ -66,7 +66,7 @@ func (s *PortMirrorService) DisablePortMirror(
 
 	mirror, err := adapter.DisablePortMirror(ctx, routerID, mirrorID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to disable port mirror: %w", err)
+		return nil, fmt.Errorf("disable port mirror: %w", err)
 	}
 
 	// Publish event
@@ -95,7 +95,11 @@ func (s *PortMirrorService) getPortMirrorStats(
 		return nil, fmt.Errorf("router adapter does not support port mirror statistics")
 	}
 
-	return adapter.GetPortMirrorStats(ctx, destinationInterfaceID)
+	stats, err := adapter.GetPortMirrorStats(ctx, destinationInterfaceID)
+	if err != nil {
+		return nil, fmt.Errorf("get port mirror stats: %w", err)
+	}
+	return stats, nil
 }
 
 // validateCreateInput validates the create port mirror input.

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/ip-address-change-event",
+  "title": "IpAddressChangeEvent",
+  "description": "Event emitted when an IP address changes",
+  "source": "@site/docs/api/types/objects/ip-address-change-event.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/ip-address-change-event",
+  "permalink": "/api/types/objects/ip-address-change-event",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "ip-address-change-event",
+    "title": "IpAddressChangeEvent"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "Interface",
+    "permalink": "/api/types/objects/interface"
+  },
+  "next": {
+    "title": "IpAddressDeleteResult",
+    "permalink": "/api/types/objects/ip-address-delete-result"
+  }
+}

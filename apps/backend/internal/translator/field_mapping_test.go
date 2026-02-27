@@ -292,10 +292,10 @@ func TestParseMikroTikDuration_InvalidFormats(t *testing.T) {
 		input    string
 		hasError bool
 	}{
-		{"xyz", true},          // No numbers at all
-		{"1x", true},           // Invalid unit
-		{"", false},            // Empty is OK (returns 0)
-		{"1d2h3m4s", false},    // Valid
+		{"xyz", true},       // No numbers at all
+		{"1x", true},        // Invalid unit
+		{"", false},         // Empty is OK (returns 0)
+		{"1d2h3m4s", false}, // Valid
 	}
 
 	for _, tt := range tests {
@@ -316,13 +316,13 @@ func TestParseMikroTikSize_EdgeCases(t *testing.T) {
 		expected int64
 		hasError bool
 	}{
-		{"", 0, false},         // Empty OK
-		{"K", 0, true},         // Just suffix, no number
-		{"M", 0, true},         // Just suffix, no number
-		{"0", 0, false},        // Zero
-		{"0K", 0, false},       // Zero with suffix
-		{"-5", -5, false},      // Negative (ParseInt accepts this)
-		{"-5K", -5 * 1024, false},       // Negative with suffix (accepted by ParseInt)
+		{"", 0, false},            // Empty OK
+		{"K", 0, true},            // Just suffix, no number
+		{"M", 0, true},            // Just suffix, no number
+		{"0", 0, false},           // Zero
+		{"0K", 0, false},          // Zero with suffix
+		{"-5", -5, false},         // Negative (ParseInt accepts this)
+		{"-5K", -5 * 1024, false}, // Negative with suffix (accepted by ParseInt)
 	}
 
 	for _, tt := range tests {

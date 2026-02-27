@@ -150,7 +150,7 @@ export const DeviceDetailPanel = React.memo(function DeviceDetailPanel({
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
-          <h3 className="font-semibold text-lg font-display">
+          <h3 className="font-semibold text-lg font-display text-category-networking">
             {device.hostname || 'Unknown Device'}
           </h3>
           <p className="text-sm text-muted-foreground font-mono">{device.ip}</p>

@@ -172,14 +172,18 @@ func (g *XrayGenerator) Generate(instanceID string, config map[string]interface{
 	}
 
 	// Render as JSON
-	return g.RenderJSON(xrayConfig)
+	result, err := g.RenderJSON(xrayConfig)
+	if err != nil {
+		return nil, fmt.Errorf("render xray configuration: %w", err)
+	}
+	return result, nil
 }
 
 // Validate performs Xray-specific validation.
 func (g *XrayGenerator) Validate(config map[string]interface{}, bindIP string) error {
 	// Base validation (schema + bind IP)
 	if configErr := g.ValidateConfig(config, bindIP); configErr != nil {
-		return configErr
+		return fmt.Errorf("validate xray config: %w", configErr)
 	}
 
 	// Validate UUID format (basic check)

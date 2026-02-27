@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/subscriptions/circuit-breaker-changed",
+  "title": "circuitBreakerChanged",
+  "description": "Subscribe to circuit breaker state changes",
+  "source": "@site/docs/api/operations/subscriptions/circuit-breaker-changed.mdx",
+  "sourceDirName": "api/operations/subscriptions",
+  "slug": "/api/operations/subscriptions/circuit-breaker-changed",
+  "permalink": "/api/operations/subscriptions/circuit-breaker-changed",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "circuit-breaker-changed",
+    "title": "circuitBreakerChanged"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "changeSetStatusChanged",
+    "permalink": "/api/operations/subscriptions/change-set-status-changed"
+  },
+  "next": {
+    "title": "circuitBreakerStateChanged",
+    "permalink": "/api/operations/subscriptions/circuit-breaker-state-changed"
+  }
+}

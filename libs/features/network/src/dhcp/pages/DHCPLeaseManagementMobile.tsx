@@ -119,12 +119,12 @@ export const DHCPLeaseManagementMobile = React.memo(function DHCPLeaseManagement
   return (
     <div className="flex h-full flex-col">
       {/* Header */}
-      <div className="border-b border-border bg-card px-page-mobile py-component-sm">
+      <div className="border-b border-border bg-card px-page-mobile py-component-sm category-networking">
         <h1 className="font-display text-lg font-semibold">DHCP Leases</h1>
       </div>
 
       {/* Search Bar */}
-      <div className="border-b border-border px-page-mobile py-component-sm">
+      <div className="border-b border-border px-page-mobile py-component-sm category-networking">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
           <Input
@@ -139,7 +139,7 @@ export const DHCPLeaseManagementMobile = React.memo(function DHCPLeaseManagement
       </div>
 
       {/* Filter Chips - Horizontal Scroll */}
-      <div className="border-b border-border px-page-mobile py-component-sm">
+      <div className="border-b border-border px-page-mobile py-component-sm category-networking">
         <div className="flex gap-component-sm overflow-x-auto pb-1">
           {/* Status Filter */}
           <div className="flex shrink-0 gap-component-sm">
@@ -188,7 +188,7 @@ export const DHCPLeaseManagementMobile = React.memo(function DHCPLeaseManagement
 
       {/* Error State */}
       {isError && (
-        <div className="mx-page-mobile mt-component-md rounded-[var(--semantic-radius-card)] border border-error bg-error/10 p-component-md" role="alert">
+        <div className="mx-page-mobile mt-component-md rounded-[var(--semantic-radius-card)] border border-error bg-error/10 p-component-md category-networking" role="alert">
           <p className="text-sm font-medium text-error">
             Failed to load DHCP leases
           </p>

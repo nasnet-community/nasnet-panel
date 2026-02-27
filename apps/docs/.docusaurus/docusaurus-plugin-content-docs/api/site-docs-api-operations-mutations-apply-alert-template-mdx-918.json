@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/apply-alert-template",
+  "title": "applyAlertTemplate",
+  "description": "Apply an alert template to create an alert rule",
+  "source": "@site/docs/api/operations/mutations/apply-alert-template.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/apply-alert-template",
+  "permalink": "/api/operations/mutations/apply-alert-template",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "apply-alert-template",
+    "title": "applyAlertTemplate"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "applyAlertRuleTemplate",
+    "permalink": "/api/operations/mutations/apply-alert-rule-template"
+  },
+  "next": {
+    "title": "applyChangeSet",
+    "permalink": "/api/operations/mutations/apply-change-set"
+  }
+}

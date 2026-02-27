@@ -172,18 +172,18 @@ export const TracerouteToolMobile = memo(function TracerouteToolMobile({
   }, [traceroute.error, traceroute.isRunning, traceroute.result, traceroute.hops.length]);
 
   return (
-    <div className="space-y-4 pb-safe">
+    <div className="space-y-component-lg pb-safe">
       {/* Form card */}
       <Card>
         <CardHeader>
           <CardTitle>Traceroute Tool</CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-component-lg">
             {/* Target input */}
-            <div className="space-y-2">
+            <div className="space-y-component-sm">
               <Label htmlFor="traceroute-target-mobile">
-                Target <span className="text-destructive">*</span>
+                Target <span className="text-error">*</span>
               </Label>
               <Input
                 id="traceroute-target-mobile"
@@ -194,7 +194,7 @@ export const TracerouteToolMobile = memo(function TracerouteToolMobile({
                 {...register('target')}
               />
               {errors.target && (
-                <p className="text-sm text-destructive" role="alert">
+                <p className="text-xs text-error" role="alert">
                   {errors.target.message}
                 </p>
               )}
@@ -218,9 +218,9 @@ export const TracerouteToolMobile = memo(function TracerouteToolMobile({
                 <SheetHeader>
                   <SheetTitle>Advanced Options</SheetTitle>
                 </SheetHeader>
-                <div className="space-y-4 mt-4">
+                <div className="space-y-component-lg mt-component-lg">
                   {/* Max Hops */}
-                  <div className="space-y-2">
+                  <div className="space-y-component-sm">
                     <Label htmlFor="traceroute-max-hops-mobile">Max Hops</Label>
                     <Input
                       id="traceroute-max-hops-mobile"
@@ -231,14 +231,14 @@ export const TracerouteToolMobile = memo(function TracerouteToolMobile({
                       {...register('maxHops', { valueAsNumber: true })}
                     />
                     {errors.maxHops && (
-                      <p className="text-sm text-destructive" role="alert">
+                      <p className="text-xs text-error" role="alert">
                         {errors.maxHops.message}
                       </p>
                     )}
                   </div>
 
                   {/* Timeout */}
-                  <div className="space-y-2">
+                  <div className="space-y-component-sm">
                     <Label htmlFor="traceroute-timeout-mobile">Timeout (ms)</Label>
                     <Input
                       id="traceroute-timeout-mobile"
@@ -250,14 +250,14 @@ export const TracerouteToolMobile = memo(function TracerouteToolMobile({
                       {...register('timeout', { valueAsNumber: true })}
                     />
                     {errors.timeout && (
-                      <p className="text-sm text-destructive" role="alert">
+                      <p className="text-xs text-error" role="alert">
                         {errors.timeout.message}
                       </p>
                     )}
                   </div>
 
                   {/* Probe Count */}
-                  <div className="space-y-2">
+                  <div className="space-y-component-sm">
                     <Label htmlFor="traceroute-probe-count-mobile">Probes per Hop</Label>
                     <Input
                       id="traceroute-probe-count-mobile"
@@ -268,14 +268,14 @@ export const TracerouteToolMobile = memo(function TracerouteToolMobile({
                       {...register('probeCount', { valueAsNumber: true })}
                     />
                     {errors.probeCount && (
-                      <p className="text-sm text-destructive" role="alert">
+                      <p className="text-xs text-error" role="alert">
                         {errors.probeCount.message}
                       </p>
                     )}
                   </div>
 
                   {/* Protocol */}
-                  <div className="space-y-2">
+                  <div className="space-y-component-sm">
                     <Label htmlFor="traceroute-protocol-mobile">Protocol</Label>
                     <Select
                       value={protocol}
@@ -342,12 +342,12 @@ export const TracerouteToolMobile = memo(function TracerouteToolMobile({
             <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
           )}
           <AlertTitle>{traceroute.error ? 'Error' : 'Status'}</AlertTitle>
-          <AlertDescription className="text-sm">{statusMessage}</AlertDescription>
+          <AlertDescription className="text-xs">{statusMessage}</AlertDescription>
         </Alert>
       )}
 
       {traceroute.isRunning && (
-        <div className="space-y-2">
+        <div className="space-y-component-md">
           <Progress value={traceroute.progress} aria-label="Traceroute progress" />
         </div>
       )}
@@ -358,7 +358,7 @@ export const TracerouteToolMobile = memo(function TracerouteToolMobile({
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle>Hops ({traceroute.hops.length})</CardTitle>
-              <div className="flex gap-component-sm">
+              <div className="flex gap-component-md">
                 <Button
                   variant="ghost"
                   size="sm"
@@ -391,10 +391,10 @@ export const TracerouteToolMobile = memo(function TracerouteToolMobile({
       {/* Empty state */}
       {!traceroute.isRunning && traceroute.hops.length === 0 && !traceroute.error && (
         <Card>
-          <CardContent className="flex flex-col items-center justify-center p-component-lg text-center">
+          <CardContent className="flex flex-col items-center justify-center p-component-xl text-center">
             <div className="text-muted-foreground">
-              <p className="text-base font-medium mb-2">No results yet</p>
-              <p className="text-sm">Enter a target to begin</p>
+              <p className="text-base font-medium mb-component-md">No results yet</p>
+              <p className="text-xs">Enter a target to begin</p>
             </div>
           </CardContent>
         </Card>

@@ -1,0 +1,28 @@
+{
+  "id": "guides/performance-patterns",
+  "title": "Performance Patterns",
+  "description": "Reference: libs/core/utils/src/hooks/ | libs/core/forms/src/ | Performance Optimization Patterns",
+  "source": "@site/../../libs/core/docs/guides/performance-patterns.md",
+  "sourceDirName": "guides",
+  "slug": "/guides/performance-patterns",
+  "permalink": "/docs/core/guides/performance-patterns",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/core/docs/guides/performance-patterns.md",
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 13,
+  "frontMatter": {
+    "sidebar_position": 13,
+    "title": "Performance Patterns"
+  },
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Accessibility Patterns",
+    "permalink": "/docs/core/guides/accessibility-patterns"
+  },
+  "next": {
+    "title": "Security Patterns",
+    "permalink": "/docs/core/guides/security-patterns"
+  }
+}

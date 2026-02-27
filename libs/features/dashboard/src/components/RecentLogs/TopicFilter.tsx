@@ -71,7 +71,7 @@ export const TopicFilter = memo(function TopicFilter({ selectedTopics, onSelecti
         >
           <Filter className="h-4 w-4" aria-hidden="true" />
           {selectedCount > 0 && (
-            <span className="ml-1 bg-primary text-primary-foreground rounded-full px-1.5 text-xs">
+            <span className="ml-component-xs bg-primary text-primary-foreground rounded-full px-1.5 text-xs">
               {selectedCount}
             </span>
           )}
@@ -83,7 +83,7 @@ export const TopicFilter = memo(function TopicFilter({ selectedTopics, onSelecti
         aria-multiselectable="true"
         aria-label="Select log topics to filter"
       >
-        <div className="space-y-1">
+        <div className="space-y-component-xs">
           {ALL_FILTER_TOPICS.map((topic) => (
             <button
               key={topic}
@@ -91,7 +91,7 @@ export const TopicFilter = memo(function TopicFilter({ selectedTopics, onSelecti
               aria-selected={selectedTopics.includes(topic)}
               onClick={() => toggleTopic(topic)}
               className={cn(
-                'flex items-center gap-2 w-full px-2 py-2 rounded-md text-sm',
+                'flex items-center gap-component-sm w-full px-component-sm py-component-sm rounded-md text-sm',
                 'hover:bg-muted focus:bg-muted focus:outline-none',
                 'min-h-[44px]',
                 selectedTopics.includes(topic) && 'bg-muted'
@@ -117,7 +117,7 @@ export const TopicFilter = memo(function TopicFilter({ selectedTopics, onSelecti
           <Button
             variant="ghost"
             size="sm"
-            className="w-full mt-2"
+            className="w-full mt-component-sm"
             onClick={handleClearFilters}
           >
             Clear filters

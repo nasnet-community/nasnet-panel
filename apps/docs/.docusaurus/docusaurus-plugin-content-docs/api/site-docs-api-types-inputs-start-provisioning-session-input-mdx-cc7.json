@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/start-provisioning-session-input",
+  "title": "StartProvisioningSessionInput",
+  "description": "Input for starting a new provisioning session",
+  "source": "@site/docs/api/types/inputs/start-provisioning-session-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/start-provisioning-session-input",
+  "permalink": "/api/types/inputs/start-provisioning-session-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "start-provisioning-session-input",
+    "title": "StartProvisioningSessionInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "StartInstanceInput",
+    "permalink": "/api/types/inputs/start-instance-input"
+  },
+  "next": {
+    "title": "StaticIPInput",
+    "permalink": "/api/types/inputs/static-ipinput"
+  }
+}

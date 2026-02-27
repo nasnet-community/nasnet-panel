@@ -125,11 +125,11 @@ export function VLANSettingsPage({ routerID }: VLANSettingsPageProps) {
   // Desktop layout: Sidebar + Content
   if (platform === 'desktop') {
     return (
-      <div className="flex gap-component-lg px-page-desktop py-component-lg">
+      <div className="flex gap-component-lg px-page-desktop py-component-lg bg-background">
         {/* Sidebar: Gauge */}
         <div className="w-80 flex-shrink-0">
           {poolLoading ? (
-            <Card className="p-6">
+            <Card className="p-component-lg bg-muted">
               <p className="text-sm text-muted-foreground text-center">Loading pool status...</p>
             </Card>
           ) : poolStatus ? (
@@ -182,8 +182,8 @@ export function VLANSettingsPage({ routerID }: VLANSettingsPageProps) {
                     deleting service instances
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex gap-component-sm">
+                <CardContent className="space-y-component-md">
+                  <div className="flex gap-component-md">
                     <Button
                       onClick={handleDetectOrphans}
                       disabled={detectingOrphans}
@@ -205,8 +205,8 @@ export function VLANSettingsPage({ routerID }: VLANSettingsPageProps) {
                   </div>
 
                   {orphansDetected && (
-                    <div className="p-component-sm bg-warning/10 border border-warning rounded-[var(--semantic-radius-card)]">
-                      <p className="text-sm text-warning">
+                    <div className="p-component-md bg-warning/10 border border-warning rounded-[var(--semantic-radius-card)]">
+                      <p className="text-sm text-warning font-medium">
                         Orphan detection complete. Review allocations and click
                         "Clean Up All" to release orphaned VLANs.
                       </p>
@@ -214,8 +214,8 @@ export function VLANSettingsPage({ routerID }: VLANSettingsPageProps) {
                   )}
 
                   {cleanupCount !== undefined && cleanupCount > 0 && (
-                    <div className="p-component-sm bg-success/10 border border-success rounded-[var(--semantic-radius-card)]">
-                      <p className="text-sm text-success">
+                    <div className="p-component-md bg-success/10 border border-success rounded-[var(--semantic-radius-card)]">
+                      <p className="text-sm text-success font-medium">
                         Successfully cleaned up {cleanupCount} orphaned VLAN
                         allocation{cleanupCount !== 1 ? 's' : ''}.
                       </p>
@@ -232,10 +232,10 @@ export function VLANSettingsPage({ routerID }: VLANSettingsPageProps) {
 
   // Mobile/Tablet layout: Stacked
   return (
-    <div className="space-y-component-lg px-page-mobile md:px-page-tablet">
+    <div className="space-y-component-lg px-page-mobile md:px-page-tablet py-component-lg bg-background">
       {/* Gauge at top */}
       {poolLoading ? (
-        <Card className="p-component-md">
+        <Card className="p-component-md bg-muted">
           <p className="text-sm text-muted-foreground text-center">Loading pool status...</p>
         </Card>
       ) : poolStatus ? (
@@ -308,8 +308,8 @@ export function VLANSettingsPage({ routerID }: VLANSettingsPageProps) {
               </div>
 
               {orphansDetected && (
-                <div className="p-component-sm bg-warning/10 border border-warning rounded-[var(--semantic-radius-card)]" role="alert" aria-live="polite">
-                  <p className="text-xs text-warning">
+                <div className="p-component-md bg-warning/10 border border-warning rounded-[var(--semantic-radius-card)]" role="alert" aria-live="polite">
+                  <p className="text-xs text-warning font-medium">
                     Detection complete. Review allocations and click "Clean Up
                     All" to release orphaned VLANs.
                   </p>
@@ -317,8 +317,8 @@ export function VLANSettingsPage({ routerID }: VLANSettingsPageProps) {
               )}
 
               {cleanupCount !== undefined && cleanupCount > 0 && (
-                <div className="p-component-sm bg-success/10 border border-success rounded-[var(--semantic-radius-card)]" role="status" aria-live="polite">
-                  <p className="text-xs text-success">
+                <div className="p-component-md bg-success/10 border border-success rounded-[var(--semantic-radius-card)]" role="status" aria-live="polite">
+                  <p className="text-xs text-success font-medium">
                     Cleaned up {cleanupCount} orphaned VLAN allocation
                     {cleanupCount !== 1 ? 's' : ''}.
                   </p>

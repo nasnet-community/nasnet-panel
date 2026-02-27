@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/update-resource",
+  "title": "updateResource",
+  "description": "Update resource configuration (transitions to DRAFT -&#x003E; VALIDATING)",
+  "source": "@site/docs/api/operations/mutations/update-resource.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/update-resource",
+  "permalink": "/api/operations/mutations/update-resource",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "update-resource",
+    "title": "updateResource"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "updateProvisioningNetworks",
+    "permalink": "/api/operations/mutations/update-provisioning-networks"
+  },
+  "next": {
+    "title": "updateRoute",
+    "permalink": "/api/operations/mutations/update-route"
+  }
+}

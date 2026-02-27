@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/webhook",
+  "title": "Webhook",
+  "description": "Webhook notification configuration",
+  "source": "@site/docs/api/types/objects/webhook.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/webhook",
+  "permalink": "/api/types/objects/webhook",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "webhook",
+    "title": "Webhook"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "WebhookTestResult",
+    "permalink": "/api/types/objects/webhook-test-result"
+  },
+  "next": {
+    "title": "WireGuardClientConfig",
+    "permalink": "/api/types/objects/wire-guard-client-config"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/rollback-instance",
+  "title": "rollbackInstance",
+  "description": "Rollback an instance to its backed-up version.",
+  "source": "@site/docs/api/operations/mutations/rollback-instance.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/rollback-instance",
+  "permalink": "/api/operations/mutations/rollback-instance",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "rollback-instance",
+    "title": "rollbackInstance"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "rollbackFirewallTemplate",
+    "permalink": "/api/operations/mutations/rollback-firewall-template"
+  },
+  "next": {
+    "title": "runDiagnostics",
+    "permalink": "/api/operations/mutations/run-diagnostics"
+  }
+}

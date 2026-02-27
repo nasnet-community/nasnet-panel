@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/firewall-rule-reference",
+  "title": "FirewallRuleReference",
+  "description": "Firewall rule reference type (lightweight for dependency tracking).",
+  "source": "@site/docs/api/types/objects/firewall-rule-reference.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/firewall-rule-reference",
+  "permalink": "/api/types/objects/firewall-rule-reference",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "firewall-rule-reference",
+    "title": "FirewallRuleReference"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "FeatureSupport",
+    "permalink": "/api/types/objects/feature-support"
+  },
+  "next": {
+    "title": "FirewallRuleResource",
+    "permalink": "/api/types/objects/firewall-rule-resource"
+  }
+}

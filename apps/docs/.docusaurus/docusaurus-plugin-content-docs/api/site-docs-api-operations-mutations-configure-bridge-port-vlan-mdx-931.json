@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/configure-bridge-port-vlan",
+  "title": "configureBridgePortVlan",
+  "description": "Configure VLAN settings on a bridge port (trunk/access)",
+  "source": "@site/docs/api/operations/mutations/configure-bridge-port-vlan.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/configure-bridge-port-vlan",
+  "permalink": "/api/operations/mutations/configure-bridge-port-vlan",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "configure-bridge-port-vlan",
+    "title": "configureBridgePortVlan"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "cleanupOrphanedVLANs",
+    "permalink": "/api/operations/mutations/cleanup-orphaned-vlans"
+  },
+  "next": {
+    "title": "configureDhcpWAN",
+    "permalink": "/api/operations/mutations/configure-dhcp-wan"
+  }
+}

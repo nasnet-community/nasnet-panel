@@ -36,6 +36,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   Icon,
+  cn,
 } from '@nasnet/ui/primitives';
 
 import { ProtocolIconBadge, getProtocolLabel } from '../protocol-icon';
@@ -120,16 +121,15 @@ function VPNClientCardComponent({
 
   return (
     <Card
-      className={`
-        transition-all duration-200 hover:shadow-md
-        ${isRunning ? 'border-success/30' : ''}
-        ${className}
-      `}
+      className={cn(
+        'bg-card border border-l-4 border-l-category-vpn border-border rounded-[var(--semantic-radius-card)] shadow-[var(--semantic-shadow-card)] transition-shadow duration-200 hover:shadow-lg',
+        className
+      )}
       aria-label={`${name} VPN client - ${statusLabel}`}
     >
-      <CardHeader className="pb-3">
+      <CardHeader className="pb-3 sm:pb-4">
         <div className="flex items-start justify-between gap-3">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 min-w-0">
             <ProtocolIconBadge protocol={protocol} variant="md" />
             <div className="flex-1 min-w-0">
               <CardTitle className="text-lg font-semibold text-foreground truncate">
@@ -137,14 +137,14 @@ function VPNClientCardComponent({
               </CardTitle>
               <div className="flex items-center gap-2 mt-1">
                 <StatusIndicator status={status} label={statusLabel} />
-                <Badge variant="secondary" className="text-xs uppercase">
+                <Badge variant="secondary" className="text-xs font-mono uppercase">
                   {getProtocolLabel(protocol)}
                 </Badge>
               </div>
             </div>
           </div>
-          
-          <div className="flex items-center gap-2">
+
+          <div className="flex items-center gap-2 flex-shrink-0">
             {/* Toggle Switch */}
             {onToggle && (
               <Switch
@@ -158,7 +158,7 @@ function VPNClientCardComponent({
             {/* Actions Menu */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8">
+                <Button variant="ghost" size="icon" className="h-8 w-8 min-h-[44px] min-w-[44px]">
                   <Icon icon={MoreVertical} className="h-4 w-4" />
                   <span className="sr-only">Open menu</span>
                 </Button>
@@ -199,7 +199,7 @@ function VPNClientCardComponent({
           <div className="flex items-center gap-2 py-2 border-b border-border">
             <Icon icon={Globe} className="h-4 w-4 text-muted-foreground flex-shrink-0" />
             <span className="text-sm text-muted-foreground">Server</span>
-            <span className="text-sm font-medium text-foreground truncate flex-1 text-right">
+            <span className="text-sm font-mono text-muted-foreground truncate flex-1 text-right">
               {connectTo}{port ? `:${port}` : ''}
             </span>
           </div>
@@ -208,7 +208,7 @@ function VPNClientCardComponent({
           {user && (
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">User</span>
-              <span className="font-mono font-medium">{user}</span>
+              <span className="font-mono text-sm text-muted-foreground">{user}</span>
             </div>
           )}
 
@@ -218,9 +218,9 @@ function VPNClientCardComponent({
               {/* Uptime */}
               {uptime && (
                 <div className="flex items-center gap-2 text-sm">
-                  <Icon icon={Clock} className="h-4 w-4 text-muted-foreground" />
+                  <Icon icon={Clock} className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                   <span className="text-muted-foreground">Uptime</span>
-                  <span className="font-mono font-medium ml-auto">{uptime}</span>
+                  <span className="font-mono text-sm text-muted-foreground ml-auto">{uptime}</span>
                 </div>
               )}
 
@@ -230,13 +230,13 @@ function VPNClientCardComponent({
                   {localAddress && (
                     <div>
                       <span className="text-xs text-muted-foreground block">Local IP</span>
-                      <span className="font-mono text-xs">{localAddress}</span>
+                      <span className="font-mono text-xs text-muted-foreground">{localAddress}</span>
                     </div>
                   )}
                   {remoteAddress && (
                     <div>
                       <span className="text-xs text-muted-foreground block">Remote IP</span>
-                      <span className="font-mono text-xs">{remoteAddress}</span>
+                      <span className="font-mono text-xs text-muted-foreground">{remoteAddress}</span>
                     </div>
                   )}
                 </div>
@@ -245,18 +245,18 @@ function VPNClientCardComponent({
               {/* Traffic Stats */}
               {(rx !== undefined || tx !== undefined) && (
                 <div className="flex items-center gap-2 pt-2 border-t border-border">
-                  <Icon icon={ArrowDownUp} className="h-4 w-4 text-muted-foreground" />
-                  <div className="flex items-center gap-4 text-sm">
+                  <Icon icon={ArrowDownUp} className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                  <div className="flex items-center gap-4 text-xs">
                     {rx !== undefined && (
                       <div>
                         <span className="text-muted-foreground">↓ </span>
-                        <span className="font-mono font-medium">{formatBytes(rx)}</span>
+                        <span className="font-mono text-muted-foreground">{formatBytes(rx)}</span>
                       </div>
                     )}
                     {tx !== undefined && (
                       <div>
                         <span className="text-muted-foreground">↑ </span>
-                        <span className="font-mono font-medium">{formatBytes(tx)}</span>
+                        <span className="font-mono text-muted-foreground">{formatBytes(tx)}</span>
                       </div>
                     )}
                   </div>

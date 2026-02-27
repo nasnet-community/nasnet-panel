@@ -225,8 +225,9 @@ export const NetworkTopologyDesktop = memo(function NetworkTopologyDesktop(
     <div
       ref={containerRef}
       className={cn(
-        'relative min-h-[200px] w-full overflow-hidden rounded-lg',
-        'bg-background/50 border',
+        'relative min-h-[300px] w-full overflow-hidden',
+        'bg-card border border-border rounded-[var(--semantic-radius-card)]',
+        'shadow-[var(--semantic-shadow-card)]',
         className
       )}
     >
@@ -274,20 +275,20 @@ export const NetworkTopologyDesktop = memo(function NetworkTopologyDesktop(
       {/* Legend */}
       <div
         className={cn(
-          'absolute bottom-2 left-2 flex gap-4 rounded-md bg-background/80 px-3 py-1.5',
-          'text-xs text-muted-foreground backdrop-blur-sm'
+          'absolute bottom-2 left-2 flex gap-4 rounded-[var(--semantic-radius-input)] bg-card/90 px-3 py-1.5',
+          'text-xs text-muted-foreground backdrop-blur-sm border border-border'
         )}
       >
         <div className="flex items-center gap-1.5">
-          <span className="h-2 w-2 rounded-full bg-green-500" />
+          <span className="h-2 w-2 rounded-full bg-success" />
           <span>Connected</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="h-2 w-2 rounded-full bg-gray-400" />
+          <span className="h-2 w-2 rounded-full bg-muted-foreground" />
           <span>Disconnected</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="h-2 w-2 rounded-full bg-amber-400" />
+          <span className="h-2 w-2 rounded-full bg-warning" />
           <span>Pending</span>
         </div>
       </div>

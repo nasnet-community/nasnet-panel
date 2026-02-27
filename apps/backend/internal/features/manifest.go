@@ -16,6 +16,9 @@ type PortMapping = manifest.PortMapping
 // HealthSpec is an alias for pkg/manifest.HealthSpec.
 type HealthSpec = manifest.HealthSpec
 
+// Source is an alias for pkg/manifest.Source.
+type Source = manifest.Source
+
 // VerificationSpec is an alias for pkg/manifest.VerificationSpec.
 type VerificationSpec = manifest.VerificationSpec
 

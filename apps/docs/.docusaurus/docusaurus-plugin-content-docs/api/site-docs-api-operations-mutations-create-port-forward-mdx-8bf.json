@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/create-port-forward",
+  "title": "createPortForward",
+  "description": "Create a port forward (creates both NAT and filter rules).",
+  "source": "@site/docs/api/operations/mutations/create-port-forward.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/create-port-forward",
+  "permalink": "/api/operations/mutations/create-port-forward",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "create-port-forward",
+    "title": "createPortForward"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "createNotificationChannelConfig",
+    "permalink": "/api/operations/mutations/create-notification-channel-config"
+  },
+  "next": {
+    "title": "createPortKnockSequence",
+    "permalink": "/api/operations/mutations/create-port-knock-sequence"
+  }
+}

@@ -255,7 +255,7 @@ export const CreateMode: Story = {
   decorators: [
     (Story) => (
       <MockedProvider mocks={mockMultipleGateways} addTypename={false}>
-        <div className="min-h-screen flex items-center justify-center p-6 bg-background">
+        <div className="min-h-screen flex items-center justify-center p-component-lg bg-background">
           <div className="w-full max-w-2xl">
             <Story />
           </div>
@@ -283,7 +283,7 @@ export const EditMode: Story = {
   decorators: [
     (Story) => (
       <MockedProvider mocks={mockGatewayReachable} addTypename={false}>
-        <div className="min-h-screen flex items-center justify-center p-6 bg-background">
+        <div className="min-h-screen flex items-center justify-center p-component-lg bg-background">
           <div className="w-full max-w-2xl">
             <Story />
           </div>
@@ -311,7 +311,7 @@ export const CreateModeSubmitting: Story = {
   decorators: [
     (Story) => (
       <MockedProvider mocks={mockGatewayReachable} addTypename={false}>
-        <div className="min-h-screen flex items-center justify-center p-6 bg-background">
+        <div className="min-h-screen flex items-center justify-center p-component-lg bg-background">
           <div className="w-full max-w-2xl">
             <Story />
           </div>
@@ -345,7 +345,7 @@ export const EditModeSubmitting: Story = {
   decorators: [
     (Story) => (
       <MockedProvider mocks={mockGatewayReachable} addTypename={false}>
-        <div className="min-h-screen flex items-center justify-center p-6 bg-background">
+        <div className="min-h-screen flex items-center justify-center p-component-lg bg-background">
           <div className="w-full max-w-2xl">
             <Story />
           </div>
@@ -388,7 +388,7 @@ export const ValidationErrors: Story = {
   decorators: [
     (Story) => (
       <MockedProvider mocks={[]} addTypename={false}>
-        <div className="min-h-screen flex items-center justify-center p-6 bg-background">
+        <div className="min-h-screen flex items-center justify-center p-component-lg bg-background">
           <div className="w-full max-w-2xl">
             <Story />
           </div>
@@ -435,7 +435,7 @@ export const GatewayReachable: Story = {
   decorators: [
     (Story) => (
       <MockedProvider mocks={mockGatewayReachable} addTypename={false}>
-        <div className="min-h-screen flex items-center justify-center p-6 bg-background">
+        <div className="min-h-screen flex items-center justify-center p-component-lg bg-background">
           <div className="w-full max-w-2xl">
             <Story />
           </div>
@@ -479,7 +479,7 @@ export const GatewayUnreachable: Story = {
   decorators: [
     (Story) => (
       <MockedProvider mocks={mockGatewayUnreachable} addTypename={false}>
-        <div className="min-h-screen flex items-center justify-center p-6 bg-background">
+        <div className="min-h-screen flex items-center justify-center p-component-lg bg-background">
           <div className="w-full max-w-2xl">
             <Story />
           </div>
@@ -516,7 +516,7 @@ export const MobilePresenter: Story = {
   decorators: [
     (Story) => (
       <MockedProvider mocks={mockMultipleGateways} addTypename={false}>
-        <div className="min-h-screen p-4 bg-background">
+        <div className="min-h-screen p-component-sm bg-background">
           <Story />
         </div>
       </MockedProvider>
@@ -552,7 +552,7 @@ export const VpnRoute: Story = {
   decorators: [
     (Story) => (
       <MockedProvider mocks={[]} addTypename={false}>
-        <div className="min-h-screen flex items-center justify-center p-6 bg-background">
+        <div className="min-h-screen flex items-center justify-center p-component-lg bg-background">
           <div className="w-full max-w-2xl">
             <Story />
           </div>
@@ -595,7 +595,7 @@ export const InterfaceOnlyRoute: Story = {
   decorators: [
     (Story) => (
       <MockedProvider mocks={[]} addTypename={false}>
-        <div className="min-h-screen flex items-center justify-center p-6 bg-background">
+        <div className="min-h-screen flex items-center justify-center p-component-lg bg-background">
           <div className="w-full max-w-2xl">
             <Story />
           </div>

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/port-knock-log-filters",
+  "title": "PortKnockLogFilters",
+  "description": "Filters for knock attempt log.",
+  "source": "@site/docs/api/types/inputs/port-knock-log-filters.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/port-knock-log-filters",
+  "permalink": "/api/types/inputs/port-knock-log-filters",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "port-knock-log-filters",
+    "title": "PortKnockLogFilters"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "PortForwardInput",
+    "permalink": "/api/types/inputs/port-forward-input"
+  },
+  "next": {
+    "title": "PortKnockSequenceInput",
+    "permalink": "/api/types/inputs/port-knock-sequence-input"
+  }
+}

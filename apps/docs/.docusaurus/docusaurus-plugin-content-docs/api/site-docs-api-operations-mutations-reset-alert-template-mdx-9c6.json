@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/reset-alert-template",
+  "title": "resetAlertTemplate",
+  "description": "Reset alert notification template to system default (deletes custom template)",
+  "source": "@site/docs/api/operations/mutations/reset-alert-template.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/reset-alert-template",
+  "permalink": "/api/operations/mutations/reset-alert-template",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "reset-alert-template",
+    "title": "resetAlertTemplate"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "removeRoutingChain",
+    "permalink": "/api/operations/mutations/remove-routing-chain"
+  },
+  "next": {
+    "title": "resetCircuitBreaker",
+    "permalink": "/api/operations/mutations/reset-circuit-breaker"
+  }
+}

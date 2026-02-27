@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/subscriptions/verification-events",
+  "title": "verificationEvents",
+  "description": "Subscribe to binary verification events for a router.",
+  "source": "@site/docs/api/operations/subscriptions/verification-events.mdx",
+  "sourceDirName": "api/operations/subscriptions",
+  "slug": "/api/operations/subscriptions/verification-events",
+  "permalink": "/api/operations/subscriptions/verification-events",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "verification-events",
+    "title": "verificationEvents"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "updateProgress",
+    "permalink": "/api/operations/subscriptions/update-progress"
+  },
+  "next": {
+    "title": "vlanChanged",
+    "permalink": "/api/operations/subscriptions/vlan-changed"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "id": "data-layer",
+  "title": "Data Layer",
+  "description": "Hybrid SQLite architecture with a single system database, lazy-loaded per-router databases, the \"Light Repository\" pattern, and ent ORM as the query layer.",
+  "source": "@site/../backend/docs/data-layer.md",
+  "sourceDirName": ".",
+  "slug": "/data-layer",
+  "permalink": "/docs/backend/data-layer",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../backend/docs/data-layer.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Connection Management",
+    "permalink": "/docs/backend/connection-management"
+  },
+  "next": {
+    "title": "Error Handling & Structured Logging",
+    "permalink": "/docs/backend/error-handling"
+  }
+}

@@ -66,46 +66,29 @@ export const UpdateIndicatorMobile = React.memo<UpdateIndicatorProps>((props) =>
       <SheetTrigger asChild>
         <button
           className={cn(
-            'w-full rounded-lg border p-4 text-left transition-colors',
-            'hover:bg-accent focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2',
+            'inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium transition-colors',
+            'rounded-lg hover:bg-muted cursor-pointer',
+            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
             'min-h-[44px]', // WCAG AAA touch target
-            state.severityConfig?.bgColor,
             props.isUpdating && 'animate-pulse'
           )}
           aria-label={state.ariaLabel}
         >
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex-1 space-y-1">
-              <div className="flex items-center gap-2">
-                <SeverityIcon className="h-5 w-5" aria-hidden="true" />
-                <span className="font-medium text-sm">
-                  {props.isUpdating
-                    ? state.stageConfig?.label
-                    : state.severityConfig?.label}
-                </span>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                {props.instanceName}
-              </p>
-              {!props.isUpdating && (
-                <p className="text-xs font-mono">
-                  {state.versionChangeText}
-                </p>
-              )}
-            </div>
-            {state.severityConfig && !props.isUpdating && (
-              <Badge
-                variant="outline"
-                className={cn(state.severityConfig.textColor)}
-              >
-                {state.releaseDateText}
-              </Badge>
-            )}
-          </div>
+          {/* Mobile: Icon-only with dot indicator */}
+          {!state.showProgress && (
+            <>
+              <div className="h-2 w-2 rounded-full bg-info animate-pulse flex-shrink-0" />
+              <span className="text-foreground flex-1">
+                {props.isUpdating
+                  ? state.stageConfig?.label
+                  : state.severityConfig?.label}
+              </span>
+            </>
+          )}
 
           {/* Progress bar for updates in progress */}
           {state.showProgress && (
-            <div className="mt-3">
+            <div className="w-full">
               <UpdateProgressBar
                 stage={props.updateStage!}
                 progress={state.progressPercent}

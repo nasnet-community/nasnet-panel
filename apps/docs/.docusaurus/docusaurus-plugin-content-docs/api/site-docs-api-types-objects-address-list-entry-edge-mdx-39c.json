@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/address-list-entry-edge",
+  "title": "AddressListEntryEdge",
+  "description": "Edge type for address list entry connections.",
+  "source": "@site/docs/api/types/objects/address-list-entry-edge.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/address-list-entry-edge",
+  "permalink": "/api/types/objects/address-list-entry-edge",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "address-list-entry-edge",
+    "title": "AddressListEntryEdge"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "AddressListEntryConnection",
+    "permalink": "/api/types/objects/address-list-entry-connection"
+  },
+  "next": {
+    "title": "AddressListEntry",
+    "permalink": "/api/types/objects/address-list-entry"
+  }
+}

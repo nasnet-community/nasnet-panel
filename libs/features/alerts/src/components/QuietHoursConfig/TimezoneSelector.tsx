@@ -111,7 +111,7 @@ function TimezoneSelectorComponent({
 
   return (
     <div className={cn('space-y-component-xs', className)}>
-      <Label htmlFor="timezone" className="flex items-center gap-2">
+      <Label htmlFor="timezone" className="flex items-center gap-component-sm">
         <Globe className="h-4 w-4" aria-hidden="true" />
         {t('quietHours.timezone')}
       </Label>
@@ -134,7 +134,7 @@ function TimezoneSelectorComponent({
                 placeholder={t('quietHours.searchTimezone')}
                 value={searchQuery}
                 onChange={handleSearchChange}
-                className="pl-8 h-8 border-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                className="pl-component-xl h-8 border-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               />
             </div>
           </div>
@@ -169,7 +169,7 @@ function TimezoneSelectorComponent({
 
           {/* No results */}
           {filteredTimezones.length === 0 && (
-            <div className="p-component-lg text-center text-sm text-muted-foreground">
+            <div className="p-component-md text-center text-sm text-muted-foreground">
               {t('quietHours.noTimezones')}
             </div>
           )}

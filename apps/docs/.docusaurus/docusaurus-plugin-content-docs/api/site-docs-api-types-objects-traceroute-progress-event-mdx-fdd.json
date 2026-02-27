@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/traceroute-progress-event",
+  "title": "TracerouteProgressEvent",
+  "description": "Progress event emitted during traceroute execution",
+  "source": "@site/docs/api/types/objects/traceroute-progress-event.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/traceroute-progress-event",
+  "permalink": "/api/types/objects/traceroute-progress-event",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "traceroute-progress-event",
+    "title": "TracerouteProgressEvent"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "TracerouteJob",
+    "permalink": "/api/types/objects/traceroute-job"
+  },
+  "next": {
+    "title": "TracerouteResult",
+    "permalink": "/api/types/objects/traceroute-result"
+  }
+}

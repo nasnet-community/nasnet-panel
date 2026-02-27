@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/wire-guard-server",
+  "title": "WireGuardServer",
+  "description": "WireGuard Server resource implementing 8-layer model",
+  "source": "@site/docs/api/types/objects/wire-guard-server.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/wire-guard-server",
+  "permalink": "/api/types/objects/wire-guard-server",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "wire-guard-server",
+    "title": "WireGuardServer"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "WireGuardServerRuntime",
+    "permalink": "/api/types/objects/wire-guard-server-runtime"
+  },
+  "next": {
+    "title": "Scalars",
+    "permalink": "/category/scalars"
+  }
+}

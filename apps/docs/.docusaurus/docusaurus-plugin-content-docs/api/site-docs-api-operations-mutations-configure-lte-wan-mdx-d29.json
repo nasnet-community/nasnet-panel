@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/configure-lte-wan",
+  "title": "configureLteWAN",
+  "description": "Configure LTE modem",
+  "source": "@site/docs/api/operations/mutations/configure-lte-wan.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/configure-lte-wan",
+  "permalink": "/api/operations/mutations/configure-lte-wan",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "configure-lte-wan",
+    "title": "configureLteWAN"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "configureHealthCheck",
+    "permalink": "/api/operations/mutations/configure-health-check"
+  },
+  "next": {
+    "title": "configurePppoeWAN",
+    "permalink": "/api/operations/mutations/configure-pppoe-wan"
+  }
+}

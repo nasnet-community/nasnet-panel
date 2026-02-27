@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/subscriptions/instance-health-changed",
+  "title": "instanceHealthChanged",
+  "description": "Real-time health status changes for a service instance",
+  "source": "@site/docs/api/operations/subscriptions/instance-health-changed.mdx",
+  "sourceDirName": "api/operations/subscriptions",
+  "slug": "/api/operations/subscriptions/instance-health-changed",
+  "permalink": "/api/operations/subscriptions/instance-health-changed",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "instance-health-changed",
+    "title": "instanceHealthChanged"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "installProgress",
+    "permalink": "/api/operations/subscriptions/install-progress"
+  },
+  "next": {
+    "title": "instanceStatusChanged",
+    "permalink": "/api/operations/subscriptions/instance-status-changed"
+  }
+}

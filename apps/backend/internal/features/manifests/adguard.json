@@ -95,5 +95,18 @@
   "health_check_script": "curl -sf http://localhost:3000 || exit 1",
   "readme_url": "https://github.com/nasnetconnect/adguard-home/blob/main/README.md",
   "changelog_url": "https://github.com/nasnetconnect/adguard-home/blob/main/CHANGELOG.md",
-  "support_url": "https://github.com/nasnetconnect/adguard-home/issues"
+  "support_url": "https://github.com/nasnetconnect/adguard-home/issues",
+  "source": {
+    "github_owner": "AdguardTeam",
+    "github_repo": "AdGuardHome",
+    "binary_name": "AdGuardHome",
+    "archive_format": "tar.gz",
+    "extract_path": "AdGuardHome",
+    "asset_arch_map": {
+      "amd64": "linux_amd64",
+      "arm64": "linux_arm64",
+      "arm": "linux_armv7"
+    },
+    "checksum_files": ["checksums.txt"]
+  }
 }

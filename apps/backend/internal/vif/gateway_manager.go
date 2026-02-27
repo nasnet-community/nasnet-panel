@@ -30,14 +30,15 @@ type GatewayManager struct {
 
 // GatewayInstance represents a running gateway
 type GatewayInstance struct {
-	InstanceID string
-	TunName    string
-	ConfigPath string
-	ProcessID  string
-	SocksAddr  string
-	SocksPort  int
-	UDPEnabled bool
-	StartTime  time.Time
+	InstanceID      string
+	TunName         string
+	ConfigPath      string
+	ProcessID       string
+	SocksAddr       string
+	SocksPort       int
+	UDPEnabled      bool
+	EgressInterface string // Egress VLAN interface for DHCP bridge mode (e.g. "eth0.154")
+	StartTime       time.Time
 }
 
 // GatewayManagerConfig holds configuration for GatewayManager
@@ -142,16 +143,17 @@ func (gm *GatewayManager) StartGateway(ctx context.Context, instance *ent.Servic
 		return fmt.Errorf("TUN interface not created: %w", err)
 	}
 
-	// Store gateway instance
+	// Store gateway instance (include EgressInterface if set for bridge mode)
 	gm.gateways[instanceID] = &GatewayInstance{
-		InstanceID: instanceID,
-		TunName:    tunName,
-		ConfigPath: fullConfigPath,
-		ProcessID:  processID,
-		SocksAddr:  config.Socks5.Address,
-		SocksPort:  config.Socks5.Port,
-		UDPEnabled: config.Socks5.UDP != nil,
-		StartTime:  time.Now(),
+		InstanceID:      instanceID,
+		TunName:         tunName,
+		ConfigPath:      fullConfigPath,
+		ProcessID:       processID,
+		SocksAddr:       config.Socks5.Address,
+		SocksPort:       config.Socks5.Port,
+		UDPEnabled:      config.Socks5.UDP != nil,
+		EgressInterface: config.EgressInterface,
+		StartTime:       time.Now(),
 	}
 
 	gm.logger.Info("gateway started successfully",

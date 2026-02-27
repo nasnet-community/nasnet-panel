@@ -118,7 +118,7 @@ export const FilterRuleEditorDesktop = memo(function FilterRuleEditorDesktop({
 
         <form onSubmit={editor.onSubmit} className="space-y-6">
           {/* Live Preview */}
-          <Card className="p-4 bg-info/10 border-info/20">
+          <Card className="p-component-md border-t-2 border-t-category-firewall bg-info/10 border-info/20">
             <div className="flex items-start gap-3">
               <Info className="h-5 w-5 text-info mt-0.5" />
               <div className="flex-1 min-w-0">
@@ -134,7 +134,11 @@ export const FilterRuleEditorDesktop = memo(function FilterRuleEditorDesktop({
           </Card>
 
           {/* Chain and Action */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-3">
+            <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider">
+              Firewall Configuration
+            </h3>
+            <div className="grid grid-cols-2 gap-component-md">
             <FormField
               name="chain"
               label="Chain"
@@ -186,6 +190,7 @@ export const FilterRuleEditorDesktop = memo(function FilterRuleEditorDesktop({
                 )}
               />
             </FormField>
+            </div>
           </div>
 
           <Separator />
@@ -237,12 +242,12 @@ export const FilterRuleEditorDesktop = memo(function FilterRuleEditorDesktop({
 
           {/* Traffic Matchers */}
           <div className="space-y-4">
-            <h3 className="text-sm font-semibold flex items-center gap-2">
+            <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider flex items-center gap-2">
               <Network className="h-4 w-4" />
-              Traffic Matchers (optional)
+              Traffic Matchers
             </h3>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-component-md">
               <FormField name="protocol" label="Protocol">
                 <Controller
                   name="protocol"
@@ -382,7 +387,7 @@ export const FilterRuleEditorDesktop = memo(function FilterRuleEditorDesktop({
 
           {/* Meta */}
           <div className="space-y-4">
-            <h3 className="text-sm font-semibold flex items-center gap-2">
+            <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider flex items-center gap-2">
               <Settings className="h-4 w-4" />
               Rule Settings
             </h3>

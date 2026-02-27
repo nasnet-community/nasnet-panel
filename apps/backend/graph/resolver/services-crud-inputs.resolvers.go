@@ -10,7 +10,7 @@ import (
 	"backend/generated/ent/serviceinstance"
 	"backend/generated/ent/virtualinterface"
 	graphql1 "backend/graph/model"
-	"backend/internal/errors"
+	"backend/internal/apperrors"
 	"context"
 )
 
@@ -50,7 +50,7 @@ func (r *queryResolver) ServiceInstances(ctx context.Context, routerID string, s
 
 	instances, err := q.All(ctx)
 	if err != nil {
-		return nil, errors.Wrap(err, "QUERY_INSTANCES_FAILED", errors.CategoryInternal, "failed to query service instances")
+		return nil, apperrors.Wrap(err, "QUERY_INSTANCES_FAILED", apperrors.CategoryInternal, "failed to query service instances")
 	}
 
 	result := make([]*graphql1.ServiceInstance, len(instances))
@@ -68,9 +68,9 @@ func (r *queryResolver) ServiceInstance(ctx context.Context, routerID string, in
 		Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return nil, errors.NewResourceError("INSTANCE_NOT_FOUND", "service instance not found", "ServiceInstance", instanceID)
+			return nil, apperrors.NewResourceError("INSTANCE_NOT_FOUND", "service instance not found", "ServiceInstance", instanceID)
 		}
-		return nil, errors.Wrap(err, "QUERY_INSTANCE_FAILED", errors.CategoryInternal, "failed to query service instance")
+		return nil, apperrors.Wrap(err, "QUERY_INSTANCE_FAILED", apperrors.CategoryInternal, "failed to query service instance")
 	}
 	return convertEntInstanceToGraphQL(inst), nil
 }
@@ -81,7 +81,7 @@ func (r *queryResolver) InstanceVerificationStatus(ctx context.Context, routerID
 		Where(serviceinstance.RouterIDEQ(routerID)).
 		All(ctx)
 	if err != nil {
-		return nil, errors.Wrap(err, "QUERY_INSTANCES_FAILED", errors.CategoryInternal, "failed to query service instances")
+		return nil, apperrors.Wrap(err, "QUERY_INSTANCES_FAILED", apperrors.CategoryInternal, "failed to query service instances")
 	}
 
 	result := make([]*graphql1.BinaryVerification, 0, len(instances))
@@ -97,7 +97,7 @@ func (r *queryResolver) VirtualInterfaces(ctx context.Context, routerID string) 
 		Where(serviceinstance.RouterIDEQ(routerID)).
 		IDs(ctx)
 	if err != nil {
-		return nil, errors.Wrap(err, "QUERY_INSTANCES_FAILED", errors.CategoryInternal, "failed to query service instances for router")
+		return nil, apperrors.Wrap(err, "QUERY_INSTANCES_FAILED", apperrors.CategoryInternal, "failed to query service instances for router")
 	}
 
 	if len(instanceIDs) == 0 {
@@ -108,7 +108,7 @@ func (r *queryResolver) VirtualInterfaces(ctx context.Context, routerID string) 
 		Where(virtualinterface.InstanceIDIn(instanceIDs...)).
 		All(ctx)
 	if err != nil {
-		return nil, errors.Wrap(err, "QUERY_VIFS_FAILED", errors.CategoryInternal, "failed to query virtual interfaces")
+		return nil, apperrors.Wrap(err, "QUERY_VIFS_FAILED", apperrors.CategoryInternal, "failed to query virtual interfaces")
 	}
 
 	result := make([]*graphql1.VirtualInterface, len(vifs))
@@ -125,9 +125,9 @@ func (r *queryResolver) VirtualInterface(ctx context.Context, routerID string, i
 		Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return nil, errors.NewResourceError("VIF_NOT_FOUND", "virtual interface not found for instance", "VirtualInterface", instanceID)
+			return nil, apperrors.NewResourceError("VIF_NOT_FOUND", "virtual interface not found for instance", "VirtualInterface", instanceID)
 		}
-		return nil, errors.Wrap(err, "QUERY_VIF_FAILED", errors.CategoryInternal, "failed to query virtual interface")
+		return nil, apperrors.Wrap(err, "QUERY_VIF_FAILED", apperrors.CategoryInternal, "failed to query virtual interface")
 	}
 	return convertEntVIFToGraphQL(vif), nil
 }
@@ -146,7 +146,7 @@ func (r *queryResolver) BridgeStatus(ctx context.Context, routerID string, insta
 				Errors:         []string{"virtual interface not found for instance"},
 			}, nil
 		}
-		return nil, errors.Wrap(err, "QUERY_VIF_FAILED", errors.CategoryInternal, "failed to query virtual interface")
+		return nil, apperrors.Wrap(err, "QUERY_VIF_FAILED", apperrors.CategoryInternal, "failed to query virtual interface")
 	}
 
 	gqlVIF := convertEntVIFToGraphQL(vif)
@@ -171,6 +171,7 @@ func (r *queryResolver) GatewayStatus(ctx context.Context, instanceID string) (*
 
 	status, err := r.GatewayManager.GetStatus(instanceID)
 	if err != nil {
+		//nolint:nilerr // returns structured error in payload per GraphQL convention
 		return &graphql1.GatewayInfo{
 			State: graphql1.GatewayStateStopped,
 		}, nil

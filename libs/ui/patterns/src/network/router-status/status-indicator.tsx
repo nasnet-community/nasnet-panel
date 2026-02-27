@@ -30,30 +30,30 @@ const SIZE_CLASSES: Record<StatusIndicatorSize, string> = {
  * Using semantic tokens as per design system
  */
 const STATUS_COLOR_CLASSES: Record<ConnectionStatus, string> = {
-  CONNECTED: 'bg-semantic-success',
-  CONNECTING: 'bg-semantic-warning',
-  DISCONNECTED: 'bg-gray-400 dark:bg-gray-500',
-  ERROR: 'bg-semantic-error',
+  CONNECTED: 'bg-success',
+  CONNECTING: 'bg-warning',
+  DISCONNECTED: 'bg-muted-foreground',
+  ERROR: 'bg-error',
 };
 
 /**
  * Text color classes for status (for icons/text)
  */
 export const STATUS_TEXT_COLORS: Record<ConnectionStatus, string> = {
-  CONNECTED: 'text-semantic-success',
-  CONNECTING: 'text-semantic-warning',
-  DISCONNECTED: 'text-gray-500 dark:text-gray-400',
-  ERROR: 'text-semantic-error',
+  CONNECTED: 'text-success',
+  CONNECTING: 'text-warning',
+  DISCONNECTED: 'text-muted-foreground',
+  ERROR: 'text-error',
 };
 
 /**
  * Background color classes with opacity for badges
  */
 export const STATUS_BG_COLORS: Record<ConnectionStatus, string> = {
-  CONNECTED: 'bg-semantic-success/10',
-  CONNECTING: 'bg-semantic-warning/10',
-  DISCONNECTED: 'bg-gray-100 dark:bg-gray-800',
-  ERROR: 'bg-semantic-error/10',
+  CONNECTED: 'bg-success/10',
+  CONNECTING: 'bg-warning/10',
+  DISCONNECTED: 'bg-muted',
+  ERROR: 'bg-error/10',
 };
 
 // ===== Accessible Labels =====

@@ -80,19 +80,19 @@ const IsolationStatusMobileComponent = memo(function IsolationStatusMobile({
             className={cn(
               'flex items-center justify-center rounded-full',
               'min-w-[44px] min-h-[44px]',
-              state.color === 'success' && 'bg-semantic-success/10',
-              state.color === 'warning' && 'bg-semantic-warning/10',
-              state.color === 'destructive' && 'bg-semantic-error/10',
-              state.color === 'muted' && 'bg-semantic-muted/10'
+              state.color === 'success' && 'bg-success-light',
+              state.color === 'warning' && 'bg-warning-light',
+              state.color === 'destructive' && 'bg-error-light',
+              state.color === 'muted' && 'bg-muted'
             )}
           >
             <Icon
               className={cn(
                 'w-6 h-6',
-                state.color === 'success' && 'text-semantic-success',
-                state.color === 'warning' && 'text-semantic-warning',
-                state.color === 'destructive' && 'text-semantic-error',
-                state.color === 'muted' && 'text-semantic-muted'
+                state.color === 'success' && 'text-success-dark',
+                state.color === 'warning' && 'text-warning-dark',
+                state.color === 'destructive' && 'text-error-dark',
+                state.color === 'muted' && 'text-muted-foreground'
               )}
               aria-hidden="true"
             />
@@ -165,8 +165,8 @@ const IsolationStatusMobileComponent = memo(function IsolationStatusMobile({
                       variant={violation.color === 'destructive' ? 'destructive' : 'default'}
                       className={cn(
                         'text-left',
-                        violation.color === 'warning' && 'border-semantic-warning bg-semantic-warning/5',
-                        violation.color === 'muted' && 'border-semantic-muted bg-semantic-muted/5'
+                        violation.color === 'warning' && 'border-warning bg-warning-light',
+                        violation.color === 'muted' && 'border-border bg-muted'
                       )}
                     >
                       <ViolationIcon className="h-4 w-4" />

@@ -41,23 +41,21 @@ const INTERFACE_ICONS: Record<InterfaceType, LucideIcon> = {
 
 /**
  * Color classes for each interface type.
- * Uses semantic design tokens (Tier 2) for proper theming.
+ * Uses network color coding from visual spec:
+ * - WAN (orange): #F97316
+ * - LAN (blue): #3B82F6
+ * - VPN (green): #22C55E
+ * - WiFi (cyan): #06B6D4
  *
- * Note: These map to CSS custom properties defined in the design tokens:
- * - --color-ethernet: blue-600
- * - --color-bridge: indigo-500
- * - --color-vlan: teal-500
- * - --color-wireless: cyan-500
- * - --color-vpn: purple-500
- * - --color-tunnel: emerald-500
+ * Maps to semantic design tokens (Tier 2) for proper theming.
  */
 const INTERFACE_COLORS: Record<InterfaceType, string> = {
-  ethernet: 'text-blue-600 dark:text-blue-400',
-  bridge: 'text-indigo-500 dark:text-indigo-400',
-  vlan: 'text-teal-500 dark:text-teal-400',
-  wireless: 'text-cyan-500 dark:text-cyan-400',
-  vpn: 'text-purple-500 dark:text-purple-400',
-  tunnel: 'text-emerald-500 dark:text-emerald-400',
+  ethernet: 'text-network-lan', // LAN blue #3B82F6
+  bridge: 'text-network-lan', // LAN blue
+  vlan: 'text-network-lan', // LAN blue
+  wireless: 'text-network-wireless', // WiFi cyan #06B6D4
+  vpn: 'text-network-vpn', // VPN green #22C55E
+  tunnel: 'text-network-vpn', // VPN green
   loopback: 'text-muted-foreground',
 };
 

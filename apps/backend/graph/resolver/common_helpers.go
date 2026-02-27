@@ -6,8 +6,8 @@ import (
 	"context"
 
 	"backend/graph/model"
+	"backend/internal/apperrors"
 	"backend/internal/common/isolation"
-	"backend/internal/errors"
 	"backend/internal/templates"
 )
 
@@ -66,7 +66,7 @@ const (
 func getUserIDFromContext(ctx context.Context) (string, error) {
 	userID, ok := ctx.Value(contextKeyUserID).(string)
 	if !ok || userID == "" {
-		return "", errors.NewValidationError("userID", userID, "user not authenticated")
+		return "", apperrors.NewValidationError("userID", userID, "user not authenticated")
 	}
 	return userID, nil
 }
@@ -76,7 +76,7 @@ func getUserIDFromContext(ctx context.Context) (string, error) {
 func getSessionIDFromContext(ctx context.Context) (string, error) {
 	sessionID, ok := ctx.Value(contextKeySessionID).(string)
 	if !ok || sessionID == "" {
-		return "", errors.NewValidationError("sessionID", sessionID, "session ID not found in context")
+		return "", apperrors.NewValidationError("sessionID", sessionID, "session ID not found in context")
 	}
 	return sessionID, nil
 }

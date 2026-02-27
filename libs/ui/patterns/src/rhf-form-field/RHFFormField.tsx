@@ -178,8 +178,8 @@ export const RHFFormField = React.memo(function RHFFormField<TFieldValues extend
       <label
         htmlFor={fieldId}
         className={cn(
-          'block text-sm font-semibold leading-none',
-          'peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
+          'block text-sm font-medium',
+          'peer-disabled:cursor-not-allowed peer-disabled:opacity-50',
           error ? 'text-error' : 'text-foreground'
         )}
       >
@@ -188,13 +188,6 @@ export const RHFFormField = React.memo(function RHFFormField<TFieldValues extend
           <span className="text-error ml-1" aria-label="required">*</span>
         )}
       </label>
-
-      {/* Description (above input) */}
-      {description && (
-        <FormFieldDescription id={descriptionId}>
-          {description}
-        </FormFieldDescription>
-      )}
 
       {/* Input Field */}
       {children ? (
@@ -240,14 +233,21 @@ export const RHFFormField = React.memo(function RHFFormField<TFieldValues extend
         />
       )}
 
-      {/* Hint text */}
-      {hint && !error && (
-        <p className="text-sm text-muted-foreground">{hint}</p>
+      {/* Description (after input) */}
+      {description && !error && (
+        <FormFieldDescription id={descriptionId}>
+          {description}
+        </FormFieldDescription>
       )}
 
       {/* Error Message */}
       {error && (
         <FormFieldError id={errorId} message={error} />
+      )}
+
+      {/* Hint text */}
+      {hint && !error && (
+        <p className="text-xs text-muted-foreground">{hint}</p>
       )}
     </div>
   );

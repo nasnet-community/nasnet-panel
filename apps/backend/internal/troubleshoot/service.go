@@ -2,6 +2,7 @@ package troubleshoot
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"time"
 
@@ -41,13 +42,13 @@ func (s *Service) StartTroubleshoot(ctx context.Context, routerID string) (*Sess
 	session, err := s.sessionStore.Create(routerID)
 	if err != nil {
 		s.logger.Error("failed to create troubleshoot session", zap.String("routerID", routerID), zap.Error(err))
-		return nil, err
+		return nil, fmt.Errorf("create troubleshoot session: %w", err)
 	}
 
 	// Update status to initializing
 	session.Status = SessionStatusInitializing
 	if updateErr := s.sessionStore.Update(session); updateErr != nil {
-		return nil, updateErr
+		return nil, fmt.Errorf("update troubleshoot session status: %w", updateErr)
 	}
 
 	// Detect network configuration
@@ -65,7 +66,7 @@ func (s *Service) StartTroubleshoot(ctx context.Context, routerID string) (*Sess
 	// Update session status to running
 	session.Status = SessionStatusRunning
 	if err := s.sessionStore.Update(session); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("update session status to running: %w", err)
 	}
 
 	return session, nil
@@ -81,7 +82,7 @@ func (s *Service) RunTroubleshootStep(ctx context.Context, sessionID string, ste
 	// Get session
 	session, err := s.sessionStore.Get(sessionID)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("get troubleshoot session: %w", err)
 	}
 
 	// Find the step
@@ -138,7 +139,7 @@ func (s *Service) RunTroubleshootStep(ctx context.Context, sessionID string, ste
 	completedAt := time.Now()
 	step.CompletedAt = &completedAt
 	if err := s.sessionStore.Update(session); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("mark step as completed: %w", err)
 	}
 
 	return step, nil
@@ -149,7 +150,7 @@ func (s *Service) ApplyTroubleshootFix(ctx context.Context, sessionID, issueCode
 	// Get session
 	session, err := s.sessionStore.Get(sessionID)
 	if err != nil {
-		return false, "", FixStatusFailed, err
+		return false, "", FixStatusFailed, fmt.Errorf("get troubleshoot session: %w", err)
 	}
 
 	// Get fix suggestion
@@ -167,7 +168,7 @@ func (s *Service) ApplyTroubleshootFix(ctx context.Context, sessionID, issueCode
 	// Update session status
 	session.Status = SessionStatusApplyingFix
 	if updateErr := s.sessionStore.Update(session); updateErr != nil {
-		return false, "", FixStatusFailed, updateErr
+		return false, "", FixStatusFailed, fmt.Errorf("update troubleshoot session for fix: %w", updateErr)
 	}
 
 	// Execute the fix command
@@ -182,7 +183,7 @@ func (s *Service) ApplyTroubleshootFix(ctx context.Context, sessionID, issueCode
 		session.AppliedFixes = append(session.AppliedFixes, issueCode)
 		session.Status = SessionStatusRunning
 		if err := s.sessionStore.Update(session); err != nil {
-			return false, "", FixStatusFailed, err
+			return false, "", FixStatusFailed, fmt.Errorf("update troubleshoot session after fix: %w", err)
 		}
 		return true, message, FixStatusApplied, nil
 	}
@@ -194,7 +195,7 @@ func (s *Service) ApplyTroubleshootFix(ctx context.Context, sessionID, issueCode
 func (s *Service) CancelTroubleshoot(ctx context.Context, sessionID string) (*Session, error) {
 	session, err := s.sessionStore.Get(sessionID)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("cancel troubleshoot get session: %w", err)
 	}
 
 	session.Status = SessionStatusCanceled
@@ -202,7 +203,7 @@ func (s *Service) CancelTroubleshoot(ctx context.Context, sessionID string) (*Se
 	session.CompletedAt = &now
 
 	if err := s.sessionStore.Update(session); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("cancel troubleshoot update session: %w", err)
 	}
 
 	return session, nil
@@ -212,7 +213,7 @@ func (s *Service) CancelTroubleshoot(ctx context.Context, sessionID string) (*Se
 func (s *Service) DetectNetworkConfig(ctx context.Context, routerID string) (*NetworkConfig, error) {
 	diagConfig, err := s.routeLookupDiag.DetectNetworkConfig(ctx, routerID)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("detect network config: %w", err)
 	}
 
 	// Convert diagnostics.NetworkConfig to troubleshoot.NetworkConfig
@@ -234,19 +235,27 @@ func (s *Service) DetectNetworkConfig(ctx context.Context, routerID string) (*Ne
 
 // DetectWanInterface detects the WAN interface from the default route.
 func (s *Service) DetectWanInterface(ctx context.Context, routerID string) (string, error) {
-	return s.routeLookupDiag.DetectWanInterface(ctx, routerID)
+	wanIf, err := s.routeLookupDiag.DetectWanInterface(ctx, routerID)
+	if err != nil {
+		return "", fmt.Errorf("detect wan interface: %w", err)
+	}
+	return wanIf, nil
 }
 
 // DetectGateway detects the default gateway from DHCP client or static route.
 func (s *Service) DetectGateway(ctx context.Context, routerID string) (string, error) {
-	return s.routeLookupDiag.DetectGateway(ctx, routerID)
+	gateway, err := s.routeLookupDiag.DetectGateway(ctx, routerID)
+	if err != nil {
+		return "", fmt.Errorf("detect gateway: %w", err)
+	}
+	return gateway, nil
 }
 
 // DetectISP detects ISP information using ip-api.com.
 func (s *Service) DetectISP(ctx context.Context, wanIP string) (*ISPInfo, error) {
 	diagISPInfo, err := s.routeLookupDiag.DetectISP(ctx, wanIP)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("detect isp: %w", err)
 	}
 
 	return &ISPInfo{
@@ -278,7 +287,7 @@ func (s *Service) executeDiagnosticCheck(ctx context.Context, _ string, stepType
 	}
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("execute diagnostic check: %w", err)
 	}
 
 	if diagResult == nil {
@@ -305,7 +314,7 @@ func (s *Service) executeFixCommand(ctx context.Context, routerID, command strin
 	result, err := s.routerPort.ExecuteCommand(ctx, cmd)
 	if err != nil {
 		s.logger.Error("failed to execute fix command", zap.String("routerID", routerID), zap.Error(err))
-		return false, "Failed to execute command", err
+		return false, "Failed to execute command", fmt.Errorf("execute command: %w", err)
 	}
 
 	if !result.Success {

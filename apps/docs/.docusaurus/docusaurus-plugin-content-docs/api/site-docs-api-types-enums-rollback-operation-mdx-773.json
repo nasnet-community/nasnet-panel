@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/rollback-operation",
+  "title": "RollbackOperation",
+  "description": "Rollback operation type",
+  "source": "@site/docs/api/types/enums/rollback-operation.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/rollback-operation",
+  "permalink": "/api/types/enums/rollback-operation",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "rollback-operation",
+    "title": "RollbackOperation"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ResourceStatus",
+    "permalink": "/api/types/enums/resource-status"
+  },
+  "next": {
+    "title": "RouteScope",
+    "permalink": "/api/types/enums/route-scope"
+  }
+}

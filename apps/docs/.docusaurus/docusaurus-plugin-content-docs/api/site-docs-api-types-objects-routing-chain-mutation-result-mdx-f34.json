@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/routing-chain-mutation-result",
+  "title": "RoutingChainMutationResult",
+  "description": "Result of a routing chain mutation.",
+  "source": "@site/docs/api/types/objects/routing-chain-mutation-result.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/routing-chain-mutation-result",
+  "permalink": "/api/types/objects/routing-chain-mutation-result",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "routing-chain-mutation-result",
+    "title": "RoutingChainMutationResult"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "Router",
+    "permalink": "/api/types/objects/router"
+  },
+  "next": {
+    "title": "RoutingChain",
+    "permalink": "/api/types/objects/routing-chain"
+  }
+}

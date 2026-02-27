@@ -75,7 +75,7 @@ func (p *HTTPProbe) Check(ctx context.Context) error {
 		return fmt.Errorf("failed to create request: %w", err)
 	}
 
-	resp, err := p.client.Do(req)
+	resp, err := p.client.Do(req) //nolint:gosec // G704: URL is constructed from trusted configuration
 	if err != nil {
 		return fmt.Errorf("HTTP probe failed for %s: %w", p.url, err)
 	}

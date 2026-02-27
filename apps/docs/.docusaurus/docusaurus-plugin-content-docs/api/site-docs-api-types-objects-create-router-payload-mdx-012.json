@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/create-router-payload",
+  "title": "CreateRouterPayload",
+  "description": "No description",
+  "source": "@site/docs/api/types/objects/create-router-payload.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/create-router-payload",
+  "permalink": "/api/types/objects/create-router-payload",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "create-router-payload",
+    "title": "CreateRouterPayload"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "CreateResourcePayload",
+    "permalink": "/api/types/objects/create-resource-payload"
+  },
+  "next": {
+    "title": "CredentialTestResult",
+    "permalink": "/api/types/objects/credential-test-result"
+  }
+}

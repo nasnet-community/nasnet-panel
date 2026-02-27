@@ -125,7 +125,7 @@ func PerformHealthCheck(port string, logger *zap.Logger) {
 		os.Exit(1)
 	}
 
-	resp, err := client.Do(req)
+	resp, err := client.Do(req) //nolint:gosec // G704: URL is constructed from trusted configuration
 	if err != nil {
 		logger.Error("Health check failed", zap.Error(err))
 		os.Exit(1)

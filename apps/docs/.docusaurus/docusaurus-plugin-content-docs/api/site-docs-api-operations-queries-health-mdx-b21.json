@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/health",
+  "title": "health",
+  "description": "Get system health status",
+  "source": "@site/docs/api/operations/queries/health.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/health",
+  "permalink": "/api/operations/queries/health",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "health",
+    "title": "health"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "gatewayStatus",
+    "permalink": "/api/operations/queries/gateway-status"
+  },
+  "next": {
+    "title": "instanceConfig",
+    "permalink": "/api/operations/queries/instance-config"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/delete-wanconfiguration",
+  "title": "deleteWANConfiguration",
+  "description": "Delete WAN configuration (revert to unconfigured)",
+  "source": "@site/docs/api/operations/mutations/delete-wanconfiguration.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/delete-wanconfiguration",
+  "permalink": "/api/operations/mutations/delete-wanconfiguration",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "delete-wanconfiguration",
+    "title": "deleteWANConfiguration"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "deleteVlan",
+    "permalink": "/api/operations/mutations/delete-vlan"
+  },
+  "next": {
+    "title": "deleteWebhook",
+    "permalink": "/api/operations/mutations/delete-webhook"
+  }
+}

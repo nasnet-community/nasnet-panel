@@ -1,0 +1,28 @@
+{
+  "id": "graphql-schema-contracts",
+  "title": "GraphQL Schema Contracts — Scalars and Directives",
+  "description": "This document covers the custom scalars and GraphQL directives that define the schema contract between the NasNet backend and frontend. Understanding these types and directives is essential for writing type-safe queries and leveraging the code generation pipeline.",
+  "source": "@site/../../libs/api-client/docs/graphql-schema-contracts.md",
+  "sourceDirName": ".",
+  "slug": "/graphql-schema-contracts",
+  "permalink": "/docs/api-client/graphql-schema-contracts",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/api-client/docs/graphql-schema-contracts.md",
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 12,
+  "frontMatter": {
+    "sidebar_position": 12,
+    "title": "GraphQL Schema Contracts — Scalars and Directives"
+  },
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Change Set Pattern",
+    "permalink": "/docs/api-client/change-set-pattern"
+  },
+  "next": {
+    "title": "TanStack Query Modules — REST-Only Endpoints",
+    "permalink": "/docs/api-client/tanstack-query-modules"
+  }
+}

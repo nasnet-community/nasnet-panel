@@ -8,7 +8,7 @@
  * @see Docs/architecture/adrs/018-headless-platform-presenters.md
  */
 
-import { memo, useMemo } from 'react';
+import { memo } from 'react';
 
 import { Circle, Loader2, RefreshCw, Wifi, WifiOff } from 'lucide-react';
 
@@ -27,19 +27,19 @@ import {
  */
 const STATUS_COLOR_CLASSES: Record<StatusColor, { dot: string; text: string; bg: string }> = {
   green: {
-    dot: 'bg-semantic-success',
-    text: 'text-semantic-success',
-    bg: 'bg-semantic-success/10',
+    dot: 'bg-success',
+    text: 'text-success',
+    bg: 'bg-success/10',
   },
   amber: {
-    dot: 'bg-semantic-warning',
-    text: 'text-semantic-warning',
-    bg: 'bg-semantic-warning/10',
+    dot: 'bg-warning',
+    text: 'text-warning',
+    bg: 'bg-warning/10',
   },
   red: {
-    dot: 'bg-semantic-error',
-    text: 'text-semantic-error',
-    bg: 'bg-semantic-error/10',
+    dot: 'bg-error',
+    text: 'text-error',
+    bg: 'bg-error/10',
   },
   gray: {
     dot: 'bg-muted-foreground',
@@ -52,9 +52,9 @@ const STATUS_COLOR_CLASSES: Record<StatusColor, { dot: string; text: string; bg:
  * Latency quality color classes
  */
 const LATENCY_QUALITY_CLASSES = {
-  good: 'text-semantic-success',
-  moderate: 'text-semantic-warning',
-  poor: 'text-semantic-error',
+  good: 'text-success',
+  moderate: 'text-warning',
+  poor: 'text-error',
 };
 
 // ===== Mobile Presenter =====
@@ -70,9 +70,9 @@ const ConnectionIndicatorMobile = memo(function ConnectionIndicatorMobile({ stat
     <button
       type="button"
       className={cn(
-        'flex items-center gap-1.5 px-2 py-1.5 rounded-full',
-        'min-h-[44px] min-w-[44px]', // Touch target
-        'transition-colors duration-200',
+        'flex items-center gap-component-sm px-component-sm py-component-sm rounded-[var(--semantic-radius-badge)]',
+        'min-h-[44px]', // Touch target
+        'transition-colors duration-150',
         colors.bg,
         state.showManualRetry && 'cursor-pointer active:opacity-80'
       )}
@@ -138,8 +138,8 @@ const ConnectionIndicatorDesktop = memo(function ConnectionIndicatorDesktop({ st
   return (
     <div
       className={cn(
-        'flex items-center gap-2 px-3 py-1.5 rounded-md',
-        'transition-colors duration-200',
+        'flex items-center gap-component-sm px-component-sm py-component-sm rounded-[var(--semantic-radius-input)]',
+        'transition-colors duration-150',
         state.showManualRetry && 'cursor-pointer hover:bg-muted'
       )}
       role="button"
@@ -155,9 +155,9 @@ const ConnectionIndicatorDesktop = memo(function ConnectionIndicatorDesktop({ st
       aria-label={`Connection status: ${state.statusLabel}`}
     >
       {/* Status Indicator */}
-      <div className="flex items-center gap-1.5">
+      <div className="flex items-center gap-component-sm">
         {state.isReconnecting ? (
-          <Loader2 className={cn('h-3.5 w-3.5 animate-spin', colors.text)} />
+          <Loader2 className={cn('h-4 w-4 animate-spin', colors.text)} />
         ) : (
           <Circle
             className={cn(
@@ -170,7 +170,7 @@ const ConnectionIndicatorDesktop = memo(function ConnectionIndicatorDesktop({ st
           />
         )}
 
-        <span className={cn('text-xs font-medium', colors.text)}>
+        <span className={cn('text-sm font-medium', colors.text)}>
           {state.statusLabel}
         </span>
       </div>
@@ -179,7 +179,7 @@ const ConnectionIndicatorDesktop = memo(function ConnectionIndicatorDesktop({ st
       {state.wsStatus === 'connected' && state.latencyMs !== null && (
         <span
           className={cn(
-            'text-xs font-mono',
+            'text-sm font-mono',
             state.latencyQuality && LATENCY_QUALITY_CLASSES[state.latencyQuality]
           )}
         >
@@ -189,14 +189,14 @@ const ConnectionIndicatorDesktop = memo(function ConnectionIndicatorDesktop({ st
 
       {/* Reconnect Attempts (when reconnecting) */}
       {state.isReconnecting && (
-        <span className="text-xs text-muted-foreground">
+        <span className="text-sm text-muted-foreground">
           {state.reconnectAttempts}/{state.maxReconnectAttempts}
         </span>
       )}
 
       {/* Retry Button (when max attempts reached) */}
       {state.showManualRetry && (
-        <RefreshCw className={cn('h-3.5 w-3.5', colors.text)} />
+        <RefreshCw className={cn('h-4 w-4', colors.text)} />
       )}
     </div>
   );

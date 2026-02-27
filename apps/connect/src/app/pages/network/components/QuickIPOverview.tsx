@@ -61,14 +61,14 @@ export const QuickIPOverview = React.memo(function QuickIPOverview({ ipAddresses
   }
 
   return (
-    <div className="bg-card rounded-2xl border border-border p-4">
+    <div className="bg-card rounded-2xl border border-border p-4 shadow-sm">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-success/15 flex items-center justify-center">
-            <Globe className="w-4 h-4 text-success" />
+          <div className="w-8 h-8 rounded-lg bg-category-networking/15 flex items-center justify-center">
+            <Globe className="w-4 h-4 text-category-networking" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-foreground">{t('ipConfig.title')}</h3>
+            <h3 className="text-sm font-display font-semibold text-foreground">{t('ipConfig.title')}</h3>
             <p className="text-xs text-muted-foreground">{ipAddresses.length} {t('ipConfig.configured')}</p>
           </div>
         </div>
@@ -85,20 +85,20 @@ export const QuickIPOverview = React.memo(function QuickIPOverview({ ipAddresses
             const isExpanded = expandedInterface === ifaceName;
 
             return (
-              <div key={ifaceName} className="bg-muted rounded-lg overflow-hidden">
+              <div key={ifaceName} className="bg-muted rounded-lg overflow-hidden border border-border/50">
                 <button
                   onClick={() => setExpandedInterface(isExpanded ? null : ifaceName)}
                   className="w-full flex items-center justify-between p-3 hover:bg-muted/80 transition-colors"
                 >
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-foreground">{ifaceName}</span>
+                    <span className="text-sm font-display font-medium text-foreground">{ifaceName}</span>
                     <span className="px-1.5 py-0.5 text-xs bg-border text-muted-foreground rounded">
                       {ips.length}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
                     {!isExpanded && ips.length > 0 && (
-                      <span className="text-xs font-mono text-muted-foreground">{ips[0].address}</span>
+                      <span className="text-xs font-mono font-semibold text-muted-foreground">{ips[0].address}</span>
                     )}
                     {isExpanded ? (
                       <ChevronUp className="w-4 h-4 text-muted-foreground" />
@@ -111,8 +111,8 @@ export const QuickIPOverview = React.memo(function QuickIPOverview({ ipAddresses
                   <div className="px-3 pb-3 space-y-2">
                     {ips.map((ip) => (
                       <div key={ip.id} className="flex items-center justify-between py-1">
-                        <span className="text-sm font-mono text-foreground">{ip.address}</span>
-                        <span className={cn('px-2 py-0.5 text-xs rounded',
+                        <span className="text-sm font-mono font-semibold text-foreground">{ip.address}</span>
+                        <span className={cn('px-2 py-0.5 text-xs rounded font-mono',
                           ip.isDynamic
                             ? 'bg-success/15 text-success'
                             : 'bg-info/15 text-info'

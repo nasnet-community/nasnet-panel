@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/boot-sequence-progress",
+  "title": "bootSequenceProgress",
+  "description": "Get the current boot sequence progress (if running).",
+  "source": "@site/docs/api/operations/queries/boot-sequence-progress.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/boot-sequence-progress",
+  "permalink": "/api/operations/queries/boot-sequence-progress",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "boot-sequence-progress",
+    "title": "bootSequenceProgress"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "availableUpdates",
+    "permalink": "/api/operations/queries/available-updates"
+  },
+  "next": {
+    "title": "bridgePorts",
+    "permalink": "/api/operations/queries/bridge-ports"
+  }
+}

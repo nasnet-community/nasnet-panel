@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/scan-progress-event",
+  "title": "ScanProgressEvent",
+  "description": "Real-time progress event for scan subscriptions",
+  "source": "@site/docs/api/types/objects/scan-progress-event.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/scan-progress-event",
+  "permalink": "/api/types/objects/scan-progress-event",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "scan-progress-event",
+    "title": "ScanProgressEvent"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ScanNetworkPayload",
+    "permalink": "/api/types/objects/scan-network-payload"
+  },
+  "next": {
+    "title": "ScanStoragePayload",
+    "permalink": "/api/types/objects/scan-storage-payload"
+  }
+}

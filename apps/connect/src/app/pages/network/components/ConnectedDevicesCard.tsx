@@ -59,17 +59,18 @@ export const ConnectedDevicesCard = React.memo(function ConnectedDevicesCard({ e
   }
 
   return (
-    <div className="bg-card rounded-2xl border border-border p-4">
+    <div className="bg-card rounded-2xl border border-border p-4 shadow-sm">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-info/15 flex items-center justify-center">
             <Users className="w-4 h-4 text-info" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-foreground">{t('connectedDevices.title')}</h3>
+            <h3 className="text-sm font-display font-semibold text-foreground">{t('connectedDevices.title')}</h3>
             <p className="text-xs text-muted-foreground">{stats.total} {t('connectedDevices.inArp')}</p>
           </div>
         </div>
+        <span className="text-2xl font-mono font-bold text-foreground">{stats.total}</span>
       </div>
 
       {/* Status Summary */}
@@ -104,7 +105,7 @@ export const ConnectedDevicesCard = React.memo(function ConnectedDevicesCard({ e
               key={device.id}
               className={cn(
                 'flex items-center justify-between p-2 rounded-card-sm',
-                'bg-muted hover:bg-muted/80 transition-colors'
+                'bg-muted hover:bg-muted/80 transition-colors border border-border/50'
               )}
             >
               <div className="flex items-center gap-3">
@@ -113,11 +114,11 @@ export const ConnectedDevicesCard = React.memo(function ConnectedDevicesCard({ e
                   device.status === 'incomplete' ? 'bg-warning' : 'bg-destructive'
                 )} />
                 <div>
-                  <p className="text-sm font-mono text-foreground">{device.ipAddress}</p>
+                  <p className="text-sm font-mono font-semibold text-foreground">{device.ipAddress}</p>
                   <p className="text-xs font-mono text-muted-foreground">{formatMACAddress(device.macAddress)}</p>
                 </div>
               </div>
-              <span className="text-xs text-muted-foreground">{device.interface}</span>
+              <span className="text-xs font-mono text-muted-foreground">{device.interface}</span>
             </div>
           ))
         )}

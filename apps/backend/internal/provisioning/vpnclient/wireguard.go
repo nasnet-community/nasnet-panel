@@ -161,9 +161,12 @@ func (s *Service) createWireGuardPeer(
 		args["preshared-key"] = *cfg.PeerPresharedKey
 	}
 
+	// Default to 25s keepalive (matching TS WireGuard behavior) unless explicitly overridden.
+	keepalive := 25
 	if cfg.PeerPersistentKeepalive != nil {
-		args["persistent-keepalive"] = fmt.Sprintf("%ds", *cfg.PeerPersistentKeepalive)
+		keepalive = *cfg.PeerPersistentKeepalive
 	}
+	args["persistent-keepalive"] = fmt.Sprintf("%ds", keepalive)
 
 	cmd := router.Command{
 		Path:   "/interface/wireguard/peers",

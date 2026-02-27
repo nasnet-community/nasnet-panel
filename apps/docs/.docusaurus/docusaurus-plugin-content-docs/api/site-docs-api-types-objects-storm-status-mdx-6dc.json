@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/storm-status",
+  "title": "StormStatus",
+  "description": "Storm detection status",
+  "source": "@site/docs/api/types/objects/storm-status.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/storm-status",
+  "permalink": "/api/types/objects/storm-status",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "storm-status",
+    "title": "StormStatus"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "StormRuleContribution",
+    "permalink": "/api/types/objects/storm-rule-contribution"
+  },
+  "next": {
+    "title": "SuggestedRoutingRule",
+    "permalink": "/api/types/objects/suggested-routing-rule"
+  }
+}

@@ -4,6 +4,8 @@
 package main
 
 import (
+	"fmt"
+
 	"go.uber.org/zap"
 
 	"backend/generated/ent"
@@ -30,7 +32,7 @@ func initIntegrationServices(
 	configRegistry := config.NewRegistry()
 	sugar.Infow("Config registry initialized", "note", "generators can be registered dynamically")
 
-	return bootstrap.InitializeIntegrationServices(
+	intServices, err := bootstrap.InitializeIntegrationServices(
 		systemDB,
 		eventBus,
 		encryptionService,
@@ -44,4 +46,8 @@ func initIntegrationServices(
 		sugar.Desugar(),
 		sugar,
 	)
+	if err != nil {
+		return nil, fmt.Errorf("initializing integration services: %w", err)
+	}
+	return intServices, nil
 }

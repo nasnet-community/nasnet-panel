@@ -46,7 +46,7 @@ export function DependencyGraphDesktop({
   // Loading state
   if (loading) {
     return (
-      <Card className={cn('w-full', className)}>
+      <Card className={cn('w-full bg-card border border-border rounded-[var(--semantic-radius-card)] p-4 sm:p-6 shadow-[var(--semantic-shadow-card)]', className)}>
         <CardHeader>
           <Skeleton className="h-6 w-48" />
           <Skeleton className="h-4 w-32 mt-2" />
@@ -61,9 +61,9 @@ export function DependencyGraphDesktop({
   // Error state
   if (error) {
     return (
-      <Card className={cn('w-full border-destructive', className)}>
+      <Card className={cn('w-full bg-card border border-error rounded-[var(--semantic-radius-card)] p-4 sm:p-6 shadow-[var(--semantic-shadow-card)]', className)}>
         <CardContent className="pt-6">
-          <div className="flex items-center gap-3 text-destructive">
+          <div className="flex items-center gap-3 text-error">
             <AlertCircle className="h-5 w-5 flex-shrink-0" />
             <p className="text-sm font-medium">{error}</p>
           </div>
@@ -75,7 +75,7 @@ export function DependencyGraphDesktop({
   // Empty state
   if (state.isEmpty) {
     return (
-      <Card className={cn('w-full', className)}>
+      <Card className={cn('w-full bg-card border border-border rounded-[var(--semantic-radius-card)] p-4 sm:p-6 shadow-[var(--semantic-shadow-card)]', className)}>
         <CardContent className="pt-6">
           <div className="flex flex-col items-center justify-center py-12 text-center">
             <GitBranch className="h-16 w-16 text-muted-foreground mb-4" />
@@ -87,9 +87,9 @@ export function DependencyGraphDesktop({
   }
 
   return (
-    <div className={cn('flex gap-4', className)}>
+    <div className={cn('flex gap-component-md', className)}>
       {/* Main graph area */}
-      <Card className="flex-1">
+      <Card className="flex-1 bg-card border border-border rounded-[var(--semantic-radius-card)] p-4 sm:p-6 shadow-[var(--semantic-shadow-card)]">
         <CardHeader>
           <CardTitle className="text-lg font-semibold">Dependency Graph</CardTitle>
           <CardDescription>
@@ -108,7 +108,7 @@ export function DependencyGraphDesktop({
       </Card>
 
       {/* Statistics sidebar */}
-      <Card className="w-64 flex-shrink-0">
+      <Card className="w-64 flex-shrink-0 bg-card border border-border rounded-[var(--semantic-radius-card)] p-4 sm:p-6 shadow-[var(--semantic-shadow-card)]">
         <CardHeader>
           <CardTitle className="text-sm font-semibold">Statistics</CardTitle>
         </CardHeader>
@@ -195,7 +195,7 @@ function GraphVisualization({ state, svgRef, hoveredNode, onHoverNode }: GraphVi
   }, [state.nodes, state.layers, height]);
 
   return (
-    <div className="relative w-full h-[500px] bg-muted/20 rounded-lg overflow-hidden">
+    <div className="relative w-full h-[500px] bg-muted border border-border rounded-[var(--semantic-radius-card)] overflow-hidden">
       <svg
         ref={svgRef}
         width="100%"

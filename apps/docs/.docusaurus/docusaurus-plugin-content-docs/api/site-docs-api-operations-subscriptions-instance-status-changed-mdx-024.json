@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/subscriptions/instance-status-changed",
+  "title": "instanceStatusChanged",
+  "description": "Subscribe to instance status changes for a router.",
+  "source": "@site/docs/api/operations/subscriptions/instance-status-changed.mdx",
+  "sourceDirName": "api/operations/subscriptions",
+  "slug": "/api/operations/subscriptions/instance-status-changed",
+  "permalink": "/api/operations/subscriptions/instance-status-changed",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "instance-status-changed",
+    "title": "instanceStatusChanged"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "instanceHealthChanged",
+    "permalink": "/api/operations/subscriptions/instance-health-changed"
+  },
+  "next": {
+    "title": "interfaceStatsUpdated",
+    "permalink": "/api/operations/subscriptions/interface-stats-updated"
+  }
+}

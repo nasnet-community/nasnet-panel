@@ -51,7 +51,7 @@ export const InterfaceListMobile = memo(function InterfaceListMobile({
 
   if (error) {
     return (
-      <div className="space-y-component-md p-component-md">
+      <div className="space-y-component-md p-component-md category-networking">
         <InterfaceListFilters filters={filters} onChange={onFilterChange} />
         <div className="p-component-lg text-center border rounded-card-lg border-error bg-error/10" role="alert">
           <p className="text-error font-medium">Failed to load interfaces</p>
@@ -67,7 +67,7 @@ export const InterfaceListMobile = memo(function InterfaceListMobile({
   }
 
   return (
-    <div className="space-y-component-md p-component-md">
+    <div className="space-y-component-md p-component-md category-networking">
       {/* Filters */}
       <InterfaceListFilters filters={filters} onChange={onFilterChange} />
 
@@ -121,7 +121,7 @@ export const InterfaceListMobile = memo(function InterfaceListMobile({
                     aria-label={`Select ${iface.name}`}
                   />
                   <div className="flex-1 min-w-0">
-                    <CardTitle className="text-base">{iface.name}</CardTitle>
+                    <CardTitle className="text-base font-mono category-networking">{iface.name}</CardTitle>
                     <CardDescription className="flex gap-component-sm mt-component-sm">
                       <Badge variant="outline" className="text-xs">
                         {iface.type}
@@ -143,7 +143,7 @@ export const InterfaceListMobile = memo(function InterfaceListMobile({
                 {iface.ip && iface.ip.length > 0 && (
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">IP:</span>
-                    <span className="font-mono text-xs">{iface.ip[0]}</span>
+                    <span className="font-mono text-xs category-networking">{iface.ip[0]}</span>
                   </div>
                 )}
                 {iface.mtu && (

@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/address-list-entries",
+  "title": "addressListEntries",
+  "description": "Get entries for a specific address list with cursor-based pagination.",
+  "source": "@site/docs/api/operations/queries/address-list-entries.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/address-list-entries",
+  "permalink": "/api/operations/queries/address-list-entries",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "address-list-entries",
+    "title": "addressListEntries"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "Queries",
+    "permalink": "/category/queries"
+  },
+  "next": {
+    "title": "addressLists",
+    "permalink": "/api/operations/queries/address-lists"
+  }
+}

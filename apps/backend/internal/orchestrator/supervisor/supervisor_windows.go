@@ -3,6 +3,7 @@
 package supervisor
 
 import (
+	"fmt"
 	"os/exec"
 	"syscall"
 )
@@ -23,10 +24,13 @@ func killProcessGroup(pid int, signal syscall.Signal) error { //nolint:unused //
 	// This is roughly equivalent to SIGKILL
 	proc, err := syscall.OpenProcess(syscall.PROCESS_TERMINATE, false, uint32(pid)) //nolint:gosec // int-to-uint32 conversion is safe for valid process IDs
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to open process: %w", err)
 	}
 	defer syscall.CloseHandle(proc) //nolint:errcheck // best-effort handle close
 
 	// TerminateProcess forcefully terminates the process
-	return syscall.TerminateProcess(proc, 1)
+	if err := syscall.TerminateProcess(proc, 1); err != nil {
+		return fmt.Errorf("failed to terminate process: %w", err)
+	}
+	return nil
 }

@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/cancel-troubleshoot",
+  "title": "cancelTroubleshoot",
+  "description": "Cancel a troubleshooting session",
+  "source": "@site/docs/api/operations/mutations/cancel-troubleshoot.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/cancel-troubleshoot",
+  "permalink": "/api/operations/mutations/cancel-troubleshoot",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "cancel-troubleshoot",
+    "title": "cancelTroubleshoot"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "cancelTraceroute",
+    "permalink": "/api/operations/mutations/cancel-traceroute"
+  },
+  "next": {
+    "title": "changePassword",
+    "permalink": "/api/operations/mutations/change-password"
+  }
+}

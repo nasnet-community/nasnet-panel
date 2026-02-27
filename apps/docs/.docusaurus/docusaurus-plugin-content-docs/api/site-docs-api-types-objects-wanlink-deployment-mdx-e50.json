@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/wanlink-deployment",
+  "title": "WANLinkDeployment",
+  "description": "WAN link deployment state",
+  "source": "@site/docs/api/types/objects/wanlink-deployment.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/wanlink-deployment",
+  "permalink": "/api/types/objects/wanlink-deployment",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "wanlink-deployment",
+    "title": "WANLinkDeployment"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "WANLinkConfig",
+    "permalink": "/api/types/objects/wanlink-config"
+  },
+  "next": {
+    "title": "WANLinkResource",
+    "permalink": "/api/types/objects/wanlink-resource"
+  }
+}

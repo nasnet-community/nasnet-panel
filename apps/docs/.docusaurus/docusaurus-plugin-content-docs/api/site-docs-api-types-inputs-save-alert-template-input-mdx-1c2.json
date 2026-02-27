@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/save-alert-template-input",
+  "title": "SaveAlertTemplateInput",
+  "description": "Input for saving a custom alert template",
+  "source": "@site/docs/api/types/inputs/save-alert-template-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/save-alert-template-input",
+  "permalink": "/api/types/inputs/save-alert-template-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "save-alert-template-input",
+    "title": "SaveAlertTemplateInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "SaveAlertRuleTemplateInput",
+    "permalink": "/api/types/inputs/save-alert-rule-template-input"
+  },
+  "next": {
+    "title": "SaveTemplateInput",
+    "permalink": "/api/types/inputs/save-template-input"
+  }
+}

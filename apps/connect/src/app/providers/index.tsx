@@ -1,3 +1,5 @@
+import React from 'react';
+
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { ApolloProvider } from '@nasnet/api-client/core';

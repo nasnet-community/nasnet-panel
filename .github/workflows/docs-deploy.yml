@@ -1,0 +1,173 @@
+name: Deploy Docs & Storybooks
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/docs/**'
+      - 'libs/ui/**'
+      - 'libs/features/*/src/**/*.stories.*'
+      - 'apps/connect/src/**/*.stories.*'
+      - 'apps/connect/.storybook/**'
+      - 'Docs/**'
+      - 'schema/**'
+      - '.github/workflows/docs-deploy.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build-docs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        with:
+          node-version: 20
+          cache: 'npm'
+      - run: npm ci
+      - run: npx nx build docs
+        env:
+          GITHUB_PAGES: 'true'
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: docs
+          path: apps/docs/build/
+          retention-days: 1
+
+  build-storybook-primitives:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        with:
+          node-version: 20
+          cache: 'npm'
+      - run: npm ci
+      - run: npx nx run ui-primitives:build-storybook
+        env:
+          STORYBOOK_BASE: /nasnet-panel/storybook/primitives/
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: storybook-primitives
+          path: dist/storybook/ui-primitives/
+          retention-days: 1
+
+  build-storybook-patterns:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        with:
+          node-version: 20
+          cache: 'npm'
+      - run: npm ci
+      - run: npx nx run ui-patterns:build-storybook
+        env:
+          STORYBOOK_BASE: /nasnet-panel/storybook/patterns/
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: storybook-patterns
+          path: dist/storybook/ui-patterns/
+          retention-days: 1
+
+  build-storybook-connect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        with:
+          node-version: 20
+          cache: 'npm'
+      - run: npm ci
+      - run: npx nx run connect:build-storybook
+        env:
+          STORYBOOK_BASE: /nasnet-panel/storybook/connect/
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: storybook-connect
+          path: dist/storybook/connect/
+          retention-days: 1
+
+  build-nx-graph:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        with:
+          node-version: 20
+          cache: 'npm'
+      - run: npm ci
+      - run: mkdir -p dist/nx-graph && npx nx graph --file=dist/nx-graph/index.html
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: nx-graph
+          path: dist/nx-graph/
+          retention-days: 1
+
+  deploy:
+    needs:
+      - build-docs
+      - build-storybook-primitives
+      - build-storybook-patterns
+      - build-storybook-connect
+      - build-nx-graph
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Download docs artifact
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: docs
+          path: site/
+
+      - name: Download Storybook primitives
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: storybook-primitives
+          path: site/storybook/primitives/
+
+      - name: Download Storybook patterns
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: storybook-patterns
+          path: site/storybook/patterns/
+
+      - name: Download Storybook connect
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: storybook-connect
+          path: site/storybook/connect/
+
+      - name: Download Nx graph
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: nx-graph
+          path: site/nx-graph/
+
+      - name: Add .nojekyll
+        run: touch site/.nojekyll
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3.0.1
+        with:
+          path: site/
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4.0.5

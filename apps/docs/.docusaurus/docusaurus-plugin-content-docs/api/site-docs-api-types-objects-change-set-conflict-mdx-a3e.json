@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/change-set-conflict",
+  "title": "ChangeSetConflict",
+  "description": "Conflict between change set items",
+  "source": "@site/docs/api/types/objects/change-set-conflict.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/change-set-conflict",
+  "permalink": "/api/types/objects/change-set-conflict",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "change-set-conflict",
+    "title": "ChangeSetConflict"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ChangeLogEntry",
+    "permalink": "/api/types/objects/change-log-entry"
+  },
+  "next": {
+    "title": "ChangeSetError",
+    "permalink": "/api/types/objects/change-set-error"
+  }
+}

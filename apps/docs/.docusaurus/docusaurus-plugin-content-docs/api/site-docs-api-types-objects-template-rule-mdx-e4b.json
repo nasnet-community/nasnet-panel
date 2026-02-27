@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/template-rule",
+  "title": "TemplateRule",
+  "description": "Template rule definition.",
+  "source": "@site/docs/api/types/objects/template-rule.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/template-rule",
+  "permalink": "/api/types/objects/template-rule",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "template-rule",
+    "title": "TemplateRule"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "TemplatePreview",
+    "permalink": "/api/types/objects/template-preview"
+  },
+  "next": {
+    "title": "TemplateValidationInfo",
+    "permalink": "/api/types/objects/template-validation-info"
+  }
+}

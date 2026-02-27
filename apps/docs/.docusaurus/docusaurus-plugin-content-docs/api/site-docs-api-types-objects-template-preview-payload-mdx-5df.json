@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/template-preview-payload",
+  "title": "TemplatePreviewPayload",
+  "description": "Template preview payload",
+  "source": "@site/docs/api/types/objects/template-preview-payload.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/template-preview-payload",
+  "permalink": "/api/types/objects/template-preview-payload",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "template-preview-payload",
+    "title": "TemplatePreviewPayload"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "TemplateInstallResult",
+    "permalink": "/api/types/objects/template-install-result"
+  },
+  "next": {
+    "title": "TemplatePreviewResult",
+    "permalink": "/api/types/objects/template-preview-result"
+  }
+}

@@ -100,7 +100,7 @@ export const VlanSelector = memo(function VlanSelector({
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
           disabled={disabled}
-          className="flex-1"
+          className="flex-1 font-mono"
           aria-label={`Add ${label}`}
           aria-invalid={!!error}
           aria-describedby={error ? 'vlan-error' : undefined}
@@ -118,7 +118,7 @@ export const VlanSelector = memo(function VlanSelector({
 
       {/* Error Message */}
       {error && (
-        <p id="vlan-error" className="text-xs text-destructive" role="alert">
+        <p id="vlan-error" className="text-xs text-error" role="alert">
           {error}
         </p>
       )}
@@ -127,8 +127,8 @@ export const VlanSelector = memo(function VlanSelector({
       {sortedVlans.length > 0 && (
         <div className="flex flex-wrap gap-component-sm p-component-sm rounded-[var(--semantic-radius-button)] border bg-muted/50">
           {sortedVlans.map((vlanId) => (
-            <Badge key={vlanId} variant="secondary" className="gap-1 pr-1">
-              <span className="font-mono">{vlanId}</span>
+            <Badge key={vlanId} variant="secondary" className="gap-component-xs pr-component-xs">
+              <span className="font-mono font-medium">{vlanId}</span>
               <button
                 type="button"
                 onClick={() => handleRemove(vlanId)}

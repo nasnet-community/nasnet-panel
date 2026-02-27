@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/bridge-vlans",
+  "title": "bridgeVlans",
+  "description": "Get bridge VLANs",
+  "source": "@site/docs/api/operations/queries/bridge-vlans.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/bridge-vlans",
+  "permalink": "/api/operations/queries/bridge-vlans",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "bridge-vlans",
+    "title": "bridgeVlans"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "bridgeStatus",
+    "permalink": "/api/operations/queries/bridge-status"
+  },
+  "next": {
+    "title": "bridge",
+    "permalink": "/api/operations/queries/bridge"
+  }
+}

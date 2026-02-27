@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/service-config-schema",
+  "title": "serviceConfigSchema",
+  "description": "Get configuration schema for a service type.",
+  "source": "@site/docs/api/operations/queries/service-config-schema.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/service-config-schema",
+  "permalink": "/api/operations/queries/service-config-schema",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "service-config-schema",
+    "title": "serviceConfigSchema"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "serviceAlerts",
+    "permalink": "/api/operations/queries/service-alerts"
+  },
+  "next": {
+    "title": "serviceDependencies",
+    "permalink": "/api/operations/queries/service-dependencies"
+  }
+}

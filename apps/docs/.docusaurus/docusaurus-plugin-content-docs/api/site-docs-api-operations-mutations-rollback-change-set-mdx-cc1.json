@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/rollback-change-set",
+  "title": "rollbackChangeSet",
+  "description": "Force rollback of a failed change set",
+  "source": "@site/docs/api/operations/mutations/rollback-change-set.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/rollback-change-set",
+  "permalink": "/api/operations/mutations/rollback-change-set",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "rollback-change-set",
+    "title": "rollbackChangeSet"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "revokeSession",
+    "permalink": "/api/operations/mutations/revoke-session"
+  },
+  "next": {
+    "title": "rollbackFirewallTemplate",
+    "permalink": "/api/operations/mutations/rollback-firewall-template"
+  }
+}

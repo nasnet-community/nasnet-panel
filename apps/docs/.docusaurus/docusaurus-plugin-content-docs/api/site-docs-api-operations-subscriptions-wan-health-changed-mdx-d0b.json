@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/subscriptions/wan-health-changed",
+  "title": "wanHealthChanged",
+  "description": "Subscribe to WAN health check updates",
+  "source": "@site/docs/api/operations/subscriptions/wan-health-changed.mdx",
+  "sourceDirName": "api/operations/subscriptions",
+  "slug": "/api/operations/subscriptions/wan-health-changed",
+  "permalink": "/api/operations/subscriptions/wan-health-changed",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "wan-health-changed",
+    "title": "wanHealthChanged"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "vlanChanged",
+    "permalink": "/api/operations/subscriptions/vlan-changed"
+  },
+  "next": {
+    "title": "wanStatusChanged",
+    "permalink": "/api/operations/subscriptions/wan-status-changed"
+  }
+}

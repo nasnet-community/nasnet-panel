@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/resource-limits-payload",
+  "title": "ResourceLimitsPayload",
+  "description": "Payload for resource limits mutation.",
+  "source": "@site/docs/api/types/objects/resource-limits-payload.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/resource-limits-payload",
+  "permalink": "/api/types/objects/resource-limits-payload",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "resource-limits-payload",
+    "title": "ResourceLimitsPayload"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ResourceEstimate",
+    "permalink": "/api/types/objects/resource-estimate"
+  },
+  "next": {
+    "title": "ResourceLimits",
+    "permalink": "/api/types/objects/resource-limits"
+  }
+}

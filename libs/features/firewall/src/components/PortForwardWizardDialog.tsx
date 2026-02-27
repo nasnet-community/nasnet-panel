@@ -267,7 +267,7 @@ export const PortForwardWizardDialog = React.memo(function PortForwardWizardDial
 
           {/* Progress Indicator */}
           <div className="mb-component-md">
-            <div className="flex gap-component-sm">
+            <div className="flex gap-component-md">
               {stepper.steps.map((step, index) => (
                 <div
                   key={step.id}
@@ -431,9 +431,9 @@ export const PortForwardWizardDialog = React.memo(function PortForwardWizardDial
           {/* Step 3: Review & Confirm */}
           {stepper.currentIndex === 2 && (
             <div className="space-y-component-md">
-              <div className="rounded-md border p-component-md space-y-component-sm">
+              <div className="rounded-md border p-component-md space-y-component-md">
                 <h3 className="font-semibold">Configuration Summary</h3>
-                <div className="space-y-2 text-sm">
+                <div className="space-y-component-md text-sm">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Protocol:</span>
                     <span className="font-mono">{formData.protocol.toUpperCase()}</span>

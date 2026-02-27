@@ -88,7 +88,8 @@ func ScanIP(ctx context.Context, ip string, ports []int, timeout time.Duration) 
 	}
 
 	hostname := ""
-	if names, err := net.LookupAddr(ip); err == nil && len(names) > 0 {
+	resolver := &net.Resolver{}
+	if names, err := resolver.LookupAddr(ctx, ip); err == nil && len(names) > 0 {
 		hostname = names[0]
 	}
 
@@ -147,7 +148,8 @@ func ScanIP(ctx context.Context, ip string, ports []int, timeout time.Duration) 
 func IsPortOpen(ctx context.Context, ip string, port int, timeout time.Duration) bool {
 	address := net.JoinHostPort(ip, strconv.Itoa(port))
 
-	conn, err := net.DialTimeout("tcp", address, timeout)
+	dialer := &net.Dialer{Timeout: timeout}
+	conn, err := dialer.DialContext(ctx, "tcp", address)
 	if err != nil {
 		return false
 	}
@@ -190,7 +192,7 @@ func ParseIPRange(subnet string) ([]string, error) {
 	case strings.Contains(subnet, "/"):
 		_, ipNet, err := net.ParseCIDR(subnet)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("parse CIDR: %w", err)
 		}
 
 		for ip := ipNet.IP.Mask(ipNet.Mask); ipNet.Contains(ip); IncIP(ip) {

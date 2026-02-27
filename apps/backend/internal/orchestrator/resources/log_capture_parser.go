@@ -3,6 +3,7 @@ package resources
 import (
 	"bufio"
 	"encoding/json"
+	"fmt"
 	"io"
 	"strings"
 	"time"
@@ -136,5 +137,8 @@ func CopyLogs(dst *LogCapture, src io.Reader, prefix string) error {
 			return err
 		}
 	}
-	return scanner.Err()
+	if err := scanner.Err(); err != nil {
+		return fmt.Errorf("log capture: scanner error: %w", err)
+	}
+	return nil
 }

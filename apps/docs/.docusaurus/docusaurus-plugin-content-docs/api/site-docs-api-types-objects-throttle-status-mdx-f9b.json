@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/throttle-status",
+  "title": "ThrottleStatus",
+  "description": "Throttle status for an alert rule",
+  "source": "@site/docs/api/types/objects/throttle-status.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/throttle-status",
+  "permalink": "/api/types/objects/throttle-status",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "throttle-status",
+    "title": "ThrottleStatus"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ThrottleGroupStatus",
+    "permalink": "/api/types/objects/throttle-group-status"
+  },
+  "next": {
+    "title": "TLSStatus",
+    "permalink": "/api/types/objects/tlsstatus"
+  }
+}

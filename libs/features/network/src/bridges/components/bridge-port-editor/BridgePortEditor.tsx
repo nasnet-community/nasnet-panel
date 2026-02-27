@@ -181,7 +181,7 @@ function BridgePortEditorComponent({ port, open, onClose, className }: BridgePor
             {/* PVID Warning */}
             {pvidNotInUntagged && (
               <Alert variant="warning">
-                <Icon icon={AlertTriangle} className="h-4 w-4" aria-hidden="true" />
+                <Icon icon={AlertTriangle} className="h-4 w-4 text-warning" aria-hidden="true" />
                 <AlertDescription>
                   PVID <span className="font-mono text-xs">{pvid}</span> is not in the untagged VLANs list. This is a common
                   misconfiguration. Consider adding it to untagged VLANs.
@@ -267,6 +267,7 @@ function BridgePortEditorComponent({ port, open, onClose, className }: BridgePor
                       checked={field.value}
                       onCheckedChange={field.onChange}
                       disabled={updating}
+                      aria-label="Toggle ingress filtering"
                     />
                   </FormControl>
                 </FormItem>
@@ -311,7 +312,9 @@ function BridgePortEditorComponent({ port, open, onClose, className }: BridgePor
 
             {/* STP Settings Section */}
             <div className="border-t pt-component-lg">
-              <h4 className="text-sm font-display font-medium mb-component-md">Spanning Tree Settings</h4>
+              <h4 className="text-sm font-display font-medium mb-component-md flex items-center gap-component-sm">
+                <span>Spanning Tree Settings</span>
+              </h4>
 
               {/* Edge Port */}
               <FormField
@@ -330,6 +333,7 @@ function BridgePortEditorComponent({ port, open, onClose, className }: BridgePor
                         checked={field.value}
                         onCheckedChange={field.onChange}
                         disabled={updating}
+                        aria-label="Toggle edge port"
                       />
                     </FormControl>
                   </FormItem>
@@ -374,7 +378,7 @@ function BridgePortEditorComponent({ port, open, onClose, className }: BridgePor
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={updating}>
+              <Button type="submit" disabled={updating} aria-label="Save bridge port changes">
                 {updating ? 'Saving...' : 'Save Changes'}
               </Button>
             </div>

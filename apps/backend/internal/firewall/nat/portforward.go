@@ -15,7 +15,7 @@ func (s *Service) GetPortForwards(ctx context.Context) ([]*model.PortForward, er
 	// Query all dstnat rules
 	natRules, err := s.GetNatRules(ctx, ptrNatChain(model.NatChainDstnat))
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to query NAT rules: %w", err)
 	}
 
 	// Filter rules with "portforward:" prefix and build PortForward objects
@@ -134,7 +134,7 @@ func (s *Service) createDstNatRule(ctx context.Context, input model.PortForwardI
 
 	result, err := s.port.ExecuteCommand(ctx, cmd)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to execute dst-nat command: %w", err)
 	}
 
 	if !result.Success {
@@ -163,7 +163,7 @@ func (s *Service) createFilterAcceptRule(ctx context.Context, input model.PortFo
 
 	result, err := s.port.ExecuteCommand(ctx, cmd)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to execute filter rule command: %w", err)
 	}
 
 	if !result.Success {

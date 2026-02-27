@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/update-progress",
+  "title": "UpdateProgress",
+  "description": "Update progress during atomic update process.",
+  "source": "@site/docs/api/types/objects/update-progress.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/update-progress",
+  "permalink": "/api/types/objects/update-progress",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "update-progress",
+    "title": "UpdateProgress"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "UpdateInterfacePayload",
+    "permalink": "/api/types/objects/update-interface-payload"
+  },
+  "next": {
+    "title": "UpdateResourcePayload",
+    "permalink": "/api/types/objects/update-resource-payload"
+  }
+}

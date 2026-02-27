@@ -1,0 +1,24 @@
+{
+  "id": "error-handling",
+  "title": "Error Handling & Structured Logging",
+  "description": "Hierarchical error types, automatic log-level routing, GraphQL error presentation, and sensitive-data redaction across the NasNetConnect backend.",
+  "source": "@site/../backend/docs/error-handling.md",
+  "sourceDirName": ".",
+  "slug": "/error-handling",
+  "permalink": "/docs/backend/error-handling",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../backend/docs/error-handling.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Data Layer",
+    "permalink": "/docs/backend/data-layer"
+  },
+  "next": {
+    "title": "Event System",
+    "permalink": "/docs/backend/event-system"
+  }
+}

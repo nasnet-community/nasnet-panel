@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/storage-space-event",
+  "title": "StorageSpaceEvent",
+  "description": "Event emitted when storage space crosses a threshold.",
+  "source": "@site/docs/api/types/objects/storage-space-event.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/storage-space-event",
+  "permalink": "/api/types/objects/storage-space-event",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "storage-space-event",
+    "title": "StorageSpaceEvent"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "StorageMountedEvent",
+    "permalink": "/api/types/objects/storage-mounted-event"
+  },
+  "next": {
+    "title": "StorageUnmountedEvent",
+    "permalink": "/api/types/objects/storage-unmounted-event"
+  }
+}

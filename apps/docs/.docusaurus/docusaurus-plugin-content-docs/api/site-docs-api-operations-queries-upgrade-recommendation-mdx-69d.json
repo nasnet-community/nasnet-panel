@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/upgrade-recommendation",
+  "title": "upgradeRecommendation",
+  "description": "Get upgrade recommendation for a specific feature on a router",
+  "source": "@site/docs/api/operations/queries/upgrade-recommendation.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/upgrade-recommendation",
+  "permalink": "/api/operations/queries/upgrade-recommendation",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "upgrade-recommendation",
+    "title": "upgradeRecommendation"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "unsupportedFeatures",
+    "permalink": "/api/operations/queries/unsupported-features"
+  },
+  "next": {
+    "title": "upgradeRecommendations",
+    "permalink": "/api/operations/queries/upgrade-recommendations"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/ip-address",
+  "title": "ipAddress",
+  "description": "Get a specific IP address by ID",
+  "source": "@site/docs/api/operations/queries/ip-address.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/ip-address",
+  "permalink": "/api/operations/queries/ip-address",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "ip-address",
+    "title": "ipAddress"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ipAddressDependencies",
+    "permalink": "/api/operations/queries/ip-address-dependencies"
+  },
+  "next": {
+    "title": "ipAddresses",
+    "permalink": "/api/operations/queries/ip-addresses"
+  }
+}

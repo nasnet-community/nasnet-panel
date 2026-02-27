@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/address-list-entry",
+  "title": "AddressListEntry",
+  "description": "Single entry in an address list.",
+  "source": "@site/docs/api/types/objects/address-list-entry.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/address-list-entry",
+  "permalink": "/api/types/objects/address-list-entry",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "address-list-entry",
+    "title": "AddressListEntry"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "AddressListEntryEdge",
+    "permalink": "/api/types/objects/address-list-entry-edge"
+  },
+  "next": {
+    "title": "AddressList",
+    "permalink": "/api/types/objects/address-list"
+  }
+}

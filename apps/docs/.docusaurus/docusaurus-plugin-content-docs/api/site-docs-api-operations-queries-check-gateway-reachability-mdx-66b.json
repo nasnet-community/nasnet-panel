@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/check-gateway-reachability",
+  "title": "checkGatewayReachability",
+  "description": "Check if a gateway address is reachable from the router",
+  "source": "@site/docs/api/operations/queries/check-gateway-reachability.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/check-gateway-reachability",
+  "permalink": "/api/operations/queries/check-gateway-reachability",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "check-gateway-reachability",
+    "title": "checkGatewayReachability"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "changeSets",
+    "permalink": "/api/operations/queries/change-sets"
+  },
+  "next": {
+    "title": "checkIpConflict",
+    "permalink": "/api/operations/queries/check-ip-conflict"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/job-status",
+  "title": "JobStatus",
+  "description": "Job status for async traceroute execution",
+  "source": "@site/docs/api/types/enums/job-status.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/job-status",
+  "permalink": "/api/types/enums/job-status",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "job-status",
+    "title": "JobStatus"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "IsolationSeverity",
+    "permalink": "/api/types/enums/isolation-severity"
+  },
+  "next": {
+    "title": "KillSwitchMode",
+    "permalink": "/api/types/enums/kill-switch-mode"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/composite-resource",
+  "title": "CompositeResource",
+  "description": "A composite resource with all related sub-resources",
+  "source": "@site/docs/api/types/objects/composite-resource.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/composite-resource",
+  "permalink": "/api/types/objects/composite-resource",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "composite-resource",
+    "title": "CompositeResource"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "CircuitBreakerStatus",
+    "permalink": "/api/types/objects/circuit-breaker-status"
+  },
+  "next": {
+    "title": "ConfigPreview",
+    "permalink": "/api/types/objects/config-preview"
+  }
+}

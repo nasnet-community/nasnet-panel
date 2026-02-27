@@ -1,0 +1,24 @@
+{
+  "id": "testing/component-testing",
+  "title": "Component Testing",
+  "description": "Component tests verify that React components render correctly and respond to user interactions as expected. They sit at the integration level of the testing pyramid — components are rendered with real logic, connected to mocked network requests via MSW, and exercised through user events.",
+  "source": "@site/../connect/docs/testing/component-testing.md",
+  "sourceDirName": "testing",
+  "slug": "/testing/component-testing",
+  "permalink": "/docs/frontend/testing/component-testing",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../connect/docs/testing/component-testing.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Zustand Stores Inventory",
+    "permalink": "/docs/frontend/state-management/zustand-stores"
+  },
+  "next": {
+    "title": "E2E Testing",
+    "permalink": "/docs/frontend/testing/e2e-testing"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/ip-address-mutation-result",
+  "title": "IpAddressMutationResult",
+  "description": "Result of an IP address mutation (create, update)",
+  "source": "@site/docs/api/types/objects/ip-address-mutation-result.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/ip-address-mutation-result",
+  "permalink": "/api/types/objects/ip-address-mutation-result",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "ip-address-mutation-result",
+    "title": "IpAddressMutationResult"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "IpAddressImpactAnalysis",
+    "permalink": "/api/types/objects/ip-address-impact-analysis"
+  },
+  "next": {
+    "title": "IpAddress",
+    "permalink": "/api/types/objects/ip-address"
+  }
+}

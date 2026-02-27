@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/subscriptions/circuit-breaker-state-changed",
+  "title": "circuitBreakerStateChanged",
+  "description": "Subscribe to circuit breaker state changes for a router.",
+  "source": "@site/docs/api/operations/subscriptions/circuit-breaker-state-changed.mdx",
+  "sourceDirName": "api/operations/subscriptions",
+  "slug": "/api/operations/subscriptions/circuit-breaker-state-changed",
+  "permalink": "/api/operations/subscriptions/circuit-breaker-state-changed",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "circuit-breaker-state-changed",
+    "title": "circuitBreakerStateChanged"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "circuitBreakerChanged",
+    "permalink": "/api/operations/subscriptions/circuit-breaker-changed"
+  },
+  "next": {
+    "title": "configApplyProgress",
+    "permalink": "/api/operations/subscriptions/config-apply-progress"
+  }
+}

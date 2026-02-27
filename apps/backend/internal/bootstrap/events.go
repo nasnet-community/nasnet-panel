@@ -2,6 +2,7 @@ package bootstrap
 
 import (
 	"errors"
+	"fmt"
 
 	"backend/internal/events"
 )
@@ -16,7 +17,11 @@ func InitializeEventBus(bufferSize int) (events.EventBus, error) {
 
 	opts := events.DefaultEventBusOptions()
 	opts.BufferSize = bufferSize
-	return events.NewEventBus(opts)
+	bus, err := events.NewEventBus(opts)
+	if err != nil {
+		return nil, fmt.Errorf("create event bus: %w", err)
+	}
+	return bus, nil
 }
 
 // CreatePublisher creates a new event publisher for the given component.

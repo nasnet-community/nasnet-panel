@@ -5,17 +5,17 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../lib/utils';
 
 const cardVariants = cva(
-  'rounded-card border bg-card text-card-foreground transition-all duration-200',
+  'rounded-[var(--semantic-radius-card)] border border-border bg-card text-card-foreground transition-shadow duration-200',
   {
     variants: {
       variant: {
-        default: 'border-border shadow-card',
+        default: 'shadow-[var(--semantic-shadow-card)]',
         elevated:
-          'border-border shadow-lg hover:shadow-xl',
+          'shadow-[var(--semantic-shadow-card)] hover:shadow-lg',
         interactive:
-          'border-border shadow-sm hover:shadow-md hover:border-border cursor-pointer',
+          'shadow-[var(--semantic-shadow-card)] hover:shadow-lg cursor-pointer',
         flat:
-          'border-border bg-muted shadow-none',
+          'shadow-none',
       },
     },
     defaultVariants: {

@@ -168,7 +168,7 @@ func applyPRAGMAs(ctx context.Context, db *sql.DB, cfg *Config) error {
 
 	for _, pragma := range pragmas {
 		if _, err := db.ExecContext(ctx, pragma); err != nil {
-			return fmt.Errorf("failed to execute %s: %w", pragma, err)
+			return fmt.Errorf("apply pragma: %w", err)
 		}
 	}
 
@@ -190,7 +190,7 @@ func runIntegrityCheck(ctx context.Context, db *sql.DB) (bool, error) {
 	var fullResult string
 	err = db.QueryRowContext(ctx, "PRAGMA integrity_check").Scan(&fullResult)
 	if err != nil {
-		return false, fmt.Errorf("integrity_check query failed: %w", err)
+		return false, fmt.Errorf("database integrity check: %w", err)
 	}
 
 	return fullResult == "ok", nil
@@ -225,21 +225,21 @@ func VerifyPRAGMAs(ctx context.Context, db *sql.DB, cfg *Config) error {
 	// Verify journal_mode (case-insensitive comparison as SQLite returns lowercase)
 	var journalMode string
 	if err := db.QueryRowContext(ctx, "PRAGMA journal_mode").Scan(&journalMode); err != nil {
-		return fmt.Errorf("failed to get journal_mode: %w", err)
+		return fmt.Errorf("verify journal_mode: %w", err)
 	}
 	_ = journalMode // Verification without logging
 
 	// Verify synchronous
 	var synchronous int
 	if err := db.QueryRowContext(ctx, "PRAGMA synchronous").Scan(&synchronous); err != nil {
-		return fmt.Errorf("failed to get synchronous: %w", err)
+		return fmt.Errorf("verify synchronous: %w", err)
 	}
 	_ = synchronous // Verification without logging
 
 	// Verify busy_timeout
 	var busyTimeout int
 	if err := db.QueryRowContext(ctx, "PRAGMA busy_timeout").Scan(&busyTimeout); err != nil {
-		return fmt.Errorf("failed to get busy_timeout: %w", err)
+		return fmt.Errorf("verify busy_timeout: %w", err)
 	}
 	_ = busyTimeout // Verification without logging
 
@@ -251,7 +251,7 @@ func MeasureQueryLatency(ctx context.Context, db *sql.DB) (time.Duration, error)
 	start := time.Now()
 	var result int
 	if err := db.QueryRowContext(ctx, "SELECT 1").Scan(&result); err != nil {
-		return 0, err
+		return 0, fmt.Errorf("measure query latency: %w", err)
 	}
 	return time.Since(start), nil
 }
@@ -264,12 +264,12 @@ func ensureSecurePermissions(path string) error {
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		return nil // File doesn't exist yet, will get correct permissions when created
 	} else if err != nil {
-		return err
+		return fmt.Errorf("stat database file: %w", err)
 	}
 
 	// File exists, enforce strict permissions
 	if err := os.Chmod(path, 0o600); err != nil {
-		return fmt.Errorf("chmod %s to 0600: %w", path, err)
+		return fmt.Errorf("set secure permissions: %w", err)
 	}
 
 	return nil

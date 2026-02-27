@@ -81,7 +81,7 @@ const DraggableInterface = memo(function DraggableInterface({ interface: iface }
   const style = {
     transform: CSS.Translate.toString(transform),
     opacity: isDragging ? 0.5 : 1,
-  };
+  } as React.CSSProperties;
 
   // Memoized interface type badge variant determiner
   const getTypeBadgeVariant = useCallback((type: string): 'default' | 'secondary' | 'outline' => {
@@ -101,7 +101,7 @@ const DraggableInterface = memo(function DraggableInterface({ interface: iface }
       style={style}
       {...attributes}
       {...listeners}
-      className="flex items-center gap-component-sm rounded-md border bg-background p-component-sm cursor-grab active:cursor-grabbing transition-colors hover:bg-accent"
+      className="flex items-center gap-component-sm rounded-md border bg-card p-component-sm cursor-grab active:cursor-grabbing transition-colors hover:bg-accent"
       role="listitem"
       aria-label={`Draggable interface ${iface.name}`}
     >
@@ -109,7 +109,7 @@ const DraggableInterface = memo(function DraggableInterface({ interface: iface }
       <Icon icon={GripVertical} className="h-4 w-4 text-muted-foreground flex-shrink-0" aria-hidden="true" />
 
       {/* Interface Icon */}
-      <div className="flex h-8 w-8 items-center justify-center rounded bg-primary/10 text-primary flex-shrink-0">
+      <div className="flex h-8 w-8 items-center justify-center rounded bg-category-networking/10 text-category-networking flex-shrink-0">
         <svg
           width="16"
           height="16"
@@ -126,7 +126,7 @@ const DraggableInterface = memo(function DraggableInterface({ interface: iface }
       {/* Interface Info */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-component-sm">
-          <span className="font-medium text-sm truncate">{iface.name}</span>
+          <span className="font-mono font-medium text-sm truncate">{iface.name}</span>
           <Badge variant={getTypeBadgeVariant(iface.type)} className="text-xs">
             {iface.type}
           </Badge>

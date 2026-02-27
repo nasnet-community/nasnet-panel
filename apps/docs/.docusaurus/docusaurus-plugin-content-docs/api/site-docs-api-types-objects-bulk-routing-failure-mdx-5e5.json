@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/bulk-routing-failure",
+  "title": "BulkRoutingFailure",
+  "description": "Failed routing assignment in bulk operation.",
+  "source": "@site/docs/api/types/objects/bulk-routing-failure.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/bulk-routing-failure",
+  "permalink": "/api/types/objects/bulk-routing-failure",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "bulk-routing-failure",
+    "title": "BulkRoutingFailure"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "BulkCreateResult",
+    "permalink": "/api/types/objects/bulk-create-result"
+  },
+  "next": {
+    "title": "BulkRoutingResult",
+    "permalink": "/api/types/objects/bulk-routing-result"
+  }
+}

@@ -49,7 +49,7 @@ export function SafetyConfirmationConsequences({
       {consequences.map((consequence, index) => (
         <li key={index} className="flex items-start gap-2 text-sm">
           <AlertCircle
-            className="mt-0.5 h-4 w-4 flex-shrink-0 text-warning"
+            className="mt-0.5 h-5 w-5 flex-shrink-0 text-warning"
             aria-hidden="true"
           />
           <span className="text-muted-foreground">{consequence}</span>

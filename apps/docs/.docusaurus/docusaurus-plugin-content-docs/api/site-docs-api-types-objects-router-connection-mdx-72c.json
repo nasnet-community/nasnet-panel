@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/router-connection",
+  "title": "RouterConnection",
+  "description": "No description",
+  "source": "@site/docs/api/types/objects/router-connection.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/router-connection",
+  "permalink": "/api/types/objects/router-connection",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "router-connection",
+    "title": "RouterConnection"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "RouterCapabilities",
+    "permalink": "/api/types/objects/router-capabilities"
+  },
+  "next": {
+    "title": "RouterCredentials",
+    "permalink": "/api/types/objects/router-credentials"
+  }
+}

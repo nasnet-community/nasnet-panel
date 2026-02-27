@@ -2,6 +2,7 @@ package parser
 
 import (
 	"context"
+	"fmt"
 	"strings"
 )
 
@@ -88,7 +89,7 @@ func (p *keyValueParser) Parse(ctx context.Context, raw string, hints ParseHints
 		// Check context cancellation
 		select {
 		case <-ctx.Done():
-			return nil, ctx.Err()
+			return nil, fmt.Errorf("parse key-value: %w", ctx.Err())
 		default:
 		}
 

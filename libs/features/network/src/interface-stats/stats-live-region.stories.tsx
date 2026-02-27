@@ -63,9 +63,9 @@ function DebugWrapper({
         : `${interfaceName} statistics updated. Transmitted ... bytes, received ... bytes.`;
 
   return (
-    <div className="flex flex-col gap-4 p-4">
+    <div className="flex flex-col gap-component-md p-component-sm">
       {/* Simulated live-region content for visual inspection */}
-      <div className="rounded-md border border-dashed border-muted-foreground/40 bg-muted/20 p-4">
+      <div className="rounded-md border border-dashed border-muted-foreground/40 bg-muted/20 p-component-sm">
         <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           ARIA Live Region announcement (normally sr-only)
         </p>

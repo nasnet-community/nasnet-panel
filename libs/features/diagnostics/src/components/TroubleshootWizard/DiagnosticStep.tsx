@@ -127,10 +127,10 @@ export const DiagnosticStep = memo(function DiagnosticStep({
 
       {/* Step Content */}
       <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-component-sm">
           <h3 className="font-medium text-sm truncate text-foreground">{step.name}</h3>
           {step.result?.executionTimeMs && step.status !== 'running' && (
-            <span className="text-xs text-muted-foreground whitespace-nowrap">
+            <span className="font-mono text-xs text-muted-foreground whitespace-nowrap">
               {(step.result.executionTimeMs / 1000).toFixed(1)}s
             </span>
           )}
@@ -138,7 +138,7 @@ export const DiagnosticStep = memo(function DiagnosticStep({
         {step.result?.message && step.status !== 'pending' && (
           <p
             className={cn(
-              'text-xs mt-1',
+              'text-xs mt-component-xs',
               step.status === 'passed' && 'text-success',
               step.status === 'failed' && 'text-error',
               step.status === 'running' && 'text-muted-foreground'

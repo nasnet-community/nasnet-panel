@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/update-vlan",
+  "title": "updateVlan",
+  "description": "Update an existing VLAN interface",
+  "source": "@site/docs/api/operations/mutations/update-vlan.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/update-vlan",
+  "permalink": "/api/operations/mutations/update-vlan",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "update-vlan",
+    "title": "updateVlan"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "updateTunnel",
+    "permalink": "/api/operations/mutations/update-tunnel"
+  },
+  "next": {
+    "title": "updateVLANPoolConfig",
+    "permalink": "/api/operations/mutations/update-vlanpool-config"
+  }
+}

@@ -302,7 +302,7 @@ func (a *RESTAdapter) doRequest(ctx context.Context, method, path string, body i
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("User-Agent", "NasNetConnect/1.0")
 
-	resp, err := a.client.Do(req)
+	resp, err := a.client.Do(req) //nolint:gosec // G704: URL is constructed from trusted configuration
 	if err != nil {
 		return nil, 0, fmt.Errorf("request failed: %w", err)
 	}

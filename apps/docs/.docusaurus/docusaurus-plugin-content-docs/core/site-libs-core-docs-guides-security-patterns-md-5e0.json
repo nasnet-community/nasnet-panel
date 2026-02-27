@@ -1,0 +1,28 @@
+{
+  "id": "guides/security-patterns",
+  "title": "Security Patterns",
+  "description": "Reference: libs/core/forms/src/ | libs/api-client/ | Layered Security Architecture",
+  "source": "@site/../../libs/core/docs/guides/security-patterns.md",
+  "sourceDirName": "guides",
+  "slug": "/guides/security-patterns",
+  "permalink": "/docs/core/guides/security-patterns",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/core/docs/guides/security-patterns.md",
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 14,
+  "frontMatter": {
+    "sidebar_position": 14,
+    "title": "Security Patterns"
+  },
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Performance Patterns",
+    "permalink": "/docs/core/guides/performance-patterns"
+  },
+  "next": {
+    "title": "Change Set Operations: Atomic Multi-Resource Transactions",
+    "permalink": "/docs/core/guides/change-set-operations"
+  }
+}

@@ -2,6 +2,7 @@ package alerts
 
 import (
 	"context"
+	"fmt"
 	"sync"
 	"time"
 
@@ -120,7 +121,11 @@ type AlertRuleTemplateService = alerttpl.Service
 
 // NewAlertRuleTemplateService creates a new alert rule template service.
 func NewAlertRuleTemplateService(alertService *services.AlertService, entClient *ent.Client) (*alerttpl.Service, error) {
-	return alerttpl.NewService(alertService, entClient)
+	svc, err := alerttpl.NewService(alertService, entClient)
+	if err != nil {
+		return nil, fmt.Errorf("creating alert rule template service: %w", err)
+	}
+	return svc, nil
 }
 
 // --- escalation package aliases ---
@@ -221,12 +226,16 @@ func NewDigestService(cfg DigestServiceConfig) (*digest.Service, error) {
 		}
 	}
 
-	return digest.NewService(digest.ServiceConfig{
+	svc, err := digest.NewService(digest.ServiceConfig{
 		DB:       cfg.DB,
 		EventBus: cfg.EventBus,
 		Dispatch: dispatchFn,
 		Logger:   cfg.Logger,
 	})
+	if err != nil {
+		return nil, fmt.Errorf("creating digest service: %w", err)
+	}
+	return svc, nil
 }
 
 // DigestSchedulerConfig holds initialization parameters for DigestScheduler.

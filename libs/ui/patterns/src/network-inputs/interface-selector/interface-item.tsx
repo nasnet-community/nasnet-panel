@@ -119,9 +119,9 @@ export const InterfaceItem = memo(function InterfaceItem({
       {/* Type icon */}
       <InterfaceTypeIcon type={iface.type} className="h-5 w-5 shrink-0" />
 
-      {/* Name and IP */}
+      {/* Name and IP (monospace for network data) */}
       <div className="flex-1 min-w-0">
-        <p className="font-medium truncate text-sm">{iface.name}</p>
+        <p className="font-medium truncate text-sm font-mono">{iface.name}</p>
         {showIP && iface.ip && (
           <p className="text-xs text-muted-foreground font-mono truncate">
             {iface.ip}

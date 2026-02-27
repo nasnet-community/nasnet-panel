@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/change-set-item-input",
+  "title": "ChangeSetItemInput",
+  "description": "Input for adding an item to a change set",
+  "source": "@site/docs/api/types/inputs/change-set-item-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/change-set-item-input",
+  "permalink": "/api/types/inputs/change-set-item-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "change-set-item-input",
+    "title": "ChangeSetItemInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ChainHopInput",
+    "permalink": "/api/types/inputs/chain-hop-input"
+  },
+  "next": {
+    "title": "CheckPortAvailabilityInput",
+    "permalink": "/api/types/inputs/check-port-availability-input"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/notification-template-preview",
+  "title": "NotificationTemplatePreview",
+  "description": "Notification template preview result",
+  "source": "@site/docs/api/types/objects/notification-template-preview.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/notification-template-preview",
+  "permalink": "/api/types/objects/notification-template-preview",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "notification-template-preview",
+    "title": "NotificationTemplatePreview"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "NotificationLog",
+    "permalink": "/api/types/objects/notification-log"
+  },
+  "next": {
+    "title": "OpenVPNClientConfig",
+    "permalink": "/api/types/objects/open-vpnclient-config"
+  }
+}

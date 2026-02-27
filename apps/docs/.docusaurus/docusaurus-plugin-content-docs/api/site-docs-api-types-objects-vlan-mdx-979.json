@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/vlan",
+  "title": "Vlan",
+  "description": "A VLAN (Virtual LAN) interface for network segmentation using 802.1Q tagging",
+  "source": "@site/docs/api/types/objects/vlan.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/vlan",
+  "permalink": "/api/types/objects/vlan",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "vlan",
+    "title": "Vlan"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "VlanTopology",
+    "permalink": "/api/types/objects/vlan-topology"
+  },
+  "next": {
+    "title": "VLANAllocation",
+    "permalink": "/api/types/objects/vlanallocation"
+  }
+}

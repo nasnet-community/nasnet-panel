@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/connect-router-payload",
+  "title": "ConnectRouterPayload",
+  "description": "No description",
+  "source": "@site/docs/api/types/objects/connect-router-payload.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/connect-router-payload",
+  "permalink": "/api/types/objects/connect-router-payload",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "connect-router-payload",
+    "title": "ConnectRouterPayload"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ConfigureExternalStoragePayload",
+    "permalink": "/api/types/objects/configure-external-storage-payload"
+  },
+  "next": {
+    "title": "ConnectionAttempt",
+    "permalink": "/api/types/objects/connection-attempt"
+  }
+}

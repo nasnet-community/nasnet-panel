@@ -116,7 +116,7 @@ export function DashboardPage() {
   };
 
   return (
-    <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-6 space-y-6">
+    <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-6 space-y-6 animate-fade-in-up">
       {/* Hero Status Card - Clean Minimal Design */}
       <StatusCard
         status={networkStatus}
@@ -138,8 +138,8 @@ export function DashboardPage() {
 
       {/* Quick Actions Grid */}
       <div>
-        <p className="text-sm font-medium text-muted-foreground mb-3">{t('quickActions.title')}</p>
-        <div className="grid grid-cols-5 gap-component-md">
+        <p className="text-sm font-semibold font-display text-muted-foreground mb-3 uppercase tracking-wider">{t('quickActions.title')}</p>
+        <div className="grid grid-cols-5 gap-component-md stagger-children">
           <QuickActionButton
             icon={Wifi}
             label={t('quickActions.wifi')}
@@ -174,7 +174,7 @@ export function DashboardPage() {
           <h2 className="text-lg font-semibold font-display text-foreground">{t('resources.title')}</h2>
           <LastUpdated timestamp={dataUpdatedAt} />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-component-md">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-component-md bg-card rounded-card-lg p-component-md border border-border shadow-sm">
           {/* System Information Card */}
           <SystemInfoCard
             data={data}
@@ -214,7 +214,7 @@ export function DashboardPage() {
       {/* Hardware Details Section */}
       <div>
         <h2 className="text-lg font-semibold font-display text-foreground mb-4">{t('overview.hardware')}</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-component-md">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-component-md bg-card rounded-card-lg p-component-md border border-border shadow-sm">
           <HardwareCard
             data={hardwareData}
             isLoading={hardwareLoading}

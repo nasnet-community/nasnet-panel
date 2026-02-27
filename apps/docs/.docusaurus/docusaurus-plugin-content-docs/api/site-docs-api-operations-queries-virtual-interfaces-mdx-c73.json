@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/virtual-interfaces",
+  "title": "virtualInterfaces",
+  "description": "List all virtual interfaces for a router.",
+  "source": "@site/docs/api/operations/queries/virtual-interfaces.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/virtual-interfaces",
+  "permalink": "/api/operations/queries/virtual-interfaces",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "virtual-interfaces",
+    "title": "virtualInterfaces"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "virtualInterface",
+    "permalink": "/api/operations/queries/virtual-interface"
+  },
+  "next": {
+    "title": "vlanAllocations",
+    "permalink": "/api/operations/queries/vlan-allocations"
+  }
+}

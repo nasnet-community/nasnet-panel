@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/dns-lookup-input",
+  "title": "DnsLookupInput",
+  "description": "Input for DNS lookup operation",
+  "source": "@site/docs/api/types/inputs/dns-lookup-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/dns-lookup-input",
+  "permalink": "/api/types/inputs/dns-lookup-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "dns-lookup-input",
+    "title": "DnsLookupInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "DigestConfigInput",
+    "permalink": "/api/types/inputs/digest-config-input"
+  },
+  "next": {
+    "title": "EmailConfigInput",
+    "permalink": "/api/types/inputs/email-config-input"
+  }
+}

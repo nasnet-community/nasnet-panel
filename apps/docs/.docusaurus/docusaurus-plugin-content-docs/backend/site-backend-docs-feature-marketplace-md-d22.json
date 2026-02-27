@@ -1,0 +1,24 @@
+{
+  "id": "feature-marketplace",
+  "title": "Feature Marketplace",
+  "description": "Downloadable privacy and network services for MikroTik routers: manifest-driven binary distribution, cryptographic verification, atomic updates, config migration, and service import/export.",
+  "source": "@site/../backend/docs/feature-marketplace.md",
+  "sourceDirName": ".",
+  "slug": "/feature-marketplace",
+  "permalink": "/docs/backend/feature-marketplace",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../backend/docs/feature-marketplace.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Event System",
+    "permalink": "/docs/backend/event-system"
+  },
+  "next": {
+    "title": "Flow: Alert Lifecycle",
+    "permalink": "/docs/backend/flows/alert-lifecycle-flow"
+  }
+}

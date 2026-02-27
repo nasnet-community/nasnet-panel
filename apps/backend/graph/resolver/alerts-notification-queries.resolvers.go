@@ -7,28 +7,29 @@ package resolver
 
 import (
 	"backend/graph/model"
-	"backend/internal/errors"
+	"backend/internal/apperrors"
 	"context"
+	"fmt"
 )
 
 // PushoverUsage is the resolver for the pushoverUsage field.
 // Returns Pushover service quota and usage statistics.
 func (r *queryResolver) PushoverUsage(ctx context.Context) (*model.PushoverUsage, error) {
 	if r.Dispatcher == nil {
-		return nil, errors.NewInternalError("notification dispatcher service not available", nil)
+		return nil, apperrors.NewInternalError("notification dispatcher service not available", nil)
 	}
 
 	// TODO: Implement Pushover usage retrieval
 	// This should query the Pushover API for current quota and usage
 	// Pass ctx to service call for proper context propagation and cancellation
-	return nil, nil
+	return nil, fmt.Errorf("pushover usage not implemented")
 }
 
 // Webhooks is the resolver for the webhooks field.
 // Returns all configured webhook configurations.
 func (r *queryResolver) Webhooks(ctx context.Context) ([]*model.Webhook, error) {
 	if r.WebhookService == nil {
-		return nil, errors.NewInternalError("webhook service not available", nil)
+		return nil, apperrors.NewInternalError("webhook service not available", nil)
 	}
 
 	// TODO: Implement webhooks list retrieval
@@ -41,23 +42,24 @@ func (r *queryResolver) Webhooks(ctx context.Context) ([]*model.Webhook, error) 
 // Returns a specific webhook configuration by ID.
 func (r *queryResolver) Webhook(ctx context.Context, id string) (*model.Webhook, error) {
 	if r.WebhookService == nil {
-		return nil, errors.NewInternalError("webhook service not available", nil)
+		return nil, apperrors.NewInternalError("webhook service not available", nil)
 	}
 
 	if id == "" {
-		return nil, errors.NewValidationError("id", id, "webhook ID is required")
+		return nil, apperrors.NewValidationError("id", id, "webhook ID is required")
 	}
 
 	// TODO: Implement single webhook retrieval
 	// This should call r.WebhookService to get the webhook by ID
-	return nil, nil
+	return nil, fmt.Errorf("webhook retrieval not implemented")
 }
 
 // NotificationLogs is the resolver for the notificationLogs field.
-// Returns notification delivery logs with optional filtering by alert ID, channel, or webhook ID.
+// Returns notification delivery logs with optional filtering by alert ID,
+// channel, or webhook ID.
 func (r *queryResolver) NotificationLogs(ctx context.Context, alertID *string, channel *string, webhookID *string, limit *int, offset *int) ([]*model.NotificationLog, error) {
 	if r.db == nil {
-		return nil, errors.NewInternalError("database not available", nil)
+		return nil, apperrors.NewInternalError("database not available", nil)
 	}
 
 	// Apply default pagination if not specified
@@ -80,7 +82,7 @@ func (r *queryResolver) NotificationLogs(ctx context.Context, alertID *string, c
 // Returns alert escalation records with optional filtering by status.
 func (r *queryResolver) AlertEscalations(ctx context.Context, status *model.EscalationStatus, limit *int, offset *int) ([]*model.AlertEscalation, error) {
 	if r.db == nil {
-		return nil, errors.NewInternalError("database not available", nil)
+		return nil, apperrors.NewInternalError("database not available", nil)
 	}
 
 	// Apply default pagination if not specified
@@ -102,11 +104,11 @@ func (r *queryResolver) AlertEscalations(ctx context.Context, status *model.Esca
 // Returns the number of alerts pending in the digest queue for a channel.
 func (r *queryResolver) DigestQueueCount(ctx context.Context, channelID string) (int, error) {
 	if r.Dispatcher == nil {
-		return 0, errors.NewInternalError("notification dispatcher service not available", nil)
+		return 0, apperrors.NewInternalError("notification dispatcher service not available", nil)
 	}
 
 	if channelID == "" {
-		return 0, errors.NewValidationError("channelID", channelID, "channel ID is required")
+		return 0, apperrors.NewValidationError("channelID", channelID, "channel ID is required")
 	}
 
 	// TODO: Implement digest queue count retrieval
@@ -119,11 +121,11 @@ func (r *queryResolver) DigestQueueCount(ctx context.Context, channelID string) 
 // Returns historical digest summaries for a channel.
 func (r *queryResolver) DigestHistory(ctx context.Context, channelID string, limit *int) ([]*model.DigestSummary, error) {
 	if r.Dispatcher == nil {
-		return nil, errors.NewInternalError("notification dispatcher service not available", nil)
+		return nil, apperrors.NewInternalError("notification dispatcher service not available", nil)
 	}
 
 	if channelID == "" {
-		return nil, errors.NewValidationError("channelID", channelID, "channel ID is required")
+		return nil, apperrors.NewValidationError("channelID", channelID, "channel ID is required")
 	}
 
 	// Apply default limit if not specified
@@ -141,7 +143,7 @@ func (r *queryResolver) DigestHistory(ctx context.Context, channelID string, lim
 // Returns throttle status information for alert rules.
 func (r *queryResolver) AlertRuleThrottleStatus(ctx context.Context, ruleID *string) ([]*model.ThrottleStatus, error) {
 	if r.AlertService == nil {
-		return nil, errors.NewInternalError("alert service not available", nil)
+		return nil, apperrors.NewInternalError("alert service not available", nil)
 	}
 
 	// TODO: Implement throttle status retrieval
@@ -155,11 +157,11 @@ func (r *queryResolver) AlertRuleThrottleStatus(ctx context.Context, ruleID *str
 // Returns the current alert storm status (burst of alerts indicating system issues).
 func (r *queryResolver) AlertStormStatus(ctx context.Context) (*model.StormStatus, error) {
 	if r.AlertService == nil {
-		return nil, errors.NewInternalError("alert service not available", nil)
+		return nil, apperrors.NewInternalError("alert service not available", nil)
 	}
 
 	// TODO: Implement storm status retrieval
 	// This should query the AlertService for current storm status
 	// Pass ctx to service call for proper context propagation and cancellation
-	return nil, nil
+	return nil, fmt.Errorf("alert storm status not implemented")
 }

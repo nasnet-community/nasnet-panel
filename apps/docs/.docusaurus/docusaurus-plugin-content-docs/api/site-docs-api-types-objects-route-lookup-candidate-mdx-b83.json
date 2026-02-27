@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/route-lookup-candidate",
+  "title": "RouteLookupCandidate",
+  "description": "A candidate route that matches the destination",
+  "source": "@site/docs/api/types/objects/route-lookup-candidate.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/route-lookup-candidate",
+  "permalink": "/api/types/objects/route-lookup-candidate",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "route-lookup-candidate",
+    "title": "RouteLookupCandidate"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "RouteImpactAnalysis",
+    "permalink": "/api/types/objects/route-impact-analysis"
+  },
+  "next": {
+    "title": "RouteLookupResult",
+    "permalink": "/api/types/objects/route-lookup-result"
+  }
+}

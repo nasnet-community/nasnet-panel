@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/transport-protocol",
+  "title": "TransportProtocol",
+  "description": "Transport protocol enum for network traffic.",
+  "source": "@site/docs/api/types/enums/transport-protocol.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/transport-protocol",
+  "permalink": "/api/types/enums/transport-protocol",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "transport-protocol",
+    "title": "TransportProtocol"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "TracerouteProtocol",
+    "permalink": "/api/types/enums/traceroute-protocol"
+  },
+  "next": {
+    "title": "TroubleshootSessionStatus",
+    "permalink": "/api/types/enums/troubleshoot-session-status"
+  }
+}

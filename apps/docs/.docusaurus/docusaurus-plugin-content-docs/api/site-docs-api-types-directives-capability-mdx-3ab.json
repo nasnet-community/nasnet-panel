@@ -1,0 +1,26 @@
+{
+  "id": "api/types/directives/capability",
+  "title": "capability",
+  "description": "No description",
+  "source": "@site/docs/api/types/directives/capability.mdx",
+  "sourceDirName": "api/types/directives",
+  "slug": "/api/types/directives/capability",
+  "permalink": "/api/types/directives/capability",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "capability",
+    "title": "capability"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "cache",
+    "permalink": "/api/types/directives/cache"
+  },
+  "next": {
+    "title": "deprecated",
+    "permalink": "/api/types/directives/deprecated"
+  }
+}

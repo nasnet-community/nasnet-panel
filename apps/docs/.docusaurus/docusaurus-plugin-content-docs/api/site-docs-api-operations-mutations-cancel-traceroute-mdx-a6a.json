@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/cancel-traceroute",
+  "title": "cancelTraceroute",
+  "description": "Cancel a running traceroute job.",
+  "source": "@site/docs/api/operations/mutations/cancel-traceroute.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/cancel-traceroute",
+  "permalink": "/api/operations/mutations/cancel-traceroute",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "cancel-traceroute",
+    "title": "cancelTraceroute"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "cancelScan",
+    "permalink": "/api/operations/mutations/cancel-scan"
+  },
+  "next": {
+    "title": "cancelTroubleshoot",
+    "permalink": "/api/operations/mutations/cancel-troubleshoot"
+  }
+}

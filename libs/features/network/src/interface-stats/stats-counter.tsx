@@ -134,11 +134,11 @@ export const StatsCounter = memo(function StatsCounter({
   const formattedValue = getFormattedValue();
 
   return (
-    <div className={cn('flex flex-col gap-component-sm', className)}>
+    <div className={cn('flex flex-col gap-component-sm category-networking', className)}>
       <span className="text-sm font-medium text-muted-foreground">{label}</span>
       <span
         className={cn(
-          'text-2xl font-mono font-semibold tabular-nums transition-opacity duration-150',
+          'text-2xl font-mono font-semibold tabular-nums transition-opacity duration-150 text-foreground',
           isUpdating && 'opacity-70'
         )}
         aria-live="polite"

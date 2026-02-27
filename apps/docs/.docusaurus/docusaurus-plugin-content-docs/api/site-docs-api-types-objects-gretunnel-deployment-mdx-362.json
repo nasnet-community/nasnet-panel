@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/gretunnel-deployment",
+  "title": "GRETunnelDeployment",
+  "description": "GRE tunnel deployment state",
+  "source": "@site/docs/api/types/objects/gretunnel-deployment.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/gretunnel-deployment",
+  "permalink": "/api/types/objects/gretunnel-deployment",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "gretunnel-deployment",
+    "title": "GRETunnelDeployment"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "GRETunnelConfig",
+    "permalink": "/api/types/objects/gretunnel-config"
+  },
+  "next": {
+    "title": "GRETunnelRuntime",
+    "permalink": "/api/types/objects/gretunnel-runtime"
+  }
+}

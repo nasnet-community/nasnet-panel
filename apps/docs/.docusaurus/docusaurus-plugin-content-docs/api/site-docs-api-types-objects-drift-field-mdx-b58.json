@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/drift-field",
+  "title": "DriftField",
+  "description": "A field that has drifted from configuration",
+  "source": "@site/docs/api/types/objects/drift-field.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/drift-field",
+  "permalink": "/api/types/objects/drift-field",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "drift-field",
+    "title": "DriftField"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "DnsTopDomain",
+    "permalink": "/api/types/objects/dns-top-domain"
+  },
+  "next": {
+    "title": "DriftInfo",
+    "permalink": "/api/types/objects/drift-info"
+  }
+}

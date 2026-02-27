@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/unsupported-features",
+  "title": "unsupportedFeatures",
+  "description": "Get features not supported by a router with upgrade guidance",
+  "source": "@site/docs/api/operations/queries/unsupported-features.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/unsupported-features",
+  "permalink": "/api/operations/queries/unsupported-features",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "unsupported-features",
+    "title": "unsupportedFeatures"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "unavailableFeatures",
+    "permalink": "/api/operations/queries/unavailable-features"
+  },
+  "next": {
+    "title": "upgradeRecommendation",
+    "permalink": "/api/operations/queries/upgrade-recommendation"
+  }
+}

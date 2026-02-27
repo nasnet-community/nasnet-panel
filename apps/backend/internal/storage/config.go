@@ -66,7 +66,7 @@ func (s *StorageConfigService) SetExternalPath(ctx context.Context, path string)
 	// Validate the path exists and is mounted
 	if err := s.validatePath(path); err != nil {
 		s.logger.Error("path validation failed", zap.Error(err), zap.String("path", path))
-		return err
+		return fmt.Errorf("path validation failed: %w", err)
 	}
 
 	// Get current config to check if changed
@@ -139,7 +139,7 @@ func (s *StorageConfigService) SetEnabled(ctx context.Context, enabled bool) err
 	if enabled {
 		path, err := s.GetExternalPath(ctx)
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to get external path: %w", err)
 		}
 		if path == "" {
 			return NewStorageError(
@@ -343,7 +343,10 @@ func (s *StorageConfigService) upsertSetting(
 		_, err = s.client.GlobalSettings.UpdateOneID(existing.ID).
 			SetValue(valueMap).
 			Save(ctx)
-		return err
+		if err != nil {
+			return fmt.Errorf("failed to update setting: %w", err)
+		}
+		return nil
 	}
 
 	// Create new
@@ -359,5 +362,8 @@ func (s *StorageConfigService) upsertSetting(
 		SetSensitive(false).
 		Save(ctx)
 
-	return err
+	if err != nil {
+		return fmt.Errorf("failed to create setting: %w", err)
+	}
+	return nil
 }

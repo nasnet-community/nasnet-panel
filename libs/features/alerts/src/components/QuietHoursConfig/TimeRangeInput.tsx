@@ -64,7 +64,7 @@ function TimeRangeInputComponent({
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-component-md">
         {/* Start Time */}
         <div className="space-y-component-xs">
-          <Label htmlFor="start-time" className="flex items-center gap-2">
+          <Label htmlFor="start-time" className="flex items-center gap-component-sm">
             <Clock className="h-4 w-4" aria-hidden="true" />
             {t('quietHours.startTime')}
           </Label>
@@ -81,7 +81,7 @@ function TimeRangeInputComponent({
 
         {/* End Time */}
         <div className="space-y-component-xs">
-          <Label htmlFor="end-time" className="flex items-center gap-2">
+          <Label htmlFor="end-time" className="flex items-center gap-component-sm">
             <Clock className="h-4 w-4" aria-hidden="true" />
             {t('quietHours.endTime')}
           </Label>

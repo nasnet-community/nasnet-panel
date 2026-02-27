@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/feature-runtime",
+  "title": "FeatureRuntime",
+  "description": "Feature runtime state",
+  "source": "@site/docs/api/types/objects/feature-runtime.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/feature-runtime",
+  "permalink": "/api/types/objects/feature-runtime",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "feature-runtime",
+    "title": "FeatureRuntime"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "FeatureResource",
+    "permalink": "/api/types/objects/feature-resource"
+  },
+  "next": {
+    "title": "FeatureStorageUsage",
+    "permalink": "/api/types/objects/feature-storage-usage"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/apply-provisioning-session-payload",
+  "title": "ApplyProvisioningSessionPayload",
+  "description": "Payload for applying a provisioning session to router",
+  "source": "@site/docs/api/types/objects/apply-provisioning-session-payload.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/apply-provisioning-session-payload",
+  "permalink": "/api/types/objects/apply-provisioning-session-payload",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "apply-provisioning-session-payload",
+    "title": "ApplyProvisioningSessionPayload"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ApplyFixPayload",
+    "permalink": "/api/types/objects/apply-fix-payload"
+  },
+  "next": {
+    "title": "ApplyResourcePayload",
+    "permalink": "/api/types/objects/apply-resource-payload"
+  }
+}

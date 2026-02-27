@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/runtime-health",
+  "title": "RuntimeHealth",
+  "description": "Runtime health status",
+  "source": "@site/docs/api/types/enums/runtime-health.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/runtime-health",
+  "permalink": "/api/types/enums/runtime-health",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "runtime-health",
+    "title": "RuntimeHealth"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "RoutingMode",
+    "permalink": "/api/types/enums/routing-mode"
+  },
+  "next": {
+    "title": "ScanStatus",
+    "permalink": "/api/types/enums/scan-status"
+  }
+}

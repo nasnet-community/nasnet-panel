@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/create-port-knock-sequence",
+  "title": "createPortKnockSequence",
+  "description": "Create a new port knock sequence.",
+  "source": "@site/docs/api/operations/mutations/create-port-knock-sequence.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/create-port-knock-sequence",
+  "permalink": "/api/operations/mutations/create-port-knock-sequence",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "create-port-knock-sequence",
+    "title": "createPortKnockSequence"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "createPortForward",
+    "permalink": "/api/operations/mutations/create-port-forward"
+  },
+  "next": {
+    "title": "createPortMirror",
+    "permalink": "/api/operations/mutations/create-port-mirror"
+  }
+}

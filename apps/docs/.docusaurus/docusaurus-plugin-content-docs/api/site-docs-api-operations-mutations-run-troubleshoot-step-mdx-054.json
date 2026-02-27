@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/run-troubleshoot-step",
+  "title": "runTroubleshootStep",
+  "description": "Run a specific diagnostic step in a session",
+  "source": "@site/docs/api/operations/mutations/run-troubleshoot-step.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/run-troubleshoot-step",
+  "permalink": "/api/operations/mutations/run-troubleshoot-step",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "run-troubleshoot-step",
+    "title": "runTroubleshootStep"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "runTraceroute",
+    "permalink": "/api/operations/mutations/run-traceroute"
+  },
+  "next": {
+    "title": "saveAlertTemplate",
+    "permalink": "/api/operations/mutations/save-alert-template"
+  }
+}

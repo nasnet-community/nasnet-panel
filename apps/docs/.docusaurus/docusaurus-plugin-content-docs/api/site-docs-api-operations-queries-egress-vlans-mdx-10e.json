@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/egress-vlans",
+  "title": "egressVLANs",
+  "description": "List all egress VLANs for a router.",
+  "source": "@site/docs/api/operations/queries/egress-vlans.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/egress-vlans",
+  "permalink": "/api/operations/queries/egress-vlans",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "egress-vlans",
+    "title": "egressVLANs"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "dnsServers",
+    "permalink": "/api/operations/queries/dns-servers"
+  },
+  "next": {
+    "title": "gatewayStatus",
+    "permalink": "/api/operations/queries/gateway-status"
+  }
+}

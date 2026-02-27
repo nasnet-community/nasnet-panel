@@ -87,7 +87,7 @@ export const DHCPLeaseManagementDesktop = React.memo(function DHCPLeaseManagemen
     <div className="flex h-full flex-col gap-component-lg p-component-lg">
       {/* Page Header */}
       <div className="flex items-start justify-between">
-        <div className="space-y-1">
+        <div className="space-y-component-sm">
           <h1 className="font-display text-3xl font-semibold tracking-tight">
             DHCP Leases
           </h1>
@@ -103,7 +103,7 @@ export const DHCPLeaseManagementDesktop = React.memo(function DHCPLeaseManagemen
           aria-label="Export leases to CSV"
           className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         >
-          <Download className="mr-2 h-4 w-4" aria-hidden="true" />
+          <Download className="mr-component-sm h-4 w-4" aria-hidden="true" />
           Export CSV
         </Button>
       </div>
@@ -130,7 +130,7 @@ export const DHCPLeaseManagementDesktop = React.memo(function DHCPLeaseManagemen
           <p className="text-sm font-medium text-error">
             Failed to load DHCP leases
           </p>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="mt-component-xs text-sm text-muted-foreground">
             {error?.message || 'An unexpected error occurred'}
           </p>
         </div>
@@ -154,7 +154,7 @@ export const DHCPLeaseManagementDesktop = React.memo(function DHCPLeaseManagemen
         <div className="flex flex-1 items-center justify-center rounded-[var(--semantic-radius-card)] border border-dashed border-border p-component-lg">
           <div className="text-center">
             <p className="text-sm font-medium">No DHCP leases found</p>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <p className="mt-component-sm text-sm text-muted-foreground">
               Try adjusting your filters or check that DHCP servers are configured
             </p>
           </div>

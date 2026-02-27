@@ -1,0 +1,44 @@
+# ============================================
+# ROUTING SCHEDULE MUTATIONS
+# ============================================
+
+extend type Mutation {
+  """
+  Create a new routing schedule.
+  Validates time format, timezone, and days. Triggers immediate schedule evaluation.
+  """
+  createSchedule(
+    """Router ID"""
+    routerID: ID!
+
+    """Schedule input"""
+    input: CreateScheduleInput!
+  ): RoutingSchedule!
+
+  """
+  Update an existing routing schedule.
+  Triggers immediate schedule evaluation.
+  """
+  updateSchedule(
+    """Router ID"""
+    routerID: ID!
+
+    """Schedule ID to update"""
+    scheduleID: ID!
+
+    """Schedule input"""
+    input: UpdateScheduleInput!
+  ): RoutingSchedule!
+
+  """
+  Delete a routing schedule.
+  Triggers immediate schedule evaluation to ensure routing state is correct.
+  """
+  deleteSchedule(
+    """Router ID"""
+    routerID: ID!
+
+    """Schedule ID to delete"""
+    scheduleID: ID!
+  ): Boolean!
+}

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/refresh-capabilities-payload",
+  "title": "RefreshCapabilitiesPayload",
+  "description": "Payload for refreshCapabilities mutation",
+  "source": "@site/docs/api/types/objects/refresh-capabilities-payload.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/refresh-capabilities-payload",
+  "permalink": "/api/types/objects/refresh-capabilities-payload",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "refresh-capabilities-payload",
+    "title": "RefreshCapabilitiesPayload"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ReconnectRouterPayload",
+    "permalink": "/api/types/objects/reconnect-router-payload"
+  },
+  "next": {
+    "title": "RemoveChangeSetItemPayload",
+    "permalink": "/api/types/objects/remove-change-set-item-payload"
+  }
+}

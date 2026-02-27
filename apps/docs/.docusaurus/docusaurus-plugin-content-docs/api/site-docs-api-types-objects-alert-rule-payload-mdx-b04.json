@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/alert-rule-payload",
+  "title": "AlertRulePayload",
+  "description": "Alert rule mutation payload",
+  "source": "@site/docs/api/types/objects/alert-rule-payload.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/alert-rule-payload",
+  "permalink": "/api/types/objects/alert-rule-payload",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "alert-rule-payload",
+    "title": "AlertRulePayload"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "AlertPayload",
+    "permalink": "/api/types/objects/alert-payload"
+  },
+  "next": {
+    "title": "AlertRuleTemplatePayload",
+    "permalink": "/api/types/objects/alert-rule-template-payload"
+  }
+}

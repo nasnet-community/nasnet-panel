@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/delete-change-set-payload",
+  "title": "DeleteChangeSetPayload",
+  "description": "No description",
+  "source": "@site/docs/api/types/objects/delete-change-set-payload.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/delete-change-set-payload",
+  "permalink": "/api/types/objects/delete-change-set-payload",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "delete-change-set-payload",
+    "title": "DeleteChangeSetPayload"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "DailyStats",
+    "permalink": "/api/types/objects/daily-stats"
+  },
+  "next": {
+    "title": "DeletePayload",
+    "permalink": "/api/types/objects/delete-payload"
+  }
+}

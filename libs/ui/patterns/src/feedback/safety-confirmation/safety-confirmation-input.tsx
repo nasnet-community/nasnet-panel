@@ -66,11 +66,11 @@ export function SafetyConfirmationInput({
           disabled={isCountingDown}
           placeholder={confirmText}
           className={cn(
-            'pr-10 font-mono',
+            'h-10 pr-10 font-mono rounded-[var(--semantic-radius-input)]',
             hasInput && isValid && 'border-success focus-visible:ring-success',
             hasInput &&
               !isValid &&
-              'border-destructive focus-visible:ring-destructive'
+              'border-error focus-visible:ring-error'
           )}
           autoComplete="off"
           autoCorrect="off"
@@ -85,12 +85,12 @@ export function SafetyConfirmationInput({
           <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
             {isValid ? (
               <Check
-                className="h-4 w-4 text-success"
+                className="h-5 w-5 text-success"
                 aria-label="Input matches"
               />
             ) : (
               <X
-                className="h-4 w-4 text-destructive"
+                className="h-5 w-5 text-error"
                 aria-label="Input does not match"
               />
             )}

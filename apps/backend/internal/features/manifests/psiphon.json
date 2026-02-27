@@ -86,5 +86,17 @@
   "health_check_script": "nc -z localhost 4000 || exit 1",
   "readme_url": "https://github.com/nasnetconnect/psiphon/blob/main/README.md",
   "changelog_url": "https://github.com/nasnetconnect/psiphon/blob/main/CHANGELOG.md",
-  "support_url": "https://github.com/nasnetconnect/psiphon/issues"
+  "support_url": "https://github.com/nasnetconnect/psiphon/issues",
+  "source": {
+    "github_owner": "Psiphon-Labs",
+    "github_repo": "psiphon-tunnel-core-binaries",
+    "binary_name": "psiphon-tunnel-core",
+    "archive_format": "none",
+    "extract_path": "",
+    "asset_arch_map": {
+      "amd64": "x86_64",
+      "arm64": "arm64"
+    },
+    "checksum_files": ["checksums.txt", "SHA256SUMS"]
+  }
 }

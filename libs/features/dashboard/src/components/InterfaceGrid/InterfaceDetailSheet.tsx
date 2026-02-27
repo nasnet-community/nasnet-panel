@@ -127,8 +127,7 @@ const InterfaceDetailSheetComponent = React.memo(function InterfaceDetailSheet({
 
         {/* Navigation link */}
         <Link
-          to="/network/interfaces/$interfaceId"
-          params={{ interfaceId: iface.id }}
+          to="/dashboard/network"
           className="inline-flex items-center gap-component-sm text-primary hover:underline mt-component-md"
         >
           <Button variant="outline" size="sm" className="gap-component-sm">

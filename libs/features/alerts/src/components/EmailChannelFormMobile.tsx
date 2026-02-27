@@ -88,8 +88,8 @@ export const EmailChannelFormMobile = memo(function EmailChannelFormMobile({
     <form onSubmit={handleSubmit} className={cn('space-y-component-md pb-24', className)}>
       {/* Enable Toggle */}
       <div className="flex items-center justify-between rounded-[var(--semantic-radius-card)] border border-border bg-card p-component-md">
-        <div className="flex items-center gap-component-sm">
-          <Mail className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
+        <div className="flex items-center gap-component-md">
+          <Mail className="h-5 w-5 text-category-monitoring" aria-hidden="true" />
           <div>
             <Label className="text-base font-semibold">Email Notifications</Label>
             <p className="text-sm text-muted-foreground">Send alerts via email</p>
@@ -117,8 +117,8 @@ export const EmailChannelFormMobile = memo(function EmailChannelFormMobile({
           onClick={() => setShowServer(!showServer)}
           className="flex w-full items-center justify-between rounded-[var(--semantic-radius-card)] border border-border bg-card p-component-md"
         >
-          <div className="flex items-center gap-component-sm">
-            <Server className="h-5 w-5" />
+          <div className="flex items-center gap-component-md">
+            <Server className="h-5 w-5 text-category-monitoring" />
             <span className="font-semibold">SMTP Server</span>
           </div>
           <ChevronDown
@@ -135,9 +135,9 @@ export const EmailChannelFormMobile = memo(function EmailChannelFormMobile({
               <Input
                 id="host"
                 placeholder="smtp.gmail.com"
+                className="font-mono"
                 {...register('host')}
                 error={!!errors.host}
-                className="font-mono"
               />
               {errors.host && (
                 <p className="text-sm text-error">{errors.host.message}</p>
@@ -197,14 +197,14 @@ export const EmailChannelFormMobile = memo(function EmailChannelFormMobile({
                   id="password"
                   type={showPassword ? 'text' : 'password'}
                   autoComplete="current-password"
-                  className="pr-12 font-mono"
+                  className="pr-component-xl font-mono"
                   {...register('password')}
                   error={!!errors.password}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 p-2 h-11 w-11 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-[var(--semantic-radius-button)]"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-component-sm h-11 w-11 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-[var(--semantic-radius-button)]"
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
@@ -225,8 +225,8 @@ export const EmailChannelFormMobile = memo(function EmailChannelFormMobile({
           onClick={() => setShowAddresses(!showAddresses)}
           className="flex w-full items-center justify-between rounded-[var(--semantic-radius-card)] border border-border bg-card p-component-md"
         >
-          <div className="flex items-center gap-component-sm">
-            <Mail className="h-5 w-5" />
+          <div className="flex items-center gap-component-md">
+            <Mail className="h-5 w-5 text-category-monitoring" />
             <span className="font-semibold">Email Addresses</span>
           </div>
           <ChevronDown
@@ -264,7 +264,7 @@ export const EmailChannelFormMobile = memo(function EmailChannelFormMobile({
               <Label htmlFor="recipientInput">
                 Recipients <span className="text-error">*</span>
               </Label>
-              <div className="flex gap-component-sm">
+              <div className="flex gap-component-md">
                 <Input
                   id="recipientInput"
                   type="email"
@@ -289,14 +289,14 @@ export const EmailChannelFormMobile = memo(function EmailChannelFormMobile({
               <p className="text-xs text-muted-foreground">Tap Add or press Enter (max 10)</p>
 
               {recipients.length > 0 && (
-                <div className="flex flex-wrap gap-component-sm rounded-[var(--semantic-radius-button)] border border-border bg-muted/50 p-component-sm">
+                <div className="flex flex-wrap gap-component-md rounded-[var(--semantic-radius-button)] border border-border bg-muted/50 p-component-md">
                   {recipients.map((email, index) => (
-                    <Badge key={index} variant="secondary" className="gap-1 pr-1 text-sm font-mono">
+                    <Badge key={index} variant="secondary" className="gap-component-md pr-component-xs text-sm font-mono">
                       {email}
                       <button
                         type="button"
                         onClick={() => removeRecipient(index)}
-                        className="ml-1 rounded-full p-1 h-8 w-8 flex items-center justify-center hover:bg-error/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                        className="ml-component-xs rounded-full p-0.5 h-8 w-8 flex items-center justify-center hover:bg-error/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                         aria-label={`Remove ${email}`}
                       >
                         <X className="h-4 w-4" />
@@ -321,8 +321,8 @@ export const EmailChannelFormMobile = memo(function EmailChannelFormMobile({
           onClick={() => setShowAdvanced(!showAdvanced)}
           className="flex w-full items-center justify-between rounded-[var(--semantic-radius-card)] border border-border bg-card p-component-md"
         >
-          <div className="flex items-center gap-component-sm">
-            <Shield className="h-5 w-5" />
+          <div className="flex items-center gap-component-md">
+            <Shield className="h-5 w-5 text-category-monitoring" />
             <span className="font-semibold">Advanced TLS Settings</span>
           </div>
           <ChevronDown
@@ -396,7 +396,7 @@ export const EmailChannelFormMobile = memo(function EmailChannelFormMobile({
 
       {/* Fixed Bottom Action Bar */}
       <div className="fixed inset-x-0 bottom-0 z-10 border-t border-border bg-background p-component-md safe-area-inset-bottom">
-        <div className="mx-auto flex max-w-screen-sm gap-component-sm">
+        <div className="mx-auto flex max-w-screen-sm gap-component-md">
           <Button
             type="button"
             variant="outline"

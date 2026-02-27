@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/sstpruntime",
+  "title": "SSTPRuntime",
+  "description": "SSTP runtime state",
+  "source": "@site/docs/api/types/objects/sstpruntime.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/sstpruntime",
+  "permalink": "/api/types/objects/sstpruntime",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "sstpruntime",
+    "title": "SSTPRuntime"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "SSTPDeployment",
+    "permalink": "/api/types/objects/sstpdeployment"
+  },
+  "next": {
+    "title": "StartTroubleshootPayload",
+    "permalink": "/api/types/objects/start-troubleshoot-payload"
+  }
+}

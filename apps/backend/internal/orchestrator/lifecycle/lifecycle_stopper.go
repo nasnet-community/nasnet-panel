@@ -47,7 +47,7 @@ func (im *InstanceManager) StopInstanceWithForce(ctx context.Context, instanceID
 	}
 
 	managedProc, exists := im.config.Supervisor.Get(instanceID)
-	if !exists {
+	if !exists || managedProc == nil {
 		_ = im.updateInstanceStatus(ctx, instanceID, StatusStopped) //nolint:errcheck // best-effort status update during shutdown
 		im.emitStateChangeEvent(ctx, instanceID, string(StatusStopping), string(StatusStopped))
 		return nil

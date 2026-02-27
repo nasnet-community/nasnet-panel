@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/resource-metrics",
+  "title": "ResourceMetrics",
+  "description": "Real-time resource utilization metrics for a device",
+  "source": "@site/docs/api/types/objects/resource-metrics.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/resource-metrics",
+  "permalink": "/api/types/objects/resource-metrics",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "resource-metrics",
+    "title": "ResourceMetrics"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ResourceMetadata",
+    "permalink": "/api/types/objects/resource-metadata"
+  },
+  "next": {
+    "title": "ResourceReference",
+    "permalink": "/api/types/objects/resource-reference"
+  }
+}

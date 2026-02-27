@@ -131,7 +131,7 @@ const CachedDataInlineBadge = React.memo(function CachedDataInlineBadge({
     <Badge
       variant="outline"
       className={cn(
-        'gap-1.5 h-8 px-2.5',
+        'gap-component-xs h-8 px-component-xs',
         statusConfig.bgClass,
         statusConfig.textClass,
         statusConfig.borderClass,
@@ -172,7 +172,7 @@ const CachedDataBanner = React.memo(function CachedDataBanner({
   return (
     <div
       className={cn(
-        'flex items-center justify-between p-3 rounded-lg border gap-3',
+        'flex items-center justify-between p-component-md rounded-lg border gap-component-md',
         statusConfig.bgClass,
         statusConfig.borderClass,
         className
@@ -181,7 +181,7 @@ const CachedDataBanner = React.memo(function CachedDataBanner({
       aria-live="polite"
       aria-label={`${statusConfig.message}. Data is ${ageMinutes} minutes old.`}
     >
-      <div className="flex items-center gap-3 flex-1 min-w-0">
+      <div className="flex items-center gap-component-md flex-1 min-w-0">
         <Icon
           icon={WifiOff}
           size="lg"
@@ -192,7 +192,7 @@ const CachedDataBanner = React.memo(function CachedDataBanner({
           <p className={cn('text-sm font-medium', statusConfig.textClass)}>
             {statusConfig.message}
           </p>
-          <p className="text-xs text-muted-foreground mt-0.5 truncate">
+          <p className="text-xs text-muted-foreground mt-component-xs truncate">
             Last seen: {formatLastSeen(lastSeenAt)} • Data {ageMinutes}m old
           </p>
         </div>
@@ -204,7 +204,7 @@ const CachedDataBanner = React.memo(function CachedDataBanner({
           variant="outline"
           size="sm"
           onClick={handleRetry}
-          className="ml-3 h-9 w-9 p-0 flex-shrink-0"
+          className="ml-component-md h-9 w-9 p-0 flex-shrink-0"
           aria-label="Retry connection"
           title="Retry connection"
         >

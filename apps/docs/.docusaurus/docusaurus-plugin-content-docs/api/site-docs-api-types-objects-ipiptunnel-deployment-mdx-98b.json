@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/ipiptunnel-deployment",
+  "title": "IPIPTunnelDeployment",
+  "description": "IPIP tunnel deployment state",
+  "source": "@site/docs/api/types/objects/ipiptunnel-deployment.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/ipiptunnel-deployment",
+  "permalink": "/api/types/objects/ipiptunnel-deployment",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "ipiptunnel-deployment",
+    "title": "IPIPTunnelDeployment"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "IPIPTunnelConfig",
+    "permalink": "/api/types/objects/ipiptunnel-config"
+  },
+  "next": {
+    "title": "IPIPTunnelRuntime",
+    "permalink": "/api/types/objects/ipiptunnel-runtime"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/update-bridge-input",
+  "title": "UpdateBridgeInput",
+  "description": "No description",
+  "source": "@site/docs/api/types/inputs/update-bridge-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/update-bridge-input",
+  "permalink": "/api/types/inputs/update-bridge-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "update-bridge-input",
+    "title": "UpdateBridgeInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "UpdateAlertRuleInput",
+    "permalink": "/api/types/inputs/update-alert-rule-input"
+  },
+  "next": {
+    "title": "UpdateBridgePortInput",
+    "permalink": "/api/types/inputs/update-bridge-port-input"
+  }
+}

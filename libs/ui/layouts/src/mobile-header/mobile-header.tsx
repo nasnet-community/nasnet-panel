@@ -39,22 +39,18 @@
  * - Safe-area support ensures content visible on notched devices
  *
  * @example
- * Basic usage with auto-greeting:
+ * Basic usage:
  * ```tsx
  * <MobileHeader
  *   title="Dashboard"
- *   greeting={true}
- *   subtitle="MikroTik hEX S"
  * />
  * ```
  *
  * @example
- * With custom greeting and actions:
+ * With action buttons:
  * ```tsx
  * <MobileHeader
  *   title="Network"
- *   greeting="Welcome back!"
- *   subtitle="3 interfaces online"
  *   actions={<RefreshButton />}
  * />
  * ```
@@ -64,7 +60,6 @@
  */
 
 import * as React from 'react';
-import { useMemo } from 'react';
 
 import { cn } from '@nasnet/ui/primitives';
 
@@ -75,67 +70,43 @@ import { cn } from '@nasnet/ui/primitives';
 export interface MobileHeaderProps {
   /** Main heading text (typically page title) - required, single line recommended */
   title: string;
-  /** Greeting text or auto-generate based on time of day. Pass string for custom, true for auto, false/undefined to hide */
-  greeting?: string | boolean;
-  /** Optional subtitle text (typically context like router name) - rendered below title with muted styling */
-  subtitle?: string;
   /** Optional action elements (buttons, menus) rendered in top-right corner */
   actions?: React.ReactNode;
   /** Optional custom className for root element */
   className?: string;
 }
 
-/**
- * Get time-based greeting message
- * @internal
- */
-const getGreeting = (): string => {
-  const hour = new Date().getHours();
-  if (hour < 12) return 'Good morning';
-  if (hour < 18) return 'Good afternoon';
-  return 'Good evening';
-};
 
 /**
  * MobileHeader - Responsive page header component
  * Provides semantic HTML header with optional greeting, title, subtitle, and actions.
  */
 const MobileHeaderImpl = React.forwardRef<HTMLElement, MobileHeaderProps>(
-  ({ title, greeting, subtitle, actions, className }, ref) => {
-    // Memoize greeting computation
-    const greetingText = useMemo(() => {
-      if (typeof greeting === 'string') return greeting;
-      return greeting ? getGreeting() : null;
-    }, [greeting]);
+  ({ title, actions, className }, ref) => {
 
     return (
       <header
         ref={ref}
         className={cn(
-          'bg-background border-b border-border',
-          'px-4 py-6 md:px-6',
-          'pt-[max(1.5rem,_var(--safe-area-inset-top))]', // Account for device notches (iOS safe-area)
+          'sticky top-0 z-40',
+          'h-16 bg-card/80 backdrop-blur-md',
+          'border-b border-border',
+          'px-page-mobile md:px-page-tablet lg:px-page-desktop',
+          'pt-safe',
+          'flex items-center',
           className
         )}
       >
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex-1 min-w-0">
-            {greetingText && (
-              <p className="text-sm text-muted-foreground mb-1">{greetingText}</p>
-            )}
-            <h1 className="text-2xl font-semibold tracking-tight truncate">
-              {title}
-            </h1>
-            {subtitle && (
-              <p className="text-sm text-muted-foreground mt-1">{subtitle}</p>
-            )}
-          </div>
-          {actions && (
-            <div className="flex items-center gap-2 flex-shrink-0">
-              {actions}
-            </div>
-          )}
+        <div className="flex-1 min-w-0">
+          <h1 className="text-lg font-semibold text-foreground truncate">
+            {title}
+          </h1>
         </div>
+        {actions && (
+          <div className="flex items-center gap-2 flex-shrink-0 ml-4">
+            {actions}
+          </div>
+        )}
       </header>
     );
   }

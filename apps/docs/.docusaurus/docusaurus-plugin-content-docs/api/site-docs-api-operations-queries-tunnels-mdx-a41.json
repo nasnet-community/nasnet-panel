@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/tunnels",
+  "title": "tunnels",
+  "description": "Get all tunnels on a router with optional filtering by type",
+  "source": "@site/docs/api/operations/queries/tunnels.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/tunnels",
+  "permalink": "/api/operations/queries/tunnels",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "tunnels",
+    "title": "tunnels"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "tunnel",
+    "permalink": "/api/operations/queries/tunnel"
+  },
+  "next": {
+    "title": "unavailableFeatures",
+    "permalink": "/api/operations/queries/unavailable-features"
+  }
+}

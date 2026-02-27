@@ -1,0 +1,24 @@
+{
+  "id": "forms-validation/validation-pipeline",
+  "title": "Validation Pipeline",
+  "description": "The validation pipeline (libs/core/forms/src/validation-pipeline/) orchestrates multi-stage validation that combines local Zod schema checks with backend network-aware checks. The number of stages that run depends on how risky the operation is.",
+  "source": "@site/../connect/docs/forms-validation/validation-pipeline.md",
+  "sourceDirName": "forms-validation",
+  "slug": "/forms-validation/validation-pipeline",
+  "permalink": "/docs/frontend/forms-validation/validation-pipeline",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../connect/docs/forms-validation/validation-pipeline.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Forms and Validation Overview",
+    "permalink": "/docs/frontend/forms-validation/overview"
+  },
+  "next": {
+    "title": "Wizard Forms",
+    "permalink": "/docs/frontend/forms-validation/wizard-forms"
+  }
+}

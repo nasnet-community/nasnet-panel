@@ -86,7 +86,7 @@ export const RoutingStep = React.memo(function RoutingStep({
         <>
           <Card>
             <CardHeader>
-              <CardTitle className="text-base flex items-center gap-2">
+              <CardTitle className="text-base flex items-center gap-component-sm">
                 <Icon
                   icon={Route}
                   className="h-4 w-4"
@@ -103,7 +103,7 @@ export const RoutingStep = React.memo(function RoutingStep({
                 return (
                   <div
                     key={ruleId}
-                    className="flex items-start gap-component-md p-component-sm rounded-[var(--semantic-radius-button)] border border-border hover:bg-muted/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                    className="flex items-start gap-component-md p-component-sm rounded-[var(--semantic-radius-button)] border border-border hover:bg-muted/50 transition-colors"
                   >
                     <Checkbox
                       id={ruleId}

@@ -49,12 +49,12 @@ export const VPNPage = React.memo(function VPNPage() {
   const isFetching = isFetchingWG;
 
   return (
-    <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-component-lg">
+    <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-component-lg animate-fade-in-up">
       <div className="max-w-6xl mx-auto space-y-component-lg">
         {/* Page header */}
         <div className="flex items-start justify-between">
           <div>
-            <h1 className="text-2xl font-semibold text-foreground mb-1">
+            <h1 className="text-2xl font-display font-semibold text-foreground mb-1">
               {t('title')}
             </h1>
             <p className="text-sm text-muted-foreground">
@@ -160,7 +160,7 @@ export const VPNPage = React.memo(function VPNPage() {
         {/* Other VPN Types Section (Story 0-4-4) */}
         {!isLoading && !isError && (
           <div className="space-y-component-md">
-            <h2 className="text-xl font-semibold text-foreground">
+            <h2 className="text-xl font-display font-semibold text-foreground">
               {t('servers.otherVPNTypes')}
             </h2>
             <p className="text-sm text-muted-foreground">

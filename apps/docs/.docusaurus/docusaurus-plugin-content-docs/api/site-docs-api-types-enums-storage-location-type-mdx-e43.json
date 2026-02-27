@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/storage-location-type",
+  "title": "StorageLocationType",
+  "description": "Type of storage location.",
+  "source": "@site/docs/api/types/enums/storage-location-type.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/storage-location-type",
+  "permalink": "/api/types/enums/storage-location-type",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "storage-location-type",
+    "title": "StorageLocationType"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ServiceTemplateCategory",
+    "permalink": "/api/types/enums/service-template-category"
+  },
+  "next": {
+    "title": "StorageThresholdStatus",
+    "permalink": "/api/types/enums/storage-threshold-status"
+  }
+}

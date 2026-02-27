@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/provisioning-wanlink-type",
+  "title": "ProvisioningWANLinkType",
+  "description": "WAN link type for provisioning context",
+  "source": "@site/docs/api/types/enums/provisioning-wanlink-type.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/provisioning-wanlink-type",
+  "permalink": "/api/types/enums/provisioning-wanlink-type",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "provisioning-wanlink-type",
+    "title": "ProvisioningWANLinkType"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ProvisioningRouterMode",
+    "permalink": "/api/types/enums/provisioning-router-mode"
+  },
+  "next": {
+    "title": "QuotaAction",
+    "permalink": "/api/types/enums/quota-action"
+  }
+}

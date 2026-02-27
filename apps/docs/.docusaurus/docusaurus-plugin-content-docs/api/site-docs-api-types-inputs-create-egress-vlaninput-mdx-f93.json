@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/create-egress-vlaninput",
+  "title": "CreateEgressVLANInput",
+  "description": "Input for creating an egress VLAN.",
+  "source": "@site/docs/api/types/inputs/create-egress-vlaninput.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/create-egress-vlaninput",
+  "permalink": "/api/types/inputs/create-egress-vlaninput",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "create-egress-vlaninput",
+    "title": "CreateEgressVLANInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "CreateChangeSetInput",
+    "permalink": "/api/types/inputs/create-change-set-input"
+  },
+  "next": {
+    "title": "CreateNatRuleInput",
+    "permalink": "/api/types/inputs/create-nat-rule-input"
+  }
+}

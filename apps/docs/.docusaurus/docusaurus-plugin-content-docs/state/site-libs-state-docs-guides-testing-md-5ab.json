@@ -1,0 +1,28 @@
+{
+  "id": "guides/testing",
+  "title": "Testing Strategy",
+  "description": "Comprehensive testing guide for state management in NasNet.",
+  "source": "@site/../../libs/state/docs/guides/testing.md",
+  "sourceDirName": "guides",
+  "slug": "/guides/testing",
+  "permalink": "/docs/state/guides/testing",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/state/docs/guides/testing.md",
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 5,
+  "frontMatter": {
+    "sidebar_position": 5,
+    "title": "Testing Strategy"
+  },
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Performance",
+    "permalink": "/docs/state/performance"
+  },
+  "next": {
+    "title": "Adding a New XState Machine",
+    "permalink": "/docs/state/guides/adding-a-machine"
+  }
+}

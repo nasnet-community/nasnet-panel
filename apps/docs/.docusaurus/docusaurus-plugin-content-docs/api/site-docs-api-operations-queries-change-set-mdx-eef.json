@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/change-set",
+  "title": "changeSet",
+  "description": "Get a change set by ID",
+  "source": "@site/docs/api/operations/queries/change-set.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/change-set",
+  "permalink": "/api/operations/queries/change-set",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "change-set",
+    "title": "changeSet"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "bridges",
+    "permalink": "/api/operations/queries/bridges"
+  },
+  "next": {
+    "title": "changeSets",
+    "permalink": "/api/operations/queries/change-sets"
+  }
+}

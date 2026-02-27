@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/feature-storage-usage",
+  "title": "FeatureStorageUsage",
+  "description": "Per-feature storage usage breakdown.",
+  "source": "@site/docs/api/types/objects/feature-storage-usage.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/feature-storage-usage",
+  "permalink": "/api/types/objects/feature-storage-usage",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "feature-storage-usage",
+    "title": "FeatureStorageUsage"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "FeatureRuntime",
+    "permalink": "/api/types/objects/feature-runtime"
+  },
+  "next": {
+    "title": "FeatureSupport",
+    "permalink": "/api/types/objects/feature-support"
+  }
+}

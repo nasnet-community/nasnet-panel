@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/subscriptions/resource-usage-changed",
+  "title": "resourceUsageChanged",
+  "description": "Subscribe to resource usage changes for a specific instance.",
+  "source": "@site/docs/api/operations/subscriptions/resource-usage-changed.mdx",
+  "sourceDirName": "api/operations/subscriptions",
+  "slug": "/api/operations/subscriptions/resource-usage-changed",
+  "permalink": "/api/operations/subscriptions/resource-usage-changed",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "resource-usage-changed",
+    "title": "resourceUsageChanged"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "resourceUpdated",
+    "permalink": "/api/operations/subscriptions/resource-updated"
+  },
+  "next": {
+    "title": "routerAdded",
+    "permalink": "/api/operations/subscriptions/router-added"
+  }
+}

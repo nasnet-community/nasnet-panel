@@ -1,0 +1,24 @@
+{
+  "id": "guides/internationalization-flow",
+  "title": "Internationalization Flow Guide",
+  "description": "Cross-cutting guide for i18next setup, RTL support, form validation i18n, and formatter usage.",
+  "source": "@site/../../libs/core/docs/guides/internationalization-flow.md",
+  "sourceDirName": "guides",
+  "slug": "/guides/internationalization-flow",
+  "permalink": "/docs/core/guides/internationalization-flow",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/core/docs/guides/internationalization-flow.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Firewall System Guide",
+    "permalink": "/docs/core/guides/firewall-system"
+  },
+  "next": {
+    "title": "Network Configuration Guide",
+    "permalink": "/docs/core/guides/network-configuration"
+  }
+}

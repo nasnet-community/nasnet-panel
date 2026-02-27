@@ -60,7 +60,7 @@ function CustomTooltip({ active, payload }: any) {
   const data = payload[0].payload as ChartDataPoint;
 
   return (
-    <div className="bg-card border rounded-md p-2 shadow-md text-sm">
+    <div className="bg-card border rounded-md p-component-sm shadow-md text-sm">
       <div className="font-semibold">Ping #{data.seq}</div>
       {data.time !== null ? (
         <div className="text-muted-foreground">
@@ -113,7 +113,7 @@ export const LatencyGraph = memo(
       return (
         <div
           className={cn(
-            'flex items-center justify-center h-64 text-muted-foreground border rounded-md',
+            'flex items-center justify-center h-64 text-muted-foreground border rounded-card-sm',
             className
           )}
         >

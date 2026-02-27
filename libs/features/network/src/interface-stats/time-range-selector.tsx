@@ -109,7 +109,7 @@ const TimeRangeSelector = React.memo(function TimeRangeSelector({
 
   return (
     <Select value={value} onValueChange={handleChange}>
-      <SelectTrigger className={cn(className)} aria-label="Time range">
+      <SelectTrigger className={cn('font-mono', className)} aria-label="Time range">
         <SelectValue placeholder="Select time range" />
       </SelectTrigger>
       <SelectContent>

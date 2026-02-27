@@ -88,6 +88,10 @@ func (s *Service) ApplyImport(ctx context.Context, pkg *ServiceExportPackage, op
 	}
 
 	// Apply routing rules if included
+	if instance == nil {
+		_ = tx.Rollback() //nolint:errcheck // best-effort rollback
+		return nil, fmt.Errorf("unexpected nil value for instance")
+	}
 	if len(pkg.RoutingRules) > 0 {
 		if err := s.applyRoutingRules(ctx, instance.ID, pkg.RoutingRules, options.DeviceFilter); err != nil {
 			_ = tx.Rollback() //nolint:errcheck // best-effort rollback

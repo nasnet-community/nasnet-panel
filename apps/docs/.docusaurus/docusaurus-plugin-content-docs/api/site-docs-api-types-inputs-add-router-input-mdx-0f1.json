@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/add-router-input",
+  "title": "AddRouterInput",
+  "description": "Input for manually adding a new router with full credentials and protocol preference.",
+  "source": "@site/docs/api/types/inputs/add-router-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/add-router-input",
+  "permalink": "/api/types/inputs/add-router-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "add-router-input",
+    "title": "AddRouterInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "AddProvisioningResourceInput",
+    "permalink": "/api/types/inputs/add-provisioning-resource-input"
+  },
+  "next": {
+    "title": "AlertAlertTemplateVariableInput",
+    "permalink": "/api/types/inputs/alert-alert-template-variable-input"
+  }
+}

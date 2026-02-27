@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/service-instance",
+  "title": "ServiceInstance",
+  "description": "Service instance running on a router.",
+  "source": "@site/docs/api/types/objects/service-instance.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/service-instance",
+  "permalink": "/api/types/objects/service-instance",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "service-instance",
+    "title": "ServiceInstance"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ServiceInstancePayload",
+    "permalink": "/api/types/objects/service-instance-payload"
+  },
+  "next": {
+    "title": "ServiceLogFile",
+    "permalink": "/api/types/objects/service-log-file"
+  }
+}

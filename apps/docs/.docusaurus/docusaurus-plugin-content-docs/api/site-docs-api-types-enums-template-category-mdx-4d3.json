@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/template-category",
+  "title": "TemplateCategory",
+  "description": "Template categories for organization.",
+  "source": "@site/docs/api/types/enums/template-category.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/template-category",
+  "permalink": "/api/types/enums/template-category",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "template-category",
+    "title": "TemplateCategory"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "SuggestionSeverity",
+    "permalink": "/api/types/enums/suggestion-severity"
+  },
+  "next": {
+    "title": "TemplateComplexity",
+    "permalink": "/api/types/enums/template-complexity"
+  }
+}

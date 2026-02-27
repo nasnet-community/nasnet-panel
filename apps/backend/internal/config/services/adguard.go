@@ -188,7 +188,11 @@ func (g *AdguardGenerator) Generate(instanceID string, config map[string]interfa
 	}
 
 	// Render template
-	return g.RenderTemplate(data)
+	rendered, err := g.RenderTemplate(data)
+	if err != nil {
+		return nil, fmt.Errorf("render adguard template: %w", err)
+	}
+	return rendered, nil
 }
 
 // AdguardTemplateData extends TemplateData with AdGuard-specific helpers.
@@ -216,18 +220,21 @@ func (d *AdguardTemplateData) GetStringSlice(key string) []string {
 func (g *AdguardGenerator) Validate(config map[string]interface{}, bindIP string) error {
 	// Base validation (schema + bind IP)
 	if configErr := g.ValidateConfig(config, bindIP); configErr != nil {
-		return configErr
+		return fmt.Errorf("validate adguard config: %w", configErr)
 	}
 
 	// Validate admin username is not empty
 	adminUser, _ := config["admin_user"].(string) //nolint:errcheck // type assertion uses zero value default
 	if userErr := cfglib.ValidateNonEmpty("admin_user", adminUser); userErr != nil {
-		return userErr
+		return fmt.Errorf("validate admin user: %w", userErr)
 	}
 
 	// Validate admin password is not empty
 	adminPassword, _ := config["admin_password"].(string) //nolint:errcheck // type assertion uses zero value default
-	return cfglib.ValidateNonEmpty("admin_password", adminPassword)
+	if pwErr := cfglib.ValidateNonEmpty("admin_password", adminPassword); pwErr != nil {
+		return fmt.Errorf("validate admin password: %w", pwErr)
+	}
+	return nil
 }
 
 // GetConfigFileName returns the filename for the generated config.

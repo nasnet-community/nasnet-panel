@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/bonding-config",
+  "title": "BondingConfig",
+  "description": "Bonding/link aggregation configuration",
+  "source": "@site/docs/api/types/objects/bonding-config.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/bonding-config",
+  "permalink": "/api/types/objects/bonding-config",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "bonding-config",
+    "title": "BondingConfig"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "BinaryVerification",
+    "permalink": "/api/types/objects/binary-verification"
+  },
+  "next": {
+    "title": "BootSequenceEvent",
+    "permalink": "/api/types/objects/boot-sequence-event"
+  }
+}

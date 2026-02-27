@@ -1,0 +1,24 @@
+{
+  "id": "feature-modules/firewall",
+  "title": "Firewall Feature",
+  "description": "The firewall feature (libs/features/firewall/) provides comprehensive MikroTik",
+  "source": "@site/../connect/docs/feature-modules/firewall.md",
+  "sourceDirName": "feature-modules",
+  "slug": "/feature-modules/firewall",
+  "permalink": "/docs/frontend/feature-modules/firewall",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../connect/docs/feature-modules/firewall.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Diagnostics Feature Module",
+    "permalink": "/docs/frontend/feature-modules/diagnostics"
+  },
+  "next": {
+    "title": "Logs Feature Module",
+    "permalink": "/docs/frontend/feature-modules/logs"
+  }
+}

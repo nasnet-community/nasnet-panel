@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/subscriptions/resource-runtime",
+  "title": "resourceRuntime",
+  "description": "Subscribe to resource runtime updates",
+  "source": "@site/docs/api/operations/subscriptions/resource-runtime.mdx",
+  "sourceDirName": "api/operations/subscriptions",
+  "slug": "/api/operations/subscriptions/resource-runtime",
+  "permalink": "/api/operations/subscriptions/resource-runtime",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "resource-runtime",
+    "title": "resourceRuntime"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "resourceMetrics",
+    "permalink": "/api/operations/subscriptions/resource-metrics"
+  },
+  "next": {
+    "title": "resourceStateChanged",
+    "permalink": "/api/operations/subscriptions/resource-state-changed"
+  }
+}

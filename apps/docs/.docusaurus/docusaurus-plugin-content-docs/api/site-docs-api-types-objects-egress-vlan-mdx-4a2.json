@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/egress-vlan",
+  "title": "EgressVLAN",
+  "description": "Egress VLAN connecting the NNC container to a WAN interface.",
+  "source": "@site/docs/api/types/objects/egress-vlan.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/egress-vlan",
+  "permalink": "/api/types/objects/egress-vlan",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "egress-vlan",
+    "title": "EgressVLAN"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "DriftInfo",
+    "permalink": "/api/types/objects/drift-info"
+  },
+  "next": {
+    "title": "EmailConfig",
+    "permalink": "/api/types/objects/email-config"
+  }
+}

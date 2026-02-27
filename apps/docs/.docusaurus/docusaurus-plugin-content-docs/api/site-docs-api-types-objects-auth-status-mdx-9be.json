@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/auth-status",
+  "title": "AuthStatus",
+  "description": "Authentication test status",
+  "source": "@site/docs/api/types/objects/auth-status.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/auth-status",
+  "permalink": "/api/types/objects/auth-status",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "auth-status",
+    "title": "AuthStatus"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "AuthPayload",
+    "permalink": "/api/types/objects/auth-payload"
+  },
+  "next": {
+    "title": "AvailableService",
+    "permalink": "/api/types/objects/available-service"
+  }
+}

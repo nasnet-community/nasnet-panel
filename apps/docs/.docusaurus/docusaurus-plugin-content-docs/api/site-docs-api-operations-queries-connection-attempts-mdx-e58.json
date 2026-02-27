@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/connection-attempts",
+  "title": "connectionAttempts",
+  "description": "Get recent connection attempts for a router.",
+  "source": "@site/docs/api/operations/queries/connection-attempts.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/connection-attempts",
+  "permalink": "/api/operations/queries/connection-attempts",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "connection-attempts",
+    "title": "connectionAttempts"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "compositeResource",
+    "permalink": "/api/operations/queries/composite-resource"
+  },
+  "next": {
+    "title": "connectionDetails",
+    "permalink": "/api/operations/queries/connection-details"
+  }
+}

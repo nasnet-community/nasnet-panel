@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/software-info",
+  "title": "SoftwareInfo",
+  "description": "Software information detected from router",
+  "source": "@site/docs/api/types/objects/software-info.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/software-info",
+  "permalink": "/api/types/objects/software-info",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "software-info",
+    "title": "SoftwareInfo"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "SetPreferredProtocolPayload",
+    "permalink": "/api/types/objects/set-preferred-protocol-payload"
+  },
+  "next": {
+    "title": "SSTPClientConfig",
+    "permalink": "/api/types/objects/sstpclient-config"
+  }
+}

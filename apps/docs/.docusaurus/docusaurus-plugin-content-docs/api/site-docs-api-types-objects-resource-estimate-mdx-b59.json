@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/resource-estimate",
+  "title": "ResourceEstimate",
+  "description": "Resource usage estimate",
+  "source": "@site/docs/api/types/objects/resource-estimate.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/resource-estimate",
+  "permalink": "/api/types/objects/resource-estimate",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "resource-estimate",
+    "title": "ResourceEstimate"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ResourceEdge",
+    "permalink": "/api/types/objects/resource-edge"
+  },
+  "next": {
+    "title": "ResourceLimitsPayload",
+    "permalink": "/api/types/objects/resource-limits-payload"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/route-lookup",
+  "title": "routeLookup",
+  "description": "Look up which route will be used for a destination IP.",
+  "source": "@site/docs/api/operations/queries/route-lookup.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/route-lookup",
+  "permalink": "/api/operations/queries/route-lookup",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "route-lookup",
+    "title": "routeLookup"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "resources",
+    "permalink": "/api/operations/queries/resources"
+  },
+  "next": {
+    "title": "route",
+    "permalink": "/api/operations/queries/route"
+  }
+}

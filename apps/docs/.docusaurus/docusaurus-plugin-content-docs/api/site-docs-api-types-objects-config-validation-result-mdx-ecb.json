@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/config-validation-result",
+  "title": "ConfigValidationResult",
+  "description": "Service configuration validation result",
+  "source": "@site/docs/api/types/objects/config-validation-result.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/config-validation-result",
+  "permalink": "/api/types/objects/config-validation-result",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "config-validation-result",
+    "title": "ConfigValidationResult"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ConfigValidationError",
+    "permalink": "/api/types/objects/config-validation-error"
+  },
+  "next": {
+    "title": "ConfigureExternalStoragePayload",
+    "permalink": "/api/types/objects/configure-external-storage-payload"
+  }
+}

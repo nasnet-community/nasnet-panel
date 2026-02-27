@@ -1,0 +1,24 @@
+{
+  "id": "flows/config-provisioning-flow",
+  "title": "Flow: Config Provisioning",
+  "description": "Traces how a desired router configuration is applied through an 8-phase pipeline, with verification and automatic rollback on failure.",
+  "source": "@site/../backend/docs/flows/config-provisioning-flow.md",
+  "sourceDirName": "flows",
+  "slug": "/flows/config-provisioning-flow",
+  "permalink": "/docs/backend/flows/config-provisioning-flow",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../backend/docs/flows/config-provisioning-flow.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Flow: Alert Lifecycle",
+    "permalink": "/docs/backend/flows/alert-lifecycle-flow"
+  },
+  "next": {
+    "title": "Flow: Device Routing Chain",
+    "permalink": "/docs/backend/flows/device-routing-chain-flow"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/create-webhook",
+  "title": "createWebhook",
+  "description": "Create a new webhook",
+  "source": "@site/docs/api/operations/mutations/create-webhook.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/create-webhook",
+  "permalink": "/api/operations/mutations/create-webhook",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "create-webhook",
+    "title": "createWebhook"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "createVlan",
+    "permalink": "/api/operations/mutations/create-vlan"
+  },
+  "next": {
+    "title": "deleteAddressListEntry",
+    "permalink": "/api/operations/mutations/delete-address-list-entry"
+  }
+}

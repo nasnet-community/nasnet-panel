@@ -56,7 +56,7 @@ export const FixSuggestion = memo(function FixSuggestion({
     return (
       <span
         className={cn(
-          'inline-flex items-center gap-2 px-component-sm py-component-sm rounded-[var(--semantic-radius-badge)] text-xs font-medium border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+          'inline-flex items-center gap-component-sm px-component-sm py-1 rounded-[var(--semantic-radius-badge)] text-xs font-medium border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
           colors[fix.confidence]
         )}
         role="status"
@@ -76,7 +76,7 @@ export const FixSuggestion = memo(function FixSuggestion({
           <p className="text-xs font-medium text-foreground mb-component-sm">Follow these steps:</p>
           <ol className="list-decimal list-inside space-y-component-xs text-xs text-muted-foreground">
             {fix.manualSteps.map((step, index) => (
-              <li key={index}>{step}</li>
+              <li key={index} className="font-mono">{step}</li>
             ))}
           </ol>
         </div>
@@ -94,13 +94,13 @@ export const FixSuggestion = memo(function FixSuggestion({
         >
           <p className="text-xs font-medium text-info mb-component-sm">ISP Information</p>
           <div className="space-y-component-xs text-xs">
-            {ispInfo.name && <p className="text-foreground">Provider: {ispInfo.name}</p>}
+            {ispInfo.name && <p className="text-foreground font-mono">{ispInfo.name}</p>}
             {ispInfo.supportPhone && (
               <p className="text-foreground">
                 Phone:{' '}
                 <a
                   href={`tel:${ispInfo.supportPhone}`}
-                  className="text-info hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded px-component-xs min-h-[44px] inline-flex items-center"
+                  className="font-mono text-info hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded px-component-xs min-h-[44px] inline-flex items-center"
                 >
                   {ispInfo.supportPhone}
                 </a>
@@ -113,7 +113,7 @@ export const FixSuggestion = memo(function FixSuggestion({
                   href={ispInfo.supportUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-info hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded px-component-xs min-h-[44px] inline-flex items-center"
+                  className="font-mono text-info hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded px-component-xs min-h-[44px] inline-flex items-center"
                 >
                   {ispInfo.supportUrl.replace(/^https?:\/\/(www\.)?/, '')}
                 </a>
@@ -130,7 +130,7 @@ export const FixSuggestion = memo(function FixSuggestion({
       showCommandPreview && fix.command ? (
         <div className="mb-component-md p-component-sm bg-muted/50 rounded-[var(--semantic-radius-card)] font-mono text-xs">
           <p className="text-muted-foreground mb-component-xs">RouterOS Command:</p>
-          <code className="text-foreground break-all">{fix.command}</code>
+          <code className="text-foreground break-all font-mono">{fix.command}</code>
         </div>
       ) : null,
     [showCommandPreview, fix.command]
@@ -152,7 +152,7 @@ export const FixSuggestion = memo(function FixSuggestion({
     >
       {/* Header */}
       <div className="flex items-start justify-between gap-component-md mb-component-md">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-component-sm">
           <AlertCircle className="h-5 w-5 text-warning flex-shrink-0" aria-hidden="true" />
           <h3 className="font-semibold text-foreground">{fix.title}</h3>
         </div>
@@ -174,7 +174,7 @@ export const FixSuggestion = memo(function FixSuggestion({
       {commandPreviewContent}
 
       {/* Action Buttons */}
-      <div className="flex gap-component-md">
+      <div className="flex gap-component-sm">
         <Button
           variant="outline"
           onClick={handleSkipClick}
@@ -195,13 +195,13 @@ export const FixSuggestion = memo(function FixSuggestion({
           >
             {status === 'applying' && (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
+                <Loader2 className="mr-component-sm h-4 w-4 animate-spin" aria-hidden="true" />
                 <span>Applying Fix...</span>
               </>
             )}
             {status === 'applied' && (
               <>
-                <CheckCircle2 className="mr-2 h-4 w-4" aria-hidden="true" />
+                <CheckCircle2 className="mr-component-sm h-4 w-4" aria-hidden="true" />
                 <span>Applied</span>
               </>
             )}

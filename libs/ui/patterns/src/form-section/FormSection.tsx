@@ -110,9 +110,7 @@ export function FormSection({
   return (
     <Wrapper
       className={cn(
-        'border border-border',
-        'rounded-card-sm md:rounded-card-lg',
-        'overflow-hidden',
+        'border-b border-border pb-6 space-y-6',
         className
       )}
       aria-labelledby={collapsible ? headingId : undefined}
@@ -148,17 +146,12 @@ export function FormSection({
               exit="exit"
               className="overflow-hidden"
             >
-              <div className="p-4 border-t border-border">
-                {content}
-              </div>
+              {content}
             </motion.div>
           )}
         </AnimatePresence>
       ) : (
-        <div
-          id={contentId}
-          className="p-4 border-t border-border"
-        >
+        <div id={contentId}>
           {content}
         </div>
       )}

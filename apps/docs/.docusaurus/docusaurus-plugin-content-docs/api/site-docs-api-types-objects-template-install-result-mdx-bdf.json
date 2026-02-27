@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/template-install-result",
+  "title": "TemplateInstallResult",
+  "description": "Template installation result",
+  "source": "@site/docs/api/types/objects/template-install-result.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/template-install-result",
+  "permalink": "/api/types/objects/template-install-result",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "template-install-result",
+    "title": "TemplateInstallResult"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "TemplateInstallProgress",
+    "permalink": "/api/types/objects/template-install-progress"
+  },
+  "next": {
+    "title": "TemplatePreviewPayload",
+    "permalink": "/api/types/objects/template-preview-payload"
+  }
+}

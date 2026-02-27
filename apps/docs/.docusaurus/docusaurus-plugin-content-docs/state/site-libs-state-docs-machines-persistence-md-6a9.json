@@ -1,0 +1,24 @@
+{
+  "id": "machines/persistence",
+  "title": "State Persistence API",
+  "description": "The State Persistence API provides localStorage-based persistence for XState machines, enabling session recovery after browser close/crash. It's used by wizards, config pipelines, and other long-running workflows to let users resume from where they left off.",
+  "source": "@site/../../libs/state/docs/machines/persistence.md",
+  "sourceDirName": "machines",
+  "slug": "/machines/persistence",
+  "permalink": "/docs/state/machines/persistence",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/state/docs/machines/persistence.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "XState Machines Overview",
+    "permalink": "/docs/state/machines/overview"
+  },
+  "next": {
+    "title": "Resource Lifecycle Machine (Universal State v2)",
+    "permalink": "/docs/state/machines/resource-lifecycle"
+  }
+}

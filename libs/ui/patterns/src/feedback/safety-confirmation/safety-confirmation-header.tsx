@@ -34,17 +34,17 @@ export function SafetyConfirmationHeader({
   return (
     <div
       className={cn(
-        'flex items-center gap-3 border-l-4 border-destructive pl-4',
+        'flex items-center gap-3',
         className
       )}
     >
-      <div className="flex-shrink-0 rounded-full bg-destructive/10 p-2">
+      <div className="flex-shrink-0 h-12 w-12 rounded-full bg-warning/10 flex items-center justify-center">
         <AlertTriangle
-          className="h-5 w-5 text-destructive"
+          className="h-6 w-6 text-warning"
           aria-hidden="true"
         />
       </div>
-      <span className="text-lg font-semibold text-destructive">{title}</span>
+      <span className="text-lg font-semibold font-display text-foreground">{title}</span>
     </div>
   );
 }

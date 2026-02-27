@@ -109,7 +109,7 @@ export const FilterRuleEditorMobile = memo(function FilterRuleEditorMobile({
 
         <div className="flex-1 overflow-y-auto space-y-4 pb-20">
           {/* Live Preview */}
-          <Card className="p-4 bg-info/10 border-info/20">
+          <Card className="p-component-md border-t-2 border-t-category-firewall bg-info/10 border-info/20">
             <div className="flex items-start gap-3">
               <Info className="h-5 w-5 text-info mt-0.5 flex-shrink-0" />
               <div className="flex-1 min-w-0">
@@ -125,8 +125,10 @@ export const FilterRuleEditorMobile = memo(function FilterRuleEditorMobile({
           </Card>
 
           {/* Chain and Action */}
-          <Card className="p-4 space-y-4">
-            <h3 className="text-sm font-semibold">Chain & Action</h3>
+          <Card className="p-component-md space-y-4 border-t-2 border-t-category-firewall">
+            <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider">
+              Firewall Configuration
+            </h3>
 
             <FormField
               name="chain"
@@ -183,8 +185,10 @@ export const FilterRuleEditorMobile = memo(function FilterRuleEditorMobile({
 
           {/* Action-Specific Fields */}
           {(visibleFields.includes('logPrefix') || visibleFields.includes('jumpTarget')) && (
-            <Card className="p-4 space-y-4">
-              <h3 className="text-sm font-semibold">Action Settings</h3>
+            <Card className="p-component-md space-y-4">
+              <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider">
+                Action Settings
+              </h3>
 
               {visibleFields.includes('logPrefix') && (
                 <FormField
@@ -233,8 +237,8 @@ export const FilterRuleEditorMobile = memo(function FilterRuleEditorMobile({
           )}
 
           {/* Traffic Matchers */}
-          <Card className="p-4 space-y-4">
-            <h3 className="text-sm font-semibold flex items-center gap-2">
+          <Card className="p-component-md space-y-4">
+            <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider flex items-center gap-2">
               <Network className="h-4 w-4" />
               Traffic Matchers
             </h3>
@@ -340,8 +344,8 @@ export const FilterRuleEditorMobile = memo(function FilterRuleEditorMobile({
           </Card>
 
           {/* Meta */}
-          <Card className="p-4 space-y-4">
-            <h3 className="text-sm font-semibold flex items-center gap-2">
+          <Card className="p-component-md space-y-4">
+            <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider flex items-center gap-2">
               <Settings className="h-4 w-4" />
               Settings
             </h3>

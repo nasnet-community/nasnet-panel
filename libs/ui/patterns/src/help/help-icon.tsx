@@ -21,43 +21,34 @@ import { cn } from '@nasnet/ui/primitives';
 import type { HelpIconProps } from './help.types';
 
 /**
- * Icon size variants with proper touch targets
+ * Icon size variants with proper touch targets per WCAG AAA spec
  */
 const helpIconVariants = cva(
-  // Base styles - semantic tokens, focus ring, transitions
+  // Base styles - semantic tokens, focus ring, transitions per design spec
   [
     'inline-flex items-center justify-center',
-    'rounded-full',
+    'h-4 w-4',
     'text-muted-foreground',
+    'hover:text-foreground',
     'transition-colors duration-150',
     'cursor-pointer',
-    // Hover state
-    'hover:text-foreground hover:bg-muted/50',
-    // Focus state - 3px ring per design system
-    'focus:outline-none focus-visible:ring-[3px] focus-visible:ring-ring focus-visible:ring-offset-2',
-    // Active/pressed state
-    'active:bg-muted',
+    // Focus state - 2px ring (Radix default) with ring-offset
+    'focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
   ],
   {
     variants: {
       size: {
         sm: [
-          'h-5 w-5',
-          '[&_svg]:h-3.5 [&_svg]:w-3.5',
-          // Mobile: ensure 44px touch target via padding
-          'touch-action-manipulation',
-          'min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0',
+          'h-4 w-4',
+          '[&_svg]:h-4 [&_svg]:w-4',
         ],
         md: [
-          'h-6 w-6',
+          'h-4 w-4',
           '[&_svg]:h-4 [&_svg]:w-4',
-          // Mobile: ensure 44px touch target
-          'min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0',
         ],
         lg: [
-          'h-8 w-8',
+          'h-5 w-5',
           '[&_svg]:h-5 [&_svg]:w-5',
-          // Already meets 44px target
         ],
       },
     },

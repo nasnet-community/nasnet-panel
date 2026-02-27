@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/bridge-port-frame-types",
+  "title": "BridgePortFrameTypes",
+  "description": "Frame types that can be admitted on a bridge port",
+  "source": "@site/docs/api/types/enums/bridge-port-frame-types.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/bridge-port-frame-types",
+  "permalink": "/api/types/enums/bridge-port-frame-types",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "bridge-port-frame-types",
+    "title": "BridgePortFrameTypes"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "BondingMode",
+    "permalink": "/api/types/enums/bonding-mode"
+  },
+  "next": {
+    "title": "CacheScope",
+    "permalink": "/api/types/enums/cache-scope"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/directives/deprecated",
+  "title": "deprecated",
+  "description": "Marks an element of a GraphQL schema as no longer supported.",
+  "source": "@site/docs/api/types/directives/deprecated.mdx",
+  "sourceDirName": "api/types/directives",
+  "slug": "/api/types/directives/deprecated",
+  "permalink": "/api/types/directives/deprecated",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "deprecated",
+    "title": "deprecated"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "capability",
+    "permalink": "/api/types/directives/capability"
+  },
+  "next": {
+    "title": "migrateFrom",
+    "permalink": "/api/types/directives/migrate-from"
+  }
+}

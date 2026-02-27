@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/wandnsconfig",
+  "title": "WANDNSConfig",
+  "description": "DNS configuration for WAN link",
+  "source": "@site/docs/api/types/objects/wandnsconfig.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/wandnsconfig",
+  "permalink": "/api/types/objects/wandnsconfig",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "wandnsconfig",
+    "title": "WANDNSConfig"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "WANConnectionEvent",
+    "permalink": "/api/types/objects/wanconnection-event"
+  },
+  "next": {
+    "title": "WANHealthStatus",
+    "permalink": "/api/types/objects/wanhealth-status"
+  }
+}

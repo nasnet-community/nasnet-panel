@@ -1,0 +1,24 @@
+{
+  "id": "guides/device-detection-pipeline",
+  "title": "Device Detection Pipeline Guide",
+  "description": "Cross-cutting guide for detecting connected device types from MAC addresses, hostnames, and vendor information.",
+  "source": "@site/../../libs/core/docs/guides/device-detection-pipeline.md",
+  "sourceDirName": "guides",
+  "slug": "/guides/device-detection-pipeline",
+  "permalink": "/docs/core/guides/device-detection-pipeline",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/core/docs/guides/device-detection-pipeline.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Change Set Operations: Atomic Multi-Resource Transactions",
+    "permalink": "/docs/core/guides/change-set-operations"
+  },
+  "next": {
+    "title": "Firewall System Guide",
+    "permalink": "/docs/core/guides/firewall-system"
+  }
+}

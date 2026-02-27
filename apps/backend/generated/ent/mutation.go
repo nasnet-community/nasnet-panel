@@ -42008,6 +42008,12 @@ type VirtualInterfaceMutation struct {
 	tun_name               *string
 	routing_mark           *string
 	status                 *virtualinterface.Status
+	routing_mode           *virtualinterface.RoutingMode
+	ingress_vlan_id        *int
+	addingress_vlan_id     *int
+	egress_vlan_ids        *[]int
+	appendegress_vlan_ids  []int
+	container_ip           *string
 	created_at             *time.Time
 	updated_at             *time.Time
 	clearedFields          map[string]struct{}
@@ -42482,6 +42488,226 @@ func (m *VirtualInterfaceMutation) ResetStatus() {
 	m.status = nil
 }
 
+// SetRoutingMode sets the "routing_mode" field.
+func (m *VirtualInterfaceMutation) SetRoutingMode(vm virtualinterface.RoutingMode) {
+	m.routing_mode = &vm
+}
+
+// RoutingMode returns the value of the "routing_mode" field in the mutation.
+func (m *VirtualInterfaceMutation) RoutingMode() (r virtualinterface.RoutingMode, exists bool) {
+	v := m.routing_mode
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRoutingMode returns the old "routing_mode" field's value of the VirtualInterface entity.
+// If the VirtualInterface object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *VirtualInterfaceMutation) OldRoutingMode(ctx context.Context) (v virtualinterface.RoutingMode, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRoutingMode is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRoutingMode requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRoutingMode: %w", err)
+	}
+	return oldValue.RoutingMode, nil
+}
+
+// ResetRoutingMode resets all changes to the "routing_mode" field.
+func (m *VirtualInterfaceMutation) ResetRoutingMode() {
+	m.routing_mode = nil
+}
+
+// SetIngressVlanID sets the "ingress_vlan_id" field.
+func (m *VirtualInterfaceMutation) SetIngressVlanID(i int) {
+	m.ingress_vlan_id = &i
+	m.addingress_vlan_id = nil
+}
+
+// IngressVlanID returns the value of the "ingress_vlan_id" field in the mutation.
+func (m *VirtualInterfaceMutation) IngressVlanID() (r int, exists bool) {
+	v := m.ingress_vlan_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldIngressVlanID returns the old "ingress_vlan_id" field's value of the VirtualInterface entity.
+// If the VirtualInterface object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *VirtualInterfaceMutation) OldIngressVlanID(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldIngressVlanID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldIngressVlanID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldIngressVlanID: %w", err)
+	}
+	return oldValue.IngressVlanID, nil
+}
+
+// AddIngressVlanID adds i to the "ingress_vlan_id" field.
+func (m *VirtualInterfaceMutation) AddIngressVlanID(i int) {
+	if m.addingress_vlan_id != nil {
+		*m.addingress_vlan_id += i
+	} else {
+		m.addingress_vlan_id = &i
+	}
+}
+
+// AddedIngressVlanID returns the value that was added to the "ingress_vlan_id" field in this mutation.
+func (m *VirtualInterfaceMutation) AddedIngressVlanID() (r int, exists bool) {
+	v := m.addingress_vlan_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearIngressVlanID clears the value of the "ingress_vlan_id" field.
+func (m *VirtualInterfaceMutation) ClearIngressVlanID() {
+	m.ingress_vlan_id = nil
+	m.addingress_vlan_id = nil
+	m.clearedFields[virtualinterface.FieldIngressVlanID] = struct{}{}
+}
+
+// IngressVlanIDCleared returns if the "ingress_vlan_id" field was cleared in this mutation.
+func (m *VirtualInterfaceMutation) IngressVlanIDCleared() bool {
+	_, ok := m.clearedFields[virtualinterface.FieldIngressVlanID]
+	return ok
+}
+
+// ResetIngressVlanID resets all changes to the "ingress_vlan_id" field.
+func (m *VirtualInterfaceMutation) ResetIngressVlanID() {
+	m.ingress_vlan_id = nil
+	m.addingress_vlan_id = nil
+	delete(m.clearedFields, virtualinterface.FieldIngressVlanID)
+}
+
+// SetEgressVlanIds sets the "egress_vlan_ids" field.
+func (m *VirtualInterfaceMutation) SetEgressVlanIds(i []int) {
+	m.egress_vlan_ids = &i
+	m.appendegress_vlan_ids = nil
+}
+
+// EgressVlanIds returns the value of the "egress_vlan_ids" field in the mutation.
+func (m *VirtualInterfaceMutation) EgressVlanIds() (r []int, exists bool) {
+	v := m.egress_vlan_ids
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldEgressVlanIds returns the old "egress_vlan_ids" field's value of the VirtualInterface entity.
+// If the VirtualInterface object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *VirtualInterfaceMutation) OldEgressVlanIds(ctx context.Context) (v []int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldEgressVlanIds is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldEgressVlanIds requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldEgressVlanIds: %w", err)
+	}
+	return oldValue.EgressVlanIds, nil
+}
+
+// AppendEgressVlanIds adds i to the "egress_vlan_ids" field.
+func (m *VirtualInterfaceMutation) AppendEgressVlanIds(i []int) {
+	m.appendegress_vlan_ids = append(m.appendegress_vlan_ids, i...)
+}
+
+// AppendedEgressVlanIds returns the list of values that were appended to the "egress_vlan_ids" field in this mutation.
+func (m *VirtualInterfaceMutation) AppendedEgressVlanIds() ([]int, bool) {
+	if len(m.appendegress_vlan_ids) == 0 {
+		return nil, false
+	}
+	return m.appendegress_vlan_ids, true
+}
+
+// ClearEgressVlanIds clears the value of the "egress_vlan_ids" field.
+func (m *VirtualInterfaceMutation) ClearEgressVlanIds() {
+	m.egress_vlan_ids = nil
+	m.appendegress_vlan_ids = nil
+	m.clearedFields[virtualinterface.FieldEgressVlanIds] = struct{}{}
+}
+
+// EgressVlanIdsCleared returns if the "egress_vlan_ids" field was cleared in this mutation.
+func (m *VirtualInterfaceMutation) EgressVlanIdsCleared() bool {
+	_, ok := m.clearedFields[virtualinterface.FieldEgressVlanIds]
+	return ok
+}
+
+// ResetEgressVlanIds resets all changes to the "egress_vlan_ids" field.
+func (m *VirtualInterfaceMutation) ResetEgressVlanIds() {
+	m.egress_vlan_ids = nil
+	m.appendegress_vlan_ids = nil
+	delete(m.clearedFields, virtualinterface.FieldEgressVlanIds)
+}
+
+// SetContainerIP sets the "container_ip" field.
+func (m *VirtualInterfaceMutation) SetContainerIP(s string) {
+	m.container_ip = &s
+}
+
+// ContainerIP returns the value of the "container_ip" field in the mutation.
+func (m *VirtualInterfaceMutation) ContainerIP() (r string, exists bool) {
+	v := m.container_ip
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldContainerIP returns the old "container_ip" field's value of the VirtualInterface entity.
+// If the VirtualInterface object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *VirtualInterfaceMutation) OldContainerIP(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldContainerIP is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldContainerIP requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldContainerIP: %w", err)
+	}
+	return oldValue.ContainerIP, nil
+}
+
+// ClearContainerIP clears the value of the "container_ip" field.
+func (m *VirtualInterfaceMutation) ClearContainerIP() {
+	m.container_ip = nil
+	m.clearedFields[virtualinterface.FieldContainerIP] = struct{}{}
+}
+
+// ContainerIPCleared returns if the "container_ip" field was cleared in this mutation.
+func (m *VirtualInterfaceMutation) ContainerIPCleared() bool {
+	_, ok := m.clearedFields[virtualinterface.FieldContainerIP]
+	return ok
+}
+
+// ResetContainerIP resets all changes to the "container_ip" field.
+func (m *VirtualInterfaceMutation) ResetContainerIP() {
+	m.container_ip = nil
+	delete(m.clearedFields, virtualinterface.FieldContainerIP)
+}
+
 // SetCreatedAt sets the "created_at" field.
 func (m *VirtualInterfaceMutation) SetCreatedAt(t time.Time) {
 	m.created_at = &t
@@ -42669,7 +42895,7 @@ func (m *VirtualInterfaceMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *VirtualInterfaceMutation) Fields() []string {
-	fields := make([]string, 0, 11)
+	fields := make([]string, 0, 15)
 	if m.instance != nil {
 		fields = append(fields, virtualinterface.FieldInstanceID)
 	}
@@ -42696,6 +42922,18 @@ func (m *VirtualInterfaceMutation) Fields() []string {
 	}
 	if m.status != nil {
 		fields = append(fields, virtualinterface.FieldStatus)
+	}
+	if m.routing_mode != nil {
+		fields = append(fields, virtualinterface.FieldRoutingMode)
+	}
+	if m.ingress_vlan_id != nil {
+		fields = append(fields, virtualinterface.FieldIngressVlanID)
+	}
+	if m.egress_vlan_ids != nil {
+		fields = append(fields, virtualinterface.FieldEgressVlanIds)
+	}
+	if m.container_ip != nil {
+		fields = append(fields, virtualinterface.FieldContainerIP)
 	}
 	if m.created_at != nil {
 		fields = append(fields, virtualinterface.FieldCreatedAt)
@@ -42729,6 +42967,14 @@ func (m *VirtualInterfaceMutation) Field(name string) (ent.Value, bool) {
 		return m.RoutingMark()
 	case virtualinterface.FieldStatus:
 		return m.Status()
+	case virtualinterface.FieldRoutingMode:
+		return m.RoutingMode()
+	case virtualinterface.FieldIngressVlanID:
+		return m.IngressVlanID()
+	case virtualinterface.FieldEgressVlanIds:
+		return m.EgressVlanIds()
+	case virtualinterface.FieldContainerIP:
+		return m.ContainerIP()
 	case virtualinterface.FieldCreatedAt:
 		return m.CreatedAt()
 	case virtualinterface.FieldUpdatedAt:
@@ -42760,6 +43006,14 @@ func (m *VirtualInterfaceMutation) OldField(ctx context.Context, name string) (e
 		return m.OldRoutingMark(ctx)
 	case virtualinterface.FieldStatus:
 		return m.OldStatus(ctx)
+	case virtualinterface.FieldRoutingMode:
+		return m.OldRoutingMode(ctx)
+	case virtualinterface.FieldIngressVlanID:
+		return m.OldIngressVlanID(ctx)
+	case virtualinterface.FieldEgressVlanIds:
+		return m.OldEgressVlanIds(ctx)
+	case virtualinterface.FieldContainerIP:
+		return m.OldContainerIP(ctx)
 	case virtualinterface.FieldCreatedAt:
 		return m.OldCreatedAt(ctx)
 	case virtualinterface.FieldUpdatedAt:
@@ -42836,6 +43090,34 @@ func (m *VirtualInterfaceMutation) SetField(name string, value ent.Value) error 
 		}
 		m.SetStatus(v)
 		return nil
+	case virtualinterface.FieldRoutingMode:
+		v, ok := value.(virtualinterface.RoutingMode)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRoutingMode(v)
+		return nil
+	case virtualinterface.FieldIngressVlanID:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetIngressVlanID(v)
+		return nil
+	case virtualinterface.FieldEgressVlanIds:
+		v, ok := value.([]int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetEgressVlanIds(v)
+		return nil
+	case virtualinterface.FieldContainerIP:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetContainerIP(v)
+		return nil
 	case virtualinterface.FieldCreatedAt:
 		v, ok := value.(time.Time)
 		if !ok {
@@ -42861,6 +43143,9 @@ func (m *VirtualInterfaceMutation) AddedFields() []string {
 	if m.addvlan_id != nil {
 		fields = append(fields, virtualinterface.FieldVlanID)
 	}
+	if m.addingress_vlan_id != nil {
+		fields = append(fields, virtualinterface.FieldIngressVlanID)
+	}
 	return fields
 }
 
@@ -42871,6 +43156,8 @@ func (m *VirtualInterfaceMutation) AddedField(name string) (ent.Value, bool) {
 	switch name {
 	case virtualinterface.FieldVlanID:
 		return m.AddedVlanID()
+	case virtualinterface.FieldIngressVlanID:
+		return m.AddedIngressVlanID()
 	}
 	return nil, false
 }
@@ -42887,6 +43174,13 @@ func (m *VirtualInterfaceMutation) AddField(name string, value ent.Value) error 
 		}
 		m.AddVlanID(v)
 		return nil
+	case virtualinterface.FieldIngressVlanID:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddIngressVlanID(v)
+		return nil
 	}
 	return fmt.Errorf("unknown VirtualInterface numeric field %s", name)
 }
@@ -42897,6 +43191,15 @@ func (m *VirtualInterfaceMutation) ClearedFields() []string {
 	var fields []string
 	if m.FieldCleared(virtualinterface.FieldTunName) {
 		fields = append(fields, virtualinterface.FieldTunName)
+	}
+	if m.FieldCleared(virtualinterface.FieldIngressVlanID) {
+		fields = append(fields, virtualinterface.FieldIngressVlanID)
+	}
+	if m.FieldCleared(virtualinterface.FieldEgressVlanIds) {
+		fields = append(fields, virtualinterface.FieldEgressVlanIds)
+	}
+	if m.FieldCleared(virtualinterface.FieldContainerIP) {
+		fields = append(fields, virtualinterface.FieldContainerIP)
 	}
 	return fields
 }
@@ -42914,6 +43217,15 @@ func (m *VirtualInterfaceMutation) ClearField(name string) error {
 	switch name {
 	case virtualinterface.FieldTunName:
 		m.ClearTunName()
+		return nil
+	case virtualinterface.FieldIngressVlanID:
+		m.ClearIngressVlanID()
+		return nil
+	case virtualinterface.FieldEgressVlanIds:
+		m.ClearEgressVlanIds()
+		return nil
+	case virtualinterface.FieldContainerIP:
+		m.ClearContainerIP()
 		return nil
 	}
 	return fmt.Errorf("unknown VirtualInterface nullable field %s", name)
@@ -42949,6 +43261,18 @@ func (m *VirtualInterfaceMutation) ResetField(name string) error {
 		return nil
 	case virtualinterface.FieldStatus:
 		m.ResetStatus()
+		return nil
+	case virtualinterface.FieldRoutingMode:
+		m.ResetRoutingMode()
+		return nil
+	case virtualinterface.FieldIngressVlanID:
+		m.ResetIngressVlanID()
+		return nil
+	case virtualinterface.FieldEgressVlanIds:
+		m.ResetEgressVlanIds()
+		return nil
+	case virtualinterface.FieldContainerIP:
+		m.ResetContainerIP()
 		return nil
 	case virtualinterface.FieldCreatedAt:
 		m.ResetCreatedAt()

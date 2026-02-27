@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/delete-nat-rule",
+  "title": "deleteNatRule",
+  "description": "Delete a NAT rule.",
+  "source": "@site/docs/api/operations/mutations/delete-nat-rule.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/delete-nat-rule",
+  "permalink": "/api/operations/mutations/delete-nat-rule",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "delete-nat-rule",
+    "title": "deleteNatRule"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "deleteIpAddress",
+    "permalink": "/api/operations/mutations/delete-ip-address"
+  },
+  "next": {
+    "title": "deleteNotificationChannelConfig",
+    "permalink": "/api/operations/mutations/delete-notification-channel-config"
+  }
+}

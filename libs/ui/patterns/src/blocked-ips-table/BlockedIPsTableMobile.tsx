@@ -101,10 +101,10 @@ function BlockedIPCard({
   isRemoving,
 }: BlockedIPCardProps) {
   return (
-    <Card className="p-4 space-y-3">
+    <Card className="p-component-md space-y-component-md border border-border rounded-[var(--semantic-radius-card)]">
       {/* Header with checkbox and IP address */}
       <div className="flex items-start justify-between">
-        <div className="flex items-start gap-3">
+        <div className="flex items-start gap-component-md">
           <Checkbox
             checked={isSelected}
             onCheckedChange={onToggleSelection}
@@ -112,42 +112,42 @@ function BlockedIPCard({
             className="mt-1"
           />
           <div className="space-y-1">
-            <span className="font-mono text-sm font-semibold">{entry.address}</span>
+            <span className="font-mono text-sm font-semibold text-foreground">{entry.address}</span>
             <div className="text-xs text-muted-foreground">{entry.list}</div>
           </div>
         </div>
         <div className="text-right">
-          <div className="text-xs font-semibold">{entry.blockCount.toLocaleString()}</div>
+          <div className="text-xs font-semibold text-foreground">{entry.blockCount.toLocaleString()}</div>
           <div className="text-xs text-muted-foreground">blocks</div>
         </div>
       </div>
 
       {/* Entry details */}
-      <div className="space-y-2">
+      <div className="space-y-component-sm">
         {/* First Blocked */}
-        <div className="flex items-center justify-between text-sm">
-          <span className="text-muted-foreground">First Blocked:</span>
-          <span className="text-xs">{formatRelativeTime(entry.firstBlocked)}</span>
+        <div className="flex items-center justify-between">
+          <span className="text-xs text-muted-foreground">First Blocked:</span>
+          <span className="text-xs text-muted-foreground">{formatRelativeTime(entry.firstBlocked)}</span>
         </div>
 
         {/* Last Blocked */}
-        <div className="flex items-center justify-between text-sm">
-          <span className="text-muted-foreground">Last Blocked:</span>
-          <span className="text-xs">{formatRelativeTime(entry.lastBlocked)}</span>
+        <div className="flex items-center justify-between">
+          <span className="text-xs text-muted-foreground">Last Blocked:</span>
+          <span className="text-xs text-muted-foreground">{formatRelativeTime(entry.lastBlocked)}</span>
         </div>
 
         {/* Timeout */}
-        <div className="flex items-center justify-between text-sm">
-          <span className="text-muted-foreground">Timeout:</span>
-          <span className="font-mono text-xs">{entry.timeout || 'permanent'}</span>
+        <div className="flex items-center justify-between">
+          <span className="text-xs text-muted-foreground">Timeout:</span>
+          <span className="font-mono text-xs text-muted-foreground">{entry.timeout || 'permanent'}</span>
         </div>
       </div>
 
       {/* Action buttons (44px min height for touch target) */}
-      <div className="flex gap-2 pt-2 border-t">
+      <div className="flex gap-component-md pt-component-md border-t border-border">
         <Button
           variant="outline"
-          className="flex-1 min-h-[44px]"
+          className="flex-1 min-h-[44px] text-sm"
           onClick={onWhitelist}
           disabled={isWhitelisting}
           aria-label={`Whitelist ${entry.address}`}
@@ -156,7 +156,7 @@ function BlockedIPCard({
         </Button>
         <Button
           variant="outline"
-          className="flex-1 min-h-[44px] text-error border-error/30 hover:bg-error/10"
+          className="flex-1 min-h-[44px] text-sm text-error border-error/30 hover:bg-error-light/30 hover:text-error"
           onClick={onRemove}
           disabled={isRemoving}
           aria-label={`Remove ${entry.address}`}
@@ -313,11 +313,11 @@ export function BlockedIPsTableMobile({
   }, [hasActiveFilter, clearFilter]);
 
   return (
-    <div className={cn('flex flex-col gap-4', className)}>
+    <div className={cn('flex flex-col gap-component-md', className)}>
       {/* Header with stats and controls */}
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-component-md">
         <div className="flex items-center justify-between">
-          <div className="text-sm text-muted-foreground">
+          <div className="text-xs text-muted-foreground font-medium">
             {hasActiveFilter ? (
               <>
                 {filteredCount} of {totalCount} blocked IPs
@@ -340,8 +340,8 @@ export function BlockedIPsTableMobile({
 
         {/* Selection mode controls */}
         {hasSelection && (
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground flex-1">
+          <div className="flex items-center gap-component-sm">
+            <span className="text-xs text-muted-foreground font-medium flex-1">
               {selectedIPs.length} selected
             </span>
             <Button
@@ -349,7 +349,7 @@ export function BlockedIPsTableMobile({
               size="sm"
               onClick={handleBulkWhitelistClick}
               disabled={isWhitelisting}
-              className="min-h-[44px]"
+              className="min-h-[44px] text-sm"
               aria-label="Whitelist selected IPs"
             >
               Whitelist
@@ -359,7 +359,7 @@ export function BlockedIPsTableMobile({
               size="sm"
               onClick={handleBulkRemoveClick}
               disabled={isRemoving}
-              className="min-h-[44px] text-error hover:text-error/90"
+              className="min-h-[44px] text-sm text-error hover:text-error hover:bg-error-light/30"
               aria-label="Remove selected IPs"
             >
               Remove
@@ -368,7 +368,7 @@ export function BlockedIPsTableMobile({
               variant="ghost"
               size="sm"
               onClick={clearSelection}
-              className="min-h-[44px]"
+              className="min-h-[44px] text-sm"
               aria-label="Clear selection"
             >
               Clear
@@ -380,13 +380,13 @@ export function BlockedIPsTableMobile({
         <Button
           variant="outline"
           onClick={() => setShowFilters(!showFilters)}
-          className="w-full min-h-[44px]"
+          className="w-full min-h-[44px] text-sm"
           aria-expanded={showFilters}
           aria-controls="mobile-filters"
         >
           {showFilters ? 'Hide' : 'Show'} Filters
           {hasActiveFilter && (
-            <span className="ml-2 px-2 py-0.5 rounded-full bg-primary text-primary-foreground text-xs">
+            <span className="ml-2 px-2 py-0.5 rounded-[var(--semantic-radius-badge)] bg-primary text-primary-foreground text-xs font-medium">
               Active
             </span>
           )}
@@ -397,7 +397,7 @@ export function BlockedIPsTableMobile({
           <Button
             variant="outline"
             onClick={selectAll}
-            className="w-full min-h-[44px]"
+            className="w-full min-h-[44px] text-sm"
             aria-label="Select all blocked IPs"
           >
             Select All
@@ -407,19 +407,19 @@ export function BlockedIPsTableMobile({
 
       {/* Collapsible Filter Controls */}
       {showFilters && (
-        <div id="mobile-filters" className="space-y-3 pb-2">
+        <div id="mobile-filters" className="space-y-component-md pb-component-sm">
           <Input
             placeholder="Filter by IP address (192.168.1.*)"
             value={filter.ipAddress || ''}
             onChange={(e) => setFilter({ ipAddress: e.target.value })}
-            className="w-full"
+            className="w-full h-10 text-sm rounded-[var(--semantic-radius-input)]"
             aria-label="Filter by IP address"
           />
           {hasActiveFilter && (
             <Button
               variant="outline"
               onClick={clearFilter}
-              className="w-full min-h-[44px]"
+              className="w-full min-h-[44px] text-sm"
             >
               Clear Filters
             </Button>

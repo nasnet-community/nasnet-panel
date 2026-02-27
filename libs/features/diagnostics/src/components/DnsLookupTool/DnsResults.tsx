@@ -47,7 +47,7 @@ export const DnsResults = memo(function DnsResults({ result, className }: DnsRes
       <div className="flex flex-wrap items-center gap-component-sm pb-component-sm border-border border-b">
         <div className="flex items-center gap-component-sm">
           <span className="text-sm text-muted-foreground">Server:</span>
-          <span className="text-sm font-mono">{result.server}</span>
+          <span className="text-sm font-mono text-foreground">{result.server}</span>
         </div>
         <div className="flex items-center gap-component-sm">
           <span className="text-sm text-muted-foreground">Query Time:</span>
@@ -102,7 +102,7 @@ export const DnsResults = memo(function DnsResults({ result, className }: DnsRes
           </TableBody>
         </Table>
       ) : (
-        <div className="flex items-center justify-center py-8 text-muted-foreground">
+        <div className="flex items-center justify-center py-component-xl text-muted-foreground">
           <p>No records found</p>
         </div>
       )}

@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/delete-service-template",
+  "title": "deleteServiceTemplate",
+  "description": "Delete a user-created service template.",
+  "source": "@site/docs/api/operations/mutations/delete-service-template.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/delete-service-template",
+  "permalink": "/api/operations/mutations/delete-service-template",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "delete-service-template",
+    "title": "deleteServiceTemplate"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "deleteSchedule",
+    "permalink": "/api/operations/mutations/delete-schedule"
+  },
+  "next": {
+    "title": "deleteTunnel",
+    "permalink": "/api/operations/mutations/delete-tunnel"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/scalars/ipv-4",
+  "title": "IPv4",
+  "description": "IPv4 address string (e.g., \"192.168.1.1\")",
+  "source": "@site/docs/api/types/scalars/ipv-4.mdx",
+  "sourceDirName": "api/types/scalars",
+  "slug": "/api/types/scalars/ipv-4",
+  "permalink": "/api/types/scalars/ipv-4",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "ipv-4",
+    "title": "IPv4"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "Int",
+    "permalink": "/api/types/scalars/int"
+  },
+  "next": {
+    "title": "IPv6",
+    "permalink": "/api/types/scalars/ipv-6"
+  }
+}

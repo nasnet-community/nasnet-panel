@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/batch-interface-payload",
+  "title": "BatchInterfacePayload",
+  "description": "Payload returned by batchInterfaceOperation mutation",
+  "source": "@site/docs/api/types/objects/batch-interface-payload.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/batch-interface-payload",
+  "permalink": "/api/types/objects/batch-interface-payload",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "batch-interface-payload",
+    "title": "BatchInterfacePayload"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "BandwidthDataPoint",
+    "permalink": "/api/types/objects/bandwidth-data-point"
+  },
+  "next": {
+    "title": "BinaryVerification",
+    "permalink": "/api/types/objects/binary-verification"
+  }
+}

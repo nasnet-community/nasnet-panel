@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/resource-layer",
+  "title": "ResourceLayer",
+  "description": "Selectable resource layers for optimized fetching",
+  "source": "@site/docs/api/types/enums/resource-layer.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/resource-layer",
+  "permalink": "/api/types/enums/resource-layer",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "resource-layer",
+    "title": "ResourceLayer"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ResourceImpact",
+    "permalink": "/api/types/enums/resource-impact"
+  },
+  "next": {
+    "title": "ResourceLifecycleState",
+    "permalink": "/api/types/enums/resource-lifecycle-state"
+  }
+}

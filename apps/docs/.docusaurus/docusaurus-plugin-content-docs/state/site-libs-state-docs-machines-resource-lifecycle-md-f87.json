@@ -1,0 +1,24 @@
+{
+  "id": "machines/resource-lifecycle",
+  "title": "Resource Lifecycle Machine (Universal State v2)",
+  "description": "The Resource Lifecycle Machine implements the 9-state Universal State v2 lifecycle for managing individual resources (WireGuard clients, VPNs, DNS services, etc.). It handles validation, application, degradation detection, and archival with proper rollback mechanics.",
+  "source": "@site/../../libs/state/docs/machines/resource-lifecycle.md",
+  "sourceDirName": "machines",
+  "slug": "/machines/resource-lifecycle",
+  "permalink": "/docs/state/machines/resource-lifecycle",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/state/docs/machines/resource-lifecycle.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "State Persistence API",
+    "permalink": "/docs/state/machines/persistence"
+  },
+  "next": {
+    "title": "VPN Connection Machine (Feature Example)",
+    "permalink": "/docs/state/machines/vpn-connection"
+  }
+}

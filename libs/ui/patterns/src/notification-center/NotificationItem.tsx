@@ -37,13 +37,13 @@ function getSeverityIcon(severity: AlertSeverity) {
 function getSeverityIconClass(severity: AlertSeverity): string {
   switch (severity) {
     case 'CRITICAL':
-      return 'text-semantic-error';
+      return 'text-error';
     case 'WARNING':
-      return 'text-semantic-warning';
+      return 'text-warning';
     case 'INFO':
-      return 'text-semantic-info';
+      return 'text-info';
     default:
-      return 'text-semantic-info';
+      return 'text-info';
   }
 }
 
@@ -78,54 +78,52 @@ function NotificationItemComponent({
   };
 
   return (
-    <div
-      role="button"
-      tabIndex={0}
+    <button
       onClick={handleClick}
       onKeyDown={handleKeyDown}
       className={cn(
-        'relative flex gap-3 p-4 rounded-lg border transition-colors',
-        'hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-accent-focus',
-        !notification.read && 'bg-surface-brand-subtle border-primary/20',
-        notification.read && 'bg-surface border-border',
-        onClick && 'cursor-pointer',
+        'w-full text-left relative flex gap-3 px-4 py-3 border-b border-border transition-colors',
+        'hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+        !notification.read && 'bg-primary/5',
+        notification.read && 'bg-popover',
+        'cursor-pointer',
         className
       )}
     >
       {/* Unread indicator */}
       {!notification.read && (
         <div
-          className="absolute top-4 left-2 w-2 h-2 rounded-full bg-primary"
-          aria-label="Unread notification"
+          className="absolute top-3 left-2 h-2 w-2 rounded-full bg-error flex-shrink-0"
+          aria-label="Unread"
         />
       )}
 
-      {/* Severity icon */}
-      <div className="flex-shrink-0 mt-0.5">
-        <Icon className={cn('w-5 h-5', iconClass)} aria-hidden="true" />
+      {/* Item icon */}
+      <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
+        <Icon className={cn('h-4 w-4', iconClass)} aria-hidden="true" />
       </div>
 
       {/* Content */}
-      <div className="flex-1 min-w-0">
+      <div className="flex-1 min-w-0 space-y-1">
         {/* Title */}
-        <h4 className="text-sm font-medium text-content-primary truncate">
+        <h4 className="text-sm font-medium text-foreground truncate">
           {notification.title}
         </h4>
 
         {/* Message */}
-        <p className="mt-1 text-sm text-content-secondary line-clamp-2">
+        <p className="text-xs text-muted-foreground line-clamp-2">
           {notification.message}
         </p>
 
         {/* Timestamp */}
         <time
-          className="mt-2 block text-xs text-content-tertiary"
+          className="block text-xs text-muted-foreground"
           dateTime={notification.receivedAt}
         >
           {formatDistanceToNow(new Date(notification.receivedAt), { addSuffix: true })}
         </time>
       </div>
-    </div>
+    </button>
   );
 }
 

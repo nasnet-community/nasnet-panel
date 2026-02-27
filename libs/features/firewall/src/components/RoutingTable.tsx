@@ -37,9 +37,9 @@ const DEFAULT_ROUTE_PATTERNS = ['0.0.0.0/0', '::/0'];
  * @description Maps route types to semantic color variants
  */
 const RouteTypeBadge = ({ type, dynamic }: { type: string; dynamic: boolean }) => {
-  const TYPE_VARIANT_MAP: Record<string, 'success' | 'destructive' | 'warning'> = {
+  const TYPE_VARIANT_MAP: Record<string, 'success' | 'error' | 'warning'> = {
     unicast: 'success',
-    blackhole: 'destructive',
+    blackhole: 'error',
     unreachable: 'warning',
     prohibit: 'warning',
   };
@@ -47,17 +47,17 @@ const RouteTypeBadge = ({ type, dynamic }: { type: string; dynamic: boolean }) =
   const variant = TYPE_VARIANT_MAP[type] || 'success';
 
   return (
-    <div className="flex gap-1 items-center">
+    <div className="flex gap-component-xs items-center">
       <span className={cn(
-        'inline-flex items-center px-2 py-1 text-xs font-medium rounded-md',
+        'inline-flex items-center px-component-sm py-component-xs text-xs font-medium rounded-md',
         variant === 'success' && 'bg-success/20 text-success',
-        variant === 'destructive' && 'bg-destructive/20 text-destructive',
+        variant === 'error' && 'bg-error/20 text-error',
         variant === 'warning' && 'bg-warning/20 text-warning'
       )}>
         {type}
       </span>
       {dynamic && (
-        <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-md bg-info/20 text-info">
+        <span className="inline-flex items-center px-component-sm py-component-xs text-xs font-medium rounded-md bg-info/20 text-info">
           dynamic
         </span>
       )}
@@ -129,7 +129,7 @@ export const RoutingTable = ({ className }: RoutingTableProps) => {
 
   if (isLoading) {
     return (
-      <div className={cn('p-4 space-y-4 animate-pulse', className)}>
+      <div className={cn('p-component-md space-y-component-md animate-pulse', className)}>
         <div className="h-10 bg-muted rounded" />
         <div className="h-16 bg-muted rounded" />
         <div className="h-16 bg-muted rounded" />
@@ -139,9 +139,9 @@ export const RoutingTable = ({ className }: RoutingTableProps) => {
 
   if (error) {
     return (
-      <div className={cn('p-4 text-destructive rounded-lg bg-destructive/10', className)}>
+      <div className={cn('p-component-md text-error rounded-lg bg-error/10', className)}>
         <p className="font-medium">Error loading routes</p>
-        <p className="text-sm mt-1">{error.message}</p>
+        <p className="text-sm mt-component-xs">{error.message}</p>
       </div>
     );
   }

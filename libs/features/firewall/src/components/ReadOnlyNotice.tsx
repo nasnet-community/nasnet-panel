@@ -60,7 +60,7 @@ export const ReadOnlyNotice = memo(function ReadOnlyNotice({ className }: ReadOn
   return (
     <div
       className={cn(
-        'relative rounded-card-sm border border-info/30 bg-info/5 p-component-md',
+        'relative rounded-md border border-info/30 bg-info/5 p-component-md',
         className
       )}
       role="alert"
@@ -79,20 +79,20 @@ export const ReadOnlyNotice = memo(function ReadOnlyNotice({ className }: ReadOn
           <h3 className="text-sm font-semibold text-foreground">
             Viewing Mode Only
           </h3>
-          <div className="mt-2 text-sm text-muted-foreground">
+          <div className="mt-component-sm text-sm text-muted-foreground">
             <p>
               Firewall configuration editing is not available in Phase 0 to ensure network safety.
             </p>
-            <p className="mt-2">
+            <p className="mt-component-sm">
               Phase 1 will introduce the <strong>Safety Pipeline</strong>, enabling you to make
               firewall changes with:
             </p>
-            <ul className="mt-2 ml-4 list-disc space-y-1">
+            <ul className="mt-component-sm ml-4 list-disc space-y-1">
               {benefitsList.map((benefit, index) => (
                 <li key={index}>{benefit}</li>
               ))}
             </ul>
-            <p className="mt-2 text-xs">
+            <p className="mt-component-sm text-xs">
               For now, you can view your current configuration. If you need to make changes, use
               WinBox or the RouterOS terminal.
             </p>

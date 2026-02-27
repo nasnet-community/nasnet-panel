@@ -1,0 +1,28 @@
+{
+  "id": "tanstack-query-modules",
+  "title": "TanStack Query Modules — REST-Only Endpoints",
+  "description": "While the majority of NasNetConnect uses Apollo Client for GraphQL, there are three specialized domains that communicate with REST-only endpoints and require TanStack Query (React Query) instead: batch jobs, OUI/MAC vendor lookups, and connection testing. This document covers each module, their caching strategies, and when to use them.",
+  "source": "@site/../../libs/api-client/docs/tanstack-query-modules.md",
+  "sourceDirName": ".",
+  "slug": "/tanstack-query-modules",
+  "permalink": "/docs/api-client/tanstack-query-modules",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/api-client/docs/tanstack-query-modules.md",
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 13,
+  "frontMatter": {
+    "sidebar_position": 13,
+    "title": "TanStack Query Modules — REST-Only Endpoints"
+  },
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "GraphQL Schema Contracts — Scalars and Directives",
+    "permalink": "/docs/api-client/graphql-schema-contracts"
+  },
+  "next": {
+    "title": "Notifications and Webhooks — Alert Delivery Integration",
+    "permalink": "/docs/api-client/notifications-webhooks"
+  }
+}

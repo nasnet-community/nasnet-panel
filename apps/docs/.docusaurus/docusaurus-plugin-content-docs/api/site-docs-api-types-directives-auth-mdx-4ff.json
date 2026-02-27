@@ -1,0 +1,26 @@
+{
+  "id": "api/types/directives/auth",
+  "title": "auth",
+  "description": "Requires authentication to access this field.",
+  "source": "@site/docs/api/types/directives/auth.mdx",
+  "sourceDirName": "api/types/directives",
+  "slug": "/api/types/directives/auth",
+  "permalink": "/api/types/directives/auth",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "auth",
+    "title": "auth"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "Directives",
+    "permalink": "/category/directives-1"
+  },
+  "next": {
+    "title": "cache",
+    "permalink": "/api/types/directives/cache"
+  }
+}

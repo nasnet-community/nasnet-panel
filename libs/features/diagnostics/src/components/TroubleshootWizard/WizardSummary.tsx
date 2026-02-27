@@ -103,7 +103,7 @@ export const WizardSummary = memo(function WizardSummary({
         <div className="flex flex-col items-center text-center space-y-component-md">
           {getSummaryIcon()}
           <div>
-            <h2 className="text-2xl font-bold text-foreground mb-component-sm">Troubleshooting Complete</h2>
+            <h2 className="text-2xl font-bold text-category-networking mb-component-sm">Troubleshooting Complete</h2>
             <p className="text-muted-foreground">{summaryMessage}</p>
           </div>
 
@@ -134,14 +134,14 @@ export const WizardSummary = memo(function WizardSummary({
       {/* Detailed Results */}
       <Card className="p-component-md">
         <h3 className="font-semibold text-foreground mb-component-md">Detailed Results</h3>
-        <div className="space-y-component-sm" role="list" aria-label="Diagnostic step results">
+        <div className="space-y-component-xs" role="list" aria-label="Diagnostic step results">
           {steps.map((step) => (
             <div
               key={step.id}
               role="listitem"
               aria-label={`${step.name}: ${step.status}`}
               className={cn(
-                'flex items-center gap-component-md p-component-sm rounded-card-sm',
+                'flex items-center gap-component-sm p-component-sm rounded-card-sm',
                 step.status === 'passed' && 'bg-success/10',
                 step.status === 'failed' && 'bg-error/10',
                 step.status === 'skipped' && 'bg-muted/50'
@@ -162,7 +162,7 @@ export const WizardSummary = memo(function WizardSummary({
                 {step.result?.message && (
                   <div
                     className={cn(
-                      'text-xs mt-component-xs',
+                      'text-xs mt-component-xs font-mono',
                       step.status === 'passed' && 'text-success',
                       step.status === 'failed' && 'text-error',
                       step.status === 'skipped' && 'text-muted-foreground'
@@ -174,7 +174,7 @@ export const WizardSummary = memo(function WizardSummary({
               </div>
 
               {step.result?.executionTimeMs && (
-                <span className="text-xs text-muted-foreground whitespace-nowrap" aria-label={`Execution time: ${(step.result.executionTimeMs / 1000).toFixed(1)} seconds`}>
+                <span className="font-mono text-xs text-muted-foreground whitespace-nowrap" aria-label={`Execution time: ${(step.result.executionTimeMs / 1000).toFixed(1)} seconds`}>
                   {(step.result.executionTimeMs / 1000).toFixed(1)}s
                 </span>
               )}
@@ -191,7 +191,7 @@ export const WizardSummary = memo(function WizardSummary({
             {summary.appliedFixes.map((fixCode) => (
               <li key={fixCode} className="flex items-center gap-component-sm text-sm">
                 <CheckCircle2 className="h-4 w-4 text-success flex-shrink-0" aria-hidden="true" />
-                <span className="text-muted-foreground">{fixCode.replace(/_/g, ' ')}</span>
+                <span className="text-muted-foreground font-mono">{fixCode.replace(/_/g, ' ')}</span>
               </li>
             ))}
           </ul>
@@ -199,14 +199,14 @@ export const WizardSummary = memo(function WizardSummary({
       )}
 
       {/* Action Buttons */}
-      <div className="flex gap-component-md">
+      <div className="flex gap-component-sm">
         <Button
           variant="outline"
           onClick={handleRestart}
           className="flex-1 min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           aria-label="Run diagnostics again"
         >
-          <RefreshCw className="mr-2 h-4 w-4" aria-hidden="true" />
+          <RefreshCw className="mr-component-sm h-4 w-4" aria-hidden="true" />
           Run Again
         </Button>
         <Button
@@ -214,7 +214,7 @@ export const WizardSummary = memo(function WizardSummary({
           className="flex-1 min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           aria-label="Close troubleshooting wizard"
         >
-          <X className="mr-2 h-4 w-4" aria-hidden="true" />
+          <X className="mr-component-sm h-4 w-4" aria-hidden="true" />
           Close
         </Button>
       </div>

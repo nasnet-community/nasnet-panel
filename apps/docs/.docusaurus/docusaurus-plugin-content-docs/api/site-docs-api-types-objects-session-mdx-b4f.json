@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/session",
+  "title": "Session",
+  "description": "Active user session",
+  "source": "@site/docs/api/types/objects/session.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/session",
+  "permalink": "/api/types/objects/session",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "session",
+    "title": "Session"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ServiceTrafficStats",
+    "permalink": "/api/types/objects/service-traffic-stats"
+  },
+  "next": {
+    "title": "SetPreferredProtocolPayload",
+    "permalink": "/api/types/objects/set-preferred-protocol-payload"
+  }
+}

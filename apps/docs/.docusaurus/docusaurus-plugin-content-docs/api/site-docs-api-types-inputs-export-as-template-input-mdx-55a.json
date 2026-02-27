@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/export-as-template-input",
+  "title": "ExportAsTemplateInput",
+  "description": "Input for exporting services as a template",
+  "source": "@site/docs/api/types/inputs/export-as-template-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/export-as-template-input",
+  "permalink": "/api/types/inputs/export-as-template-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "export-as-template-input",
+    "title": "ExportAsTemplateInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "EscalationConfigInput",
+    "permalink": "/api/types/inputs/escalation-config-input"
+  },
+  "next": {
+    "title": "ExportConfigInput",
+    "permalink": "/api/types/inputs/export-config-input"
+  }
+}

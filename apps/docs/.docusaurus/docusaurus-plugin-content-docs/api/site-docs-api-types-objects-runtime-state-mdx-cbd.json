@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/runtime-state",
+  "title": "RuntimeState",
+  "description": "Layer 4: Live operational state polled/streamed from router.",
+  "source": "@site/docs/api/types/objects/runtime-state.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/runtime-state",
+  "permalink": "/api/types/objects/runtime-state",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "runtime-state",
+    "title": "RuntimeState"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "RuntimeMetrics",
+    "permalink": "/api/types/objects/runtime-metrics"
+  },
+  "next": {
+    "title": "ScanNetworkPayload",
+    "permalink": "/api/types/objects/scan-network-payload"
+  }
+}

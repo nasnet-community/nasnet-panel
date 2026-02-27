@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/ip-address-delete-result",
+  "title": "IpAddressDeleteResult",
+  "description": "Result of an IP address deletion with dependency checking",
+  "source": "@site/docs/api/types/objects/ip-address-delete-result.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/ip-address-delete-result",
+  "permalink": "/api/types/objects/ip-address-delete-result",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "ip-address-delete-result",
+    "title": "IpAddressDeleteResult"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "IpAddressChangeEvent",
+    "permalink": "/api/types/objects/ip-address-change-event"
+  },
+  "next": {
+    "title": "IpAddressDependencies",
+    "permalink": "/api/types/objects/ip-address-dependencies"
+  }
+}

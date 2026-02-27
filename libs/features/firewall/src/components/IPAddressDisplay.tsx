@@ -123,7 +123,7 @@ function IPAddressDisplayInner({
           variant="outline"
           className={cn('font-mono text-xs', className)}
         >
-          {label && <span className="mr-1 font-sans">{label}:</span>}
+          {label && <span className="mr-component-xs font-sans">{label}:</span>}
           <span className="font-mono">{ipAddress}</span>
         </Badge>
       );
@@ -131,7 +131,7 @@ function IPAddressDisplayInner({
 
     return (
       <span className={cn('font-mono text-sm', className)}>
-        {label && <span className="mr-1 font-sans">{label}:</span>}
+        {label && <span className="mr-component-xs font-sans">{label}:</span>}
         <span className="font-mono">{ipAddress}</span>
       </span>
     );
@@ -155,7 +155,7 @@ function IPAddressDisplayInner({
       >
         <div
           ref={elementRef}
-          className="inline-block cursor-pointer hover:bg-accent rounded px-1 -mx-1 transition-colors"
+          className="inline-block cursor-pointer hover:bg-accent rounded px-component-xs -mx-component-xs transition-colors"
           role="button"
           tabIndex={0}
           aria-label={`IP address ${ipAddress}. Press Shift+F10 to open context menu`}
@@ -184,7 +184,7 @@ function IPAddressDisplayInner({
     <>
       <div
         ref={elementRef}
-        className="inline-block active:bg-accent rounded px-1 -mx-1 transition-colors"
+        className="inline-block active:bg-accent rounded px-component-xs -mx-component-xs transition-colors"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
         onTouchMove={handleTouchMove}
@@ -201,18 +201,18 @@ function IPAddressDisplayInner({
             <SheetTitle>Add to Address List</SheetTitle>
           </SheetHeader>
 
-          <div className="mt-4 space-y-2">
-            <div className="flex items-center gap-2 p-3 bg-muted rounded-md">
+          <div className="mt-component-md space-y-component-sm">
+            <div className="flex items-center gap-component-sm p-component-md bg-muted rounded-md">
               <span className="text-sm text-muted-foreground">IP Address:</span>
               <Badge variant="outline" className="font-mono">
                 <span className="font-mono">{ipAddress}</span>
               </Badge>
             </div>
 
-            <div className="space-y-1">
+            <div className="space-y-component-xs">
               <p className="text-sm font-medium">Select list:</p>
               {existingLists.length > 0 ? (
-                <div className="space-y-1" role="listbox">
+                <div className="space-y-component-xs" role="listbox">
                   {existingLists.map((list) => (
                     <button
                       key={list}
@@ -222,7 +222,7 @@ function IPAddressDisplayInner({
                           setShowMobileSheet(false);
                         }
                       }}
-                      className="w-full text-left px-4 py-3 rounded-md border border-border hover:bg-accent transition-colors active:scale-95"
+                      className="w-full text-left px-component-md py-component-md rounded-md border border-border hover:bg-accent transition-colors active:scale-95"
                       role="option"
                       aria-selected={false}
                     >
@@ -231,7 +231,7 @@ function IPAddressDisplayInner({
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-muted-foreground p-4 text-center" aria-live="polite">
+                <p className="text-sm text-muted-foreground p-component-md text-center" aria-live="polite">
                   No address lists available. Create one first.
                 </p>
               )}

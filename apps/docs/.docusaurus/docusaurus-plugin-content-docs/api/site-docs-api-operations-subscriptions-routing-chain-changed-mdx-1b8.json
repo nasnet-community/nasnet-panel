@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/subscriptions/routing-chain-changed",
+  "title": "routingChainChanged",
+  "description": "Real-time updates when any routing chain changes (create, update, remove, kill switch).",
+  "source": "@site/docs/api/operations/subscriptions/routing-chain-changed.mdx",
+  "sourceDirName": "api/operations/subscriptions",
+  "slug": "/api/operations/subscriptions/routing-chain-changed",
+  "permalink": "/api/operations/subscriptions/routing-chain-changed",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "routing-chain-changed",
+    "title": "routingChainChanged"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "routerStatusChanged",
+    "permalink": "/api/operations/subscriptions/router-status-changed"
+  },
+  "next": {
+    "title": "scanProgress",
+    "permalink": "/api/operations/subscriptions/scan-progress"
+  }
+}

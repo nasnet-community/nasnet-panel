@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/vlan-dependencies",
+  "title": "VlanDependencies",
+  "description": "Resources that depend on a VLAN interface",
+  "source": "@site/docs/api/types/objects/vlan-dependencies.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/vlan-dependencies",
+  "permalink": "/api/types/objects/vlan-dependencies",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "vlan-dependencies",
+    "title": "VlanDependencies"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "VirtualInterface",
+    "permalink": "/api/types/objects/virtual-interface"
+  },
+  "next": {
+    "title": "VlanMutationResult",
+    "permalink": "/api/types/objects/vlan-mutation-result"
+  }
+}

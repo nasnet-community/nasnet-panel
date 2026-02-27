@@ -7,56 +7,56 @@ package resolver
 
 import (
 	"backend/graph/model"
-	"backend/internal/errors"
+	"backend/internal/apperrors"
 	"context"
 )
 
 // StartTroubleshoot is the resolver for the startTroubleshoot field.
 func (r *mutationResolver) StartTroubleshoot(ctx context.Context, routerID string) (*model.StartTroubleshootPayload, error) {
-	panic(errors.NewInternalError("not implemented: StartTroubleshoot - startTroubleshoot", nil))
+	panic(apperrors.NewInternalError("not implemented: StartTroubleshoot - startTroubleshoot", nil))
 }
 
 // RunTroubleshootStep is the resolver for the runTroubleshootStep field.
 func (r *mutationResolver) RunTroubleshootStep(ctx context.Context, sessionID string, stepType model.TroubleshootStepType) (*model.RunTroubleshootStepPayload, error) {
-	panic(errors.NewInternalError("not implemented: RunTroubleshootStep - runTroubleshootStep", nil))
+	panic(apperrors.NewInternalError("not implemented: RunTroubleshootStep - runTroubleshootStep", nil))
 }
 
 // ApplyTroubleshootFix is the resolver for the applyTroubleshootFix field.
 func (r *mutationResolver) ApplyTroubleshootFix(ctx context.Context, sessionID string, issueCode string) (*model.ApplyFixPayload, error) {
-	panic(errors.NewInternalError("not implemented: ApplyTroubleshootFix - applyTroubleshootFix", nil))
+	panic(apperrors.NewInternalError("not implemented: ApplyTroubleshootFix - applyTroubleshootFix", nil))
 }
 
 // VerifyTroubleshootFix is the resolver for the verifyTroubleshootFix field.
 func (r *mutationResolver) VerifyTroubleshootFix(ctx context.Context, sessionID string, stepType model.TroubleshootStepType) (*model.RunTroubleshootStepPayload, error) {
-	panic(errors.NewInternalError("not implemented: VerifyTroubleshootFix - verifyTroubleshootFix", nil))
+	panic(apperrors.NewInternalError("not implemented: VerifyTroubleshootFix - verifyTroubleshootFix", nil))
 }
 
 // CancelTroubleshoot is the resolver for the cancelTroubleshoot field.
 func (r *mutationResolver) CancelTroubleshoot(ctx context.Context, sessionID string) (*model.TroubleshootSession, error) {
-	panic(errors.NewInternalError("not implemented: CancelTroubleshoot - cancelTroubleshoot", nil))
+	panic(apperrors.NewInternalError("not implemented: CancelTroubleshoot - cancelTroubleshoot", nil))
 }
 
 // TroubleshootSession is the resolver for the troubleshootSession field.
 func (r *queryResolver) TroubleshootSession(ctx context.Context, id string) (*model.TroubleshootSession, error) {
-	panic(errors.NewInternalError("not implemented: TroubleshootSession - troubleshootSession", nil))
+	panic(apperrors.NewInternalError("not implemented: TroubleshootSession - troubleshootSession", nil))
 }
 
 // DetectWanInterface is the resolver for the detectWanInterface field.
 func (r *queryResolver) DetectWanInterface(ctx context.Context, routerID string) (string, error) {
-	panic(errors.NewInternalError("not implemented: DetectWanInterface - detectWanInterface", nil))
+	panic(apperrors.NewInternalError("not implemented: DetectWanInterface - detectWanInterface", nil))
 }
 
 // DetectGateway is the resolver for the detectGateway field.
 func (r *queryResolver) DetectGateway(ctx context.Context, routerID string) (*string, error) {
-	panic(errors.NewInternalError("not implemented: DetectGateway - detectGateway", nil))
+	panic(apperrors.NewInternalError("not implemented: DetectGateway - detectGateway", nil))
 }
 
 // DetectIsp is the resolver for the detectISP field.
 func (r *queryResolver) DetectIsp(ctx context.Context, routerID string) (*model.ISPInfo, error) {
-	panic(errors.NewInternalError("not implemented: DetectIsp - detectISP", nil))
+	panic(apperrors.NewInternalError("not implemented: DetectIsp - detectISP", nil))
 }
 
 // TroubleshootProgress is the resolver for the troubleshootProgress field.
 func (r *subscriptionResolver) TroubleshootProgress(ctx context.Context, sessionID string) (<-chan *model.TroubleshootSession, error) {
-	panic(errors.NewInternalError("not implemented: TroubleshootProgress - troubleshootProgress", nil))
+	panic(apperrors.NewInternalError("not implemented: TroubleshootProgress - troubleshootProgress", nil))
 }

@@ -8,6 +8,8 @@
 package formatters
 
 import (
+	"fmt"
+
 	"backend/internal/translator"
 )
 
@@ -64,7 +66,18 @@ func (r *FormatterRegistry) Format(protocol translator.Protocol, cmd *translator
 			Category: translator.ErrorCategoryUnsupported,
 		}
 	}
-	return f.Format(cmd)
+	if f == nil {
+		return nil, &translator.CommandError{
+			Code:     "INTERNAL_ERROR",
+			Message:  "formatter is nil for protocol: " + string(protocol),
+			Category: translator.ErrorCategoryUnsupported,
+		}
+	}
+	formatted, err := f.Format(cmd)
+	if err != nil {
+		return nil, fmt.Errorf("failed to format command for protocol %s: %w", protocol, err)
+	}
+	return formatted, nil
 }
 
 // Parse parses a response using the appropriate protocol formatter.
@@ -77,5 +90,16 @@ func (r *FormatterRegistry) Parse(protocol translator.Protocol, response []byte)
 			Category: translator.ErrorCategoryUnsupported,
 		}
 	}
-	return f.Parse(response)
+	if f == nil {
+		return nil, &translator.CommandError{
+			Code:     "INTERNAL_ERROR",
+			Message:  "formatter is nil for protocol: " + string(protocol),
+			Category: translator.ErrorCategoryUnsupported,
+		}
+	}
+	parsed, err := f.Parse(response)
+	if err != nil {
+		return nil, fmt.Errorf("parse response: %w", err)
+	}
+	return parsed, nil
 }

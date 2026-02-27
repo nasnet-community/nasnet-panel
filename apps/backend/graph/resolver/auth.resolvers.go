@@ -7,26 +7,26 @@ package resolver
 
 import (
 	"backend/graph/model"
+	"backend/internal/apperrors"
 	"backend/internal/auth"
-	"backend/internal/errors"
 	"context"
 )
 
 // Login is the resolver for the login field.
 func (r *mutationResolver) Login(ctx context.Context, username string, password string) (*model.AuthPayload, error) {
-	if r.Resolver.authService == nil {
-		return nil, errors.NewProtocolError(errors.CodeCommandFailed, "auth service not configured", "graphql")
+	if r.authService == nil {
+		return nil, apperrors.NewProtocolError(apperrors.CodeCommandFailed, "auth service not configured", "graphql")
 	}
 
 	if username == "" || password == "" {
-		return nil, errors.NewValidationError("credentials", "", "username and password are required")
+		return nil, apperrors.NewValidationError("credentials", "", "username and password are required")
 	}
 
 	// Get client info from context
 	ip, ua := getClientInfoFromContext(ctx)
 
 	// Login through auth service (never log passwords)
-	result, err := r.Resolver.authService.Login(ctx, auth.LoginInput{
+	result, err := r.authService.Login(ctx, auth.LoginInput{
 		Username:  username,
 		Password:  password,
 		IP:        ip,
@@ -34,11 +34,11 @@ func (r *mutationResolver) Login(ctx context.Context, username string, password 
 	})
 	if err != nil {
 		// Don't expose auth error details to client
-		return nil, errors.NewValidationError("authentication", "", "authentication failed")
+		return nil, apperrors.NewValidationError("authentication", "", "authentication failed")
 	}
 
 	if result == nil || result.Token == "" {
-		return nil, errors.NewProtocolError(errors.CodeCommandFailed, "failed to generate authentication token", "graphql")
+		return nil, apperrors.NewProtocolError(apperrors.CodeCommandFailed, "failed to generate authentication token", "graphql")
 	}
 
 	return &model.AuthPayload{
@@ -52,8 +52,8 @@ func (r *mutationResolver) Login(ctx context.Context, username string, password 
 
 // Logout is the resolver for the logout field.
 func (r *mutationResolver) Logout(ctx context.Context) (bool, error) {
-	if r.Resolver.authService == nil {
-		return false, errors.NewProtocolError(errors.CodeCommandFailed, "auth service not configured", "graphql")
+	if r.authService == nil {
+		return false, apperrors.NewProtocolError(apperrors.CodeCommandFailed, "auth service not configured", "graphql")
 	}
 
 	// Extract session ID from context
@@ -66,8 +66,8 @@ func (r *mutationResolver) Logout(ctx context.Context) (bool, error) {
 	ip, ua := getClientInfoFromContext(ctx)
 
 	// Logout through auth service
-	if err := r.Resolver.authService.Logout(ctx, sessionID, ip, ua); err != nil {
-		return false, errors.Wrap(err, errors.CodeProtocolError, errors.CategoryProtocol, "logout failed")
+	if err := r.authService.Logout(ctx, sessionID, ip, ua); err != nil {
+		return false, apperrors.Wrap(err, apperrors.CodeProtocolError, apperrors.CategoryProtocol, "logout failed")
 	}
 
 	return true, nil
@@ -75,8 +75,8 @@ func (r *mutationResolver) Logout(ctx context.Context) (bool, error) {
 
 // ChangePassword is the resolver for the changePassword field.
 func (r *mutationResolver) ChangePassword(ctx context.Context, currentPassword string, newPassword string) (bool, error) {
-	if r.Resolver.authService == nil {
-		return false, errors.NewProtocolError(errors.CodeCommandFailed, "auth service not configured", "graphql")
+	if r.authService == nil {
+		return false, apperrors.NewProtocolError(apperrors.CodeCommandFailed, "auth service not configured", "graphql")
 	}
 
 	// Extract user ID and session ID from context
@@ -92,23 +92,23 @@ func (r *mutationResolver) ChangePassword(ctx context.Context, currentPassword s
 
 	// Validate passwords
 	if currentPassword == "" || newPassword == "" {
-		return false, errors.NewValidationError("passwords", "", "current and new passwords are required")
+		return false, apperrors.NewValidationError("passwords", "", "current and new passwords are required")
 	}
 
 	if currentPassword == newPassword {
-		return false, errors.NewValidationError("newPassword", "", "new password must differ from current password")
+		return false, apperrors.NewValidationError("newPassword", "", "new password must differ from current password")
 	}
 
 	// Validate new password policy
-	if err := r.Resolver.authService.ValidatePassword(newPassword); err != nil {
-		return false, errors.Wrap(err, errors.CodeProtocolError, errors.CategoryProtocol, "new password does not meet policy requirements")
+	if err := r.authService.ValidatePassword(newPassword); err != nil {
+		return false, apperrors.Wrap(err, apperrors.CodeProtocolError, apperrors.CategoryProtocol, "new password does not meet policy requirements")
 	}
 
 	// Get client info from context
 	ip, ua := getClientInfoFromContext(ctx)
 
 	// Change password through auth service
-	if err := r.Resolver.authService.ChangePassword(ctx, auth.ChangePasswordInput{
+	if err := r.authService.ChangePassword(ctx, auth.ChangePasswordInput{
 		UserID:          userID,
 		CurrentPassword: currentPassword,
 		NewPassword:     newPassword,
@@ -116,7 +116,7 @@ func (r *mutationResolver) ChangePassword(ctx context.Context, currentPassword s
 		IP:              ip,
 		UserAgent:       ua,
 	}); err != nil {
-		return false, errors.Wrap(err, errors.CodeProtocolError, errors.CategoryProtocol, "password change failed")
+		return false, apperrors.Wrap(err, apperrors.CodeProtocolError, apperrors.CategoryProtocol, "password change failed")
 	}
 
 	return true, nil
@@ -124,12 +124,12 @@ func (r *mutationResolver) ChangePassword(ctx context.Context, currentPassword s
 
 // RevokeAllSessions is the resolver for the revokeAllSessions field.
 func (r *mutationResolver) RevokeAllSessions(ctx context.Context, userID string) (bool, error) {
-	if r.Resolver.authService == nil {
-		return false, errors.NewProtocolError(errors.CodeCommandFailed, "auth service not configured", "graphql")
+	if r.authService == nil {
+		return false, apperrors.NewProtocolError(apperrors.CodeCommandFailed, "auth service not configured", "graphql")
 	}
 
 	if userID == "" {
-		return false, errors.NewValidationError("userID", userID, "user ID is required")
+		return false, apperrors.NewValidationError("userID", userID, "user ID is required")
 	}
 
 	// Extract current user ID from context for authorization check
@@ -141,15 +141,15 @@ func (r *mutationResolver) RevokeAllSessions(ctx context.Context, userID string)
 	// Only allow users to revoke their own sessions
 	// TODO: Admin override should check admin role from context
 	if currentUserID != userID {
-		return false, errors.NewValidationError("authorization", userID, "unauthorized: can only revoke your own sessions")
+		return false, apperrors.NewValidationError("authorization", userID, "unauthorized: can only revoke your own sessions")
 	}
 
 	// Get client info from context
 	ip, ua := getClientInfoFromContext(ctx)
 
 	// Revoke all sessions for the user
-	if err := r.Resolver.authService.RevokeAllSessions(ctx, userID, currentUserID, ip, ua); err != nil {
-		return false, errors.Wrap(err, errors.CodeProtocolError, errors.CategoryProtocol, "revoke all sessions failed")
+	if err := r.authService.RevokeAllSessions(ctx, userID, currentUserID, ip, ua); err != nil {
+		return false, apperrors.Wrap(err, apperrors.CodeProtocolError, apperrors.CategoryProtocol, "revoke all sessions failed")
 	}
 
 	return true, nil
@@ -157,18 +157,18 @@ func (r *mutationResolver) RevokeAllSessions(ctx context.Context, userID string)
 
 // RevokeSession is the resolver for the revokeSession field.
 func (r *mutationResolver) RevokeSession(ctx context.Context, sessionID string) (bool, error) {
-	if r.Resolver.authService == nil {
-		return false, errors.NewProtocolError(errors.CodeCommandFailed, "auth service not configured", "graphql")
+	if r.authService == nil {
+		return false, apperrors.NewProtocolError(apperrors.CodeCommandFailed, "auth service not configured", "graphql")
 	}
 
 	if sessionID == "" {
-		return false, errors.NewValidationError("sessionID", sessionID, "session ID is required")
+		return false, apperrors.NewValidationError("sessionID", sessionID, "session ID is required")
 	}
 
 	ip, ua := getClientInfoFromContext(ctx)
 	// Use Logout to revoke the specific session (marks it as revoked)
-	if err := r.Resolver.authService.Logout(ctx, sessionID, ip, ua); err != nil {
-		return false, errors.Wrap(err, errors.CodeProtocolError, errors.CategoryProtocol, "revoke session failed")
+	if err := r.authService.Logout(ctx, sessionID, ip, ua); err != nil {
+		return false, apperrors.Wrap(err, apperrors.CodeProtocolError, apperrors.CategoryProtocol, "revoke session failed")
 	}
 
 	return true, nil
@@ -176,8 +176,8 @@ func (r *mutationResolver) RevokeSession(ctx context.Context, sessionID string) 
 
 // Me is the resolver for the me field.
 func (r *queryResolver) Me(ctx context.Context) (*model.User, error) {
-	if r.Resolver.authService == nil {
-		return nil, errors.NewProtocolError(errors.CodeCommandFailed, "auth service not configured", "graphql")
+	if r.authService == nil {
+		return nil, apperrors.NewProtocolError(apperrors.CodeCommandFailed, "auth service not configured", "graphql")
 	}
 
 	// Extract user ID from context
@@ -187,13 +187,13 @@ func (r *queryResolver) Me(ctx context.Context) (*model.User, error) {
 	}
 
 	// Fetch user details through auth service
-	user, err := r.Resolver.authService.GetCurrentUser(ctx, userID)
+	user, err := r.authService.GetCurrentUser(ctx, userID)
 	if err != nil {
-		return nil, errors.Wrap(err, errors.CodeProtocolError, errors.CategoryProtocol, "failed to fetch user details")
+		return nil, apperrors.Wrap(err, apperrors.CodeProtocolError, apperrors.CategoryProtocol, "failed to fetch user details")
 	}
 
 	if user == nil {
-		return nil, errors.NewValidationError("user", userID, "user not found")
+		return nil, apperrors.NewValidationError("user", userID, "user not found")
 	}
 
 	return &model.User{
@@ -204,8 +204,8 @@ func (r *queryResolver) Me(ctx context.Context) (*model.User, error) {
 
 // MySessions is the resolver for the mySessions field.
 func (r *queryResolver) MySessions(ctx context.Context) ([]*model.Session, error) {
-	if r.Resolver.authService == nil {
-		return nil, errors.NewProtocolError(errors.CodeCommandFailed, "auth service not configured", "graphql")
+	if r.authService == nil {
+		return nil, apperrors.NewProtocolError(apperrors.CodeCommandFailed, "auth service not configured", "graphql")
 	}
 
 	// Extract user ID from context
@@ -215,9 +215,9 @@ func (r *queryResolver) MySessions(ctx context.Context) ([]*model.Session, error
 	}
 
 	// Fetch sessions for the current user through auth service
-	sessions, err := r.Resolver.authService.GetUserSessions(ctx, userID)
+	sessions, err := r.authService.GetUserSessions(ctx, userID)
 	if err != nil {
-		return nil, errors.Wrap(err, errors.CodeProtocolError, errors.CategoryProtocol, "failed to fetch user sessions")
+		return nil, apperrors.Wrap(err, apperrors.CodeProtocolError, apperrors.CategoryProtocol, "failed to fetch user sessions")
 	}
 
 	if sessions == nil {

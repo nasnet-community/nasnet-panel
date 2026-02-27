@@ -1,0 +1,24 @@
+{
+  "id": "cross-cutting-features/change-set-system",
+  "title": "Change Set System",
+  "description": "The change set system provides atomic multi-resource operations for router configuration. Instead of applying one resource at a time, you batch multiple changes together, validate them, apply in dependency order, and automatically roll back if anything fails.",
+  "source": "@site/../connect/docs/cross-cutting-features/change-set-system.md",
+  "sourceDirName": "cross-cutting-features",
+  "slug": "/cross-cutting-features/change-set-system",
+  "permalink": "/docs/frontend/cross-cutting-features/change-set-system",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../connect/docs/cross-cutting-features/change-set-system.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Alerts System",
+    "permalink": "/docs/frontend/cross-cutting-features/alerts-system"
+  },
+  "next": {
+    "title": "Configuration Import",
+    "permalink": "/docs/frontend/cross-cutting-features/configuration-import"
+  }
+}

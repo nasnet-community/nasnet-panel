@@ -138,9 +138,11 @@ export function DeviceCardMobile({
       <Card
         id={id}
         className={cn(
-          'group relative p-4 transition-all duration-200 active:scale-[0.98]',
-          isSelected && 'border-primary shadow-md ring-2 ring-primary/20',
-          'min-h-[64px]', // 44px + padding for touch target
+          'group relative p-component-md transition-all duration-200 active:scale-[0.98]',
+          'bg-card border border-border rounded-[var(--semantic-radius-card)]',
+          'shadow-[var(--semantic-shadow-card)]',
+          isSelected && 'border-primary ring-2 ring-primary/20',
+          'min-h-[44px]', // WCAG AAA touch target
           className
         )}
         role="article"
@@ -156,7 +158,7 @@ export function DeviceCardMobile({
       >
         <div className="flex items-center gap-3">
           {/* Device icon container */}
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-muted/50">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted border border-border">
             <Icon className="h-5 w-5 text-foreground" aria-hidden="true" />
           </div>
 

@@ -110,7 +110,7 @@ export const NetworkQuickStats = React.memo(function NetworkQuickStats({
             <p className="text-2xl font-bold font-mono text-foreground leading-none mb-1">
               {stat.value}
             </p>
-            <p className="text-xs text-muted-foreground">{stat.label}</p>
+            <p className="text-xs text-muted-foreground font-display">{stat.label}</p>
             {stat.subLabel && (
               <p className="text-xs text-muted-foreground mt-0.5">{stat.subLabel}</p>
             )}

@@ -148,20 +148,24 @@ func (g *SingboxGenerator) Generate(instanceID string, config map[string]interfa
 	}
 
 	// Render as JSON
-	return g.RenderJSON(singboxConfig)
+	rendered, err := g.RenderJSON(singboxConfig)
+	if err != nil {
+		return nil, fmt.Errorf("render singbox json: %w", err)
+	}
+	return rendered, nil
 }
 
 // Validate performs sing-box-specific validation.
 func (g *SingboxGenerator) Validate(config map[string]interface{}, bindIP string) error {
 	// Base validation (schema + bind IP)
 	if configErr := g.ValidateConfig(config, bindIP); configErr != nil {
-		return configErr
+		return fmt.Errorf("validate singbox config: %w", configErr)
 	}
 
 	// Validate DNS server is a valid IP or hostname
 	dnsServer, _ := config["dns_server"].(string) //nolint:errcheck // type assertion uses zero value default
 	if dnsErr := cfglib.ValidateNonEmpty("dns_server", dnsServer); dnsErr != nil {
-		return dnsErr
+		return fmt.Errorf("validate singbox dns_server: %w", dnsErr)
 	}
 
 	// Validate listen_address if provided

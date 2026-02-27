@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/dns-top-domain",
+  "title": "DnsTopDomain",
+  "description": "A frequently queried domain in the DNS cache",
+  "source": "@site/docs/api/types/objects/dns-top-domain.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/dns-top-domain",
+  "permalink": "/api/types/objects/dns-top-domain",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "dns-top-domain",
+    "title": "DnsTopDomain"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "DnsServers",
+    "permalink": "/api/types/objects/dns-servers"
+  },
+  "next": {
+    "title": "DriftField",
+    "permalink": "/api/types/objects/drift-field"
+  }
+}

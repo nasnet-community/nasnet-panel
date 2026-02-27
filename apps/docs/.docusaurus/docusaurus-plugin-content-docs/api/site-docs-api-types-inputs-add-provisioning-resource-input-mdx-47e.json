@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/add-provisioning-resource-input",
+  "title": "AddProvisioningResourceInput",
+  "description": "Input for adding a provisioning resource to a session",
+  "source": "@site/docs/api/types/inputs/add-provisioning-resource-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/add-provisioning-resource-input",
+  "permalink": "/api/types/inputs/add-provisioning-resource-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "add-provisioning-resource-input",
+    "title": "AddProvisioningResourceInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "AddDependencyInput",
+    "permalink": "/api/types/inputs/add-dependency-input"
+  },
+  "next": {
+    "title": "AddRouterInput",
+    "permalink": "/api/types/inputs/add-router-input"
+  }
+}

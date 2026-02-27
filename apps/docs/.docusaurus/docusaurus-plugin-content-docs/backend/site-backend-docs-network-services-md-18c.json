@@ -1,0 +1,24 @@
+{
+  "id": "network-services",
+  "title": "Network Services",
+  "description": "Stateless service layer for firewall rules, DNS lookups, network scanning, bridge management, and internet troubleshooting — all operating through the RouterPort abstraction.",
+  "source": "@site/../backend/docs/network-services.md",
+  "sourceDirName": ".",
+  "slug": "/network-services",
+  "permalink": "/docs/backend/network-services",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../backend/docs/network-services.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "NasNet Backend — Master Index",
+    "permalink": "/docs/backend/"
+  },
+  "next": {
+    "title": "Process Isolation",
+    "permalink": "/docs/backend/process-isolation"
+  }
+}

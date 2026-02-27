@@ -1,0 +1,24 @@
+{
+  "id": "patterns-domain-components",
+  "title": "Domain-Specific Pattern Components (Layer 2)",
+  "description": "This document covers the domain-specific pattern components exported from @nasnet/ui/patterns. These are",
+  "source": "@site/../../libs/ui/docs/patterns-domain-components.md",
+  "sourceDirName": ".",
+  "slug": "/patterns-domain-components",
+  "permalink": "/docs/ui/patterns-domain-components",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/ui/docs/patterns-domain-components.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Layouts & Platform Detection (Layer 2)",
+    "permalink": "/docs/ui/layouts-and-platform"
+  },
+  "next": {
+    "title": "Form System, Network Inputs & Steppers (Layer 2)",
+    "permalink": "/docs/ui/patterns-forms-and-inputs"
+  }
+}

@@ -49,7 +49,7 @@ export const DashboardPage = memo(function DashboardPage() {
       {/* Dashboard Layout with Router Health Cards */}
       <DashboardLayout onRefresh={handleRefresh} showRefresh={true}>
         {MOCK_ROUTER_IDS.map((routerId) => (
-          <div key={routerId} className="space-y-6">
+          <div key={routerId} className="space-y-component-xl">
             {/* Router Health Summary (Story 5.1) */}
             <RouterHealthSummaryCard
               routerId={routerId}
@@ -59,13 +59,13 @@ export const DashboardPage = memo(function DashboardPage() {
             />
 
             {/* Resource Utilization Gauges (Story 5.2) */}
-            <section className="space-y-4">
+            <section className="space-y-component-md">
               <h2 className="text-xl font-semibold">Resource Utilization</h2>
               <ResourceGauges deviceId={routerId} />
             </section>
 
             {/* Recent System Logs (Story 5.6) */}
-            <section className="space-y-4">
+            <section className="space-y-component-md">
               <h2 className="text-xl font-semibold">Recent Logs</h2>
               <RecentLogs deviceId={routerId} />
             </section>
@@ -74,8 +74,8 @@ export const DashboardPage = memo(function DashboardPage() {
 
         {/* Empty State - shown when no routers configured */}
         {MOCK_ROUTER_IDS.length === 0 && (
-          <div className="col-span-full flex flex-col items-center justify-center py-16 text-center">
-            <div className="space-y-3">
+          <div className="col-span-full flex flex-col items-center justify-center py-component-xl text-center">
+            <div className="space-y-component-md">
               <h3 className="text-lg font-medium text-foreground">
                 No routers configured
               </h3>

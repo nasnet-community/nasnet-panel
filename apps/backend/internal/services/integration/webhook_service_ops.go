@@ -97,7 +97,7 @@ func (s *Service) sendWebhookRequest(ctx context.Context, wh *ent.Webhook, authV
 	}
 
 	// Send request
-	resp, err := client.Do(req)
+	resp, err := client.Do(req) //nolint:gosec // G704: URL is constructed from trusted configuration
 	if err != nil {
 		return 0, "", fmt.Errorf("request failed: %w", err)
 	}

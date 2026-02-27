@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/interface-status",
+  "title": "InterfaceStatus",
+  "description": "Operational status of a network interface",
+  "source": "@site/docs/api/types/enums/interface-status.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/interface-status",
+  "permalink": "/api/types/enums/interface-status",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "interface-status",
+    "title": "InterfaceStatus"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "InstanceHealthState",
+    "permalink": "/api/types/enums/instance-health-state"
+  },
+  "next": {
+    "title": "InterfaceType",
+    "permalink": "/api/types/enums/interface-type"
+  }
+}

@@ -181,7 +181,7 @@ export const StorageSettingsDesktop = React.memo(function StorageSettingsDesktop
             {/* Detection Warning: Alert when no external storage devices found */}
             {!isStorageDetected && (
               <div className="flex items-center gap-component-sm p-component-sm bg-muted rounded-[var(--semantic-radius-button)]">
-                <AlertTriangle className="h-5 w-5 text-warning" aria-hidden="true" />
+                <AlertTriangle className="h-5 w-5 text-category-firewall" aria-hidden="true" />
                 <p className="text-sm text-muted-foreground">
                   No external storage detected. Connect a USB drive or disk.
                 </p>

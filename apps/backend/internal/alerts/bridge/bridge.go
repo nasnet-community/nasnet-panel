@@ -186,7 +186,10 @@ func (b *Bridge) queueNotification(_ context.Context, event events.Event, _insta
 		Data:      extractEventData(event),
 	}
 
-	return b.quietHoursQueue.Enqueue(&notification)
+	if err := b.quietHoursQueue.Enqueue(&notification); err != nil {
+		return fmt.Errorf("failed to enqueue quiet hours notification: %w", err)
+	}
+	return nil
 }
 
 func (b *Bridge) enrichEvent(event events.Event, _instanceID string) (events.Event, error) {

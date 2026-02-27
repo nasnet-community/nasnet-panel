@@ -350,5 +350,9 @@ func (s *TelemetryService) queryColdTier(ctx context.Context, _, interfaceID str
 
 // parseDuration parses a duration string (e.g., "5m", "1h", "30s") into a time.Duration
 func parseDuration(s string) (time.Duration, error) {
-	return time.ParseDuration(s)
+	d, err := time.ParseDuration(s)
+	if err != nil {
+		return 0, fmt.Errorf("invalid duration format: %w", err)
+	}
+	return d, nil
 }

@@ -100,7 +100,7 @@ function IPAddressListMobileComponent({
 
       {/* Error message */}
       {error && (
-        <div className="flex items-center gap-component-sm rounded-md border border-destructive/50 bg-error/10 p-component-sm text-sm text-error">
+        <div className="flex items-center gap-component-sm rounded-md border border-error bg-error/10 p-component-sm text-sm text-error">
           <AlertCircle className="h-4 w-4" />
           <p>{error}</p>
         </div>
@@ -139,7 +139,7 @@ function IPAddressListMobileComponent({
 
       {/* Footer info */}
       {!loading && filteredIpAddresses.length > 0 && (
-        <div className="text-sm text-muted-foreground text-center pb-4">
+        <div className="text-sm text-muted-foreground text-center pb-component-sm">
           Showing {filteredIpAddresses.length} of {ipAddresses.length} IP
           address{ipAddresses.length !== 1 ? 'es' : ''}
         </div>
@@ -206,7 +206,7 @@ function IPAddressCardComponent({
         {ipAddress.network && (
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">Network:</span>
-            <code className="text-sm font-mono">{ipAddress.network}</code>
+            <code className="text-sm font-mono text-foreground">{ipAddress.network}</code>
           </div>
         )}
 
@@ -214,7 +214,7 @@ function IPAddressCardComponent({
         {ipAddress.broadcast && (
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">Broadcast:</span>
-            <code className="text-sm font-mono">{ipAddress.broadcast}</code>
+            <code className="text-sm font-mono text-foreground">{ipAddress.broadcast}</code>
           </div>
         )}
 

@@ -3,6 +3,7 @@ package auth
 import (
 	"embed"
 	"errors"
+	"fmt"
 	"strings"
 	"unicode/utf8"
 
@@ -161,7 +162,7 @@ func (ps *PasswordService) HashPassword(password string) (string, error) {
 	// Hash with bcrypt (includes salt automatically)
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), ps.bcryptCost)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to hash password with bcrypt: %w", err)
 	}
 
 	return string(hash), nil

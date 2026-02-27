@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/cleanup-orphaned-ports-input",
+  "title": "CleanupOrphanedPortsInput",
+  "description": "Input for cleaning up orphaned ports.",
+  "source": "@site/docs/api/types/inputs/cleanup-orphaned-ports-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/cleanup-orphaned-ports-input",
+  "permalink": "/api/types/inputs/cleanup-orphaned-ports-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "cleanup-orphaned-ports-input",
+    "title": "CleanupOrphanedPortsInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "CheckPortAvailabilityInput",
+    "permalink": "/api/types/inputs/check-port-availability-input"
+  },
+  "next": {
+    "title": "ConfigureExternalStorageInput",
+    "permalink": "/api/types/inputs/configure-external-storage-input"
+  }
+}

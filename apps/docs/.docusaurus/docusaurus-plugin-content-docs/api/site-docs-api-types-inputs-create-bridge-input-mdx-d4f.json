@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/create-bridge-input",
+  "title": "CreateBridgeInput",
+  "description": "No description",
+  "source": "@site/docs/api/types/inputs/create-bridge-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/create-bridge-input",
+  "permalink": "/api/types/inputs/create-bridge-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "create-bridge-input",
+    "title": "CreateBridgeInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "CreateAlertRuleInput",
+    "permalink": "/api/types/inputs/create-alert-rule-input"
+  },
+  "next": {
+    "title": "CreateBridgeVlanInput",
+    "permalink": "/api/types/inputs/create-bridge-vlan-input"
+  }
+}

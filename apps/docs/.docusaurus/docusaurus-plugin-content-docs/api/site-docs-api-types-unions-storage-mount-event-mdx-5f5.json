@@ -1,0 +1,22 @@
+{
+  "id": "api/types/unions/storage-mount-event",
+  "title": "StorageMountEvent",
+  "description": "Union type for storage mount/unmount events.",
+  "source": "@site/docs/api/types/unions/storage-mount-event.mdx",
+  "sourceDirName": "api/types/unions",
+  "slug": "/api/types/unions/storage-mount-event",
+  "permalink": "/api/types/unions/storage-mount-event",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "storage-mount-event",
+    "title": "StorageMountEvent"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "Unions",
+    "permalink": "/category/unions"
+  }
+}

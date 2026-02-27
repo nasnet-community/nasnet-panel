@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/int-range",
+  "title": "IntRange",
+  "description": "Integer range for filtering",
+  "source": "@site/docs/api/types/inputs/int-range.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/int-range",
+  "permalink": "/api/types/inputs/int-range",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "int-range",
+    "title": "IntRange"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "InstallServiceTemplateInput",
+    "permalink": "/api/types/inputs/install-service-template-input"
+  },
+  "next": {
+    "title": "IpAddressInput",
+    "permalink": "/api/types/inputs/ip-address-input"
+  }
+}

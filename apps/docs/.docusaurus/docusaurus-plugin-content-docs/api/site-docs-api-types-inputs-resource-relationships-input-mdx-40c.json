@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/resource-relationships-input",
+  "title": "ResourceRelationshipsInput",
+  "description": "Input for resource relationships",
+  "source": "@site/docs/api/types/inputs/resource-relationships-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/resource-relationships-input",
+  "permalink": "/api/types/inputs/resource-relationships-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "resource-relationships-input",
+    "title": "ResourceRelationshipsInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ResetExternalStorageInput",
+    "permalink": "/api/types/inputs/reset-external-storage-input"
+  },
+  "next": {
+    "title": "RestartInstanceInput",
+    "permalink": "/api/types/inputs/restart-instance-input"
+  }
+}

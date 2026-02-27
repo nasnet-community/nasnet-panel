@@ -10,6 +10,12 @@
  * - WCAG AAA accessible (7:1 contrast, progressbar role, ARIA labels)
  * - Semantic color tokens (not primitives)
  * - Icon + color indicators (not color alone)
+ *
+ * Visual Spec:
+ * - Track: h-2 w-full bg-muted rounded-full overflow-hidden
+ * - Fill: rounded-full h-full, color by status (success <60%, warning 60-80%, error >80%)
+ * - Label: flex justify-between text-xs text-muted-foreground mb-1
+ * - Value: text-xs font-medium font-mono text-foreground
  */
 
 import * as React from 'react';

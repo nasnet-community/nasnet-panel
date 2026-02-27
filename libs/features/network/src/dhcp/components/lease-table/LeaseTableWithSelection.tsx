@@ -224,7 +224,7 @@ export const LeaseTableWithSelection = React.forwardRef<
       return (
         <div ref={ref} className={cn('space-y-component-md', className)}>
           <Skeleton className="h-10 w-full max-w-sm" />
-          <div className="rounded-card-lg border">
+          <div className="rounded-[var(--semantic-radius-card)] border">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -274,7 +274,7 @@ export const LeaseTableWithSelection = React.forwardRef<
     if (leases.length === 0) {
       return (
         <div ref={ref} className={cn('space-y-component-md', className)}>
-          <div className="rounded-card-lg border p-8 text-center text-muted-foreground">
+          <div className="rounded-[var(--semantic-radius-card)] border p-component-lg text-center text-muted-foreground">
             No DHCP leases found
           </div>
         </div>
@@ -298,7 +298,7 @@ export const LeaseTableWithSelection = React.forwardRef<
         </div>
 
         {/* Table */}
-        <div className="rounded-card-lg border">
+        <div className="rounded-[var(--semantic-radius-card)] border">
           <Table>
             <TableHeader>
               <TableRow>
@@ -433,11 +433,11 @@ export const LeaseTableWithSelection = React.forwardRef<
                           )}
                         </TableCell>
                         <TableCell>
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-component-sm">
                             <StatusBadge status={lease.status} />
                             {!lease.dynamic && <StatusBadge status="static" />}
                             {isNew && (
-                              <span className="inline-flex items-center gap-1 rounded-pill bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+                              <span className="inline-flex items-center gap-component-xs rounded-pill bg-primary/10 px-component-sm py-component-xs text-xs font-medium text-primary">
                                 <Icon icon={Sparkles} size="sm" />
                                 New
                               </span>

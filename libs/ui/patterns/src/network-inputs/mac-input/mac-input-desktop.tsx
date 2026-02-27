@@ -144,9 +144,11 @@ export const MACInputDesktop = memo(function MACInputDesktop({
           aria-describedby={inputAriaDescribedBy}
           aria-labelledby={labelId}
           className={cn(
-            'font-mono uppercase tracking-wider w-44',
-            'focus:ring-2 focus:ring-primary focus:ring-offset-0',
-            hasError && 'border-destructive focus:ring-destructive'
+            'font-mono text-sm uppercase tracking-wider',
+            'bg-card border border-border text-foreground placeholder:text-muted-foreground',
+            'focus:border-primary focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0',
+            'transition-colors duration-150',
+            hasError && 'border-error focus:border-error focus-visible:ring-error'
           )}
         />
 
@@ -180,7 +182,7 @@ export const MACInputDesktop = memo(function MACInputDesktop({
           id={errorId}
           role="alert"
           aria-live="polite"
-          className="text-xs text-destructive"
+          className="text-xs text-error"
         >
           {error}
         </p>

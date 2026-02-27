@@ -1,0 +1,24 @@
+{
+  "id": "ui-system/design-tokens",
+  "title": "Design Tokens",
+  "description": "NasNetConnect uses a three-tier design token architecture defined in libs/ui/tokens/src/tokens.json and surfaced as CSS custom properties. Tokens flow from raw values (Tier 1) through semantic meaning (Tier 2) to component-specific defaults (Tier 3).",
+  "source": "@site/../connect/docs/ui-system/design-tokens.md",
+  "sourceDirName": "ui-system",
+  "slug": "/ui-system/design-tokens",
+  "permalink": "/docs/frontend/ui-system/design-tokens",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../connect/docs/ui-system/design-tokens.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Unit Testing",
+    "permalink": "/docs/frontend/testing/unit-testing"
+  },
+  "next": {
+    "title": "Layouts",
+    "permalink": "/docs/frontend/ui-system/layouts"
+  }
+}

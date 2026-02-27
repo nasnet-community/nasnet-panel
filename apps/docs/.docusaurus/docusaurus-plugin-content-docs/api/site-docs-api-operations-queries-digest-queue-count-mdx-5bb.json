@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/digest-queue-count",
+  "title": "digestQueueCount",
+  "description": "Get the number of alerts in the digest queue for a channel (NAS-18.11)",
+  "source": "@site/docs/api/operations/queries/digest-queue-count.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/digest-queue-count",
+  "permalink": "/api/operations/queries/digest-queue-count",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "digest-queue-count",
+    "title": "digestQueueCount"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "digestHistory",
+    "permalink": "/api/operations/queries/digest-history"
+  },
+  "next": {
+    "title": "discoveredWANs",
+    "permalink": "/api/operations/queries/discovered-wans"
+  }
+}

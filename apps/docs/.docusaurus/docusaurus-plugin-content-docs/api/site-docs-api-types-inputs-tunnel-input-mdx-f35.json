@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/tunnel-input",
+  "title": "TunnelInput",
+  "description": "Input for creating or updating a tunnel",
+  "source": "@site/docs/api/types/inputs/tunnel-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/tunnel-input",
+  "permalink": "/api/types/inputs/tunnel-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "tunnel-input",
+    "title": "TunnelInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "TracerouteInput",
+    "permalink": "/api/types/inputs/traceroute-input"
+  },
+  "next": {
+    "title": "UpdateAlertRuleInput",
+    "permalink": "/api/types/inputs/update-alert-rule-input"
+  }
+}

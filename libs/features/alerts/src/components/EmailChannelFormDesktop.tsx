@@ -98,11 +98,11 @@ export const EmailChannelFormDesktop = memo(function EmailChannelFormDesktop({
   }, [recipientInput, addRecipient]);
 
   return (
-    <form onSubmit={handleSubmit} className={cn('space-y-6', className)}>
+    <form onSubmit={handleSubmit} className={cn('space-y-component-lg', className)}>
       {/* Enable Toggle */}
       <div className="flex items-center justify-between rounded-[var(--semantic-radius-card)] border border-border bg-card p-component-md">
-        <div className="flex items-center gap-3">
-          <Icon icon={Mail} size="md" className="text-muted-foreground" aria-hidden="true" />
+        <div className="flex items-center gap-component-md">
+          <Icon icon={Mail} size="md" className="text-category-monitoring" aria-hidden="true" />
           <div>
             <Label className="text-base font-semibold">Email Notifications</Label>
             <p className="text-sm text-muted-foreground">
@@ -127,8 +127,8 @@ export const EmailChannelFormDesktop = memo(function EmailChannelFormDesktop({
 
       {/* SMTP Server Settings */}
       <div className="space-y-component-md">
-        <div className="flex items-center gap-component-sm">
-          <Icon icon={Server} size="sm" className="text-muted-foreground" aria-hidden="true" />
+        <div className="flex items-center gap-component-md">
+          <Icon icon={Server} size="sm" className="text-category-monitoring" aria-hidden="true" />
           <h3 className="text-lg font-semibold font-display">SMTP Server</h3>
         </div>
 
@@ -141,9 +141,9 @@ export const EmailChannelFormDesktop = memo(function EmailChannelFormDesktop({
             <Input
               id="host"
               placeholder="smtp.gmail.com"
+              className="font-mono"
               {...register('host')}
               error={!!errors.host}
-              className="font-mono"
             />
             {errors.host && (
               <p className="text-sm text-error">{errors.host.message}</p>
@@ -155,7 +155,7 @@ export const EmailChannelFormDesktop = memo(function EmailChannelFormDesktop({
             <Label htmlFor="port">
               Port <span className="text-error">*</span>
             </Label>
-            <div className="flex gap-component-sm">
+            <div className="flex gap-component-md">
               <Controller
                 control={control}
                 name="port"
@@ -208,9 +208,9 @@ export const EmailChannelFormDesktop = memo(function EmailChannelFormDesktop({
               id="username"
               placeholder="user@example.com"
               autoComplete="username"
+              className="font-mono"
               {...register('username')}
               error={!!errors.username}
-              className="font-mono"
             />
             {errors.username && (
               <p className="text-sm text-error">{errors.username.message}</p>
@@ -226,7 +226,7 @@ export const EmailChannelFormDesktop = memo(function EmailChannelFormDesktop({
                 id="password"
                 type={showPassword ? 'text' : 'password'}
                 autoComplete="current-password"
-                className="pr-10 font-mono"
+                className="pr-component-xl font-mono"
                 {...register('password')}
                 error={!!errors.password}
               />
@@ -264,9 +264,9 @@ export const EmailChannelFormDesktop = memo(function EmailChannelFormDesktop({
               id="fromAddress"
               type="email"
               placeholder="alerts@example.com"
+              className="font-mono"
               {...register('fromAddress')}
               error={!!errors.fromAddress}
-              className="font-mono"
             />
             {errors.fromAddress && (
               <p className="text-sm text-error">{errors.fromAddress.message}</p>
@@ -290,7 +290,7 @@ export const EmailChannelFormDesktop = memo(function EmailChannelFormDesktop({
           <Label htmlFor="recipientInput">
             Recipients <span className="text-error">*</span>
           </Label>
-          <div className="flex gap-component-sm">
+          <div className="flex gap-component-md">
             <Input
               id="recipientInput"
               type="email"
@@ -315,14 +315,14 @@ export const EmailChannelFormDesktop = memo(function EmailChannelFormDesktop({
 
           {/* Recipient Chips */}
           {recipients.length > 0 && (
-            <div className="flex flex-wrap gap-component-sm rounded-[var(--semantic-radius-button)] border border-border bg-muted/50 p-component-sm">
+            <div className="flex flex-wrap gap-component-md rounded-[var(--semantic-radius-button)] border border-border bg-muted/50 p-component-md">
               {recipients.map((email, index) => (
-                <Badge key={index} variant="secondary" className="gap-1 pr-1 font-mono">
+                <Badge key={index} variant="secondary" className="gap-component-md pr-component-xs font-mono">
                   {email}
                   <button
                     type="button"
                     onClick={() => removeRecipient(index)}
-                    className="ml-1 rounded-full p-0.5 hover:bg-error/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                    className="ml-component-xs rounded-full p-0.5 hover:bg-error/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     aria-label={`Remove ${email}`}
                   >
                     <Icon icon={X} size="sm" aria-hidden="true" />
@@ -347,8 +347,8 @@ export const EmailChannelFormDesktop = memo(function EmailChannelFormDesktop({
           aria-expanded={showAdvanced}
           aria-label="Advanced TLS Settings"
         >
-          <div className="flex items-center gap-component-sm">
-            <Icon icon={Shield} size="sm" className="text-muted-foreground" aria-hidden="true" />
+          <div className="flex items-center gap-component-md">
+            <Icon icon={Shield} size="sm" className="text-category-monitoring" aria-hidden="true" />
             <span className="font-semibold">Advanced TLS Settings</span>
           </div>
           <Icon
@@ -433,17 +433,17 @@ export const EmailChannelFormDesktop = memo(function EmailChannelFormDesktop({
       )}
 
       {/* Action Buttons */}
-      <div className="flex gap-component-sm">
+      <div className="flex gap-component-lg">
         <Button
           type="button"
           variant="outline"
           onClick={handleTest}
           disabled={!isValid || isTesting}
-          className="flex-1"
+          className="flex-1 min-h-[44px]"
         >
           {isTesting ? 'Testing...' : 'Test Notification'}
         </Button>
-        <Button type="submit" disabled={!isValid} className="flex-1">
+        <Button type="submit" disabled={!isValid} className="flex-1 min-h-[44px]">
           Save Configuration
         </Button>
       </div>

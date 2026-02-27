@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/next-provisioning-step",
+  "title": "nextProvisioningStep",
+  "description": "Move to next wizard step",
+  "source": "@site/docs/api/operations/mutations/next-provisioning-step.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/next-provisioning-step",
+  "permalink": "/api/operations/mutations/next-provisioning-step",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "next-provisioning-step",
+    "title": "nextProvisioningStep"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "logout",
+    "permalink": "/api/operations/mutations/logout"
+  },
+  "next": {
+    "title": "prevProvisioningStep",
+    "permalink": "/api/operations/mutations/prev-provisioning-step"
+  }
+}

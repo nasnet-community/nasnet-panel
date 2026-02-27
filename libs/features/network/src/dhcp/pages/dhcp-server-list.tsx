@@ -232,7 +232,7 @@ export function DHCPServerList() {
     }
 
     return (
-      <div className="grid gap-4">
+      <div className="grid gap-component-md">
         {servers.map((server) => (
           <DHCPServerCard
             key={server.id}
@@ -253,8 +253,8 @@ export function DHCPServerList() {
 
   if (!servers || servers.length === 0) {
     return (
-      <div className="container mx-auto py-6">
-        <div className="flex justify-between items-center mb-6">
+      <div className="container mx-auto py-component-lg category-networking">
+        <div className="flex justify-between items-center mb-component-lg">
           <div>
             <h1 className="font-display text-3xl font-bold">DHCP Servers</h1>
             <p className="text-muted-foreground mt-2">
@@ -276,8 +276,8 @@ export function DHCPServerList() {
   }
 
   return (
-    <div className="container mx-auto py-6">
-      <div className="flex justify-between items-center mb-6">
+    <div className="container mx-auto py-component-lg category-networking">
+      <div className="flex justify-between items-center mb-component-lg">
         <div>
           <h1 className="font-display text-3xl font-bold">DHCP Servers</h1>
           <p className="text-muted-foreground mt-2">

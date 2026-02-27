@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/import-star-state-input",
+  "title": "ImportStarStateInput",
+  "description": "Input for importing STAR (Setup Template Archive) state",
+  "source": "@site/docs/api/types/inputs/import-star-state-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/import-star-state-input",
+  "permalink": "/api/types/inputs/import-star-state-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "import-star-state-input",
+    "title": "ImportStarStateInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ImportServiceTemplateInput",
+    "permalink": "/api/types/inputs/import-service-template-input"
+  },
+  "next": {
+    "title": "InstallServiceInput",
+    "permalink": "/api/types/inputs/install-service-input"
+  }
+}

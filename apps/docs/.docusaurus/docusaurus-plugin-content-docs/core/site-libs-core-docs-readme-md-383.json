@@ -1,0 +1,24 @@
+{
+  "id": "README",
+  "title": "Core Library Documentation",
+  "description": "The @nasnet/core library is the shared foundation of the NasNetConnect frontend. It provides",
+  "source": "@site/../../libs/core/docs/README.md",
+  "sourceDirName": ".",
+  "slug": "/",
+  "permalink": "/docs/core/",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/core/docs/README.md",
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 0,
+  "frontMatter": {
+    "sidebar_position": 0,
+    "title": "Core Library Documentation"
+  },
+  "sidebar": "sidebar",
+  "next": {
+    "title": "Introduction",
+    "permalink": "/docs/core/intro"
+  }
+}

@@ -63,6 +63,9 @@ type Manifest struct {
 	// Health monitoring configuration
 	HealthCheck *HealthSpec `json:"health_check,omitempty"`
 
+	// Binary source configuration
+	Source *Source `json:"source,omitempty"`
+
 	// Documentation
 	ReadmeURL    string `json:"readme_url"`
 	ChangelogURL string `json:"changelog_url"`
@@ -93,6 +96,17 @@ type HealthSpec struct {
 	FailureThreshold   int    `json:"failure_threshold,omitempty"`
 	TimeoutSeconds     int    `json:"timeout_seconds,omitempty"`
 	AutoRestart        bool   `json:"auto_restart"`
+}
+
+// Source describes where to download the binary from a GitHub release.
+type Source struct {
+	GitHubOwner   string            `json:"github_owner"`
+	GitHubRepo    string            `json:"github_repo"`
+	BinaryName    string            `json:"binary_name"`
+	ArchiveFormat string            `json:"archive_format"` // "tar.gz", "zip", "none"
+	ExtractPath   string            `json:"extract_path"`   // filename inside archive
+	AssetArchMap  map[string]string `json:"asset_arch_map"` // normalized arch → asset search string
+	ChecksumFiles []string          `json:"checksum_files"`
 }
 
 // VerificationSpec defines verification requirements for a feature.

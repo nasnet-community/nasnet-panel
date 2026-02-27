@@ -1,0 +1,24 @@
+{
+  "id": "architecture/overview",
+  "title": "Architecture Overview",
+  "description": "The apps/connect frontend is the React-based management interface for NasNetConnect. It",
+  "source": "@site/../connect/docs/architecture/overview.md",
+  "sourceDirName": "architecture",
+  "slug": "/architecture/overview",
+  "permalink": "/docs/frontend/architecture/overview",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../connect/docs/architecture/overview.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Monorepo Library Dependency Graph",
+    "permalink": "/docs/frontend/architecture/library-dependencies"
+  },
+  "next": {
+    "title": "Provider Stack Deep Dive",
+    "permalink": "/docs/frontend/architecture/provider-stack"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/bridge-port-mutation-result",
+  "title": "BridgePortMutationResult",
+  "description": "No description",
+  "source": "@site/docs/api/types/objects/bridge-port-mutation-result.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/bridge-port-mutation-result",
+  "permalink": "/api/types/objects/bridge-port-mutation-result",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "bridge-port-mutation-result",
+    "title": "BridgePortMutationResult"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "BridgeMutationResult",
+    "permalink": "/api/types/objects/bridge-mutation-result"
+  },
+  "next": {
+    "title": "BridgePortVlanConfig",
+    "permalink": "/api/types/objects/bridge-port-vlan-config"
+  }
+}

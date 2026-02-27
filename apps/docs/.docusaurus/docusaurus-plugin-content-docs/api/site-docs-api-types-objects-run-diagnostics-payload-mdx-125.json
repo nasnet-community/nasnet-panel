@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/run-diagnostics-payload",
+  "title": "RunDiagnosticsPayload",
+  "description": "Payload for run diagnostics mutation.",
+  "source": "@site/docs/api/types/objects/run-diagnostics-payload.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/run-diagnostics-payload",
+  "permalink": "/api/types/objects/run-diagnostics-payload",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "run-diagnostics-payload",
+    "title": "RunDiagnosticsPayload"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "RoutingSchedule",
+    "permalink": "/api/types/objects/routing-schedule"
+  },
+  "next": {
+    "title": "RunTroubleshootStepPayload",
+    "permalink": "/api/types/objects/run-troubleshoot-step-payload"
+  }
+}

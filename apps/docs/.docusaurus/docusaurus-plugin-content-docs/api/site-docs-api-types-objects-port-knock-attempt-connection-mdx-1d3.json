@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/port-knock-attempt-connection",
+  "title": "PortKnockAttemptConnection",
+  "description": "Connection type for paginated knock attempts.",
+  "source": "@site/docs/api/types/objects/port-knock-attempt-connection.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/port-knock-attempt-connection",
+  "permalink": "/api/types/objects/port-knock-attempt-connection",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "port-knock-attempt-connection",
+    "title": "PortKnockAttemptConnection"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "PortForward",
+    "permalink": "/api/types/objects/port-forward"
+  },
+  "next": {
+    "title": "PortKnockAttemptEdge",
+    "permalink": "/api/types/objects/port-knock-attempt-edge"
+  }
+}

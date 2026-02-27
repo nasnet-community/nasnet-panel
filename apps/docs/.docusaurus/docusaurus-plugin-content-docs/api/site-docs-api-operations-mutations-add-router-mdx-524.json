@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/add-router",
+  "title": "addRouter",
+  "description": "Add a new router by entering its IP address and credentials.",
+  "source": "@site/docs/api/operations/mutations/add-router.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/add-router",
+  "permalink": "/api/operations/mutations/add-router",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "add-router",
+    "title": "addRouter"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "addProvisioningResource",
+    "permalink": "/api/operations/mutations/add-provisioning-resource"
+  },
+  "next": {
+    "title": "applyAlertRuleTemplate",
+    "permalink": "/api/operations/mutations/apply-alert-rule-template"
+  }
+}

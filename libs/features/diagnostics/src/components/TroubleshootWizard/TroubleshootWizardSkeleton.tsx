@@ -21,7 +21,7 @@ const TroubleshootWizardSkeletonDesktopComponent = memo(
         </div>
 
         {/* Horizontal stepper skeleton */}
-        <div className="flex justify-between items-center px-8">
+        <div className="flex justify-between items-center px-component-xl">
           {[1, 2, 3, 4, 5].map((i) => (
             <div key={i} className="flex flex-col items-center gap-component-sm">
               <Skeleton className="h-12 w-12 rounded-full" />
@@ -41,7 +41,7 @@ const TroubleshootWizardSkeletonDesktopComponent = memo(
               <Skeleton className="h-5 w-32" />
               <Skeleton className="h-4 w-full" />
               <Skeleton className="h-4 w-2/3" />
-              <div className="flex gap-component-md mt-component-md">
+              <div className="flex gap-component-sm mt-component-md">
                 <Skeleton className="h-10 w-24" />
                 <Skeleton className="h-10 w-32" />
               </div>
@@ -89,7 +89,7 @@ const TroubleshootWizardSkeletonMobileComponent = memo(
 
         {/* Action buttons skeleton */}
         <div className="fixed bottom-0 left-0 right-0 p-component-md bg-background border-t">
-          <div className="flex gap-component-md">
+          <div className="flex gap-component-sm">
             <Skeleton className="h-12 flex-1" />
             <Skeleton className="h-12 flex-1" />
           </div>

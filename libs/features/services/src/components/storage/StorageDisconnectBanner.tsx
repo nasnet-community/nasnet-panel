@@ -101,7 +101,7 @@ function StorageDisconnectBannerComponent({
       <AlertDescription className="space-y-component-sm">
         <p>
           Storage at{' '}
-          <code className="relative rounded-[var(--semantic-radius-button)] bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm">
+          <code className="relative rounded-[var(--semantic-radius-button)] bg-muted px-component-xs py-component-xs font-mono text-sm">
             {config.path}
           </code>{' '}
           is no longer available.
@@ -137,7 +137,7 @@ function StorageDisconnectBannerComponent({
         variant="ghost"
         size="sm"
         onClick={handleDismiss}
-        className="absolute top-4 right-4 min-h-[44px] min-w-[44px] p-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        className="absolute top-4 right-4 min-h-[44px] min-w-[44px] p-0"
         aria-label="Dismiss alert (warning persists until storage reconnects)"
       >
         <X className="h-4 w-4" aria-hidden="true" />

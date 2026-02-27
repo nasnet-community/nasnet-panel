@@ -101,14 +101,14 @@ const InterfaceStatusCardDesktopComponent = React.memo(function InterfaceStatusC
         className
       )}
     >
-      <CardContent className="p-4">
+      <CardContent className="p-component-md">
         {/* Header: Icon + Name + Status */}
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between mb-component-sm">
+          <div className="flex items-center gap-component-sm">
             <InterfaceTypeIcon type={iface.type} className="h-5 w-5" />
             <span className="font-medium truncate">{iface.name}</span>
           </div>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-component-xs">
             <StatusIcon
               className={cn('h-4 w-4', status.iconClass)}
               aria-hidden="true"
@@ -120,12 +120,12 @@ const InterfaceStatusCardDesktopComponent = React.memo(function InterfaceStatusC
         </div>
 
         {/* Traffic rates */}
-        <div className="flex items-center gap-4 text-sm text-muted-foreground mb-2">
-          <span className="flex items-center gap-1">
+        <div className="flex items-center gap-component-md text-sm text-muted-foreground mb-component-sm">
+          <span className="flex items-center gap-component-xs">
             <ArrowUp className="h-3 w-3" aria-hidden="true" />
             <span>{formatTrafficRate(iface.txRate)}</span>
           </span>
-          <span className="flex items-center gap-1">
+          <span className="flex items-center gap-component-xs">
             <ArrowDown className="h-3 w-3" aria-hidden="true" />
             <span>{formatTrafficRate(iface.rxRate)}</span>
           </span>
@@ -141,7 +141,7 @@ const InterfaceStatusCardDesktopComponent = React.memo(function InterfaceStatusC
 
         {/* Last seen for down interfaces */}
         {iface.status === 'down' && iface.lastSeen && (
-          <div className="text-xs text-muted-foreground mt-1">
+          <div className="text-xs text-muted-foreground mt-component-xs">
             Last seen: {new Date(iface.lastSeen).toLocaleString()}
           </div>
         )}

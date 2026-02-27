@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/ipiptunnel-runtime",
+  "title": "IPIPTunnelRuntime",
+  "description": "IPIP tunnel runtime state",
+  "source": "@site/docs/api/types/objects/ipiptunnel-runtime.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/ipiptunnel-runtime",
+  "permalink": "/api/types/objects/ipiptunnel-runtime",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "ipiptunnel-runtime",
+    "title": "IPIPTunnelRuntime"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "IPIPTunnelDeployment",
+    "permalink": "/api/types/objects/ipiptunnel-deployment"
+  },
+  "next": {
+    "title": "IPIPTunnel",
+    "permalink": "/api/types/objects/ipiptunnel"
+  }
+}

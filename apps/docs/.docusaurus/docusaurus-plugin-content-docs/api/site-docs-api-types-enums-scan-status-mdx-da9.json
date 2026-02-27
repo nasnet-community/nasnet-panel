@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/scan-status",
+  "title": "ScanStatus",
+  "description": "Status of a network scan operation",
+  "source": "@site/docs/api/types/enums/scan-status.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/scan-status",
+  "permalink": "/api/types/enums/scan-status",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "scan-status",
+    "title": "ScanStatus"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "RuntimeHealth",
+    "permalink": "/api/types/enums/runtime-health"
+  },
+  "next": {
+    "title": "ServiceInstanceStatus",
+    "permalink": "/api/types/enums/service-instance-status"
+  }
+}

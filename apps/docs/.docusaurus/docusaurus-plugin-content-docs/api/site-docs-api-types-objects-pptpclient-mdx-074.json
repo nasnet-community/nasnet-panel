@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/pptpclient",
+  "title": "PPTPClient",
+  "description": "PPTP VPN Client resource implementing 8-layer model",
+  "source": "@site/docs/api/types/objects/pptpclient.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/pptpclient",
+  "permalink": "/api/types/objects/pptpclient",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "pptpclient",
+    "title": "PPTPClient"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "PPTPClientConfig",
+    "permalink": "/api/types/objects/pptpclient-config"
+  },
+  "next": {
+    "title": "PPTPDeployment",
+    "permalink": "/api/types/objects/pptpdeployment"
+  }
+}

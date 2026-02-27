@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/virtual-interface-status",
+  "title": "VirtualInterfaceStatus",
+  "description": "Virtual interface lifecycle status.",
+  "source": "@site/docs/api/types/enums/virtual-interface-status.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/virtual-interface-status",
+  "permalink": "/api/types/enums/virtual-interface-status",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "virtual-interface-status",
+    "title": "VirtualInterfaceStatus"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "VerificationStatus",
+    "permalink": "/api/types/enums/verification-status"
+  },
+  "next": {
+    "title": "VLANAllocationStatus",
+    "permalink": "/api/types/enums/vlanallocation-status"
+  }
+}

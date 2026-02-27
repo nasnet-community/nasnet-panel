@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/create-schedule-input",
+  "title": "CreateScheduleInput",
+  "description": "Input for creating a new routing schedule.",
+  "source": "@site/docs/api/types/inputs/create-schedule-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/create-schedule-input",
+  "permalink": "/api/types/inputs/create-schedule-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "create-schedule-input",
+    "title": "CreateScheduleInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "CreateRoutingChainInput",
+    "permalink": "/api/types/inputs/create-routing-chain-input"
+  },
+  "next": {
+    "title": "CreateWebhookInput",
+    "permalink": "/api/types/inputs/create-webhook-input"
+  }
+}

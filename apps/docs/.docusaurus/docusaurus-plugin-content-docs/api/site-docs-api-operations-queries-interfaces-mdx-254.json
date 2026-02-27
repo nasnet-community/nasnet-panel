@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/interfaces",
+  "title": "interfaces",
+  "description": "List interfaces on a router",
+  "source": "@site/docs/api/operations/queries/interfaces.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/interfaces",
+  "permalink": "/api/operations/queries/interfaces",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "interfaces",
+    "title": "interfaces"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "interface",
+    "permalink": "/api/operations/queries/interface"
+  },
+  "next": {
+    "title": "ipAddressDependencies",
+    "permalink": "/api/operations/queries/ip-address-dependencies"
+  }
+}

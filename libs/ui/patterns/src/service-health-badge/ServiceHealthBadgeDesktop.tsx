@@ -10,8 +10,14 @@ import type { ServiceHealthBadgeProps } from './ServiceHealthBadge';
 /**
  * Desktop presenter for service health badge
  *
- * Shows full badge with health indicator, metrics, and status text.
- * Provides detailed health information for power users.
+ * Shows full badge with health indicator and status text.
+ * Uses semantic tokens and proper styling per visual spec.
+ *
+ * Status Badge Styles:
+ * - Running: bg-success-light text-success-dark with pulse animation
+ * - Stopped: bg-muted text-muted-foreground
+ * - Error: bg-error-light text-error-dark
+ * - Updating/Starting: bg-info-light text-info-dark with pulse animation
  */
 function ServiceHealthBadgeDesktopComponent({
   health,
@@ -19,109 +25,98 @@ function ServiceHealthBadgeDesktopComponent({
   animate,
   className,
 }: ServiceHealthBadgeProps) {
-  const {
-    healthState,
-    showWarning,
-    latencyColor,
-    formattedUptime,
-    formattedLastHealthy,
-    hasFailures,
-    isProcessAlive,
-    isConnected,
-    raw,
-  } = useServiceHealthBadge(health);
+  const { healthState, formattedUptime, formattedLastHealthy, raw } =
+    useServiceHealthBadge(health);
 
   if (loading) {
     return (
-      <ResourceHealthBadge
-        health="UNKNOWN"
-        label="Checking..."
-        animate
-        className={className}
-      />
+      <div
+        className={cn(
+          'inline-flex items-center gap-component-sm',
+          'rounded-[var(--semantic-radius-badge)] px-2.5 py-0.5',
+          'text-xs font-medium',
+          'bg-info-light text-info-dark dark:bg-sky-900/20 dark:text-sky-400',
+          'animate-pulse transition-colors duration-150',
+          className
+        )}
+      >
+        <span className="h-2 w-2 rounded-full bg-info-dark animate-pulse" />
+        Checking...
+      </div>
     );
   }
 
-  // Determine label based on health state
-  const getLabel = () => {
+  // Determine badge styling based on health state
+  const getBadgeClass = () => {
+    switch (healthState) {
+      case 'HEALTHY':
+        return 'bg-success-light text-success-dark dark:bg-green-900/20 dark:text-green-400';
+      case 'FAILED':
+        return 'bg-error-light text-error-dark dark:bg-red-900/20 dark:text-red-400';
+      case 'DEGRADED':
+        return 'bg-warning-light text-warning-dark dark:bg-amber-900/20 dark:text-amber-400 animate-pulse';
+      case 'UNKNOWN':
+      default:
+        return 'bg-muted text-muted-foreground';
+    }
+  };
+
+  const getStatusDotColor = () => {
+    switch (healthState) {
+      case 'HEALTHY':
+        return 'bg-success-dark dark:bg-green-400';
+      case 'FAILED':
+        return 'bg-error-dark dark:bg-red-400';
+      case 'DEGRADED':
+        return 'bg-warning-dark dark:bg-amber-400';
+      case 'UNKNOWN':
+      default:
+        return 'bg-muted-foreground';
+    }
+  };
+
+  const getStatusLabel = () => {
     if (!health) return 'Unknown';
 
     switch (healthState) {
       case 'HEALTHY':
-        return 'Healthy';
+        return 'Running';
       case 'FAILED':
-        return hasFailures
-          ? `Unhealthy (${raw?.consecutiveFails ?? 0} failures)`
-          : 'Unhealthy';
+        return 'Error';
       case 'DEGRADED':
-        return 'Checking...';
+        return 'Updating';
       case 'UNKNOWN':
       default:
         return 'Unknown';
     }
   };
 
+  const shouldPulse = healthState === 'DEGRADED' || healthState === 'HEALTHY';
+
   return (
-    <div className={cn('flex flex-col gap-2', className)}>
-      {/* Primary health badge */}
-      <ResourceHealthBadge
-        health={healthState}
-        label={getLabel()}
-        animate={animate}
-      />
-
-      {/* Metrics (show only if healthy or degraded) */}
-      {health && healthState !== 'UNKNOWN' && (
-        <div className="flex flex-wrap gap-3 text-xs text-slate-600 dark:text-slate-400">
-          {/* Process Status */}
-          <div className="flex items-center gap-1">
-            <span className="font-medium">Process:</span>
-            <span className={isProcessAlive ? 'text-success' : 'text-error'}>
-              {isProcessAlive ? 'Alive' : 'Down'}
-            </span>
-          </div>
-
-          {/* Connection Status */}
-          <div className="flex items-center gap-1">
-            <span className="font-medium">Connection:</span>
-            <span className={isConnected ? 'text-success' : 'text-error'}>
-              {raw?.connectionStatus}
-            </span>
-          </div>
-
-          {/* Latency */}
-          {raw?.latencyMs != null && (
-            <div className="flex items-center gap-1">
-              <span className="font-medium">Latency:</span>
-              <span className={`text-${latencyColor}`}>
-                {raw?.latencyMs}ms
-              </span>
-            </div>
-          )}
-
-          {/* Uptime */}
-          {health.uptimeSeconds != null && (
-            <div className="flex items-center gap-1">
-              <span className="font-medium">Uptime:</span>
-              <span>{formattedUptime}</span>
-            </div>
-          )}
-
-          {/* Last Healthy */}
-          {health.lastHealthy && (
-            <div className="flex items-center gap-1">
-              <span className="font-medium">Last Healthy:</span>
-              <span>{formattedLastHealthy}</span>
-            </div>
-          )}
-        </div>
+    <div
+      className={cn(
+        'inline-flex items-center gap-component-sm',
+        'rounded-[var(--semantic-radius-badge)] px-2.5 py-0.5',
+        'text-xs font-medium',
+        getBadgeClass(),
+        shouldPulse && 'animate-pulse',
+        'transition-colors duration-150',
+        className
       )}
+    >
+      {/* Status dot matching health color */}
+      <span
+        className={cn('h-2 w-2 rounded-full', getStatusDotColor())}
+        aria-hidden="true"
+      />
+      {getStatusLabel()}
 
-      {/* Warning for consecutive failures */}
-      {showWarning && (raw?.consecutiveFails ?? 0) > 0 && healthState !== 'FAILED' && (
-        <div className="text-xs text-warning">
-          ⚠️ {raw?.consecutiveFails} consecutive failures detected
-        </div>
+      {/* Optional: Metadata on hover (for desktop power users) */}
+      {health && raw?.latencyMs != null && (
+        <span className="text-xs opacity-75">
+          ({raw.latencyMs}ms)
+        </span>
       )}
     </div>
   );

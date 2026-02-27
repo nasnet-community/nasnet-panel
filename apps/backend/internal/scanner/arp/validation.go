@@ -37,7 +37,7 @@ func validateSubnet(subnet string) error {
 func generateIPList(subnet string) ([]string, error) {
 	_, ipNet, err := net.ParseCIDR(subnet)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("parse CIDR subnet: %w", err)
 	}
 
 	ips := make([]string, 0)

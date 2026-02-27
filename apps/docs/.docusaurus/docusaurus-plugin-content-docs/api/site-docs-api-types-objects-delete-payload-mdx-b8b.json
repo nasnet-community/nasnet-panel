@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/delete-payload",
+  "title": "DeletePayload",
+  "description": "Delete operation payload",
+  "source": "@site/docs/api/types/objects/delete-payload.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/delete-payload",
+  "permalink": "/api/types/objects/delete-payload",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "delete-payload",
+    "title": "DeletePayload"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "DeleteChangeSetPayload",
+    "permalink": "/api/types/objects/delete-change-set-payload"
+  },
+  "next": {
+    "title": "DeleteResourcePayload",
+    "permalink": "/api/types/objects/delete-resource-payload"
+  }
+}

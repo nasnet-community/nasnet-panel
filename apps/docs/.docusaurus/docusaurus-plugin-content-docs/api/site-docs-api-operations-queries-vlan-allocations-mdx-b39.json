@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/vlan-allocations",
+  "title": "vlanAllocations",
+  "description": "List all VLAN allocations with optional filtering.",
+  "source": "@site/docs/api/operations/queries/vlan-allocations.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/vlan-allocations",
+  "permalink": "/api/operations/queries/vlan-allocations",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "vlan-allocations",
+    "title": "vlanAllocations"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "virtualInterfaces",
+    "permalink": "/api/operations/queries/virtual-interfaces"
+  },
+  "next": {
+    "title": "vlanDependencies",
+    "permalink": "/api/operations/queries/vlan-dependencies"
+  }
+}

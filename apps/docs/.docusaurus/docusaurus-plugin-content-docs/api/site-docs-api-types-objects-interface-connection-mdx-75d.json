@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/interface-connection",
+  "title": "InterfaceConnection",
+  "description": "No description",
+  "source": "@site/docs/api/types/objects/interface-connection.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/interface-connection",
+  "permalink": "/api/types/objects/interface-connection",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "interface-connection",
+    "title": "InterfaceConnection"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "InstanceStatusChanged",
+    "permalink": "/api/types/objects/instance-status-changed"
+  },
+  "next": {
+    "title": "InterfaceEdge",
+    "permalink": "/api/types/objects/interface-edge"
+  }
+}

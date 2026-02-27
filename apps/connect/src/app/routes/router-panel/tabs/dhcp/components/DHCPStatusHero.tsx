@@ -70,16 +70,16 @@ export const DHCPStatusHero = React.memo(function DHCPStatusHero({
   }
 
   return (
-    <div className="grid grid-cols-3 md:grid-cols-5 gap-2 md:gap-3">
+    <div className="category-hero-dhcp shadow-md rounded-card-sm p-6 md:p-8 grid grid-cols-3 md:grid-cols-5 gap-2 md:gap-3">
       {/* Active Leases */}
       <div className="bg-card rounded-xl p-3 md:p-4 border border-border">
         <div className="flex items-center gap-1.5 mb-1">
-          <Users className="w-3.5 h-3.5 text-category-network" />
+          <Users className="w-3.5 h-3.5 text-category-network" aria-hidden={true} />
           <p className="text-muted-foreground text-xs uppercase tracking-wide">
             {t('dhcp.hero.active')}
           </p>
         </div>
-        <p className="text-xl md:text-2xl font-bold text-foreground">
+        <p className="text-xl md:text-2xl font-bold text-foreground font-mono">
           {activeLeases}
           <span className="text-muted-foreground text-sm font-normal ml-1">
             /{totalPoolSize}
@@ -93,12 +93,12 @@ export const DHCPStatusHero = React.memo(function DHCPStatusHero({
       {/* Pool Utilization */}
       <div className="bg-card rounded-xl p-3 md:p-4 border border-border">
         <div className="flex items-center gap-1.5 mb-1">
-          <PieChart className="w-3.5 h-3.5 text-success" />
+          <PieChart className="w-3.5 h-3.5 text-success" aria-hidden={true} />
           <p className="text-muted-foreground text-xs uppercase tracking-wide">
             {t('dhcp.hero.used')}
           </p>
         </div>
-        <p className={`text-xl md:text-2xl font-bold ${utilizationColor}`}>
+        <p className={`text-xl md:text-2xl font-bold font-mono ${utilizationColor}`}>
           {utilizationPercent}%
         </p>
         <div className="w-full bg-muted rounded-full h-1.5 mt-2">
@@ -116,7 +116,7 @@ export const DHCPStatusHero = React.memo(function DHCPStatusHero({
       {/* Available IPs */}
       <div className="bg-card rounded-xl p-3 md:p-4 border border-border">
         <div className="flex items-center gap-1.5 mb-1">
-          <Server className="w-3.5 h-3.5 text-category-system" />
+          <Server className="w-3.5 h-3.5 text-category-system" aria-hidden={true} />
           <p className="text-muted-foreground text-xs uppercase tracking-wide">
             {t('dhcp.hero.available')}
           </p>
@@ -132,12 +132,12 @@ export const DHCPStatusHero = React.memo(function DHCPStatusHero({
       {/* DHCP Servers */}
       <div className="bg-card rounded-xl p-3 md:p-4 border border-border hidden md:block">
         <div className="flex items-center gap-1.5 mb-1">
-          <Network className="w-3.5 h-3.5 text-category-dhcp" />
+          <Network className="w-3.5 h-3.5 text-category-dhcp" aria-hidden={true} />
           <p className="text-muted-foreground text-xs uppercase tracking-wide">
             {t('dhcp.hero.servers')}
           </p>
         </div>
-        <p className="text-xl md:text-2xl font-bold text-foreground">
+        <p className="text-xl md:text-2xl font-bold text-foreground font-mono">
           {activeServers}
           <span className="text-muted-foreground text-sm font-normal ml-1">
             /{servers.length}
@@ -151,12 +151,12 @@ export const DHCPStatusHero = React.memo(function DHCPStatusHero({
       {/* WAN Clients Status */}
       <div className="bg-card rounded-xl p-3 md:p-4 border border-border hidden md:block">
         <div className="flex items-center gap-1.5 mb-1">
-          <Globe className="w-3.5 h-3.5 text-success" />
+          <Globe className="w-3.5 h-3.5 text-success" aria-hidden={true} />
           <p className="text-muted-foreground text-xs uppercase tracking-wide">
             {t('dhcp.hero.wan')}
           </p>
         </div>
-        <p className="text-xl md:text-2xl font-bold text-foreground">
+        <p className="text-xl md:text-2xl font-bold text-foreground font-mono">
           {boundClients}
           <span className="text-muted-foreground text-sm font-normal ml-1">
             /{totalClients}

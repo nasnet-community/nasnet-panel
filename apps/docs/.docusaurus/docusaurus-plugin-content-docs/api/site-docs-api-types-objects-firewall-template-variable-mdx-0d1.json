@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/firewall-template-variable",
+  "title": "FirewallTemplateVariable",
+  "description": "Variable definition for template customization.",
+  "source": "@site/docs/api/types/objects/firewall-template-variable.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/firewall-template-variable",
+  "permalink": "/api/types/objects/firewall-template-variable",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "firewall-template-variable",
+    "title": "FirewallTemplateVariable"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "FirewallTemplateResult",
+    "permalink": "/api/types/objects/firewall-template-result"
+  },
+  "next": {
+    "title": "FirewallTemplate",
+    "permalink": "/api/types/objects/firewall-template"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/subscriptions/provisioning-session-changed",
+  "title": "provisioningSessionChanged",
+  "description": "Subscribe to provisioning session state changes",
+  "source": "@site/docs/api/operations/subscriptions/provisioning-session-changed.mdx",
+  "sourceDirName": "api/operations/subscriptions",
+  "slug": "/api/operations/subscriptions/provisioning-session-changed",
+  "permalink": "/api/operations/subscriptions/provisioning-session-changed",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "provisioning-session-changed",
+    "title": "provisioningSessionChanged"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "portMirrorChanged",
+    "permalink": "/api/operations/subscriptions/port-mirror-changed"
+  },
+  "next": {
+    "title": "provisioningSessionProgress",
+    "permalink": "/api/operations/subscriptions/provisioning-session-progress"
+  }
+}

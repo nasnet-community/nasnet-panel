@@ -68,7 +68,7 @@ function ReviewStepComponent({ template, variables, className }: ReviewStepProps
       {/* Services to Install */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base flex items-center gap-2">
+          <CardTitle className="text-base flex items-center gap-component-sm">
             <Icon icon={Server} className="h-4 w-4" aria-hidden="true" />
             {t('wizard.services', 'Services')} ({serviceCount})
           </CardTitle>
@@ -115,7 +115,7 @@ function ReviewStepComponent({ template, variables, className }: ReviewStepProps
                     <span className="text-sm font-medium">
                       {variable?.label || key}
                     </span>
-                    <span className="text-sm text-muted-foreground">
+                    <span className="text-sm text-muted-foreground font-mono">
                       {typeof value === 'boolean'
                         ? value
                           ? 'Enabled'
@@ -134,7 +134,7 @@ function ReviewStepComponent({ template, variables, className }: ReviewStepProps
       {template.estimatedResources && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-base flex items-center gap-2">
+            <CardTitle className="text-base flex items-center gap-component-sm">
               <Icon icon={Cpu} className="h-4 w-4" aria-hidden="true" />
               {t('wizard.estimatedResources', 'Estimated Resources')}
             </CardTitle>

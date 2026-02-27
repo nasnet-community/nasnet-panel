@@ -7,61 +7,61 @@ package resolver
 
 import (
 	"backend/graph/model"
-	"backend/internal/errors"
+	"backend/internal/apperrors"
 	"context"
 )
 
 // ConfigureDhcpWan is the resolver for the configureDhcpWAN field.
 func (r *mutationResolver) ConfigureDhcpWan(ctx context.Context, routerID string, input model.DhcpClientInput) (*model.WANMutationResult, error) {
-	return nil, errors.NewValidationError("configureDhcpWAN", nil, "not yet implemented")
+	return nil, apperrors.NewValidationError("configureDhcpWAN", nil, "not yet implemented")
 }
 
 // ConfigurePppoeWan is the resolver for the configurePppoeWAN field.
 func (r *mutationResolver) ConfigurePppoeWan(ctx context.Context, routerID string, input model.PppoeClientInput) (*model.WANMutationResult, error) {
-	return nil, errors.NewValidationError("configurePppoeWAN", nil, "not yet implemented")
+	return nil, apperrors.NewValidationError("configurePppoeWAN", nil, "not yet implemented")
 }
 
 // ConfigureStaticWan is the resolver for the configureStaticWAN field.
 func (r *mutationResolver) ConfigureStaticWan(ctx context.Context, routerID string, input model.StaticIPInput) (*model.WANMutationResult, error) {
-	return nil, errors.NewValidationError("configureStaticWAN", nil, "not yet implemented")
+	return nil, apperrors.NewValidationError("configureStaticWAN", nil, "not yet implemented")
 }
 
 // ConfigureLteWan is the resolver for the configureLteWAN field.
 func (r *mutationResolver) ConfigureLteWan(ctx context.Context, routerID string, input model.LteModemInput) (*model.WANMutationResult, error) {
-	return nil, errors.NewValidationError("configureLteWAN", nil, "not yet implemented")
+	return nil, apperrors.NewValidationError("configureLteWAN", nil, "not yet implemented")
 }
 
 // ConfigureWANHealthCheck is the resolver for the configureWANHealthCheck field.
 func (r *mutationResolver) ConfigureWANHealthCheck(ctx context.Context, routerID string, wanInterfaceID string, input model.WANHealthCheckInput) (*model.WANMutationResult, error) {
-	return nil, errors.NewValidationError("configureWANHealthCheck", nil, "not yet implemented")
+	return nil, apperrors.NewValidationError("configureWANHealthCheck", nil, "not yet implemented")
 }
 
 // DeleteWANConfiguration is the resolver for the deleteWANConfiguration field.
 func (r *mutationResolver) DeleteWANConfiguration(ctx context.Context, routerID string, wanInterfaceID string) (*model.DeleteResult, error) {
-	return nil, errors.NewValidationError("deleteWANConfiguration", nil, "not yet implemented")
+	return nil, apperrors.NewValidationError("deleteWANConfiguration", nil, "not yet implemented")
 }
 
 // WanInterfaces is the resolver for the wanInterfaces field.
 func (r *queryResolver) WanInterfaces(ctx context.Context, routerID string) ([]*model.WANInterface, error) {
-	return nil, errors.NewValidationError("wanInterfaces", nil, "not yet implemented")
+	return nil, apperrors.NewValidationError("wanInterfaces", nil, "not yet implemented")
 }
 
 // WanInterface is the resolver for the wanInterface field.
 func (r *queryResolver) WanInterface(ctx context.Context, routerID string, id string) (*model.WANInterface, error) {
-	return nil, errors.NewValidationError("wanInterface", nil, "not yet implemented")
+	return nil, apperrors.NewValidationError("wanInterface", nil, "not yet implemented")
 }
 
 // WanConnectionHistory is the resolver for the wanConnectionHistory field.
 func (r *queryResolver) WanConnectionHistory(ctx context.Context, routerID string, wanInterfaceID string, pagination *model.PaginationInput) (*model.WANConnectionEventConnection, error) {
-	return nil, errors.NewValidationError("wanConnectionHistory", nil, "not yet implemented")
+	return nil, apperrors.NewValidationError("wanConnectionHistory", nil, "not yet implemented")
 }
 
 // WanStatusChanged is the resolver for the wanStatusChanged field.
 func (r *subscriptionResolver) WanStatusChanged(ctx context.Context, routerID string, wanInterfaceID *string) (<-chan *model.WANInterface, error) {
-	return nil, errors.NewValidationError("wanStatusChanged", nil, "not yet implemented")
+	return nil, apperrors.NewValidationError("wanStatusChanged", nil, "not yet implemented")
 }
 
 // WanHealthChanged is the resolver for the wanHealthChanged field.
 func (r *subscriptionResolver) WanHealthChanged(ctx context.Context, routerID string, wanInterfaceID string) (<-chan *model.WANHealthStatus, error) {
-	return nil, errors.NewValidationError("wanHealthChanged", nil, "not yet implemented")
+	return nil, apperrors.NewValidationError("wanHealthChanged", nil, "not yet implemented")
 }

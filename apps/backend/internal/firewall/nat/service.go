@@ -84,7 +84,7 @@ func (s *Service) getNatRuleByID(ctx context.Context, id string) (*model.NatRule
 
 	result, err := s.port.ExecuteCommand(ctx, cmd)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to execute NAT rule query: %w", err)
 	}
 
 	if !result.Success || len(result.Data) == 0 {
@@ -104,7 +104,7 @@ func (s *Service) deleteNatRuleByID(ctx context.Context, id string) error {
 
 	result, err := s.port.ExecuteCommand(ctx, cmd)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to execute NAT rule delete command: %w", err)
 	}
 
 	if !result.Success {
@@ -125,7 +125,7 @@ func (s *Service) deleteRuleByCommentPrefix(ctx context.Context, path, commentPr
 
 	result, err := s.port.ExecuteCommand(ctx, queryCmd)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to execute rule query command: %w", err)
 	}
 
 	if !result.Success {

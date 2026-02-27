@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/start-provisioning-session",
+  "title": "startProvisioningSession",
+  "description": "Start a new provisioning session for a router.",
+  "source": "@site/docs/api/operations/mutations/start-provisioning-session.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/start-provisioning-session",
+  "permalink": "/api/operations/mutations/start-provisioning-session",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "start-provisioning-session",
+    "title": "startProvisioningSession"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "startInstance",
+    "permalink": "/api/operations/mutations/start-instance"
+  },
+  "next": {
+    "title": "startTroubleshoot",
+    "permalink": "/api/operations/mutations/start-troubleshoot"
+  }
+}

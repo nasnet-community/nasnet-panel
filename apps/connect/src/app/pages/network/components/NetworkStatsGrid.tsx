@@ -48,7 +48,7 @@ export const NetworkStatsGrid = React.memo(function NetworkStatsGrid({ resourceD
   return (
     <div className="grid grid-cols-3 gap-component-sm p-component-md" role="group" aria-label="Network statistics">
       {/* CPU */}
-      <div className="bg-card rounded-card-lg p-component-sm text-center">
+      <div className="bg-card rounded-card-lg p-component-sm text-center shadow-sm">
         <div className="flex items-center justify-center gap-1.5 mb-1">
           <Cpu className="w-3.5 h-3.5 text-info" aria-hidden="true" />
         </div>
@@ -61,11 +61,11 @@ export const NetworkStatsGrid = React.memo(function NetworkStatsGrid({ resourceD
         )}>
           {resourceData?.cpuLoad ?? '--'}%
         </p>
-        <p className="text-muted-foreground text-xs">{t('quickStats.cpu')}</p>
+        <p className="text-muted-foreground text-xs font-display">{t('quickStats.cpu')}</p>
       </div>
 
       {/* Memory */}
-      <div className="bg-card rounded-card-lg p-component-sm text-center">
+      <div className="bg-card rounded-card-lg p-component-sm text-center shadow-sm">
         <div className="flex items-center justify-center gap-1.5 mb-1">
           <HardDrive className="w-3.5 h-3.5 text-warning" aria-hidden="true" />
         </div>
@@ -78,16 +78,16 @@ export const NetworkStatsGrid = React.memo(function NetworkStatsGrid({ resourceD
         )}>
           {memoryPercentage}%
         </p>
-        <p className="text-muted-foreground text-xs">{t('quickStats.memory')}</p>
+        <p className="text-muted-foreground text-xs font-display">{t('quickStats.memory')}</p>
       </div>
 
       {/* Uptime */}
-      <div className="bg-card rounded-card-lg p-component-sm text-center">
+      <div className="bg-card rounded-card-lg p-component-sm text-center shadow-sm">
         <div className="flex items-center justify-center gap-1.5 mb-1">
           <Clock className="w-3.5 h-3.5 text-success" aria-hidden="true" />
         </div>
         <p className="text-lg font-bold font-mono text-success">{uptimeFormatted}</p>
-        <p className="text-muted-foreground text-xs">{t('quickStats.uptime')}</p>
+        <p className="text-muted-foreground text-xs font-display">{t('quickStats.uptime')}</p>
       </div>
     </div>
   );

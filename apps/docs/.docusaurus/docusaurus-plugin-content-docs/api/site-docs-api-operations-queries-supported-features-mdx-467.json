@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/supported-features",
+  "title": "supportedFeatures",
+  "description": "Get all features supported by a router",
+  "source": "@site/docs/api/operations/queries/supported-features.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/supported-features",
+  "permalink": "/api/operations/queries/supported-features",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "supported-features",
+    "title": "supportedFeatures"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "storageUsage",
+    "permalink": "/api/operations/queries/storage-usage"
+  },
+  "next": {
+    "title": "systemResources",
+    "permalink": "/api/operations/queries/system-resources"
+  }
+}

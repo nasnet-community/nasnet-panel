@@ -104,7 +104,8 @@ func (s *ScannerService) scanIP(ctx context.Context, ip string) *DiscoveredDevic
 
 	// Resolve hostname
 	hostname := ""
-	if names, err := net.LookupAddr(ip); err == nil && len(names) > 0 {
+	resolver := &net.Resolver{}
+	if names, err := resolver.LookupAddr(ctx, ip); err == nil && len(names) > 0 {
 		hostname = names[0]
 	}
 
@@ -177,7 +178,8 @@ func (s *ScannerService) scanGatewayIP(ctx context.Context, ip string) *Discover
 
 	// Resolve hostname
 	hostname := ""
-	if names, err := net.LookupAddr(ip); err == nil && len(names) > 0 {
+	resolver := &net.Resolver{}
+	if names, err := resolver.LookupAddr(ctx, ip); err == nil && len(names) > 0 {
 		hostname = names[0]
 	}
 

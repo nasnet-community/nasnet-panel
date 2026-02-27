@@ -92,7 +92,7 @@ const WANOverviewListComponent = ({
    */
   if (error && wans.length === 0) {
     return (
-      <div className="rounded-[var(--semantic-radius-card)] border border-error/20 bg-error/5 p-component-lg">
+      <div className="rounded-[var(--semantic-radius-card)] border border-error/20 bg-error/5 px-component-lg py-component-lg">
         <div className="flex items-start gap-component-md">
           <Globe className="h-5 w-5 text-error flex-shrink-0 mt-0.5" aria-hidden="true" />
           <div className="flex-1">
@@ -178,13 +178,11 @@ const WANOverviewListComponent = ({
 
       {/* Error banner (if error but have cached data) */}
       {error && wans.length > 0 && (
-        <div className="rounded-[var(--semantic-radius-card)] border border-warning/20 bg-warning/5 p-component-md">
+        <div className="rounded-[var(--semantic-radius-card)] border border-warning/20 bg-warning/5 px-component-md py-component-md">
           <div className="flex items-start gap-component-md">
             <RefreshCw className="h-4 w-4 text-warning flex-shrink-0 mt-0.5" aria-hidden="true" />
             <div className="flex-1 text-sm">
-              <p className="font-medium text-warning">
-                Failed to refresh WAN data
-              </p>
+              <p className="font-medium text-warning">Failed to refresh WAN data</p>
               <p className="text-muted-foreground text-xs mt-1">
                 Showing cached data. {error.message}
               </p>
@@ -239,7 +237,7 @@ const WANOverviewListComponent = ({
           </span>
           <span>
             Default Route:{' '}
-            <strong>
+            <strong className="text-foreground">
               {wans.find((w) => w.isDefaultRoute)?.interfaceName || 'None'}
             </strong>
           </span>

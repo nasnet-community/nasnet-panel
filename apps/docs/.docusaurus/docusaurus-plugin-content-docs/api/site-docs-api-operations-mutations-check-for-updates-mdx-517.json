@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/check-for-updates",
+  "title": "checkForUpdates",
+  "description": "Manually trigger update check for all instances.",
+  "source": "@site/docs/api/operations/mutations/check-for-updates.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/check-for-updates",
+  "permalink": "/api/operations/mutations/check-for-updates",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "check-for-updates",
+    "title": "checkForUpdates"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "changePassword",
+    "permalink": "/api/operations/mutations/change-password"
+  },
+  "next": {
+    "title": "checkRouterHealth",
+    "permalink": "/api/operations/mutations/check-router-health"
+  }
+}

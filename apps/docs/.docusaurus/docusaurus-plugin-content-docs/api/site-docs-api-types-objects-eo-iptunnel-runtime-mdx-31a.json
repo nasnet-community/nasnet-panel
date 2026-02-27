@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/eo-iptunnel-runtime",
+  "title": "EoIPTunnelRuntime",
+  "description": "EoIP tunnel runtime state",
+  "source": "@site/docs/api/types/objects/eo-iptunnel-runtime.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/eo-iptunnel-runtime",
+  "permalink": "/api/types/objects/eo-iptunnel-runtime",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "eo-iptunnel-runtime",
+    "title": "EoIPTunnelRuntime"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "EoIPTunnelDeployment",
+    "permalink": "/api/types/objects/eo-iptunnel-deployment"
+  },
+  "next": {
+    "title": "EoIPTunnel",
+    "permalink": "/api/types/objects/eo-iptunnel"
+  }
+}

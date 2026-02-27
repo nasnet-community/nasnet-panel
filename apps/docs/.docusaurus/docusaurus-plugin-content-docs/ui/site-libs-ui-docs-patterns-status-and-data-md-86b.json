@@ -1,0 +1,24 @@
+{
+  "id": "patterns-status-and-data",
+  "title": "Status & Data Display Patterns (Layer 2)",
+  "description": "This document covers all status indicator and data display pattern components in libs/ui/patterns/src/. These are Layer 2 components (Patterns) — they are composed from Layer 1 Primitives and provide the reusable building blocks for Layer 3 Domain feature components.",
+  "source": "@site/../../libs/ui/docs/patterns-status-and-data.md",
+  "sourceDirName": ".",
+  "slug": "/patterns-status-and-data",
+  "permalink": "/docs/ui/patterns-status-and-data",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/ui/docs/patterns-status-and-data.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Form System, Network Inputs & Steppers (Layer 2)",
+    "permalink": "/docs/ui/patterns-forms-and-inputs"
+  },
+  "next": {
+    "title": "Primitives Reference (Layer 1)",
+    "permalink": "/docs/ui/primitives-reference"
+  }
+}

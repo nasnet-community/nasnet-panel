@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/auto-scan-gateways",
+  "title": "autoScanGateways",
+  "description": "Start an automatic gateway scan.",
+  "source": "@site/docs/api/operations/mutations/auto-scan-gateways.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/auto-scan-gateways",
+  "permalink": "/api/operations/mutations/auto-scan-gateways",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "auto-scan-gateways",
+    "title": "autoScanGateways"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "assignDeviceRouting",
+    "permalink": "/api/operations/mutations/assign-device-routing"
+  },
+  "next": {
+    "title": "batchInterfaceOperation",
+    "permalink": "/api/operations/mutations/batch-interface-operation"
+  }
+}

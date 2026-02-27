@@ -9,7 +9,7 @@ import (
 
 // createAddressListEntries creates firewall address list entries for a network.
 func (s *Service) createAddressListEntries(ctx context.Context, networkName, address, comment string) ([]string, error) {
-	var entryIDs []string
+	entryIDs := make([]string, 0, 1)
 
 	// Create the main network address list entry
 	entryID, err := s.createAddressList(ctx, networkName, address, comment)

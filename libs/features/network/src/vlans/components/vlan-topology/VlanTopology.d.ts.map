@@ -1,1 +1,0 @@
-{"version":3,"file":"VlanTopology.d.ts","sourceRoot":"","sources":["VlanTopology.tsx"],"names":[],"mappings":"AAMA;;;;;;;;;;;;;;;GAeG;AACH,MAAM,WAAW,iBAAiB;IAChC,mCAAmC;IACnC,QAAQ,EAAE,MAAM,CAAC;IACjB,8CAA8C;IAC9C,YAAY,CAAC,EAAE,CAAC,MAAM,EAAE,MAAM,KAAK,IAAI,CAAC;CACzC;AAED;;GAEG;AACH,wBAAgB,YAAY,CAAC,EAAE,QAAQ,EAAE,YAAY,EAAE,EAAE,iBAAiB,2CAmBzE"}

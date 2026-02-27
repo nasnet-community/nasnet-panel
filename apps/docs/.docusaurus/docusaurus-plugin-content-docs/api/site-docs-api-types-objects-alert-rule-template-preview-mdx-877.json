@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/alert-rule-template-preview",
+  "title": "AlertRuleTemplatePreview",
+  "description": "Preview result for alert rule template",
+  "source": "@site/docs/api/types/objects/alert-rule-template-preview.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/alert-rule-template-preview",
+  "permalink": "/api/types/objects/alert-rule-template-preview",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "alert-rule-template-preview",
+    "title": "AlertRuleTemplatePreview"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "AlertRuleTemplatePayload",
+    "permalink": "/api/types/objects/alert-rule-template-payload"
+  },
+  "next": {
+    "title": "AlertRuleTemplateVariable",
+    "permalink": "/api/types/objects/alert-rule-template-variable"
+  }
+}

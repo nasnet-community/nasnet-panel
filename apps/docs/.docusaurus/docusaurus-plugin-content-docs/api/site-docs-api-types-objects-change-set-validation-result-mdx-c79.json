@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/change-set-validation-result",
+  "title": "ChangeSetValidationResult",
+  "description": "Validation result for a change set",
+  "source": "@site/docs/api/types/objects/change-set-validation-result.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/change-set-validation-result",
+  "permalink": "/api/types/objects/change-set-validation-result",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "change-set-validation-result",
+    "title": "ChangeSetValidationResult"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ChangeSetValidationError",
+    "permalink": "/api/types/objects/change-set-validation-error"
+  },
+  "next": {
+    "title": "ChangeSet",
+    "permalink": "/api/types/objects/change-set"
+  }
+}

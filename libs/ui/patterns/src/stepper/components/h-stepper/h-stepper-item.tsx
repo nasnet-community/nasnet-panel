@@ -109,34 +109,32 @@ export function HStepperItem({
         onKeyDown={handleKeyDown}
         disabled={!isClickable}
         className={cn(
-          // Base styles - 36px (h-9 w-9) with padding for 44px touch target
+          // Base styles - 32px (h-8 w-8) as per spec
           'relative flex items-center justify-center',
-          'h-9 w-9 rounded-full border-2',
+          'h-8 w-8 rounded-full',
           'min-h-11 min-w-11', // 44px touch target
-          // Shadow for depth
-          'shadow-lg',
-          // CSS transitions (300ms for transform, 200ms for colors)
+          // CSS transitions (300ms for all transitions)
           'transition-all duration-300 ease-out',
           'motion-reduce:transition-none',
 
           // === State-based styling ===
 
-          // Completed state
+          // Completed state - bg-success text-white
           isCompleted &&
             !hasError &&
             !isActive &&
-            'scale-110 border-primary bg-primary text-primary-foreground',
+            'bg-success text-white',
 
-          // Active/Current state
+          // Active/Current state - bg-primary text-primary-foreground
           isActive &&
             !hasError &&
-            'scale-110 border-primary bg-background text-primary',
+            'bg-primary text-primary-foreground',
 
-          // Error state
-          hasError && 'scale-110 border-destructive bg-destructive text-destructive-foreground',
+          // Error state - bg-error text-white
+          hasError && 'bg-error text-white',
 
-          // Future/Pending state
-          isFuture && 'scale-100 border-muted-foreground/40 bg-muted/60 text-muted-foreground',
+          // Future/Pending state - bg-muted text-muted-foreground
+          isFuture && 'bg-muted text-muted-foreground',
 
           // Clickable states
           isClickable && 'cursor-pointer hover:opacity-90',

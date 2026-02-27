@@ -30,7 +30,7 @@ import type { Meta, StoryObj } from '@storybook/react';
  */
 function DnsPageLoading() {
   return (
-    <div className="space-y-6 p-4">
+    <div className="space-y-component-lg p-component-sm">
       <Skeleton className="h-8 w-48" />
       <Skeleton className="h-64" />
       <Skeleton className="h-64" />
@@ -44,7 +44,7 @@ function DnsPageLoading() {
  */
 function DnsPageError({ message = 'Unable to fetch DNS settings' }: { message?: string }) {
   return (
-    <div className="p-4">
+    <div className="p-component-sm">
       <Alert variant="destructive">
         <AlertTriangle className="h-4 w-4" />
         <AlertTitle>Failed to load DNS configuration</AlertTitle>
@@ -52,7 +52,7 @@ function DnsPageError({ message = 'Unable to fetch DNS settings' }: { message?: 
       </Alert>
       <Button
         onClick={() => console.log('retry clicked')}
-        className="mt-4"
+        className="mt-component-md"
         aria-label="Retry loading DNS configuration"
       >
         Retry

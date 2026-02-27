@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/address-list-entry-connection",
+  "title": "AddressListEntryConnection",
+  "description": "Connection type for paginated address list entries.",
+  "source": "@site/docs/api/types/objects/address-list-entry-connection.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/address-list-entry-connection",
+  "permalink": "/api/types/objects/address-list-entry-connection",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "address-list-entry-connection",
+    "title": "AddressListEntryConnection"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "AddRouterPayload",
+    "permalink": "/api/types/objects/add-router-payload"
+  },
+  "next": {
+    "title": "AddressListEntryEdge",
+    "permalink": "/api/types/objects/address-list-entry-edge"
+  }
+}

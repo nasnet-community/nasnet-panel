@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/bridge-port",
+  "title": "BridgePort",
+  "description": "No description",
+  "source": "@site/docs/api/types/objects/bridge-port.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/bridge-port",
+  "permalink": "/api/types/objects/bridge-port",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "bridge-port",
+    "title": "BridgePort"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "BridgePortVlanConfig",
+    "permalink": "/api/types/objects/bridge-port-vlan-config"
+  },
+  "next": {
+    "title": "BridgeResource",
+    "permalink": "/api/types/objects/bridge-resource"
+  }
+}

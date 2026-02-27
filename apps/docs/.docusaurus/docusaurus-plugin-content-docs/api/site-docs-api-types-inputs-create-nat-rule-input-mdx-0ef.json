@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/create-nat-rule-input",
+  "title": "CreateNatRuleInput",
+  "description": "Input for creating a NAT rule.",
+  "source": "@site/docs/api/types/inputs/create-nat-rule-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/create-nat-rule-input",
+  "permalink": "/api/types/inputs/create-nat-rule-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "create-nat-rule-input",
+    "title": "CreateNatRuleInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "CreateEgressVLANInput",
+    "permalink": "/api/types/inputs/create-egress-vlaninput"
+  },
+  "next": {
+    "title": "CreateNotificationChannelConfigInput",
+    "permalink": "/api/types/inputs/create-notification-channel-config-input"
+  }
+}

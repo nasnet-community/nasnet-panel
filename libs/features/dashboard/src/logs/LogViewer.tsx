@@ -242,17 +242,17 @@ export const LogViewer = React.memo(function LogViewer({ className, limit = 100 
   }, [selectedEntry, logsToDisplay]);
 
   return (
-    <div className={cn('flex flex-col h-full gap-3', className)}>
+    <div className={cn('flex flex-col h-full gap-component-md', className)}>
       {/* Offline Banner */}
       {isOffline && (
-        <div className="flex items-center gap-2 px-3 py-2 bg-warning/10 border border-warning/30 rounded-card-sm text-sm text-warning">
+        <div className="flex items-center gap-component-sm px-component-md py-component-sm bg-warning/10 border border-warning/30 rounded-card-sm text-sm text-warning">
           <Icon icon={AlertCircle} className="h-4 w-4" aria-hidden="true" />
           <span>You're offline. Showing cached logs.</span>
         </div>
       )}
 
       {/* Controls Row */}
-      <div className="flex flex-col sm:flex-row gap-3">
+      <div className="flex flex-col sm:flex-row gap-component-md">
         {/* Search */}
         <LogSearch
           value={searchTerm}
@@ -263,7 +263,7 @@ export const LogViewer = React.memo(function LogViewer({ className, limit = 100 
         />
 
         {/* Action buttons */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-component-sm">
           <LogControls
             isPaused={isPaused}
             onPauseToggle={() => setIsPaused(!isPaused)}
@@ -301,7 +301,7 @@ export const LogViewer = React.memo(function LogViewer({ className, limit = 100 
             >
               <Icon icon={Pin} className="h-4 w-4" aria-hidden="true" />
               {bookmarkedLogs.length > 0 && (
-                <span className="ml-1 text-xs font-mono">{bookmarkedLogs.length}</span>
+                <span className="ml-component-xs text-xs font-mono">{bookmarkedLogs.length}</span>
               )}
             </Button>
           </div>
@@ -345,7 +345,7 @@ export const LogViewer = React.memo(function LogViewer({ className, limit = 100 
             className="absolute inset-0 overflow-y-auto border rounded-lg bg-card"
           >
             {logsToDisplay.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full text-muted-foreground p-8 gap-2">
+              <div className="flex flex-col items-center justify-center h-full text-muted-foreground p-component-xl gap-component-sm">
                 {viewMode === 'bookmarked' ? (
                   <>
                     <Icon icon={Pin} className="h-8 w-8 opacity-50" aria-hidden="true" />
@@ -354,7 +354,7 @@ export const LogViewer = React.memo(function LogViewer({ className, limit = 100 
                   </>
                 ) : searchTerm ? (
                   <>
-                    <p>No logs match <span className="font-mono">"{searchTerm}"</span></p>
+                    <p>No logs match <span className="font-mono">{`"${searchTerm}"`}</span></p>
                     <Button
                       variant="ghost"
                       size="sm"
@@ -368,7 +368,7 @@ export const LogViewer = React.memo(function LogViewer({ className, limit = 100 
                 )}
               </div>
             ) : viewMode === 'grouped' ? (
-              <div className="p-2">
+              <div className="p-component-sm">
                 <LogGroupList
                   groups={groups as LogGroupData[]}
                   searchTerm={searchTerm}
@@ -424,9 +424,9 @@ LogViewer.displayName = 'LogViewer';
  */
 function LogViewerSkeleton() {
   return (
-    <div className="border rounded-lg bg-card p-3 space-y-2 flex-1">
+    <div className="border rounded-lg bg-card p-component-md space-y-component-sm flex-1">
       {Array.from({ length: 10 }).map((_, i) => (
-        <div key={i} className="flex items-center gap-3">
+        <div key={i} className="flex items-center gap-component-md">
           <Skeleton className="h-4 w-24 shrink-0" />
           <Skeleton className="h-6 w-16 shrink-0" />
           <Skeleton className="h-4 flex-1" />
@@ -447,13 +447,13 @@ interface LogViewerErrorProps {
 const LogViewerError = React.memo(function LogViewerError({ error, onRetry }: LogViewerErrorProps) {
   return (
     <Card className="border-error/30 bg-error/10">
-      <CardHeader className="pb-2">
-        <CardTitle className="flex items-center gap-2 text-error text-base">
+      <CardHeader className="pb-component-sm">
+        <CardTitle className="flex items-center gap-component-sm text-error text-base">
           <Icon icon={AlertCircle} className="h-4 w-4" aria-hidden="true" />
           Failed to load logs
         </CardTitle>
       </CardHeader>
-      <CardContent className="flex flex-col gap-2 pt-0">
+      <CardContent className="flex flex-col gap-component-sm pt-0">
         <p className="text-sm text-muted-foreground">
           {error?.message || 'An unknown error occurred'}
         </p>

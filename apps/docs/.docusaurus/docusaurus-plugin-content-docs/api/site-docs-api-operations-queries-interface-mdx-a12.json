@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/interface",
+  "title": "interface",
+  "description": "Get a network interface by ID",
+  "source": "@site/docs/api/operations/queries/interface.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/interface",
+  "permalink": "/api/operations/queries/interface",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "interface",
+    "title": "interface"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "interfaceStatsHistory",
+    "permalink": "/api/operations/queries/interface-stats-history"
+  },
+  "next": {
+    "title": "interfaces",
+    "permalink": "/api/operations/queries/interfaces"
+  }
+}

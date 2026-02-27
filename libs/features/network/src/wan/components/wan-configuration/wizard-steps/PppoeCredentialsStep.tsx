@@ -59,12 +59,12 @@ export const PppoeCredentialsStep = memo(function PppoeCredentialsStep({
         title="ISP Credentials"
         description="Enter the username and password provided by your Internet Service Provider"
       >
-        <div className="space-y-4">
+        <div className="space-y-component-md">
           {/* Username */}
           <div>
-            <div className="flex items-center gap-2 mb-2">
+            <div className="flex items-center gap-component-sm mb-component-md">
               <Label htmlFor="username">
-                <User className="inline h-4 w-4 mr-1" aria-hidden="true" />
+                <User className="inline h-4 w-4 mr-component-xs" aria-hidden="true" />
                 Username
               </Label>
               <FieldHelp field="username" />
@@ -76,12 +76,12 @@ export const PppoeCredentialsStep = memo(function PppoeCredentialsStep({
               autoComplete="username"
               {...form.register('username')}
               aria-describedby="username-error"
-              className="font-mono text-sm"
+              className="font-mono text-sm category-networking"
             />
             {form.formState.errors.username && (
               <p
                 id="username-error"
-                className="text-sm text-destructive mt-1"
+                className="text-sm text-error mt-1"
                 role="alert"
               >
                 {form.formState.errors.username.message}
@@ -91,9 +91,9 @@ export const PppoeCredentialsStep = memo(function PppoeCredentialsStep({
 
           {/* Password */}
           <div>
-            <div className="flex items-center gap-2 mb-2">
+            <div className="flex items-center gap-component-sm mb-component-md">
               <Label htmlFor="password">
-                <Lock className="inline h-4 w-4 mr-1" aria-hidden="true" />
+                <Lock className="inline h-4 w-4 mr-component-xs" aria-hidden="true" />
                 Password
               </Label>
               <FieldHelp field="password" />
@@ -106,7 +106,7 @@ export const PppoeCredentialsStep = memo(function PppoeCredentialsStep({
                 autoComplete="current-password"
                 {...form.register('password')}
                 aria-describedby="password-error password-help"
-                className="pr-10 font-mono text-sm"
+                className="pr-10 font-mono text-sm category-networking"
               />
               <Button
                 type="button"
@@ -127,22 +127,22 @@ export const PppoeCredentialsStep = memo(function PppoeCredentialsStep({
             {form.formState.errors.password && (
               <p
                 id="password-error"
-                className="text-sm text-destructive mt-1"
+                className="text-sm text-error mt-component-xs"
                 role="alert"
               >
                 {form.formState.errors.password.message}
               </p>
             )}
-            <p id="password-help" className="text-xs text-muted-foreground mt-1">
+            <p id="password-help" className="text-xs text-muted-foreground mt-component-xs">
               Your password is encrypted in transit and stored securely
             </p>
           </div>
 
           {/* Service Name (Optional) */}
           <div>
-            <div className="flex items-center gap-2 mb-2">
+            <div className="flex items-center gap-component-sm mb-component-md">
               <Label htmlFor="service-name">
-                <ServerCog className="inline h-4 w-4 mr-1" aria-hidden="true" />
+                <ServerCog className="inline h-4 w-4 mr-component-xs" aria-hidden="true" />
                 Service Name (Optional)
               </Label>
               <FieldHelp field="serviceName" />
@@ -153,12 +153,12 @@ export const PppoeCredentialsStep = memo(function PppoeCredentialsStep({
               placeholder="Leave empty if not required"
               {...form.register('serviceName')}
               aria-describedby="service-name-error service-name-help"
-              className="font-mono text-sm"
+              className="font-mono text-sm category-networking"
             />
             {form.formState.errors.serviceName && (
               <p
                 id="service-name-error"
-                className="text-sm text-destructive mt-1"
+                className="text-sm text-error mt-component-xs"
                 role="alert"
               >
                 {form.formState.errors.serviceName.message}
@@ -166,7 +166,7 @@ export const PppoeCredentialsStep = memo(function PppoeCredentialsStep({
             )}
             <p
               id="service-name-help"
-              className="text-xs text-muted-foreground mt-1"
+              className="text-xs text-muted-foreground mt-component-xs"
             >
               Most ISPs do not require a service name
             </p>
@@ -175,8 +175,8 @@ export const PppoeCredentialsStep = memo(function PppoeCredentialsStep({
       </FormSection>
 
       {/* Security Notice */}
-      <div className="rounded-lg border border-border bg-card/50 p-4" role="note">
-        <div className="flex gap-3">
+      <div className="rounded-lg border border-border bg-card/50 p-component-md" role="note">
+        <div className="flex gap-component-md">
           <Lock className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5" aria-hidden="true" />
           <div className="space-y-1">
             <p className="text-sm font-medium">Security Notice</p>

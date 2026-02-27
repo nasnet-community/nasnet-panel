@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/export-config-payload",
+  "title": "ExportConfigPayload",
+  "description": "Result of exporting router configuration.",
+  "source": "@site/docs/api/types/objects/export-config-payload.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/export-config-payload",
+  "permalink": "/api/types/objects/export-config-payload",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "export-config-payload",
+    "title": "ExportConfigPayload"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "EscalationConfig",
+    "permalink": "/api/types/objects/escalation-config"
+  },
+  "next": {
+    "title": "ExportServiceConfigPayload",
+    "permalink": "/api/types/objects/export-service-config-payload"
+  }
+}

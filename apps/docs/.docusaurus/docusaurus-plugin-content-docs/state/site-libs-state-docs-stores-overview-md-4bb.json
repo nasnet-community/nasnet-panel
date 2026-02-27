@@ -1,0 +1,24 @@
+{
+  "id": "stores/overview",
+  "title": "State Stores Overview",
+  "description": "A comprehensive catalog of all Zustand stores in the @nasnet/state/stores package. Organized by category with dependency graph and usage patterns.",
+  "source": "@site/../../libs/state/docs/stores/overview.md",
+  "sourceDirName": "stores",
+  "slug": "/stores/overview",
+  "permalink": "/docs/state/stores/overview",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/state/docs/stores/overview.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "History & Undo/Redo Store",
+    "permalink": "/docs/state/stores/history-undo-redo"
+  },
+  "next": {
+    "title": "UI Stores (Theme, Sidebar, UI, Modal, Notification, Help)",
+    "permalink": "/docs/state/stores/ui"
+  }
+}

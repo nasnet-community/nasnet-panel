@@ -261,11 +261,11 @@ export const PluginStoreTab = React.memo(function PluginStoreTab({ routerId }: P
   const installedCount = plugins.filter(p => p.status === 'installed' || p.status === 'running').length;
 
   return (
-    <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-4 md:py-6">
+    <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-4 md:py-6 animate-fade-in-up">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Page Header */}
         <div>
-          <h1 className="text-xl md:text-2xl font-bold text-foreground">
+          <h1 className="text-xl md:text-2xl font-bold text-foreground font-display">
             {t('marketplace.title')}
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
@@ -312,16 +312,17 @@ export const PluginStoreTab = React.memo(function PluginStoreTab({ routerId }: P
           </div>
         </div>
 
-        {/* Plugin Grid - 1 col mobile, 2 cols desktop */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+        {/* Plugin Grid - 1 col mobile, 2 cols desktop with stagger animation */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 stagger-children">
           {plugins.map(plugin => (
-            <PluginCard
-              key={plugin.id}
-              plugin={plugin}
-              onInstall={handleInstall}
-              onUninstall={handleUninstall}
-              onConfigure={handleConfigure}
-            />
+            <div key={plugin.id} className="shadow-sm rounded-card-sm bg-card">
+              <PluginCard
+                plugin={plugin}
+                onInstall={handleInstall}
+                onUninstall={handleUninstall}
+                onConfigure={handleConfigure}
+              />
+            </div>
           ))}
         </div>
 

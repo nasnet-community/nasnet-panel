@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/delete-port-knock-sequence",
+  "title": "deletePortKnockSequence",
+  "description": "Delete port knock sequence.",
+  "source": "@site/docs/api/operations/mutations/delete-port-knock-sequence.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/delete-port-knock-sequence",
+  "permalink": "/api/operations/mutations/delete-port-knock-sequence",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "delete-port-knock-sequence",
+    "title": "deletePortKnockSequence"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "deletePortForward",
+    "permalink": "/api/operations/mutations/delete-port-forward"
+  },
+  "next": {
+    "title": "deletePortMirror",
+    "permalink": "/api/operations/mutations/delete-port-mirror"
+  }
+}

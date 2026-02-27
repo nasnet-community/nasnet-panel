@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/static-ipinput",
+  "title": "StaticIPInput",
+  "description": "Input for configuring static IP WAN",
+  "source": "@site/docs/api/types/inputs/static-ipinput.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/static-ipinput",
+  "permalink": "/api/types/inputs/static-ipinput",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "static-ipinput",
+    "title": "StaticIPInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "StartProvisioningSessionInput",
+    "permalink": "/api/types/inputs/start-provisioning-session-input"
+  },
+  "next": {
+    "title": "StatsTimeRangeInput",
+    "permalink": "/api/types/inputs/stats-time-range-input"
+  }
+}

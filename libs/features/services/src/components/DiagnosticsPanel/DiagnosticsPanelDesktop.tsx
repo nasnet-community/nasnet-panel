@@ -144,13 +144,13 @@ function DiagnosticsPanelDesktopComponent(props: DiagnosticsPanelProps) {
             {result.details && (
               <div className="text-sm">
                 <strong className="text-muted-foreground">Details:</strong>
-                <p className="mt-component-sm whitespace-pre-wrap font-mono">{result.details}</p>
+                <p className="mt-component-sm whitespace-pre-wrap font-mono text-xs">{result.details}</p>
               </div>
             )}
             {result.errorMessage && (
               <div className="text-sm">
                 <strong className="text-error">Error:</strong>
-                <p className="mt-component-sm text-error whitespace-pre-wrap font-mono">
+                <p className="mt-component-sm text-error whitespace-pre-wrap font-mono text-xs">
                   {result.errorMessage}
                 </p>
               </div>
@@ -215,14 +215,14 @@ function DiagnosticsPanelDesktopComponent(props: DiagnosticsPanelProps) {
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle>Diagnostics</CardTitle>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-component-sm">
             <Button
               variant="outline"
               size="sm"
               onClick={refreshHistory}
               disabled={isLoadingHistory}
             >
-              <Icon icon={RefreshCw} className={cn('mr-2 h-4 w-4', isLoadingHistory && 'animate-spin')} aria-hidden="true" />
+              <Icon icon={RefreshCw} className={cn('mr-component-sm h-4 w-4', isLoadingHistory && 'animate-spin')} aria-hidden="true" />
               Refresh
             </Button>
             <Button
@@ -231,7 +231,7 @@ function DiagnosticsPanelDesktopComponent(props: DiagnosticsPanelProps) {
               onClick={runDiagnostics}
               disabled={isRunning}
             >
-              <Icon icon={Play} className="mr-2 h-4 w-4" aria-hidden="true" />
+              <Icon icon={Play} className="mr-component-sm h-4 w-4" aria-hidden="true" />
               {isRunning ? 'Running...' : 'Run Diagnostics'}
             </Button>
           </div>
@@ -266,10 +266,10 @@ function DiagnosticsPanelDesktopComponent(props: DiagnosticsPanelProps) {
         {isRunning && (
           <div className="space-y-component-sm">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground truncate">
+              <span className="text-muted-foreground truncate font-mono">
                 Running: {currentTest || 'Initializing...'}
               </span>
-              <span className="font-medium">
+              <span className="font-medium font-mono">
                 {completedTests} / {totalTests}
               </span>
             </div>
@@ -279,14 +279,14 @@ function DiagnosticsPanelDesktopComponent(props: DiagnosticsPanelProps) {
 
         {/* Loading state */}
         {isLoadingHistory && !history && (
-          <div className="p-component-md text-sm text-muted-foreground text-center">
+          <div className="p-component-md text-sm text-muted-foreground text-center font-mono">
             Loading diagnostic history...
           </div>
         )}
 
         {/* Empty state */}
         {!isLoadingHistory && !history?.length && (
-          <div className="p-component-md text-sm text-muted-foreground text-center">
+          <div className="p-component-md text-sm text-muted-foreground text-center font-mono">
             No diagnostic history available. Click "Run Diagnostics" to start.
           </div>
         )}

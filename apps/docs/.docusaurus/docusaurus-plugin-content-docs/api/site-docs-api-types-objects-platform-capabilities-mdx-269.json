@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/platform-capabilities",
+  "title": "PlatformCapabilities",
+  "description": "Platform capabilities for a resource type",
+  "source": "@site/docs/api/types/objects/platform-capabilities.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/platform-capabilities",
+  "permalink": "/api/types/objects/platform-capabilities",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "platform-capabilities",
+    "title": "PlatformCapabilities"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "PageInfo",
+    "permalink": "/api/types/objects/page-info"
+  },
+  "next": {
+    "title": "PlatformFeature",
+    "permalink": "/api/types/objects/platform-feature"
+  }
+}

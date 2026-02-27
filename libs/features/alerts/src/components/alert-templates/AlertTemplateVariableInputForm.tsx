@@ -290,11 +290,11 @@ export const AlertTemplateVariableInputForm = React.memo(
   if (template.variables.length === 0) {
     return (
       <Card>
-        <CardContent className="p-6">
+        <CardContent className="p-component-lg">
           <p className="text-sm text-muted-foreground text-center">
             This template has no configurable variables.
           </p>
-          <div className="flex gap-2 mt-4">
+          <div className="flex gap-component-sm mt-component-md">
             <Button
               type="button"
               variant="default"
@@ -322,20 +322,20 @@ export const AlertTemplateVariableInputForm = React.memo(
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-component-lg">
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Configure Variables</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-component-md">
           {template.variables.map((variable) => (
             <Controller
               key={variable.name}
               control={form.control}
               name={variable.name}
               render={({ field, fieldState }) => (
-                <div className="space-y-2">
-                  <Label htmlFor={variable.name} className="flex items-center gap-2">
+                <div className="space-y-component-sm">
+                  <Label htmlFor={variable.name} className="flex items-center gap-component-sm">
                     {variable.label}
                     {variable.required && (
                       <Badge variant="error" className="text-xs h-5">
@@ -378,7 +378,7 @@ export const AlertTemplateVariableInputForm = React.memo(
         </CardContent>
       </Card>
 
-      <div className="flex gap-2">
+      <div className="flex gap-component-sm">
         <Button
           type="submit"
           variant="default"

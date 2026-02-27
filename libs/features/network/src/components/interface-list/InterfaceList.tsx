@@ -98,7 +98,7 @@ export function InterfaceList({ routerId, className }: InterfaceListProps) {
   };
 
   return (
-    <>
+    <div className="category-networking">
       {platform === 'mobile' ? (
         <InterfaceListMobile {...sharedProps} />
       ) : (
@@ -112,7 +112,7 @@ export function InterfaceList({ routerId, className }: InterfaceListProps) {
         open={selectedInterfaceId !== null}
         onClose={() => handleOpenDetail(null)}
       />
-    </>
+    </div>
   );
 }
 

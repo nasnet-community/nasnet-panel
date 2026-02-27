@@ -211,8 +211,9 @@ function SortableListComponent<T extends SortableItemData>({
         className={cn(
           'flex items-center justify-center',
           'min-h-[100px]',
-          'border border-dashed border-muted-foreground/25',
-          'rounded-lg',
+          'border-2 border-dashed border-primary/30',
+          'bg-primary/5',
+          'rounded-[var(--semantic-radius-card)]',
           'p-6',
           className
         )}

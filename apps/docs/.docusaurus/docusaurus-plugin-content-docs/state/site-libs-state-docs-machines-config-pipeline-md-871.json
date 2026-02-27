@@ -1,0 +1,24 @@
+{
+  "id": "machines/config-pipeline",
+  "title": "Configuration Pipeline Machine (Safety Flow)",
+  "description": "The Config Pipeline Machine implements the Apply-Confirm-Merge pattern for safe configuration changes. It prevents accidental network lockouts through explicit state modeling, guards, and automatic rollback on failure.",
+  "source": "@site/../../libs/state/docs/machines/config-pipeline.md",
+  "sourceDirName": "machines",
+  "slug": "/machines/config-pipeline",
+  "permalink": "/docs/state/machines/config-pipeline",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/state/docs/machines/config-pipeline.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Change Set Machine (Atomic Multi-Resource Operations)",
+    "permalink": "/docs/state/machines/change-set-machine"
+  },
+  "next": {
+    "title": "XState Machines Overview",
+    "permalink": "/docs/state/machines/overview"
+  }
+}

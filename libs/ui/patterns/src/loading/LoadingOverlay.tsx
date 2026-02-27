@@ -95,8 +95,8 @@ export const LoadingOverlay = React.memo(function LoadingOverlay({
         // Base positioning
         fullScreen ? 'fixed inset-0 z-50' : 'absolute inset-0 z-10',
         // Background and blur
-        'flex flex-col items-center justify-center',
-        'bg-background/80 dark:bg-background/90',
+        'flex flex-col items-center justify-center gap-4',
+        'bg-background/80',
         blur && 'backdrop-blur-sm',
         className
       )}
@@ -106,12 +106,12 @@ export const LoadingOverlay = React.memo(function LoadingOverlay({
 
       {/* Message */}
       {message && (
-        <p className="mt-4 text-lg font-medium text-foreground">{message}</p>
+        <p className="mt-4 text-sm text-muted-foreground motion-safe:animate-pulse">{message}</p>
       )}
 
       {/* Description */}
       {description && (
-        <p className="mt-1 text-sm text-muted-foreground">{description}</p>
+        <p className="mt-1 text-xs text-muted-foreground">{description}</p>
       )}
 
       {/* Progress bar */}

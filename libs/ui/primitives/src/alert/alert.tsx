@@ -48,19 +48,19 @@ import { cn } from "../lib/utils"
 import type { LucideIcon } from "lucide-react"
 
 const alertVariants = cva(
-  "relative w-full rounded-lg border [&>svg~*]:pl-7 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4",
+  "relative w-full rounded-lg border [&>svg~*]:pl-7 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 transition-colors duration-150 p-4",
   {
     variants: {
       variant: {
-        default: "bg-card text-card-foreground border-border [&>svg]:text-foreground p-4",
+        default: "bg-background text-foreground border-border [&>svg]:text-foreground",
         destructive:
-          "bg-error/10 border-error/30 text-error [&>svg]:text-error px-4 py-3",
+          "border-l-4 border-l-error bg-error-light/50 text-error-dark [&>svg]:text-error",
         success:
-          "bg-success/10 border-success/30 text-success [&>svg]:text-success px-4 py-3",
+          "border-l-4 border-l-success bg-success-light/50 text-success-dark [&>svg]:text-success",
         warning:
-          "bg-warning/10 border-warning/30 text-warning [&>svg]:text-warning px-4 py-3",
+          "border-l-4 border-l-warning bg-warning-light/50 text-warning-dark [&>svg]:text-warning",
         info:
-          "bg-info/10 border-info/30 text-info [&>svg]:text-info px-4 py-3",
+          "border-l-4 border-l-info bg-info-light/50 text-info-dark [&>svg]:text-info",
       },
     },
     defaultVariants: {
@@ -126,7 +126,7 @@ const AlertTitle = React.memo(
   >(({ className, children, ...props }, ref) => (
     <h5
       ref={ref}
-      className={cn("mb-1 font-medium text-base leading-none tracking-tight", className)}
+      className={cn("font-semibold text-sm leading-none tracking-tight", className)}
       {...props}
     >
       {children}
@@ -157,7 +157,7 @@ const AlertDescription = React.memo(
   >(({ className, ...props }, ref) => (
     <div
       ref={ref}
-      className={cn("text-sm leading-relaxed [&_p]:leading-relaxed", className)}
+      className={cn("text-sm text-muted-foreground [&_p]:leading-relaxed", className)}
       {...props}
     />
   ))

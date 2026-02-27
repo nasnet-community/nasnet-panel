@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/subscriptions/install-progress",
+  "title": "installProgress",
+  "description": "Subscribe to installation progress events for a router.",
+  "source": "@site/docs/api/operations/subscriptions/install-progress.mdx",
+  "sourceDirName": "api/operations/subscriptions",
+  "slug": "/api/operations/subscriptions/install-progress",
+  "permalink": "/api/operations/subscriptions/install-progress",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "install-progress",
+    "title": "installProgress"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "diagnosticsProgress",
+    "permalink": "/api/operations/subscriptions/diagnostics-progress"
+  },
+  "next": {
+    "title": "instanceHealthChanged",
+    "permalink": "/api/operations/subscriptions/instance-health-changed"
+  }
+}

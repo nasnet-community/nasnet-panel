@@ -59,7 +59,7 @@ export const NetworkTopBar = React.memo(function NetworkTopBar({
 
         {/* Router Identity */}
         <div>
-          <p className="text-foreground text-sm font-medium">
+          <p className="text-foreground text-sm font-medium font-display">
             {routerInfo?.identity || 'Router'}
           </p>
           <div className="flex items-center gap-1.5">

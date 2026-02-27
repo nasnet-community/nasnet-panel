@@ -2,6 +2,7 @@ package parser
 
 import (
 	"context"
+	"fmt"
 	"regexp"
 	"strings"
 	"unicode"
@@ -99,7 +100,7 @@ func (p *tableParser) Parse(ctx context.Context, raw string, hints ParseHints) (
 		// Check context cancellation
 		select {
 		case <-ctx.Done():
-			return nil, ctx.Err()
+			return nil, fmt.Errorf("parse table: %w", ctx.Err())
 		default:
 		}
 

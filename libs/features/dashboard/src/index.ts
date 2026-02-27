@@ -72,3 +72,63 @@ export type {
 // Recent Logs Display (Story 5.6)
 export { RecentLogs } from './components/RecentLogs';
 export type { RecentLogsProps } from './components/RecentLogs';
+
+// Bandwidth Chart (Story 5.3)
+export {
+  BandwidthChart,
+  BandwidthChartDesktop,
+  BandwidthChartMobile,
+  useBandwidthHistory,
+  TimeRangeSelector,
+  InterfaceFilter,
+  CustomTooltip,
+  BandwidthDataTable,
+  BandwidthChartSkeleton,
+  BandwidthChartError,
+  BandwidthChartEmpty,
+  formatBitrate,
+  formatBytes as formatBandwidthBytes,
+  formatXAxis,
+  formatYAxis,
+  downsampleData,
+  appendDataPoint,
+  TIME_RANGE_MAP,
+  AGGREGATION_MAP,
+  MAX_DATA_POINTS,
+  BANDWIDTH_HISTORY_QUERY,
+  BANDWIDTH_SUBSCRIPTION,
+  GraphQLTimeRange,
+  GraphQLAggregationType,
+} from './components/BandwidthChart';
+export type {
+  TimeRange,
+  BandwidthDataPoint,
+  UseBandwidthHistoryConfig,
+  UseBandwidthHistoryReturn,
+  BandwidthChartProps,
+  BandwidthChartPresenterProps,
+  CustomTooltipProps,
+  TimeRangeSelectorProps,
+  InterfaceFilterProps,
+  BandwidthDataTableProps,
+} from './components/BandwidthChart';
+
+// Interface Grid (Story 5.5)
+export {
+  InterfaceGrid,
+  InterfaceStatusCard,
+  InterfaceDetailSheet,
+  useInterfaces,
+  formatTrafficRate,
+  formatLinkSpeed,
+  sortInterfacesByPriority,
+  INTERFACE_TYPE_PRIORITY,
+} from './components/InterfaceGrid';
+export type {
+  InterfaceGridData,
+  InterfaceGridProps,
+  InterfaceStatusCardProps,
+  InterfaceDetailSheetProps,
+  InterfaceType,
+  InterfaceStatus,
+} from './components/InterfaceGrid';

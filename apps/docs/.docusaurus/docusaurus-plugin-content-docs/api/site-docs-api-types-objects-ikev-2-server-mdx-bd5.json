@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/ikev-2-server",
+  "title": "IKEv2Server",
+  "description": "IKEv2 Server resource implementing 8-layer model",
+  "source": "@site/docs/api/types/objects/ikev-2-server.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/ikev-2-server",
+  "permalink": "/api/types/objects/ikev-2-server",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "ikev-2-server",
+    "title": "IKEv2Server"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "IKEv2ServerRuntime",
+    "permalink": "/api/types/objects/ikev-2-server-runtime"
+  },
+  "next": {
+    "title": "ImpactAnalysis",
+    "permalink": "/api/types/objects/impact-analysis"
+  }
+}

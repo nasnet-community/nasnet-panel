@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/update-webhook",
+  "title": "updateWebhook",
+  "description": "Update an existing webhook",
+  "source": "@site/docs/api/operations/mutations/update-webhook.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/update-webhook",
+  "permalink": "/api/operations/mutations/update-webhook",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "update-webhook",
+    "title": "updateWebhook"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "updateVLANPoolConfig",
+    "permalink": "/api/operations/mutations/update-vlanpool-config"
+  },
+  "next": {
+    "title": "validateChangeSet",
+    "permalink": "/api/operations/mutations/validate-change-set"
+  }
+}

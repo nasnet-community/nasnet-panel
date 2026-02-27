@@ -81,8 +81,8 @@ const CPUBreakdownModal = React.memo(function CPUBreakdownModal({
         </DialogHeader>
 
         {/* Overall CPU usage summary */}
-        <div className="mb-4 p-component-md rounded-card-sm bg-card border border-border">
-          <div className="flex items-center justify-between mb-1">
+        <div className="mb-component-lg p-component-md rounded-card-sm bg-card border border-border">
+          <div className="flex items-center justify-between mb-component-xs">
             <span className="text-sm font-medium text-foreground">Overall Usage</span>
             <span className="text-2xl font-bold font-mono text-foreground">{overallUsage}%</span>
           </div>
@@ -93,9 +93,9 @@ const CPUBreakdownModal = React.memo(function CPUBreakdownModal({
         </div>
 
         {/* Per-core usage bars */}
-        <div className="space-y-3">
+        <div className="space-y-component-md">
           {perCoreUsage.map((usage, index) => (
-            <div key={`core-${index}`} className="space-y-1">
+            <div key={`core-${index}`} className="space-y-component-xs">
               <div className="flex items-center justify-between text-sm">
                 <span className="font-medium text-foreground">Core {index + 1}</span>
                 <span className="font-mono text-muted-foreground">{usage}%</span>
@@ -125,7 +125,7 @@ const CPUBreakdownModal = React.memo(function CPUBreakdownModal({
         </div>
 
         {/* Accessibility note */}
-        <p className="text-xs text-muted-foreground mt-4">
+        <p className="text-xs text-muted-foreground mt-component-lg">
           Press ESC or click outside to close
         </p>
       </DialogContent>

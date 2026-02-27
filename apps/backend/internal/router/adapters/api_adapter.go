@@ -86,7 +86,8 @@ func (a *APIAdapter) Connect(ctx context.Context) error {
 		tlsConfig := &tls.Config{
 			InsecureSkipVerify: true, //nolint:gosec // required for router TLS connections
 		}
-		conn, err = tls.DialWithDialer(dialer, "tcp", address, tlsConfig)
+		tlsDialer := &tls.Dialer{Config: tlsConfig, NetDialer: dialer}
+		conn, err = tlsDialer.DialContext(ctx, "tcp", address)
 	} else {
 		conn, err = dialer.DialContext(ctx, "tcp", address)
 	}
@@ -305,7 +306,7 @@ func (a *APIAdapter) getRouterInfo(ctx context.Context) (*router.RouterInfo, err
 	// Get system resource
 	reply, err := a.client.RunContext(ctx, "/system/resource/print")
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("get system resource: %w", err)
 	}
 
 	info := &router.RouterInfo{}

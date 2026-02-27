@@ -7,10 +7,10 @@
  * @see ADR-018: Headless Platform Presenters
  */
 
-
 import { Badge, Button, Card, CardContent } from '@nasnet/ui/primitives';
 
 import { ResourceUsageBar } from '../resource-usage-bar';
+import { ServiceHealthBadge } from '../service-health-badge';
 import { useServiceCard, formatBytes } from './useServiceCard';
 
 import type { ServiceCardProps } from './types';
@@ -19,10 +19,10 @@ import type { ServiceCardProps } from './types';
  * Mobile presenter for ServiceCard
  *
  * Features:
- * - Large touch targets (44px minimum)
- * - Single column layout
+ * - Large touch targets (44px minimum WCAG AAA)
+ * - Single column stacked layout
  * - Primary action as full-width button
- * - Tap to expand for details
+ * - Semantic tokens and mono font for technical data
  */
 export function ServiceCardMobile(props: ServiceCardProps) {
   const { service, className, children } = props;
@@ -45,53 +45,53 @@ export function ServiceCardMobile(props: ServiceCardProps) {
   return (
     <Card
       className={`
-        p-4 touch-manipulation
+        bg-card border border-border rounded-[var(--semantic-radius-card)]
+        shadow-[var(--semantic-shadow-card)]
+        hover:shadow-lg transition-shadow duration-200
+        p-component-md touch-manipulation
         ${className || ''}
       `.trim()}
       onClick={handleClick}
       role="article"
       aria-label={`${service.name} - ${statusLabel}`}
     >
-      <CardContent className="p-0 space-y-3">
-        {/* Header row with status */}
+      <CardContent className="p-0 space-y-component-md">
+        {/* Header row with status - 44px minimum touch target */}
         <div className="flex items-center justify-between min-h-[44px]">
-          <div className="flex items-center gap-3 flex-1 min-w-0">
-            {/* Service icon if present */}
+          <div className="flex items-center gap-component-sm flex-1 min-w-0">
+            {/* Service icon with category background */}
             {service.icon && (
-              <div className="shrink-0 w-10 h-10 flex items-center justify-center">
+              <div
+                className={`
+                  shrink-0 h-10 w-10 flex items-center justify-center
+                  rounded-lg bg-category-vpn/10
+                `}
+              >
                 {service.icon}
               </div>
             )}
 
-            {/* Service name */}
+            {/* Service name and version */}
             <div className="flex-1 min-w-0">
-              <span className="font-medium truncate block">
+              <span className="text-lg font-semibold text-foreground truncate block">
                 {service.name}
               </span>
               {service.version && (
-                <span className="text-xs text-muted-foreground">
+                <span className="text-xs font-mono text-muted-foreground">
                   v{service.version}
                 </span>
               )}
             </div>
           </div>
 
-          {/* Status badge with optional pulse */}
-          <div className="relative shrink-0">
-            <Badge variant={statusColor} className="min-h-[28px]">
-              {statusLabel}
-            </Badge>
-            {isRunning && (
-              <span
-                className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-green-500 rounded-full animate-pulse"
-                aria-hidden="true"
-              />
-            )}
+          {/* Status badge with health indicator */}
+          <div className="relative shrink-0 ml-component-sm">
+            <ServiceHealthBadge />
           </div>
         </div>
 
-        {/* Category */}
-        <div className="flex items-center gap-2">
+        {/* Category label */}
+        <div className="flex items-center gap-component-sm">
           <span className="text-xs text-muted-foreground">Category:</span>
           <span className={`text-xs font-medium ${categoryColor}`}>
             {service.category.charAt(0).toUpperCase() +
@@ -107,7 +107,7 @@ export function ServiceCardMobile(props: ServiceCardProps) {
               used={service.metrics.currentMemory}
               total={service.metrics.memoryLimit}
               unit="MB"
-              className="my-2"
+              className="my-component-sm"
             />
           )}
 
@@ -118,33 +118,41 @@ export function ServiceCardMobile(props: ServiceCardProps) {
           </p>
         )}
 
-        {/* Resource metrics (if running and metrics available) */}
+        {/* Resource metrics grid (mono font for technical data) */}
         {hasMetrics && (
-          <div className="grid grid-cols-2 gap-2 p-3 bg-muted/50 rounded-md">
+          <div className="grid grid-cols-2 gap-component-sm p-component-md bg-muted/50 rounded-[var(--semantic-radius-input)]">
             {cpuUsage !== undefined && (
               <div className="text-center">
-                <div className="text-xs text-muted-foreground">CPU</div>
-                <div className="text-sm font-medium">{cpuUsage.toFixed(1)}%</div>
+                <div className="text-xs font-mono text-muted-foreground">
+                  CPU
+                </div>
+                <div className="text-sm font-mono font-medium text-foreground">
+                  {cpuUsage.toFixed(1)}%
+                </div>
               </div>
             )}
             {memoryUsage !== undefined && (
               <div className="text-center">
-                <div className="text-xs text-muted-foreground">RAM</div>
-                <div className="text-sm font-medium">{memoryUsage} MB</div>
+                <div className="text-xs font-mono text-muted-foreground">
+                  RAM
+                </div>
+                <div className="text-sm font-mono font-medium text-foreground">
+                  {memoryUsage} MB
+                </div>
               </div>
             )}
             {networkRx !== undefined && (
               <div className="text-center">
-                <div className="text-xs text-muted-foreground">RX</div>
-                <div className="text-sm font-medium">
+                <div className="text-xs font-mono text-muted-foreground">RX</div>
+                <div className="text-sm font-mono font-medium text-foreground">
                   {formatBytes(networkRx)}
                 </div>
               </div>
             )}
             {networkTx !== undefined && (
               <div className="text-center">
-                <div className="text-xs text-muted-foreground">TX</div>
-                <div className="text-sm font-medium">
+                <div className="text-xs font-mono text-muted-foreground">TX</div>
+                <div className="text-sm font-mono font-medium text-foreground">
                   {formatBytes(networkTx)}
                 </div>
               </div>
@@ -155,12 +163,12 @@ export function ServiceCardMobile(props: ServiceCardProps) {
         {/* Custom content */}
         {children}
 
-        {/* Primary action as full-width button */}
+        {/* Primary action as full-width button - 44px minimum */}
         {primaryAction && (
           <Button
             variant={primaryAction.variant || 'default'}
             size="lg"
-            className="w-full min-h-[44px]"
+            className="w-full min-h-[44px] transition-colors duration-150"
             onClick={(e) => {
               e.stopPropagation();
               handlePrimaryAction();

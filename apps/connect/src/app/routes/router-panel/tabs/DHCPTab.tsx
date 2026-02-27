@@ -26,7 +26,7 @@ export const DHCPTab = React.memo(function DHCPTab() {
   const isLoadingHero = isLoadingServers || isLoadingPools || isLoadingLeases || isLoadingClients;
 
   return (
-    <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-page-mobile md:py-page-tablet space-y-6 max-w-7xl mx-auto">
+    <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-page-mobile md:py-page-tablet space-y-6 max-w-7xl mx-auto animate-fade-in-up">
       {/* DHCP Status Hero - Stats Grid */}
       <DHCPStatusHero
         servers={servers || []}
@@ -40,7 +40,7 @@ export const DHCPTab = React.memo(function DHCPTab() {
       <div className="space-y-component-sm">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-foreground">{t('dhcp.pools')}</h2>
+            <h2 className="text-lg font-semibold font-display text-foreground category-header category-header-dhcp">{t('dhcp.pools')}</h2>
             <p className="text-sm text-muted-foreground">
               {t('dhcp.poolsDescription')}
               {pools && pools.length > 0 && ` · ${pools.length} ${pools.length > 1 ? t('dhcp.poolsPlural') : t('dhcp.poolSingular')}`}
@@ -92,7 +92,7 @@ export const DHCPTab = React.memo(function DHCPTab() {
       {/* DHCP Servers Section */}
       <div className="space-y-component-sm">
         <div>
-          <h2 className="text-lg font-semibold text-foreground">{t('dhcp.servers')}</h2>
+          <h2 className="text-lg font-semibold font-display text-foreground">{t('dhcp.servers')}</h2>
           <p className="text-sm text-muted-foreground">
             {t('dhcp.serversDescription')}
             {servers && servers.length > 0 && ` · ${servers.filter(s => !s.disabled).length} ${t('dhcp.active')}`}
@@ -117,7 +117,7 @@ export const DHCPTab = React.memo(function DHCPTab() {
       {/* Active Leases Section */}
       <div className="space-y-component-sm">
         <div>
-          <h2 className="text-lg font-semibold text-foreground">{t('dhcp.leases')}</h2>
+          <h2 className="text-lg font-semibold font-display text-foreground">{t('dhcp.leases')}</h2>
           <p className="text-sm text-muted-foreground">
             {t('dhcp.leasesDescription')}
             {leases && leases.length > 0 && ` · ${leases.length} ${leases.length > 1 ? t('dhcp.leasesPlural') : t('dhcp.leaseSingular')}`}
@@ -146,7 +146,7 @@ export const DHCPTab = React.memo(function DHCPTab() {
       {/* DHCP Clients Section (WAN) */}
       <div className="space-y-component-sm">
         <div>
-          <h2 className="text-lg font-semibold text-foreground">{t('dhcp.wanClients')}</h2>
+          <h2 className="text-lg font-semibold font-display text-foreground">{t('dhcp.wanClients')}</h2>
           <p className="text-sm text-muted-foreground">
             {t('dhcp.wanClientsDescription')}
             {clients && clients.length > 0 && ` · ${clients.filter(c => c.status === 'bound').length} ${t('dhcp.connected')}`}

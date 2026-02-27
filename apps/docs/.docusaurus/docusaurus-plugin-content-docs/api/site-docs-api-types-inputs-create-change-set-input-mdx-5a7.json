@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/create-change-set-input",
+  "title": "CreateChangeSetInput",
+  "description": "Input for creating a new change set",
+  "source": "@site/docs/api/types/inputs/create-change-set-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/create-change-set-input",
+  "permalink": "/api/types/inputs/create-change-set-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "create-change-set-input",
+    "title": "CreateChangeSetInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "CreateBridgeVlanInput",
+    "permalink": "/api/types/inputs/create-bridge-vlan-input"
+  },
+  "next": {
+    "title": "CreateEgressVLANInput",
+    "permalink": "/api/types/inputs/create-egress-vlaninput"
+  }
+}

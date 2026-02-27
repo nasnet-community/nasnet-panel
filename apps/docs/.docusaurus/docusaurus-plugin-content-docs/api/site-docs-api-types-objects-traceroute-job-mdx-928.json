@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/traceroute-job",
+  "title": "TracerouteJob",
+  "description": "Traceroute job reference for subscription tracking",
+  "source": "@site/docs/api/types/objects/traceroute-job.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/traceroute-job",
+  "permalink": "/api/types/objects/traceroute-job",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "traceroute-job",
+    "title": "TracerouteJob"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "TracerouteHop",
+    "permalink": "/api/types/objects/traceroute-hop"
+  },
+  "next": {
+    "title": "TracerouteProgressEvent",
+    "permalink": "/api/types/objects/traceroute-progress-event"
+  }
+}

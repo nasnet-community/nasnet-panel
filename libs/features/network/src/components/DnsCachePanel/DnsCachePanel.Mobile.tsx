@@ -61,7 +61,7 @@ const DnsCachePanelMobileComponent = React.memo(function DnsCachePanelMobile({
   if (isError) {
     return (
       <Card className={cn('', className)}>
-        <CardContent className="pt-6">
+        <CardContent className="pt-component-lg">
           <Alert variant="destructive">
             <Icon icon={AlertCircle} className="h-4 w-4" />
             <AlertDescription className="text-sm">
@@ -75,7 +75,7 @@ const DnsCachePanelMobileComponent = React.memo(function DnsCachePanelMobile({
 
   return (
     <>
-      <Card className={cn('', className)}>
+      <Card className={cn('category-networking', className)}>
         <CardHeader>
           <CardTitle className="text-lg">DNS Cache</CardTitle>
           <CardDescription className="text-sm">Monitor and manage DNS cache</CardDescription>
@@ -159,7 +159,7 @@ const DnsCachePanelMobileComponent = React.memo(function DnsCachePanelMobile({
             variant="destructive"
             onClick={openFlushDialog}
             disabled={isLoading || !cacheStats || cacheStats.totalEntries === 0}
-            className="w-full gap-2 h-11"
+            className="w-full gap-component-sm h-11"
             size="lg"
           >
             <Icon icon={Trash2} className="h-5 w-5" />

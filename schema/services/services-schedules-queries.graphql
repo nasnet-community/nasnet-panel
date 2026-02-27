@@ -1,0 +1,28 @@
+# ============================================
+# ROUTING SCHEDULE QUERIES
+# ============================================
+
+extend type Query {
+  """
+  Get a specific routing schedule by ID.
+  """
+  routingSchedule(
+    """Router ID"""
+    routerID: ID!
+
+    """Schedule ID"""
+    scheduleID: ID!
+  ): RoutingSchedule
+
+  """
+  Get all schedules for a device routing.
+  Returns schedules ordered by start time.
+  """
+  routingSchedules(
+    """Router ID"""
+    routerID: ID!
+
+    """Device routing ID"""
+    routingID: ID!
+  ): [RoutingSchedule!]!
+}

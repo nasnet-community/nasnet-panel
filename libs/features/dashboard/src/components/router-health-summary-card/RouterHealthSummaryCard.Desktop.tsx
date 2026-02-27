@@ -58,10 +58,10 @@ export const RouterHealthSummaryCardDesktop = React.memo(function RouterHealthSu
       role="region"
       aria-label={`Router health summary for ${router.name}`}
     >
-      <CardHeader className="pb-4">
+      <CardHeader className="pb-component-md">
         <div className="flex items-start justify-between">
           <div className="flex-1 min-w-0">
-            <h3 className="text-lg font-semibold text-foreground truncate mb-1">
+            <h3 className="text-lg font-semibold text-foreground truncate mb-component-xs">
               {router.name}
             </h3>
             <p className="text-sm text-muted-foreground truncate">{router.model}</p>
@@ -82,7 +82,7 @@ export const RouterHealthSummaryCardDesktop = React.memo(function RouterHealthSu
         </div>
 
         {/* Status Badge */}
-        <div className="flex items-center gap-2 mt-2">
+        <div className="flex items-center gap-component-sm mt-component-sm">
           <Badge
             variant={isOnline ? 'connected' : 'offline'}
             pulse={isOnline}
@@ -100,9 +100,9 @@ export const RouterHealthSummaryCardDesktop = React.memo(function RouterHealthSu
         </div>
       </CardHeader>
 
-      <CardContent className="flex-1 space-y-4">
+      <CardContent className="flex-1 space-y-component-md">
         {/* Version and Uptime */}
-        <div className="space-y-2">
+        <div className="space-y-component-sm">
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">Version</span>
             <span className="font-mono font-medium text-foreground">{router.version}</span>
@@ -114,12 +114,12 @@ export const RouterHealthSummaryCardDesktop = React.memo(function RouterHealthSu
         </div>
 
         {/* Health Indicator */}
-        <div className="space-y-2">
+        <div className="space-y-component-sm">
           <div className="flex items-center justify-between">
             <span className="text-sm text-muted-foreground">Health Status</span>
             <div
               className={cn(
-                'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium',
+                'flex items-center gap-component-xs px-component-md py-component-xs rounded-full text-sm font-medium',
                 getHealthBgClass(healthStatus),
                 healthStatus === 'warning' ? 'text-warning-foreground' : 'text-primary-foreground'
               )}
@@ -136,11 +136,11 @@ export const RouterHealthSummaryCardDesktop = React.memo(function RouterHealthSu
         </div>
 
         {/* Resource Metrics with Progress Bars */}
-        <div className="space-y-3">
+        <div className="space-y-component-md">
           {/* CPU Usage */}
-          <div className="space-y-1.5">
+          <div className="space-y-component-xs">
             <div className="flex items-center justify-between text-sm">
-              <div className="flex items-center gap-1.5 text-muted-foreground">
+              <div className="flex items-center gap-component-xs text-muted-foreground">
                 <Cpu className="h-3.5 w-3.5" aria-hidden="true" />
                 <span>CPU</span>
               </div>
@@ -162,9 +162,9 @@ export const RouterHealthSummaryCardDesktop = React.memo(function RouterHealthSu
           </div>
 
           {/* Memory Usage */}
-          <div className="space-y-1.5">
+          <div className="space-y-component-xs">
             <div className="flex items-center justify-between text-sm">
-              <div className="flex items-center gap-1.5 text-muted-foreground">
+              <div className="flex items-center gap-component-xs text-muted-foreground">
                 <MemoryStick className="h-3.5 w-3.5" aria-hidden="true" />
                 <span>Memory</span>
               </div>
@@ -187,9 +187,9 @@ export const RouterHealthSummaryCardDesktop = React.memo(function RouterHealthSu
 
           {/* Temperature (if available) */}
           {router.temperature !== undefined && (
-            <div className="space-y-1.5">
+            <div className="space-y-component-xs">
               <div className="flex items-center justify-between text-sm">
-                <div className="flex items-center gap-1.5 text-muted-foreground">
+                <div className="flex items-center gap-component-xs text-muted-foreground">
                   <Thermometer className="h-3.5 w-3.5" aria-hidden="true" />
                   <span>Temperature</span>
                 </div>
@@ -202,7 +202,7 @@ export const RouterHealthSummaryCardDesktop = React.memo(function RouterHealthSu
         </div>
       </CardContent>
 
-      <CardFooter className="pt-4 border-t border-border">
+      <CardFooter className="pt-component-md border-t border-border">
         <div className="flex items-center justify-between w-full text-xs text-muted-foreground">
           <span>Last updated</span>
           <span className="font-mono">{formatLastUpdate(router.lastUpdate)}</span>
@@ -222,28 +222,28 @@ RouterHealthSummaryCardDesktop.displayName = 'RouterHealthSummaryCardDesktop';
 export const RouterHealthSummaryCardDesktopSkeleton = React.memo(function RouterHealthSummaryCardDesktopSkeleton({ className }: { className?: string }) {
   return (
     <Card className={cn('h-80 flex flex-col animate-pulse', className)}>
-      <CardHeader className="pb-4">
+      <CardHeader className="pb-component-md">
         <div className="flex items-start justify-between">
-          <div className="flex-1 space-y-2">
+          <div className="flex-1 space-y-component-sm">
             <div className="h-5 bg-muted rounded w-40" />
             <div className="h-4 bg-muted rounded w-32" />
           </div>
           <div className="h-12 w-12 bg-muted rounded-md" />
         </div>
-        <div className="h-6 bg-muted rounded-full w-24 mt-2" />
+        <div className="h-6 bg-muted rounded-full w-24 mt-component-sm" />
       </CardHeader>
 
-      <CardContent className="flex-1 space-y-4">
-        <div className="space-y-2">
+      <CardContent className="flex-1 space-y-component-md">
+        <div className="space-y-component-sm">
           <div className="h-4 bg-muted rounded w-full" />
           <div className="h-4 bg-muted rounded w-full" />
         </div>
 
         <div className="h-8 bg-muted rounded-full w-32 ml-auto" />
 
-        <div className="space-y-3">
+        <div className="space-y-component-md">
           {Array.from({ length: 2 }).map((_, i) => (
-            <div key={i} className="space-y-1.5">
+            <div key={i} className="space-y-component-xs">
               <div className="flex justify-between">
                 <div className="h-4 bg-muted rounded w-16" />
                 <div className="h-4 bg-muted rounded w-12" />
@@ -254,7 +254,7 @@ export const RouterHealthSummaryCardDesktopSkeleton = React.memo(function Router
         </div>
       </CardContent>
 
-      <CardFooter className="pt-4 border-t border-border">
+      <CardFooter className="pt-component-md border-t border-border">
         <div className="h-3 bg-muted rounded w-full" />
       </CardFooter>
     </Card>

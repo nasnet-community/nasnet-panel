@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/feature-compatibility-input",
+  "title": "FeatureCompatibilityInput",
+  "description": "Input for checking feature compatibility",
+  "source": "@site/docs/api/types/inputs/feature-compatibility-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/feature-compatibility-input",
+  "permalink": "/api/types/inputs/feature-compatibility-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "feature-compatibility-input",
+    "title": "FeatureCompatibilityInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ExportServiceConfigInput",
+    "permalink": "/api/types/inputs/export-service-config-input"
+  },
+  "next": {
+    "title": "FirewallTemplateVariableInput",
+    "permalink": "/api/types/inputs/firewall-template-variable-input"
+  }
+}

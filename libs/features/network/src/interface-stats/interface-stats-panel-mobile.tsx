@@ -16,6 +16,7 @@ import { memo, useMemo } from 'react';
 import { AlertCircle, ArrowDown, ArrowUp, Activity } from 'lucide-react';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle , Alert, AlertDescription , Skeleton } from '@nasnet/ui/primitives';
+import { cn } from '@nasnet/ui/utils';
 
 import { ErrorRateIndicator } from './error-rate-indicator';
 import { StatsCounter } from './stats-counter';
@@ -87,8 +88,8 @@ export const InterfaceStatsPanelMobile = memo(function InterfaceStatsPanelMobile
   // Loading state with skeleton placeholders
   if (loading && !stats) {
     return (
-      <div className={className}>
-        <Card>
+      <div className={cn('category-networking', className)}>
+        <Card className="bg-card">
           <CardHeader>
             <CardTitle className="text-lg">{interfaceName}</CardTitle>
             <CardDescription>Loading statistics...</CardDescription>
@@ -108,8 +109,8 @@ export const InterfaceStatsPanelMobile = memo(function InterfaceStatsPanelMobile
   // Error state with actionable message
   if (error && !stats) {
     return (
-      <div className={className}>
-        <Card>
+      <div className={cn('category-networking', className)}>
+        <Card className="bg-card">
           <CardHeader>
             <CardTitle className="text-lg">{interfaceName}</CardTitle>
             <CardDescription>Failed to load</CardDescription>
@@ -132,8 +133,8 @@ export const InterfaceStatsPanelMobile = memo(function InterfaceStatsPanelMobile
   }
 
   return (
-    <div className={className}>
-      <Card role="region" aria-label={`${interfaceName} statistics`}>
+    <div className={cn('category-networking', className)}>
+      <Card className="bg-card" role="region" aria-label={`${interfaceName} statistics`}>
         <CardHeader className="pb-component-sm">
           <div className="flex items-start justify-between">
             <div className="flex-1">
@@ -166,7 +167,7 @@ export const InterfaceStatsPanelMobile = memo(function InterfaceStatsPanelMobile
                 Current Bandwidth
               </h3>
               <div className="space-y-component-sm">
-                <Card className="border-chart-1/20 bg-chart-1/10">
+                <Card className="border-chart-1/20 bg-chart-1/10 bg-muted">
                   <CardContent className="p-component-md">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-component-sm">
@@ -175,7 +176,7 @@ export const InterfaceStatsPanelMobile = memo(function InterfaceStatsPanelMobile
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="text-sm text-muted-foreground">TX Rate</div>
-                          <div className="text-xl font-bold font-mono tabular-nums truncate">
+                          <div className="text-xl font-bold font-mono tabular-nums truncate text-foreground">
                             {formatBitsPerSecBigInt(rates.txRate)}
                           </div>
                         </div>
@@ -184,7 +185,7 @@ export const InterfaceStatsPanelMobile = memo(function InterfaceStatsPanelMobile
                   </CardContent>
                 </Card>
 
-                <Card className="border-chart-2/20 bg-chart-2/10">
+                <Card className="border-chart-2/20 bg-chart-2/10 bg-muted">
                   <CardContent className="p-component-md">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-component-sm">
@@ -193,7 +194,7 @@ export const InterfaceStatsPanelMobile = memo(function InterfaceStatsPanelMobile
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="text-sm text-muted-foreground">RX Rate</div>
-                          <div className="text-xl font-bold font-mono tabular-nums truncate">
+                          <div className="text-xl font-bold font-mono tabular-nums truncate text-foreground">
                             {formatBitsPerSecBigInt(rates.rxRate)}
                           </div>
                         </div>

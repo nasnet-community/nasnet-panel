@@ -83,19 +83,19 @@ const IsolationStatusDesktopComponent = memo(function IsolationStatusDesktop({
           <div
             className={cn(
               'flex items-center justify-center rounded-lg p-3',
-              state.color === 'success' && 'bg-semantic-success/10',
-              state.color === 'warning' && 'bg-semantic-warning/10',
-              state.color === 'destructive' && 'bg-semantic-error/10',
-              state.color === 'muted' && 'bg-semantic-muted/10'
+              state.color === 'success' && 'bg-success-light',
+              state.color === 'warning' && 'bg-warning-light',
+              state.color === 'destructive' && 'bg-error-light',
+              state.color === 'muted' && 'bg-muted'
             )}
           >
             <Icon
               className={cn(
                 'w-6 h-6',
-                state.color === 'success' && 'text-semantic-success',
-                state.color === 'warning' && 'text-semantic-warning',
-                state.color === 'destructive' && 'text-semantic-error',
-                state.color === 'muted' && 'text-semantic-muted'
+                state.color === 'success' && 'text-success-dark',
+                state.color === 'warning' && 'text-warning-dark',
+                state.color === 'destructive' && 'text-error-dark',
+                state.color === 'muted' && 'text-muted-foreground'
               )}
               aria-hidden="true"
             />

@@ -20,7 +20,7 @@ export const InterfaceListFilters = memo(function InterfaceListFilters({ filters
   };
 
   return (
-    <div className="flex gap-component-sm items-center flex-wrap" role="search" aria-label="Filter interfaces">
+    <div className="flex gap-component-sm items-center flex-wrap category-networking" role="search" aria-label="Filter interfaces">
       {/* Type filter */}
       <Select
         value={filters.type ?? 'all'}

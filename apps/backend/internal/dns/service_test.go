@@ -236,21 +236,21 @@ func (e *testError) Error() string {
 // TestParseRouterOSDnsResponse tests RouterOS DNS response parsing
 func TestParseRouterOSDnsResponse(t *testing.T) {
 	tests := []struct {
-		name       string
-		response   string
-		recordType string
-		wantCount  int
-		wantError  bool
-		checkData  bool
+		name         string
+		response     string
+		recordType   string
+		wantCount    int
+		wantError    bool
+		checkData    bool
 		expectedData string
 	}{
 		{
-			name:       "Single A record",
-			response:   "name: google.com address: 142.250.185.46",
-			recordType: "A",
-			wantCount:  1,
-			wantError:  false,
-			checkData:  true,
+			name:         "Single A record",
+			response:     "name: google.com address: 142.250.185.46",
+			recordType:   "A",
+			wantCount:    1,
+			wantError:    false,
+			checkData:    true,
 			expectedData: "142.250.185.46",
 		},
 		{
@@ -270,12 +270,12 @@ func TestParseRouterOSDnsResponse(t *testing.T) {
 			checkData:  false,
 		},
 		{
-			name:       "Whitespace handling",
-			response:   "name: example.com    address:    10.0.0.1",
-			recordType: "A",
-			wantCount:  1,
-			wantError:  false,
-			checkData:  true,
+			name:         "Whitespace handling",
+			response:     "name: example.com    address:    10.0.0.1",
+			recordType:   "A",
+			wantCount:    1,
+			wantError:    false,
+			checkData:    true,
 			expectedData: "10.0.0.1",
 		},
 		{

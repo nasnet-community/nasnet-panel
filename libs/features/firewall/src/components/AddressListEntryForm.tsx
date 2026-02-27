@@ -133,13 +133,13 @@ export const AddressListEntryForm = ({
     >
       <div className="space-y-component-md">
         {/* List Selection */}
-        <div className="space-y-component-sm">
+        <div className="space-y-component-sm gap-component-sm">
           <Label htmlFor="list" className="text-sm font-medium">
             List Name <span className="text-error">*</span>
           </Label>
 
           {showCreateNewList ? (
-            <div className="space-y-component-sm">
+            <div className="space-y-component-sm gap-component-sm">
               <Input
                 id="list"
                 {...register('list')}
@@ -161,7 +161,7 @@ export const AddressListEntryForm = ({
               </Button>
             </div>
           ) : (
-            <div className="space-y-component-sm">
+            <div className="space-y-component-sm gap-component-sm">
               {existingLists.length > 0 ? (
                 <select
                   id="list"
@@ -210,12 +210,12 @@ export const AddressListEntryForm = ({
         </div>
 
         {/* Address Input */}
-        <div className="space-y-component-sm">
+        <div className="space-y-component-sm gap-component-sm">
           <Label htmlFor="address" className="text-sm font-medium">
             Address <span className="text-error">*</span>
           </Label>
 
-          <div className="space-y-component-xs">
+          <div className="space-y-component-xs gap-component-xs">
             <Input
               id="address"
               {...register('address')}
@@ -226,7 +226,7 @@ export const AddressListEntryForm = ({
               className="font-mono"
             />
 
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <div className="flex items-center gap-component-sm text-xs text-muted-foreground">
               <span>Format detected:</span>
               <span className="font-mono font-semibold text-foreground">
                 {addressFormat === ADDRESS_FORMAT_OPTIONS.IP && 'Single IP'}
@@ -248,7 +248,7 @@ export const AddressListEntryForm = ({
         </div>
 
         {/* Timeout Field */}
-        <div className="space-y-component-sm">
+        <div className="space-y-component-sm gap-component-sm">
           <Label htmlFor="timeout" className="text-sm font-medium">
             Timeout (optional)
           </Label>
@@ -275,7 +275,7 @@ export const AddressListEntryForm = ({
         </div>
 
         {/* Comment Field */}
-        <div className="space-y-component-sm">
+        <div className="space-y-component-sm gap-component-sm">
           <Label htmlFor="comment" className="text-sm font-medium">
             Comment (optional)
           </Label>
@@ -303,7 +303,7 @@ export const AddressListEntryForm = ({
         </div>
 
         {/* Action Buttons */}
-        <div className="flex justify-end gap-component-sm pt-component-md">
+        <div className="flex justify-end gap-component-sm pt-component-lg">
           {onCancel && (
             <Button
               type="button"

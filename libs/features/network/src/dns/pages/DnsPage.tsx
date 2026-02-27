@@ -219,7 +219,7 @@ export const DnsPage = memo(function DnsPage() {
   // Loading state
   if (isLoading) {
     return (
-      <div className="space-y-component-lg p-page-mobile md:p-page-tablet lg:p-page-desktop">
+      <div className="space-y-component-lg p-page-mobile md:p-page-tablet lg:p-page-desktop category-networking">
         <Skeleton className="h-8 w-48" />
         <Skeleton className="h-64" />
         <Skeleton className="h-64" />
@@ -230,7 +230,7 @@ export const DnsPage = memo(function DnsPage() {
   // Error state
   if (error || !settings) {
     return (
-      <div className="p-page-mobile md:p-page-tablet lg:p-page-desktop">
+      <div className="p-page-mobile md:p-page-tablet lg:p-page-desktop category-networking">
         <Alert variant="destructive">
           <Icon icon={AlertTriangle} className="h-4 w-4" />
           <AlertTitle>Failed to load DNS configuration</AlertTitle>
@@ -246,11 +246,11 @@ export const DnsPage = memo(function DnsPage() {
   }
 
   return (
-    <div className="space-y-component-lg p-page-mobile md:p-page-tablet lg:p-page-desktop">
+    <div className="space-y-component-lg p-page-mobile md:p-page-tablet lg:p-page-desktop category-networking">
       <PageHeader title="DNS Configuration" />
 
       {/* DNS Servers Section */}
-      <Card>
+      <Card className="bg-card">
         <CardHeader>
           <CardTitle>DNS Servers</CardTitle>
         </CardHeader>
@@ -291,7 +291,7 @@ export const DnsPage = memo(function DnsPage() {
       </Card>
 
       {/* Static DNS Entries Section */}
-      <Card>
+      <Card className="bg-card">
         <CardHeader>
           <CardTitle>Static DNS Entries</CardTitle>
         </CardHeader>

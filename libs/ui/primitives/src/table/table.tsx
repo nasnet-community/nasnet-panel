@@ -120,7 +120,7 @@ const Table = React.memo(
     HTMLTableElement,
     TableProps
   >(({ className, ...props }, ref) => (
-    <div className="relative w-full overflow-auto rounded-xl border border-border">
+    <div className="relative w-full overflow-x-auto rounded-[var(--semantic-radius-card)] border border-border">
       <table
         ref={ref}
         className={cn('w-full caption-bottom text-sm', className)}
@@ -236,7 +236,7 @@ const TableRow = React.memo(
     <tr
       ref={ref}
       className={cn(
-        'border-b border-border transition-all duration-200 hover:bg-muted data-[state=selected]:bg-muted',
+        'h-10 border-b border-border transition-colors duration-150 hover:bg-muted/50 data-[state=selected]:bg-primary/5',
         className
       )}
       {...props}
@@ -267,7 +267,7 @@ const TableHead = React.memo(
     <th
       ref={ref}
       className={cn(
-        'h-12 px-4 text-left align-middle font-medium text-muted-foreground bg-muted [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]',
+        'h-10 px-4 py-2 bg-muted text-muted-foreground text-xs font-semibold uppercase tracking-wider text-left align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]',
         className
       )}
       {...props}
@@ -298,7 +298,7 @@ const TableCell = React.memo(
     <td
       ref={ref}
       className={cn(
-        'px-4 py-3 align-middle text-foreground [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]',
+        'px-4 py-2 text-sm text-foreground align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]',
         className
       )}
       {...props}

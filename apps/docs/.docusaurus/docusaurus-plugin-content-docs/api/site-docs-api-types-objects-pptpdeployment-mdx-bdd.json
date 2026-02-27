@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/pptpdeployment",
+  "title": "PPTPDeployment",
+  "description": "PPTP deployment state",
+  "source": "@site/docs/api/types/objects/pptpdeployment.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/pptpdeployment",
+  "permalink": "/api/types/objects/pptpdeployment",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "pptpdeployment",
+    "title": "PPTPDeployment"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "PPTPClient",
+    "permalink": "/api/types/objects/pptpclient"
+  },
+  "next": {
+    "title": "PPTPRuntime",
+    "permalink": "/api/types/objects/pptpruntime"
+  }
+}

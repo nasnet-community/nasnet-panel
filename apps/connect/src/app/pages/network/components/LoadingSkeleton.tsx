@@ -23,7 +23,7 @@ export const LoadingSkeleton = React.memo(function LoadingSkeleton() {
           {[1, 2, 3, 4, 5, 6].map((i) => (
             <div
               key={i}
-              className="bg-card rounded-card-sm p-component-md border border-border"
+              className="bg-card rounded-card-sm p-component-md border border-border shadow-sm"
             >
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
@@ -45,7 +45,7 @@ export const LoadingSkeleton = React.memo(function LoadingSkeleton() {
       {/* Two Column Section Skeleton */}
       <div className="grid gap-component-md lg:grid-cols-2">
         {/* Connected Devices Skeleton */}
-        <div className="bg-card rounded-card-lg border border-border p-component-md">
+        <div className="bg-card rounded-card-lg border border-border p-component-md shadow-sm">
           <div className="flex items-center gap-component-sm mb-component-md">
             <div className="w-8 h-8 bg-muted rounded-lg" />
             <div className="space-y-1">
@@ -65,7 +65,7 @@ export const LoadingSkeleton = React.memo(function LoadingSkeleton() {
         </div>
 
         {/* IP Addresses Skeleton */}
-        <div className="bg-card rounded-card-lg border border-border p-component-md">
+        <div className="bg-card rounded-card-lg border border-border p-component-md shadow-sm">
           <div className="flex items-center gap-component-sm mb-component-md">
             <div className="w-8 h-8 bg-muted rounded-lg" />
             <div className="space-y-1">
@@ -82,7 +82,7 @@ export const LoadingSkeleton = React.memo(function LoadingSkeleton() {
       </div>
 
       {/* DHCP Section Skeleton */}
-      <div className="bg-card rounded-card-lg border border-border p-component-md">
+      <div className="bg-card rounded-card-lg border border-border p-component-md shadow-sm">
         <div className="flex items-center justify-between mb-component-md">
           <div className="flex items-center gap-component-sm">
             <div className="w-8 h-8 bg-muted rounded-lg" />

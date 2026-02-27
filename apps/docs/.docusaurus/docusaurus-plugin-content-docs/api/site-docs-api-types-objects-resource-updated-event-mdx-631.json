@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/resource-updated-event",
+  "title": "ResourceUpdatedEvent",
+  "description": "Event emitted when a router resource is updated",
+  "source": "@site/docs/api/types/objects/resource-updated-event.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/resource-updated-event",
+  "permalink": "/api/types/objects/resource-updated-event",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "resource-updated-event",
+    "title": "ResourceUpdatedEvent"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ResourceStateEvent",
+    "permalink": "/api/types/objects/resource-state-event"
+  },
+  "next": {
+    "title": "ResourceUsage",
+    "permalink": "/api/types/objects/resource-usage"
+  }
+}

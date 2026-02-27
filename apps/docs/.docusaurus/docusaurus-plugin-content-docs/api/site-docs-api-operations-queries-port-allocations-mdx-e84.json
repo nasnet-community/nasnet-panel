@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/port-allocations",
+  "title": "portAllocations",
+  "description": "List all port allocations, optionally filtered by router, protocol, or service type.",
+  "source": "@site/docs/api/operations/queries/port-allocations.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/port-allocations",
+  "permalink": "/api/operations/queries/port-allocations",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "port-allocations",
+    "title": "portAllocations"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "notificationLogs",
+    "permalink": "/api/operations/queries/notification-logs"
+  },
+  "next": {
+    "title": "portForwards",
+    "permalink": "/api/operations/queries/port-forwards"
+  }
+}

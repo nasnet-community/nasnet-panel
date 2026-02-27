@@ -110,10 +110,10 @@ const TroubleshootWizardDesktopComponent = memo(
     }
 
     return (
-      <div className="max-w-5xl mx-auto space-y-6">
+      <div className="max-w-5xl mx-auto space-y-component-lg">
         {/* Header */}
         <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-foreground">No Internet Troubleshooting</h1>
+          <h1 className="text-2xl font-bold text-category-networking">No Internet Troubleshooting</h1>
           {onClose && (
             <Button
               variant="ghost"
@@ -134,11 +134,11 @@ const TroubleshootWizardDesktopComponent = memo(
       {/* Main Content */}
       <Card className="p-component-lg">
         {wizard.isIdle && (
-          <div className="text-center py-8">
+          <div className="text-center py-component-xl">
             <h2 className="text-xl font-semibold text-foreground mb-3">
               Ready to troubleshoot your internet connection?
             </h2>
-            <p className="text-muted-foreground mb-6">
+            <p className="text-muted-foreground mb-component-lg">
               We'll run a series of automated tests to identify and fix common internet connectivity
               issues.
             </p>
@@ -152,10 +152,10 @@ const TroubleshootWizardDesktopComponent = memo(
           <div className="space-y-component-lg">
             {/* Current Step Display */}
             <div>
-              <h2 className="text-xl font-semibold text-foreground mb-2">
+              <h2 className="text-xl font-semibold text-foreground mb-component-sm">
                 {wizard.messages.name}
               </h2>
-              <p className="text-muted-foreground mb-4">{wizard.messages.description}</p>
+              <p className="text-muted-foreground mb-component-md">{wizard.messages.description}</p>
 
               <DiagnosticStep
                 step={wizard.currentStep}

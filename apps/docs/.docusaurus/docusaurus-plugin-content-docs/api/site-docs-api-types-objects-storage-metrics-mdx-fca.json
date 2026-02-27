@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/storage-metrics",
+  "title": "StorageMetrics",
+  "description": "Storage utilization metrics",
+  "source": "@site/docs/api/types/objects/storage-metrics.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/storage-metrics",
+  "permalink": "/api/types/objects/storage-metrics",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "storage-metrics",
+    "title": "StorageMetrics"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "StorageInfo",
+    "permalink": "/api/types/objects/storage-info"
+  },
+  "next": {
+    "title": "StorageMountedEvent",
+    "permalink": "/api/types/objects/storage-mounted-event"
+  }
+}

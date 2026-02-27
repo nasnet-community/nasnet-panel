@@ -1,0 +1,26 @@
+{
+  "id": "api/types/directives/cache",
+  "title": "cache",
+  "description": "No description",
+  "source": "@site/docs/api/types/directives/cache.mdx",
+  "sourceDirName": "api/types/directives",
+  "slug": "/api/types/directives/cache",
+  "permalink": "/api/types/directives/cache",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "cache",
+    "title": "cache"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "auth",
+    "permalink": "/api/types/directives/auth"
+  },
+  "next": {
+    "title": "capability",
+    "permalink": "/api/types/directives/capability"
+  }
+}

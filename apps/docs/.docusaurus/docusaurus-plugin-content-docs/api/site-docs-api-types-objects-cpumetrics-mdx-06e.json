@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/cpumetrics",
+  "title": "CPUMetrics",
+  "description": "CPU utilization metrics",
+  "source": "@site/docs/api/types/objects/cpumetrics.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/cpumetrics",
+  "permalink": "/api/types/objects/cpumetrics",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "cpumetrics",
+    "title": "CPUMetrics"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ContainerInfo",
+    "permalink": "/api/types/objects/container-info"
+  },
+  "next": {
+    "title": "CreateChangeSetPayload",
+    "permalink": "/api/types/objects/create-change-set-payload"
+  }
+}

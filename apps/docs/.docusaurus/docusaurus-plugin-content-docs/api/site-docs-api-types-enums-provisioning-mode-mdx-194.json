@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/provisioning-mode",
+  "title": "ProvisioningMode",
+  "description": "Provisioning mode - determines the setup workflow complexity",
+  "source": "@site/docs/api/types/enums/provisioning-mode.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/provisioning-mode",
+  "permalink": "/api/types/enums/provisioning-mode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "provisioning-mode",
+    "title": "ProvisioningMode"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ProvisioningFirmware",
+    "permalink": "/api/types/enums/provisioning-firmware"
+  },
+  "next": {
+    "title": "ProvisioningRouterMode",
+    "permalink": "/api/types/enums/provisioning-router-mode"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/schedule-event",
+  "title": "ScheduleEvent",
+  "description": "Schedule event for subscriptions.",
+  "source": "@site/docs/api/types/objects/schedule-event.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/schedule-event",
+  "permalink": "/api/types/objects/schedule-event",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "schedule-event",
+    "title": "ScheduleEvent"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ScanTask",
+    "permalink": "/api/types/objects/scan-task"
+  },
+  "next": {
+    "title": "ServiceConfigSharedEvent",
+    "permalink": "/api/types/objects/service-config-shared-event"
+  }
+}

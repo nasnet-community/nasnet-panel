@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/notification-channel",
+  "title": "NotificationChannel",
+  "description": "Notification channel types",
+  "source": "@site/docs/api/types/enums/notification-channel.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/notification-channel",
+  "permalink": "/api/types/enums/notification-channel",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "notification-channel",
+    "title": "NotificationChannel"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "NatChain",
+    "permalink": "/api/types/enums/nat-chain"
+  },
+  "next": {
+    "title": "NotificationStatus",
+    "permalink": "/api/types/enums/notification-status"
+  }
+}

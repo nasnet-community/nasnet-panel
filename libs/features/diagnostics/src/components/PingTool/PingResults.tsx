@@ -160,7 +160,7 @@ export const PingResults = memo(function PingResults({
           aria-live="polite"
           aria-label="Ping results"
           aria-relevant="additions"
-          className="h-full p-component-xs font-mono text-sm"
+          className="h-full p-component-sm font-mono text-sm"
         >
           <div
             style={{
@@ -201,7 +201,7 @@ export const PingResults = memo(function PingResults({
           variant="secondary"
           size="sm"
           onClick={scrollToBottom}
-          className="absolute bottom-component-md right-component-md shadow-lg"
+          className="absolute bottom-4 right-4 shadow-lg"
           aria-label={`Scroll to bottom (${newEntriesCount} new results)`}
         >
           <ChevronDown className="w-4 h-4 mr-1" />

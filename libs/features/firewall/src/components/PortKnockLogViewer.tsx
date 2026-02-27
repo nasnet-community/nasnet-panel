@@ -76,7 +76,7 @@ const StatusBadge = ({ status }: { status: string }) => {
 
   return (
     <Badge variant={config.variant} className="text-xs">
-      <Icon className="h-3 w-3 mr-1" aria-hidden="true" />
+      <Icon className="h-3 w-3 mr-component-xs" aria-hidden="true" />
       {status}
     </Badge>
   );
@@ -122,7 +122,7 @@ const FilterBar = ({
   onExport,
 }: FilterBarProps) => {
   return (
-    <div className="flex flex-col sm:flex-row gap-4 mb-4">
+    <div className="flex flex-col sm:flex-row gap-component-md mb-component-md">
       <div className="flex-1">
         <Input
           placeholder="Filter by IP..."
@@ -146,7 +146,7 @@ const FilterBar = ({
           </SelectContent>
         </Select>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-component-sm">
         <Switch
           id="auto-refresh"
           checked={autoRefresh}
@@ -157,7 +157,7 @@ const FilterBar = ({
         </Label>
       </div>
       <Button variant="outline" size="sm" onClick={onExport} aria-label="Export log to CSV">
-        <Download className="h-4 w-4 mr-2" aria-hidden="true" />
+        <Download className="h-4 w-4 mr-component-sm" aria-hidden="true" />
         Export CSV
       </Button>
     </div>
@@ -239,9 +239,9 @@ export const PortKnockLogViewer = ({ className }: PortKnockLogViewerProps) => {
 
   if (error) {
     return (
-      <div className={cn('p-component-md rounded-card-sm bg-error/10', className)}>
+      <div className={cn('p-component-md rounded-lg bg-error/10', className)}>
         <p className="font-medium text-error">Error loading port knock log</p>
-        <p className="text-sm text-error/80 mt-1">{error.message}</p>
+        <p className="text-sm text-error/80 mt-component-xs">{error.message}</p>
       </div>
     );
   }
@@ -261,8 +261,8 @@ export const PortKnockLogViewer = ({ className }: PortKnockLogViewerProps) => {
       {attempts.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
-            <Shield className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-1">No Knock Attempts</h3>
+            <Shield className="h-12 w-12 text-muted-foreground mb-component-md" />
+            <h3 className="text-lg font-semibold mb-component-sm">No Knock Attempts</h3>
             <p className="text-sm text-muted-foreground">
               Knock attempts will appear here when sequences are triggered.
             </p>
@@ -297,7 +297,7 @@ export const PortKnockLogViewer = ({ className }: PortKnockLogViewerProps) => {
                   </TableCell>
 
                   <TableCell className="font-mono">
-                    {attempt.sourceIP}
+                    <span className="font-mono">{attempt.sourceIP}</span>
                   </TableCell>
 
                   <TableCell>
@@ -305,7 +305,7 @@ export const PortKnockLogViewer = ({ className }: PortKnockLogViewerProps) => {
                   </TableCell>
 
                   <TableCell>
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-component-sm">
                       <div className="w-20 bg-muted rounded-full h-2">
                         <div
                           className={cn(
@@ -327,7 +327,7 @@ export const PortKnockLogViewer = ({ className }: PortKnockLogViewerProps) => {
                   </TableCell>
 
                   <TableCell>
-                    <div className="flex gap-1">
+                    <div className="flex gap-component-sm">
                       {attempt.portsHit.map((port, index) => (
                         <Badge key={`port-${index}`} variant="outline" className="font-mono text-xs">
                           {port}
@@ -359,7 +359,7 @@ export const PortKnockLogViewer = ({ className }: PortKnockLogViewerProps) => {
           </Table>
 
           {hasNextPage && (
-            <div className="flex justify-center mt-4">
+            <div className="flex justify-center mt-component-md">
               <Button
                 variant="outline"
                 onClick={() => fetchNextPage()}
@@ -368,7 +368,7 @@ export const PortKnockLogViewer = ({ className }: PortKnockLogViewerProps) => {
               >
                 {isFetchingNextPage ? (
                   <>
-                    <RefreshCw className="h-4 w-4 mr-2 animate-spin" aria-hidden="true" />
+                    <RefreshCw className="h-4 w-4 mr-component-sm animate-spin" aria-hidden="true" />
                     Loading...
                   </>
                 ) : (

@@ -156,11 +156,11 @@ export function FirewallTab() {
   }, []);
 
   return (
-    <div className="p-component-md md:p-component-lg">
+    <div className="p-component-md md:p-component-lg animate-fade-in-up">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Page Header */}
         <div className="px-component-sm">
-          <h1 className="text-2xl md:text-3xl font-semibold mb-1">
+          <h1 className="text-2xl md:text-3xl font-semibold font-display mb-1 category-header category-header-firewall">
             {t('title')}
           </h1>
           <p className="text-sm text-muted-foreground">

@@ -106,7 +106,7 @@ func (s *Service) createIPSecPolicyGroup(ctx context.Context, name, comment stri
 	cmd := router.Command{Path: "/ip/ipsec/policy/group", Action: "add", Args: args}
 	result, err := s.routerPort.ExecuteCommand(ctx, cmd)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to create IPsec policy group: %w", err)
 	}
 	if !result.Success {
 		return "", fmt.Errorf("failed to create policy group: %w", result.Error)
@@ -161,7 +161,7 @@ func (s *Service) createIPSecProfile(ctx context.Context, cfg types.Ike2ClientCo
 	cmd := router.Command{Path: "/ip/ipsec/profile", Action: "add", Args: args}
 	result, err := s.routerPort.ExecuteCommand(ctx, cmd)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to create IPsec profile: %w", err)
 	}
 	if !result.Success {
 		return "", fmt.Errorf("failed to create profile: %w", result.Error)
@@ -208,7 +208,7 @@ func (s *Service) createIPSecProposal(ctx context.Context, cfg types.Ike2ClientC
 	cmd := router.Command{Path: "/ip/ipsec/proposal", Action: "add", Args: args}
 	result, err := s.routerPort.ExecuteCommand(ctx, cmd)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to create IPsec proposal: %w", err)
 	}
 	if !result.Success {
 		return "", fmt.Errorf("failed to create proposal: %w", result.Error)
@@ -226,7 +226,7 @@ func (s *Service) createIPSecModeConfig(ctx context.Context, name, comment strin
 	cmd := router.Command{Path: "/ip/ipsec/mode-config", Action: "add", Args: args}
 	result, err := s.routerPort.ExecuteCommand(ctx, cmd)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to create IPsec mode-config: %w", err)
 	}
 	if !result.Success {
 		return "", fmt.Errorf("failed to create mode-config: %w", result.Error)
@@ -263,7 +263,7 @@ func (s *Service) createIPSecPeer(ctx context.Context, cfg types.Ike2ClientConfi
 	cmd := router.Command{Path: "/ip/ipsec/peer", Action: "add", Args: args}
 	result, err := s.routerPort.ExecuteCommand(ctx, cmd)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to create IPsec peer: %w", err)
 	}
 	if !result.Success {
 		return "", fmt.Errorf("failed to create peer: %w", result.Error)
@@ -309,7 +309,7 @@ func (s *Service) createIPSecIdentity(ctx context.Context, cfg types.Ike2ClientC
 	cmd := router.Command{Path: "/ip/ipsec/identity", Action: "add", Args: args}
 	result, err := s.routerPort.ExecuteCommand(ctx, cmd)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to create IPsec identity: %w", err)
 	}
 	if !result.Success {
 		return "", fmt.Errorf("failed to create identity: %w", result.Error)
@@ -333,6 +333,14 @@ func (s *Service) applyIKEv2AuthArgs(args map[string]string, authMethod types.Ik
 		args["eap-methods"] = "eap-mschapv2"
 		setOptionalArg(args, "username", cfg.Credentials.Username)
 		setOptionalArg(args, "password", cfg.Credentials.Password)
+	case types.IkeAuthPSKFull:
+		args["auth-method"] = "pre-shared-key"
+		setOptionalArg(args, "secret", cfg.Credentials.Password)
+	case types.IkeAuthDigitalSignature:
+		args["auth-method"] = "digital-signature"
+		if cfg.Certificate != nil {
+			setOptionalArg(args, "certificate", *cfg.Certificate)
+		}
 	}
 }
 
@@ -358,7 +366,7 @@ func (s *Service) createIPSecPolicy(ctx context.Context, cfg types.Ike2ClientCon
 	cmd := router.Command{Path: "/ip/ipsec/policy", Action: "add", Args: args}
 	result, err := s.routerPort.ExecuteCommand(ctx, cmd)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to create IPsec policy: %w", err)
 	}
 	if !result.Success {
 		return "", fmt.Errorf("failed to create policy: %w", result.Error)
@@ -377,7 +385,7 @@ func (s *Service) addToVPNEAddressList(ctx context.Context, address, comment str
 	result, err := s.routerPort.ExecuteCommand(ctx, cmd)
 	if err != nil {
 		s.logger.Debugw("failed to add to VPNE address list (non-critical)", "address", address, "error", err)
-		return err
+		return fmt.Errorf("failed to add to VPNE address list: %w", err)
 	}
 	if !result.Success {
 		s.logger.Debugw("failed to add to VPNE address list (non-critical)", "address", address, "error", result.Error)

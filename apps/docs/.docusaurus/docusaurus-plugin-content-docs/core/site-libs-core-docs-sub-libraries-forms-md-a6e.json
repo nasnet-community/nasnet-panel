@@ -1,0 +1,24 @@
+{
+  "id": "sub-libraries/forms",
+  "title": "Forms & Validation Library Reference",
+  "description": "Comprehensive guide to @nasnet/core/forms — the schema-driven forms library with 7-stage validation pipeline",
+  "source": "@site/../../libs/core/docs/sub-libraries/forms.md",
+  "sourceDirName": "sub-libraries",
+  "slug": "/sub-libraries/forms",
+  "permalink": "/docs/core/sub-libraries/forms",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/core/docs/sub-libraries/forms.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Constants Reference",
+    "permalink": "/docs/core/sub-libraries/constants"
+  },
+  "next": {
+    "title": "Internationalization (i18n) Library Reference",
+    "permalink": "/docs/core/sub-libraries/i18n"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/resource-reference",
+  "title": "ResourceReference",
+  "description": "Reference to another resource",
+  "source": "@site/docs/api/types/objects/resource-reference.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/resource-reference",
+  "permalink": "/api/types/objects/resource-reference",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "resource-reference",
+    "title": "ResourceReference"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ResourceMetrics",
+    "permalink": "/api/types/objects/resource-metrics"
+  },
+  "next": {
+    "title": "ResourceRelationshipEdge",
+    "permalink": "/api/types/objects/resource-relationship-edge"
+  }
+}

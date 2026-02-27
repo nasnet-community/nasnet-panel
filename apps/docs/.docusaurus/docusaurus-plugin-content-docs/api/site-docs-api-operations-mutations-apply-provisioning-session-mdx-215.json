@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/apply-provisioning-session",
+  "title": "applyProvisioningSession",
+  "description": "Apply the provisioning session to the router.",
+  "source": "@site/docs/api/operations/mutations/apply-provisioning-session.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/apply-provisioning-session",
+  "permalink": "/api/operations/mutations/apply-provisioning-session",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "apply-provisioning-session",
+    "title": "applyProvisioningSession"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "applyFirewallTemplate",
+    "permalink": "/api/operations/mutations/apply-firewall-template"
+  },
+  "next": {
+    "title": "applyResource",
+    "permalink": "/api/operations/mutations/apply-resource"
+  }
+}

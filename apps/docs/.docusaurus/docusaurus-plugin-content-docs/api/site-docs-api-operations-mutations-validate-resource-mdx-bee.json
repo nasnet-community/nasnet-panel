@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/validate-resource",
+  "title": "validateResource",
+  "description": "Validate resource configuration (transitions DRAFT -&#x003E; VALIDATING -&#x003E; VALID/ERROR)",
+  "source": "@site/docs/api/operations/mutations/validate-resource.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/validate-resource",
+  "permalink": "/api/operations/mutations/validate-resource",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "validate-resource",
+    "title": "validateResource"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "validateProvisioningSession",
+    "permalink": "/api/operations/mutations/validate-provisioning-session"
+  },
+  "next": {
+    "title": "validateServiceConfig",
+    "permalink": "/api/operations/mutations/validate-service-config"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/import-service-template",
+  "title": "importServiceTemplate",
+  "description": "Import a service template from JSON.",
+  "source": "@site/docs/api/operations/mutations/import-service-template.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/import-service-template",
+  "permalink": "/api/operations/mutations/import-service-template",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "import-service-template",
+    "title": "importServiceTemplate"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "importServiceConfig",
+    "permalink": "/api/operations/mutations/import-service-config"
+  },
+  "next": {
+    "title": "importStarState",
+    "permalink": "/api/operations/mutations/import-star-state"
+  }
+}

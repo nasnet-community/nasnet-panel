@@ -25,7 +25,7 @@ type MangleRuleConfig struct {
 // createMangleRules creates mangle rules for traffic marking in the four-network architecture.
 // These rules use PCC (Per-Connection Classifier) to mark packets for policy-based routing.
 func (s *Service) createMangleRules(ctx context.Context, srcAddress, networkName, comment string) ([]string, error) {
-	var ruleIDs []string
+	ruleIDs := make([]string, 0, 1)
 
 	// Create a routing mark rule for the network
 	cfg := MangleRuleConfig{

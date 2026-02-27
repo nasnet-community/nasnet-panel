@@ -64,8 +64,8 @@ function DeviceCard({
   loading: boolean;
 }) {
   return (
-    <Card className="touch-manipulation">
-      <CardContent className="p-4">
+    <Card className="touch-manipulation bg-card border border-border rounded-[var(--semantic-radius-card)] shadow-[var(--semantic-shadow-card)]">
+      <CardContent className="p-component-md">
         <div className="flex items-start gap-3">
           {/* Checkbox - 44px touch target */}
           <div className="flex h-11 w-11 items-center justify-center">
@@ -87,7 +87,7 @@ function DeviceCard({
                 <p className="text-sm text-muted-foreground">
                   {device.ipAddress ?? 'No IP'}
                 </p>
-                <p className="font-mono text-xs text-muted-foreground">
+                <p className="font-mono text-xs text-muted-foreground break-all">
                   {device.macAddress}
                 </p>
               </div>
@@ -111,7 +111,7 @@ function DeviceCard({
 
             {/* Service Assignment */}
             {device.isRouted && routing ? (
-              <div className="mb-3 flex items-center justify-between rounded-md border border-border bg-muted p-2">
+              <div className="mb-3 flex items-center justify-between rounded-[var(--semantic-radius-input)] border border-border bg-muted p-2">
                 <span className="text-sm font-medium">{interfaceName}</span>
                 <Button
                   variant="ghost"
@@ -178,10 +178,10 @@ function DeviceRoutingMatrixMobileComponent(props: DeviceRoutingMatrixProps) {
     <div className={className}>
       {/* Summary Stats */}
       {showSummary && (
-        <div className="mb-4 grid grid-cols-2 gap-3">
-          <Card>
+        <div className="mb-4 grid grid-cols-2 gap-component-sm">
+          <Card className="bg-card border border-border rounded-[var(--semantic-radius-card)] p-3 shadow-[var(--semantic-shadow-card)]">
             <CardHeader className="pb-2">
-              <CardTitle className="text-xs font-medium text-muted-foreground">
+              <CardTitle className="text-xs font-semibold text-muted-foreground">
                 Total Devices
               </CardTitle>
             </CardHeader>
@@ -189,9 +189,9 @@ function DeviceRoutingMatrixMobileComponent(props: DeviceRoutingMatrixProps) {
               <div className="text-xl font-bold">{matrix.summary.totalDevices}</div>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="bg-card border border-border rounded-[var(--semantic-radius-card)] p-3 shadow-[var(--semantic-shadow-card)]">
             <CardHeader className="pb-2">
-              <CardTitle className="text-xs font-medium text-muted-foreground">
+              <CardTitle className="text-xs font-semibold text-muted-foreground">
                 Routed
               </CardTitle>
             </CardHeader>
@@ -205,7 +205,7 @@ function DeviceRoutingMatrixMobileComponent(props: DeviceRoutingMatrixProps) {
       )}
 
       {/* Search and Filter */}
-      <div className="mb-4 space-y-3">
+      <div className="mb-6 space-y-component-sm">
         <Input
           type="search"
           placeholder="Search devices..."
@@ -248,7 +248,7 @@ function DeviceRoutingMatrixMobileComponent(props: DeviceRoutingMatrixProps) {
                 Bulk Actions ({hook.selectionCount} devices)
               </SheetTitle>
             </SheetHeader>
-            <div className="mt-4 space-y-3">
+            <div className="mt-4 space-y-component-sm">
               <Select
                 onValueChange={(value) => {
                   if (value) {
@@ -282,13 +282,13 @@ function DeviceRoutingMatrixMobileComponent(props: DeviceRoutingMatrixProps) {
 
       {/* Error State */}
       {error && (
-        <div className="mb-4 rounded-md border border-error bg-error/10 p-3 text-sm text-error">
+        <div className="mb-4 rounded-[var(--semantic-radius-card)] border border-error bg-error/10 p-3 text-sm text-error">
           {error.message}
         </div>
       )}
 
       {/* Device Cards */}
-      <div className="space-y-3 pb-20">
+      <div className="space-y-component-sm pb-20">
         {hook.filteredDevices.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 text-center">
             <p className="text-muted-foreground">{emptyMessage}</p>

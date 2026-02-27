@@ -26,10 +26,10 @@ const LazyAddressListView = lazy(() =>
  */
 function AddressListViewSkeleton() {
   return (
-    <div className="space-y-4 p-4" aria-busy="true" aria-label="Loading address lists">
+    <div className="space-y-4 p-4 animate-fade-in-up" aria-busy="true" aria-label="Loading address lists">
       <div className="flex items-center justify-between">
         <div className="space-y-2">
-          <Skeleton className="h-8 w-48" />
+          <Skeleton className="h-8 w-48 font-display" />
           <Skeleton className="h-4 w-96" />
         </div>
         <div className="flex gap-2">

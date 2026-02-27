@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/lannetwork",
+  "title": "LANNetwork",
+  "description": "LAN Network composite resource - groups bridge, DHCP, firewall, routing",
+  "source": "@site/docs/api/types/objects/lannetwork.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/lannetwork",
+  "permalink": "/api/types/objects/lannetwork",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "lannetwork",
+    "title": "LANNetwork"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "LANNetworkRuntime",
+    "permalink": "/api/types/objects/lannetwork-runtime"
+  },
+  "next": {
+    "title": "LogEntry",
+    "permalink": "/api/types/objects/log-entry"
+  }
+}

@@ -81,5 +81,18 @@
   "health_check_script": "nc -z localhost 10086 || exit 1",
   "readme_url": "https://github.com/nasnetconnect/xray-core/blob/main/README.md",
   "changelog_url": "https://github.com/nasnetconnect/xray-core/blob/main/CHANGELOG.md",
-  "support_url": "https://github.com/nasnetconnect/xray-core/issues"
+  "support_url": "https://github.com/nasnetconnect/xray-core/issues",
+  "source": {
+    "github_owner": "XTLS",
+    "github_repo": "Xray-core",
+    "binary_name": "Xray",
+    "archive_format": "zip",
+    "extract_path": "xray",
+    "asset_arch_map": {
+      "amd64": "linux-64",
+      "arm64": "linux-arm64-v8a",
+      "arm": "linux-arm32-v7a"
+    },
+    "checksum_files": ["checksums.txt", "SHA256SUMS"]
+  }
 }

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/update-alert-rule-input",
+  "title": "UpdateAlertRuleInput",
+  "description": "Input for updating an alert rule",
+  "source": "@site/docs/api/types/inputs/update-alert-rule-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/update-alert-rule-input",
+  "permalink": "/api/types/inputs/update-alert-rule-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "update-alert-rule-input",
+    "title": "UpdateAlertRuleInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "TunnelInput",
+    "permalink": "/api/types/inputs/tunnel-input"
+  },
+  "next": {
+    "title": "UpdateBridgeInput",
+    "permalink": "/api/types/inputs/update-bridge-input"
+  }
+}

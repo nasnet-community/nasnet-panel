@@ -1,0 +1,24 @@
+{
+  "id": "testing/overview",
+  "title": "Testing Overview",
+  "description": "NasNetConnect uses a Testing Trophy approach — the majority of tests are integration tests that verify real user workflows through the component tree, with a smaller base of unit tests for pure logic and a thin layer of E2E tests for critical user journeys.",
+  "source": "@site/../connect/docs/testing/overview.md",
+  "sourceDirName": "testing",
+  "slug": "/testing/overview",
+  "permalink": "/docs/frontend/testing/overview",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../connect/docs/testing/overview.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Mocking Strategy",
+    "permalink": "/docs/frontend/testing/mocking"
+  },
+  "next": {
+    "title": "Unit Testing",
+    "permalink": "/docs/frontend/testing/unit-testing"
+  }
+}

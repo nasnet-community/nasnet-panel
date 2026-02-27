@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/compatibility-matrix",
+  "title": "compatibilityMatrix",
+  "description": "Get the compatibility matrix for all known features",
+  "source": "@site/docs/api/operations/queries/compatibility-matrix.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/compatibility-matrix",
+  "permalink": "/api/operations/queries/compatibility-matrix",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "compatibility-matrix",
+    "title": "compatibilityMatrix"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "commonEventTypes",
+    "permalink": "/api/operations/queries/common-event-types"
+  },
+  "next": {
+    "title": "compositeResource",
+    "permalink": "/api/operations/queries/composite-resource"
+  }
+}

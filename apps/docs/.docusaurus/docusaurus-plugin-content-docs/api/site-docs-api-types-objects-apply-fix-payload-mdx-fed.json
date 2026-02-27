@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/apply-fix-payload",
+  "title": "ApplyFixPayload",
+  "description": "Result of applying a fix",
+  "source": "@site/docs/api/types/objects/apply-fix-payload.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/apply-fix-payload",
+  "permalink": "/api/types/objects/apply-fix-payload",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "apply-fix-payload",
+    "title": "ApplyFixPayload"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ApplyConfigPayload",
+    "permalink": "/api/types/objects/apply-config-payload"
+  },
+  "next": {
+    "title": "ApplyProvisioningSessionPayload",
+    "permalink": "/api/types/objects/apply-provisioning-session-payload"
+  }
+}

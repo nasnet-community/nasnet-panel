@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/diagnostic-history",
+  "title": "diagnosticHistory",
+  "description": "Get diagnostic history for a service instance.",
+  "source": "@site/docs/api/operations/queries/diagnostic-history.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/diagnostic-history",
+  "permalink": "/api/operations/queries/diagnostic-history",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "diagnostic-history",
+    "title": "diagnosticHistory"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "device",
+    "permalink": "/api/operations/queries/device"
+  },
+  "next": {
+    "title": "digestHistory",
+    "permalink": "/api/operations/queries/digest-history"
+  }
+}

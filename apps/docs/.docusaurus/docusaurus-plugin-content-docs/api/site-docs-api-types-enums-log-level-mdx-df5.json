@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/log-level",
+  "title": "LogLevel",
+  "description": "Log level for service log entries.",
+  "source": "@site/docs/api/types/enums/log-level.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/log-level",
+  "permalink": "/api/types/enums/log-level",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "log-level",
+    "title": "LogLevel"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "KnockStatus",
+    "permalink": "/api/types/enums/knock-status"
+  },
+  "next": {
+    "title": "MirrorDirection",
+    "permalink": "/api/types/enums/mirror-direction"
+  }
+}

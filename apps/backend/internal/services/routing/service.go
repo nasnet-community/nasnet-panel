@@ -3,6 +3,7 @@ package routing
 
 import (
 	"context"
+	"fmt"
 
 	"backend/graph/model"
 	"backend/internal/services/base"
@@ -56,7 +57,7 @@ func (s *Service) CreateRoute(ctx context.Context, input model.RouteInput) (*mod
 
 	result, err := s.ExecuteCommand(ctx, cmd, "create route")
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to create route: %w", err)
 	}
 
 	// Fetch the created route to return complete data
@@ -96,7 +97,7 @@ func (s *Service) UpdateRoute(ctx context.Context, id string, input model.RouteI
 
 	result, err := s.ExecuteCommand(ctx, cmd, "update route")
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to update route: %w", err)
 	}
 
 	// Fetch the updated route
@@ -113,5 +114,8 @@ func (s *Service) DeleteRoute(ctx context.Context, id string) error {
 	}
 
 	_, err := s.ExecuteCommand(ctx, cmd, "delete route")
-	return err
+	if err != nil {
+		return fmt.Errorf("failed to delete route: %w", err)
+	}
+	return nil
 }

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/bulk-create-error",
+  "title": "BulkCreateError",
+  "description": "Details of a single failed entry in bulk import.",
+  "source": "@site/docs/api/types/objects/bulk-create-error.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/bulk-create-error",
+  "permalink": "/api/types/objects/bulk-create-error",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "bulk-create-error",
+    "title": "BulkCreateError"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "BulkAlertPayload",
+    "permalink": "/api/types/objects/bulk-alert-payload"
+  },
+  "next": {
+    "title": "BulkCreateResult",
+    "permalink": "/api/types/objects/bulk-create-result"
+  }
+}

@@ -2,6 +2,7 @@ package mikrotik
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"net"
 	"strings"
@@ -26,7 +27,7 @@ const (
 type TelnetClientConfig struct {
 	Address  string
 	Username string
-	Password string
+	Password string //nolint:gosec // G101: password field required for Telnet authentication
 	Timeout  time.Duration
 	Logger   *zap.Logger
 }
@@ -69,7 +70,11 @@ func NewTelnetClient(cfg TelnetClientConfig) (*TelnetClient, error) {
 
 	logger.Debug("telnet: connecting", zap.String("address", address), zap.String("username", cfg.Username))
 
-	conn, err := net.DialTimeout("tcp", address, timeout)
+	dialCtx, dialCancel := context.WithTimeout(context.Background(), timeout)
+	defer dialCancel()
+
+	dialer := &net.Dialer{}
+	conn, err := dialer.DialContext(dialCtx, "tcp", address)
 	if err != nil {
 		return nil, fmt.Errorf("telnet dial failed: %w", err)
 	}
@@ -126,7 +131,7 @@ func (c *TelnetClient) readUntilLogin() error {
 	for {
 		b, err := c.reader.ReadByte()
 		if err != nil {
-			return err
+			return fmt.Errorf("reading byte for login prompt: %w", err)
 		}
 
 		if b == telnetIAC {
@@ -151,21 +156,21 @@ func (c *TelnetClient) readUntilLogin() error {
 func (c *TelnetClient) handleTelnetCommand() error {
 	cmd, err := c.reader.ReadByte()
 	if err != nil {
-		return err
+		return fmt.Errorf("reading telnet command: %w", err)
 	}
 
 	switch cmd {
 	case telnetDO, telnetDONT:
 		opt, err := c.reader.ReadByte()
 		if err != nil {
-			return err
+			return fmt.Errorf("reading telnet option byte: %w", err)
 		}
 		_, _ = c.conn.Write([]byte{telnetIAC, telnetWONT, opt}) //nolint:errcheck // best effort write
 
 	case telnetWILL, telnetWONT:
 		opt, err := c.reader.ReadByte()
 		if err != nil {
-			return err
+			return fmt.Errorf("reading telnet option byte: %w", err)
 		}
 		_, _ = c.conn.Write([]byte{telnetIAC, telnetDONT, opt}) //nolint:errcheck // best effort write
 
@@ -173,12 +178,12 @@ func (c *TelnetClient) handleTelnetCommand() error {
 		for {
 			b, err := c.reader.ReadByte()
 			if err != nil {
-				return err
+				return fmt.Errorf("reading telnet sub-negotiation byte: %w", err)
 			}
 			if b == telnetIAC {
 				next, err := c.reader.ReadByte()
 				if err != nil {
-					return err
+					return fmt.Errorf("reading telnet sub-negotiation end: %w", err)
 				}
 				if next == telnetSE {
 					break
@@ -196,7 +201,7 @@ func (c *TelnetClient) readUntil(marker string) error {
 	for {
 		b, err := c.reader.ReadByte()
 		if err != nil {
-			return err
+			return fmt.Errorf("reading until marker %q: %w", marker, err)
 		}
 
 		if b == telnetIAC {
@@ -219,7 +224,7 @@ func (c *TelnetClient) readUntilPrompt() error {
 	for {
 		b, err := c.reader.ReadByte()
 		if err != nil {
-			return err
+			return fmt.Errorf("reading until prompt: %w", err)
 		}
 
 		if b == telnetIAC {

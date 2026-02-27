@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/webhook-test-result",
+  "title": "WebhookTestResult",
+  "description": "Result of testing a webhook",
+  "source": "@site/docs/api/types/objects/webhook-test-result.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/webhook-test-result",
+  "permalink": "/api/types/objects/webhook-test-result",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "webhook-test-result",
+    "title": "WebhookTestResult"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "WebhookTestPayload",
+    "permalink": "/api/types/objects/webhook-test-payload"
+  },
+  "next": {
+    "title": "Webhook",
+    "permalink": "/api/types/objects/webhook"
+  }
+}

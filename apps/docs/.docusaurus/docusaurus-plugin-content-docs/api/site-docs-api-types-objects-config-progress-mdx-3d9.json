@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/config-progress",
+  "title": "ConfigProgress",
+  "description": "Progress information for configuration apply operations",
+  "source": "@site/docs/api/types/objects/config-progress.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/config-progress",
+  "permalink": "/api/types/objects/config-progress",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "config-progress",
+    "title": "ConfigProgress"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ConfigPreview",
+    "permalink": "/api/types/objects/config-preview"
+  },
+  "next": {
+    "title": "ConfigSchemaField",
+    "permalink": "/api/types/objects/config-schema-field"
+  }
+}

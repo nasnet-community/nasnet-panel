@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/check-ip-conflict",
+  "title": "checkIpConflict",
+  "description": "Check if an IP address conflicts with existing assignments",
+  "source": "@site/docs/api/operations/queries/check-ip-conflict.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/check-ip-conflict",
+  "permalink": "/api/operations/queries/check-ip-conflict",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "check-ip-conflict",
+    "title": "checkIpConflict"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "checkGatewayReachability",
+    "permalink": "/api/operations/queries/check-gateway-reachability"
+  },
+  "next": {
+    "title": "checkVlanIdAvailable",
+    "permalink": "/api/operations/queries/check-vlan-id-available"
+  }
+}

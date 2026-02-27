@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/digest-config-input",
+  "title": "DigestConfigInput",
+  "description": "Email digest configuration input (NAS-18.11)",
+  "source": "@site/docs/api/types/inputs/digest-config-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/digest-config-input",
+  "permalink": "/api/types/inputs/digest-config-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "digest-config-input",
+    "title": "DigestConfigInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "DhcpClientInput",
+    "permalink": "/api/types/inputs/dhcp-client-input"
+  },
+  "next": {
+    "title": "DnsLookupInput",
+    "permalink": "/api/types/inputs/dns-lookup-input"
+  }
+}

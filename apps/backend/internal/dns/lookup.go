@@ -36,7 +36,7 @@ func (s *Service) lookupViaRouterOS(ctx context.Context, input *LookupInput) ([]
 	// Execute command
 	result, err := s.routerPort.ExecuteCommand(ctx, cmd)
 	if err != nil {
-		return nil, false, err
+		return nil, false, fmt.Errorf("execute dns lookup command: %w", err)
 	}
 
 	// Detect authoritative flag: RouterOS marks static DNS entries with "type=static"
@@ -48,7 +48,7 @@ func (s *Service) lookupViaRouterOS(ctx context.Context, input *LookupInput) ([]
 	// Parse RouterOS response
 	records, err := parseRouterOSResponse(result.RawOutput, input.RecordType)
 	if err != nil {
-		return nil, false, err
+		return nil, false, fmt.Errorf("parse dns lookup response: %w", err)
 	}
 
 	return records, authoritative, nil
@@ -108,7 +108,7 @@ func (s *Service) lookupViaGoResolver(ctx context.Context, input *LookupInput, s
 func (s *Service) lookupA(ctx context.Context, r *net.Resolver, hostname string) ([]Record, error) {
 	ips, err := r.LookupIP(ctx, "ip4", hostname)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("dns lookup A: %w", err)
 	}
 
 	records := make([]Record, len(ips))
@@ -127,7 +127,7 @@ func (s *Service) lookupA(ctx context.Context, r *net.Resolver, hostname string)
 func (s *Service) lookupAAAA(ctx context.Context, r *net.Resolver, hostname string) ([]Record, error) {
 	ips, err := r.LookupIP(ctx, "ip6", hostname)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("dns lookup AAAA: %w", err)
 	}
 
 	records := make([]Record, len(ips))
@@ -146,7 +146,7 @@ func (s *Service) lookupAAAA(ctx context.Context, r *net.Resolver, hostname stri
 func (s *Service) lookupMX(ctx context.Context, r *net.Resolver, hostname string) ([]Record, error) {
 	mxs, err := r.LookupMX(ctx, hostname)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("dns lookup MX: %w", err)
 	}
 
 	records := make([]Record, len(mxs))
@@ -167,7 +167,7 @@ func (s *Service) lookupMX(ctx context.Context, r *net.Resolver, hostname string
 func (s *Service) lookupTXT(ctx context.Context, r *net.Resolver, hostname string) ([]Record, error) {
 	txts, err := r.LookupTXT(ctx, hostname)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("dns lookup TXT: %w", err)
 	}
 
 	records := make([]Record, len(txts))
@@ -186,7 +186,7 @@ func (s *Service) lookupTXT(ctx context.Context, r *net.Resolver, hostname strin
 func (s *Service) lookupCNAME(ctx context.Context, r *net.Resolver, hostname string) ([]Record, error) {
 	cname, err := r.LookupCNAME(ctx, hostname)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("dns lookup CNAME: %w", err)
 	}
 
 	return []Record{{
@@ -201,7 +201,7 @@ func (s *Service) lookupCNAME(ctx context.Context, r *net.Resolver, hostname str
 func (s *Service) lookupNS(ctx context.Context, r *net.Resolver, hostname string) ([]Record, error) {
 	nss, err := r.LookupNS(ctx, hostname)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("dns lookup NS: %w", err)
 	}
 
 	records := make([]Record, len(nss))
@@ -221,7 +221,7 @@ func (s *Service) lookupPTR(ctx context.Context, r *net.Resolver, hostname strin
 	// For PTR lookups, hostname should be an IP address
 	names, err := r.LookupAddr(ctx, hostname)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("dns lookup PTR: %w", err)
 	}
 
 	records := make([]Record, len(names))
@@ -251,7 +251,7 @@ func (s *Service) lookupSRV(ctx context.Context, r *net.Resolver, hostname strin
 
 	_, srvs, err := r.LookupSRV(ctx, service, proto, name)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("dns lookup SRV: %w", err)
 	}
 
 	records := make([]Record, len(srvs))

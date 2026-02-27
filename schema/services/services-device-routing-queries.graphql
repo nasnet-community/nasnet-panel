@@ -44,38 +44,6 @@ extend type Query {
   ): KillSwitchStatus!
 }
 
-extend type Mutation {
-  """
-  Assign a device to route through a specific service instance.
-  Creates a MikroTik mangle rule for Policy-Based Routing (PBR).
-  """
-  assignDeviceRouting(input: AssignDeviceRoutingInput!): DeviceRouting!
-
-  """
-  Remove a device routing assignment.
-  Deletes the MikroTik mangle rule and database record.
-  """
-  removeDeviceRouting(
-    """Router ID"""
-    routerID: ID!
-
-    """Device ID to unroute"""
-    deviceID: String!
-  ): Boolean!
-
-  """
-  Assign multiple devices to routing in a single operation.
-  Each assignment is processed independently (partial success allowed).
-  """
-  bulkAssignRouting(input: BulkAssignRoutingInput!): BulkRoutingResult!
-
-  """
-  Enable or update kill switch for a device routing.
-  Creates MikroTik filter rules to block traffic when service is unhealthy.
-  """
-  setKillSwitch(input: SetKillSwitchInput!): DeviceRouting!
-}
-
 extend type Subscription {
   """
   Subscribe to device routing changes for a router.

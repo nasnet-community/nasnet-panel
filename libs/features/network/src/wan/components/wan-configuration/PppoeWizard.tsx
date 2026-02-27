@@ -163,7 +163,7 @@ export const PppoeWizard = memo(function PppoeWizard({
   }, [onCancel]);
 
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={cn('space-y-component-lg', className)}>
       {/* Wizard Progress Indicator */}
       <VStepper
         stepper={stepper}
@@ -205,7 +205,7 @@ export const PppoeWizard = memo(function PppoeWizard({
       </div>
 
       {/* Navigation Buttons */}
-      <div className="flex justify-between items-center pt-6 border-t border-border">
+      <div className="flex justify-between items-center pt-component-lg border-t border-border">
         <div>
           {stepper.currentIndex > 0 && !configurationResult && (
             <Button
@@ -220,7 +220,7 @@ export const PppoeWizard = memo(function PppoeWizard({
           )}
         </div>
 
-        <div className="flex gap-3">
+        <div className="flex gap-component-md">
           <Button
             variant="outline"
             onClick={handleCancel}
@@ -246,11 +246,11 @@ export const PppoeWizard = memo(function PppoeWizard({
 
       {/* Error Display */}
       {error && (
-        <div className="rounded-lg bg-error/10 border border-error p-4" role="alert" aria-live="assertive">
+        <div className="rounded-lg bg-error/10 border border-error p-component-md" role="alert" aria-live="assertive">
           <p className="text-sm text-error font-medium">
             Configuration Error
           </p>
-          <p className="text-sm text-error/80 mt-1">
+          <p className="text-sm text-error/80 mt-component-xs">
             {error.message}
           </p>
         </div>

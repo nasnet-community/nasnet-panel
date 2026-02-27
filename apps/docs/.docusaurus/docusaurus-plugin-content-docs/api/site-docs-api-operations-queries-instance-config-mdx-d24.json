@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/instance-config",
+  "title": "instanceConfig",
+  "description": "Get current configuration for a service instance.",
+  "source": "@site/docs/api/operations/queries/instance-config.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/instance-config",
+  "permalink": "/api/operations/queries/instance-config",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "instance-config",
+    "title": "instanceConfig"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "health",
+    "permalink": "/api/operations/queries/health"
+  },
+  "next": {
+    "title": "instanceHealth",
+    "permalink": "/api/operations/queries/instance-health"
+  }
+}

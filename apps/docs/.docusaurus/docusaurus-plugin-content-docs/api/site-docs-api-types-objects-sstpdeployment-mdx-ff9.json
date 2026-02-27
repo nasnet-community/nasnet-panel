@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/sstpdeployment",
+  "title": "SSTPDeployment",
+  "description": "SSTP deployment state",
+  "source": "@site/docs/api/types/objects/sstpdeployment.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/sstpdeployment",
+  "permalink": "/api/types/objects/sstpdeployment",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "sstpdeployment",
+    "title": "SSTPDeployment"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "SSTPClient",
+    "permalink": "/api/types/objects/sstpclient"
+  },
+  "next": {
+    "title": "SSTPRuntime",
+    "permalink": "/api/types/objects/sstpruntime"
+  }
+}

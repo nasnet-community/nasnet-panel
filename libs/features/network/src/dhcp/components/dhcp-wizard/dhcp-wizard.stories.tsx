@@ -125,7 +125,7 @@ function LivePreviewPanel({
         )}
 
         {!hasAnyData && (
-          <div className="text-center text-muted-foreground text-sm py-8">
+          <div className="text-center text-muted-foreground text-sm py-component-xl">
             Complete the wizard steps to see a live preview of your DHCP server
             configuration.
           </div>

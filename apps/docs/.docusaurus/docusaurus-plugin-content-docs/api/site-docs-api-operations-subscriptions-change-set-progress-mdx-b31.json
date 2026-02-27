@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/subscriptions/change-set-progress",
+  "title": "changeSetProgress",
+  "description": "Subscribe to change set application progress",
+  "source": "@site/docs/api/operations/subscriptions/change-set-progress.mdx",
+  "sourceDirName": "api/operations/subscriptions",
+  "slug": "/api/operations/subscriptions/change-set-progress",
+  "permalink": "/api/operations/subscriptions/change-set-progress",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "change-set-progress",
+    "title": "changeSetProgress"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "bridgeStpStatusChanged",
+    "permalink": "/api/operations/subscriptions/bridge-stp-status-changed"
+  },
+  "next": {
+    "title": "changeSetStatusChanged",
+    "permalink": "/api/operations/subscriptions/change-set-status-changed"
+  }
+}

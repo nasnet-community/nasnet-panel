@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/subscriptions/service-config-shared",
+  "title": "serviceConfigShared",
+  "description": "Subscribe to service configuration sharing events.",
+  "source": "@site/docs/api/operations/subscriptions/service-config-shared.mdx",
+  "sourceDirName": "api/operations/subscriptions",
+  "slug": "/api/operations/subscriptions/service-config-shared",
+  "permalink": "/api/operations/subscriptions/service-config-shared",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "service-config-shared",
+    "title": "serviceConfigShared"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "scheduleChanged",
+    "permalink": "/api/operations/subscriptions/schedule-changed"
+  },
+  "next": {
+    "title": "serviceLogs",
+    "permalink": "/api/operations/subscriptions/service-logs"
+  }
+}

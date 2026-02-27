@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/create-tunnel",
+  "title": "createTunnel",
+  "description": "Create a new tunnel interface",
+  "source": "@site/docs/api/operations/mutations/create-tunnel.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/create-tunnel",
+  "permalink": "/api/operations/mutations/create-tunnel",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "create-tunnel",
+    "title": "createTunnel"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "createSchedule",
+    "permalink": "/api/operations/mutations/create-schedule"
+  },
+  "next": {
+    "title": "createVlan",
+    "permalink": "/api/operations/mutations/create-vlan"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/interfaces/connection",
+  "title": "Connection",
+  "description": "Connection interface for paginated results (Relay pagination)",
+  "source": "@site/docs/api/types/interfaces/connection.mdx",
+  "sourceDirName": "api/types/interfaces",
+  "slug": "/api/types/interfaces/connection",
+  "permalink": "/api/types/interfaces/connection",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "connection",
+    "title": "Connection"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "Interfaces",
+    "permalink": "/category/interfaces"
+  },
+  "next": {
+    "title": "Edge",
+    "permalink": "/api/types/interfaces/edge"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/scalars/cidr",
+  "title": "CIDR",
+  "description": "CIDR notation for network address (e.g., \"192.168.1.0/24\")",
+  "source": "@site/docs/api/types/scalars/cidr.mdx",
+  "sourceDirName": "api/types/scalars",
+  "slug": "/api/types/scalars/cidr",
+  "permalink": "/api/types/scalars/cidr",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "cidr",
+    "title": "CIDR"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "Boolean",
+    "permalink": "/api/types/scalars/boolean"
+  },
+  "next": {
+    "title": "DateTime",
+    "permalink": "/api/types/scalars/date-time"
+  }
+}

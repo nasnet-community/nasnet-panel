@@ -60,7 +60,7 @@ export const WifiSecuritySummary = React.memo(function WifiSecuritySummary({ int
           const security = getSecurityInfo(iface.securityProfile);
           const Icon = security.icon;
           return (
-            <div key={iface.id} className={`rounded-card-sm p-component-md border ${security.bgColor} ${security.borderColor}`}>
+            <div key={iface.id} className={`rounded-card-sm p-component-md border shadow-sm ${security.bgColor} ${security.borderColor}`}>
               <div className="flex items-start justify-between">
                 <div>
                   <p className="font-medium font-display text-foreground">{iface.name}</p>
@@ -69,7 +69,7 @@ export const WifiSecuritySummary = React.memo(function WifiSecuritySummary({ int
                 <Icon className={`w-5 h-5 ${security.color}`} />
               </div>
               <div className="mt-component-md flex items-center gap-component-sm">
-                <span className={`px-component-sm py-component-sm text-xs font-medium rounded-md ${security.color} ${security.bgColor}`}>{security.label}</span>
+                <span className={`px-component-sm py-component-sm text-xs font-medium rounded-md font-display ${security.color} ${security.bgColor}`}>{security.label}</span>
                 <span className="text-xs text-muted-foreground font-mono">{iface.securityProfile || t('status.noProfile')}</span>
               </div>
             </div>

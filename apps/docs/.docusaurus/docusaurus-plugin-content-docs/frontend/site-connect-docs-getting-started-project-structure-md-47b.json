@@ -1,0 +1,28 @@
+{
+  "id": "getting-started/project-structure",
+  "title": "Project Structure",
+  "description": "Monorepo Layout",
+  "source": "@site/../connect/docs/getting-started/project-structure.md",
+  "sourceDirName": "getting-started",
+  "slug": "/getting-started/project-structure",
+  "permalink": "/docs/frontend/getting-started/project-structure",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../connect/docs/getting-started/project-structure.md",
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 3,
+  "frontMatter": {
+    "sidebar_position": 3,
+    "title": "Project Structure"
+  },
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Environment Setup",
+    "permalink": "/docs/frontend/getting-started/environment-setup"
+  },
+  "next": {
+    "title": "Key Commands",
+    "permalink": "/docs/frontend/getting-started/key-commands"
+  }
+}

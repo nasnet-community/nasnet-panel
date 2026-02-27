@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/bulk-routing-result",
+  "title": "BulkRoutingResult",
+  "description": "Result of bulk routing assignment operation.",
+  "source": "@site/docs/api/types/objects/bulk-routing-result.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/bulk-routing-result",
+  "permalink": "/api/types/objects/bulk-routing-result",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "bulk-routing-result",
+    "title": "BulkRoutingResult"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "BulkRoutingFailure",
+    "permalink": "/api/types/objects/bulk-routing-failure"
+  },
+  "next": {
+    "title": "CancelChangeSetPayload",
+    "permalink": "/api/types/objects/cancel-change-set-payload"
+  }
+}

@@ -223,7 +223,7 @@ export const PortInputMobile = memo(function PortInputMobile(
     );
   };
 
-  // Single mode
+  // Single mode - full width mobile input
   if (mode === 'single') {
     return (
       <div className={cn('relative space-y-2', className)}>
@@ -234,7 +234,9 @@ export const PortInputMobile = memo(function PortInputMobile(
         )}
 
         <div className="relative">
+          {/* Input row with protocol badge */}
           <div className="flex items-center gap-2">
+            {/* Port input - 44px touch target, full width */}
             <Input
               ref={inputRef as any}
               id={inputId}
@@ -248,9 +250,9 @@ export const PortInputMobile = memo(function PortInputMobile(
               onBlur={handleInputBlur}
               onFocus={handleInputFocus}
               disabled={disabled}
-              placeholder={placeholder || 'Port (1-65535)'}
+              placeholder={placeholder || '8080'}
               className={cn(
-                'font-mono h-11 flex-1', // 44px touch target
+                'font-mono h-11 flex-1',
                 hasError && 'border-error focus-visible:ring-error'
               )}
               aria-invalid={hasError}
@@ -269,8 +271,8 @@ export const PortInputMobile = memo(function PortInputMobile(
               }
             />
 
-            {/* Protocol badge */}
-            <Badge variant="outline" className="uppercase text-xs h-11 px-3">
+            {/* Protocol badge - 44px touch target height */}
+            <Badge variant="outline" className="uppercase text-xs h-11 px-3 font-mono">
               {protocol}
             </Badge>
           </div>

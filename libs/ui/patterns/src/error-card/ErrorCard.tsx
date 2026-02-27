@@ -259,27 +259,22 @@ function ErrorCardComponent({
   // Default variant - full card
   return (
     <Card
-      className={cn(colors.border, colors.bg, className)}
+      className={cn('bg-error-light/50 border border-error/20 dark:bg-red-900/10 dark:border-red-900/30', colors.border, colors.bg, className)}
       role="alert"
       aria-live="polite"
     >
-      <CardContent className="p-4 sm:p-5">
-        <div className="flex items-start gap-3 sm:gap-4">
+      <CardContent className="p-4 sm:p-6">
+        <div className="flex items-start gap-3">
           {/* Error Icon */}
-          <div
-            className={cn(
-              'w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center flex-shrink-0',
-              colors.iconBg
-            )}
-          >
-            <Icon className={cn('w-5 h-5 sm:w-6 sm:h-6', colors.iconColor)} aria-hidden="true" />
+          <div className="flex-shrink-0">
+            <Icon className={cn('h-6 w-6 text-error', colors.iconColor)} aria-hidden="true" />
           </div>
 
           {/* Error Content */}
           <div className="flex-1 min-w-0">
             {/* Title with optional error code */}
             <div className="flex items-center gap-2 flex-wrap">
-              <h4 className="font-medium text-foreground">{title}</h4>
+              <h4 className="text-sm font-semibold text-error-dark dark:text-red-400">{title}</h4>
               {errorCode && (
                 <span className="text-xs font-mono text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
                   {errorCode}
@@ -289,11 +284,11 @@ function ErrorCardComponent({
 
             {/* Description */}
             {description && (
-              <p className="text-sm text-muted-foreground mt-1">{description}</p>
+              <p className="text-sm text-error-dark/80 dark:text-red-300 mt-1">{description}</p>
             )}
 
             {/* Actions */}
-            <div className="flex flex-wrap items-center gap-2 mt-3">
+            <div className="flex flex-wrap items-center gap-2 mt-4">
               {onRetry && (
                 <Button ref={retryButtonRef} size="sm" variant="default" onClick={handleRetry}>
                   <RefreshCw className="w-3.5 h-3.5 mr-1.5" aria-hidden="true" />

@@ -82,7 +82,7 @@ export const DynamicField = React.memo(function DynamicField({
             {field.label}
             {field.required && (
               <>
-                <span className="text-destructive ml-1" aria-hidden="true">
+                <span className="text-error ml-1" aria-hidden="true">
                   *
                 </span>
                 <span className="sr-only">(required)</span>
@@ -161,6 +161,7 @@ function renderFieldInputWithContext(
           {...commonProps}
           type={fieldType === 'EMAIL' ? 'email' : 'text'}
           sensitive={(field as any).sensitive}
+          className={fieldType === 'IP' || fieldType === 'PATH' ? 'font-mono' : ''}
         />
       );
 
@@ -177,6 +178,7 @@ function renderFieldInputWithContext(
           {...commonProps}
           min={(field as any).min as number | undefined}
           max={(field as any).max as number | undefined}
+          className="font-mono"
         />
       );
 

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/impact-analysis",
+  "title": "ImpactAnalysis",
+  "description": "Analysis of template application impact.",
+  "source": "@site/docs/api/types/objects/impact-analysis.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/impact-analysis",
+  "permalink": "/api/types/objects/impact-analysis",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "impact-analysis",
+    "title": "ImpactAnalysis"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "IKEv2Server",
+    "permalink": "/api/types/objects/ikev-2-server"
+  },
+  "next": {
+    "title": "ImportServiceConfigPayload",
+    "permalink": "/api/types/objects/import-service-config-payload"
+  }
+}

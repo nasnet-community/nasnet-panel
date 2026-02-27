@@ -44,15 +44,37 @@ func NewService(cfg ServiceConfig) *Service {
 }
 
 // ProvisionWANLink provisions a WAN link based on its connection type.
-// Dispatches to the appropriate sub-provisioner (DHCP, PPPoE, Static, LTE).
+//
+// Execution order (mirrors TS generateWANLinkConfig):
+//  1. Create virtual interfaces (VLAN, MACVLAN) if required
+//  2. Add final interface to WAN interface list
+//  3. Configure connection (DHCP client / PPPoE / Static IP / LTE)
 func (s *Service) ProvisionWANLink(
 	ctx context.Context,
 	routerID string,
 	sessionID string,
 	link types.WANLinkConfig,
+	networkType string, // "domestic" or "foreign"
 ) (*ProvisionResult, error) {
 
 	comment := "nnc-provisioned-" + sessionID
+
+	// Step 1: Create VLAN/MACVLAN virtual interfaces if needed
+	if err := s.provisionInterfaceConfig(ctx, link, comment); err != nil {
+		return nil, fmt.Errorf("interface config for WAN link %s: %w", link.Name, err)
+	}
+
+	// Step 2: Add final interface to WAN interface list
+	finalIface := GetWANInterface(link)
+	if err := s.addToWANList(ctx, finalIface, networkType, comment); err != nil {
+		// Non-fatal: log and continue; the WAN list may not exist yet if BaseConfig hasn't run
+		s.logger.Warnw("failed to add interface to WAN list", "interface", finalIface, "error", err)
+	}
+
+	// Step 3: Configure the connection
+	if link.ConnectionConfig == nil {
+		return nil, fmt.Errorf("no connection configuration provided for WAN link %s", link.Name)
+	}
 
 	switch {
 	case link.ConnectionConfig.IsDHCP != nil && *link.ConnectionConfig.IsDHCP:

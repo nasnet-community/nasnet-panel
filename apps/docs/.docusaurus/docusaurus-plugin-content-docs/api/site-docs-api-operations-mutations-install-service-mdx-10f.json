@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/install-service",
+  "title": "installService",
+  "description": "Install a new service instance on a router.",
+  "source": "@site/docs/api/operations/mutations/install-service.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/install-service",
+  "permalink": "/api/operations/mutations/install-service",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "install-service",
+    "title": "installService"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "installServiceTemplate",
+    "permalink": "/api/operations/mutations/install-service-template"
+  },
+  "next": {
+    "title": "login",
+    "permalink": "/api/operations/mutations/login"
+  }
+}

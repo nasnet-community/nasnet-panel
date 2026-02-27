@@ -147,7 +147,7 @@ export const NoQueueData: Story = {
   },
   decorators: [
     (Story) => (
-      <div className="flex items-center gap-2 p-4 border border-dashed border-muted-foreground/30 rounded-md text-sm text-muted-foreground">
+      <div className="flex items-center gap-component-sm p-component-md border border-dashed border-muted-foreground/30 rounded-md text-sm text-muted-foreground">
         (badge renders nothing)
         <Story />
       </div>

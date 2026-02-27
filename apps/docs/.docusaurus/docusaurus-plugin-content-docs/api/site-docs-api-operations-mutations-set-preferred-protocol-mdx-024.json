@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/set-preferred-protocol",
+  "title": "setPreferredProtocol",
+  "description": "Set preferred protocol for a router",
+  "source": "@site/docs/api/operations/mutations/set-preferred-protocol.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/set-preferred-protocol",
+  "permalink": "/api/operations/mutations/set-preferred-protocol",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "set-preferred-protocol",
+    "title": "setPreferredProtocol"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "setKillSwitch",
+    "permalink": "/api/operations/mutations/set-kill-switch"
+  },
+  "next": {
+    "title": "setResourceLimits",
+    "permalink": "/api/operations/mutations/set-resource-limits"
+  }
+}

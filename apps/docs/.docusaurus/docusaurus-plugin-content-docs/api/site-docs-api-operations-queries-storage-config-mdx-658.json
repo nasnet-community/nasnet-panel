@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/storage-config",
+  "title": "storageConfig",
+  "description": "Get current external storage configuration.",
+  "source": "@site/docs/api/operations/queries/storage-config.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/storage-config",
+  "permalink": "/api/operations/queries/storage-config",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "storage-config",
+    "title": "storageConfig"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "serviceTrafficStats",
+    "permalink": "/api/operations/queries/service-traffic-stats"
+  },
+  "next": {
+    "title": "storageInfo",
+    "permalink": "/api/operations/queries/storage-info"
+  }
+}

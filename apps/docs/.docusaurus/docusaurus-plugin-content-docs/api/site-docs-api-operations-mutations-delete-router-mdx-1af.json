@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/delete-router",
+  "title": "deleteRouter",
+  "description": "Remove a router",
+  "source": "@site/docs/api/operations/mutations/delete-router.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/delete-router",
+  "permalink": "/api/operations/mutations/delete-router",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "delete-router",
+    "title": "deleteRouter"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "deleteRoute",
+    "permalink": "/api/operations/mutations/delete-route"
+  },
+  "next": {
+    "title": "deleteSchedule",
+    "permalink": "/api/operations/mutations/delete-schedule"
+  }
+}

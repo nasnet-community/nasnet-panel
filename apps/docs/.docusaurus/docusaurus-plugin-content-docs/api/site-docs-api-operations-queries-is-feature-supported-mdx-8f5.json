@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/is-feature-supported",
+  "title": "isFeatureSupported",
+  "description": "Check if a feature is supported on a specific router",
+  "source": "@site/docs/api/operations/queries/is-feature-supported.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/is-feature-supported",
+  "permalink": "/api/operations/queries/is-feature-supported",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "is-feature-supported",
+    "title": "isFeatureSupported"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ipsecProfiles",
+    "permalink": "/api/operations/queries/ipsec-profiles"
+  },
+  "next": {
+    "title": "isPortAvailable",
+    "permalink": "/api/operations/queries/is-port-available"
+  }
+}

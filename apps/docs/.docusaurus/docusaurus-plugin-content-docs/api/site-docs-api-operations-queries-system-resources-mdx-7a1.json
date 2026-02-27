@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/system-resources",
+  "title": "systemResources",
+  "description": "Get system-wide resource overview",
+  "source": "@site/docs/api/operations/queries/system-resources.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/system-resources",
+  "permalink": "/api/operations/queries/system-resources",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "system-resources",
+    "title": "systemResources"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "supportedFeatures",
+    "permalink": "/api/operations/queries/supported-features"
+  },
+  "next": {
+    "title": "troubleshootSession",
+    "permalink": "/api/operations/queries/troubleshoot-session"
+  }
+}

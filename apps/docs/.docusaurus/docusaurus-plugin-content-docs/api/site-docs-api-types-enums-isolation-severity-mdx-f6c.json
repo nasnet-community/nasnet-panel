@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/isolation-severity",
+  "title": "IsolationSeverity",
+  "description": "Severity level of an isolation violation.",
+  "source": "@site/docs/api/types/enums/isolation-severity.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/isolation-severity",
+  "permalink": "/api/types/enums/isolation-severity",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "isolation-severity",
+    "title": "IsolationSeverity"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "IpConflictType",
+    "permalink": "/api/types/enums/ip-conflict-type"
+  },
+  "next": {
+    "title": "JobStatus",
+    "permalink": "/api/types/enums/job-status"
+  }
+}

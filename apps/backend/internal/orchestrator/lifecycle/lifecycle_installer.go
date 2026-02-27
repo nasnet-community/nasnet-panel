@@ -8,6 +8,7 @@ import (
 	"backend/generated/ent"
 	"backend/generated/ent/serviceinstance"
 
+	"backend/internal/features"
 	"backend/internal/network"
 
 	"github.com/oklog/ulid/v2"
@@ -92,24 +93,65 @@ func (im *InstanceManager) CreateInstance(ctx context.Context, req CreateInstanc
 		downloadCtx, cancel := context.WithCancel(context.Background())
 		defer cancel()
 
-		// Determine binary URL and checksum from manifest
-		binaryURL := fmt.Sprintf("https://github.com/nasnetconnect/%s/releases/latest/download/%s", req.FeatureID, req.FeatureID)
-		checksum := manifest.DockerTag // Placeholder - should be actual checksum
+		// Resolve binary URL from manifest source configuration
+		if manifest.Source == nil {
+			im.logger.Error("Manifest has no source configuration", zap.String("feature_id", req.FeatureID))
+			_ = im.updateInstanceStatus(downloadCtx, instance.ID, StatusFailed) //nolint:errcheck // best-effort
+			im.emitStateChangeEvent(downloadCtx, instance.ID, string(StatusInstalling), string(StatusFailed))
+			return
+		}
 
-		// Download binary
-		if err := im.config.DownloadMgr.Download(downloadCtx, req.FeatureID, binaryURL, checksum); err != nil {
-			im.logger.Error("Binary download failed", zap.Error(err), zap.String("instance_id", instance.ID))
-			_ = im.updateInstanceStatus(downloadCtx, instance.ID, StatusFailed) //nolint:errcheck // best-effort status update, download failure is already being handled
+		if im.config.GitHubClient == nil {
+			im.logger.Error("GitHub client not configured, cannot download binaries", zap.String("feature_id", req.FeatureID))
+			_ = im.updateInstanceStatus(downloadCtx, instance.ID, StatusFailed) //nolint:errcheck // best-effort
+			im.emitStateChangeEvent(downloadCtx, instance.ID, string(StatusInstalling), string(StatusFailed))
+			return
+		}
+
+		resolver := features.NewBinaryResolver(im.config.GitHubClient)
+		resolved, resolveErr := resolver.Resolve(downloadCtx, manifest, req.Architecture)
+		if resolveErr != nil {
+			im.logger.Error("Binary resolution failed",
+				zap.Error(resolveErr),
+				zap.String("instance_id", instance.ID),
+				zap.String("feature_id", req.FeatureID),
+				zap.String("architecture", req.Architecture),
+			)
+			_ = im.updateInstanceStatus(downloadCtx, instance.ID, StatusFailed) //nolint:errcheck // best-effort
+			im.emitStateChangeEvent(downloadCtx, instance.ID, string(StatusInstalling), string(StatusFailed))
+			return
+		}
+
+		// Download and extract binary
+		if downloadErr := im.config.DownloadMgr.DownloadAndExtract(
+			downloadCtx,
+			req.FeatureID,
+			resolved.DownloadURL,
+			"", // checksum verified separately via checksum file if needed
+			resolved.ArchiveFormat,
+			resolved.ExtractPath,
+		); downloadErr != nil {
+			im.logger.Error("Binary download failed",
+				zap.Error(downloadErr),
+				zap.String("instance_id", instance.ID),
+				zap.String("url", resolved.DownloadURL),
+			)
+			_ = im.updateInstanceStatus(downloadCtx, instance.ID, StatusFailed) //nolint:errcheck // best-effort
 			im.emitStateChangeEvent(downloadCtx, instance.ID, string(StatusInstalling), string(StatusFailed))
 			return
 		}
 
 		// Update binary info using PathResolver
 		binaryPath := im.config.PathResolver.BinaryPath(req.FeatureID)
+		version := resolved.Version
+		if version == "" {
+			version = manifest.Version
+		}
+
 		_, err := im.config.Store.ServiceInstance.UpdateOneID(instance.ID).
 			SetBinaryPath(binaryPath).
-			SetBinaryVersion(manifest.Version).
-			SetBinaryChecksum(checksum).
+			SetBinaryVersion(version).
+			SetBinaryChecksum("").
 			SetStatus(serviceinstance.StatusInstalled).
 			Save(downloadCtx)
 
@@ -120,7 +162,11 @@ func (im *InstanceManager) CreateInstance(ctx context.Context, req CreateInstanc
 
 		// Emit installed event
 		im.emitStateChangeEvent(downloadCtx, instance.ID, string(StatusInstalling), string(StatusInstalled))
-		im.logger.Info("Instance installed successfully", zap.String("instance_id", instance.ID))
+		im.logger.Info("Instance installed successfully",
+			zap.String("instance_id", instance.ID),
+			zap.String("version", version),
+			zap.String("binary", resolved.FileName),
+		)
 	}()
 
 	return instance, nil

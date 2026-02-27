@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/vlan-filter",
+  "title": "VlanFilter",
+  "description": "Filter options for querying VLANs",
+  "source": "@site/docs/api/types/inputs/vlan-filter.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/vlan-filter",
+  "permalink": "/api/types/inputs/vlan-filter",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "vlan-filter",
+    "title": "VlanFilter"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ValidateServiceConfigInput",
+    "permalink": "/api/types/inputs/validate-service-config-input"
+  },
+  "next": {
+    "title": "VlanInput",
+    "permalink": "/api/types/inputs/vlan-input"
+  }
+}

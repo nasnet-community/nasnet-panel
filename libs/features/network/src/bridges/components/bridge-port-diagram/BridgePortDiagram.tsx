@@ -88,7 +88,7 @@ function BridgePortDiagramComponent({
       {/* Bridge Ports Section */}
       <div className="space-y-component-md">
         <div className="flex items-center gap-component-sm">
-          <Icon icon={Network} className="h-5 w-5" aria-hidden="true" />
+          <Icon icon={Network} className="h-5 w-5 text-category-networking" aria-hidden="true" />
           <h3 className="text-lg font-semibold">Bridge Ports</h3>
         </div>
 
@@ -104,7 +104,7 @@ function BridgePortDiagramComponent({
         {/* Error State */}
         {hasPortsError && (
           <Alert variant="destructive">
-            <Icon icon={AlertCircle} className="h-4 w-4" aria-hidden="true" />
+            <Icon icon={AlertCircle} className="h-4 w-4 text-error" aria-hidden="true" />
             <AlertDescription>
               Failed to load bridge ports: {hasPortsError.message}
             </AlertDescription>
@@ -128,7 +128,7 @@ function BridgePortDiagramComponent({
                   ))
                 ) : (
                   <div className="rounded-lg border-2 border-dashed bg-muted p-component-lg text-center">
-                    <Icon icon={Network} className="h-12 w-12 mx-auto mb-component-md text-muted-foreground opacity-50" aria-hidden="true" />
+                    <Icon icon={Network} className="h-12 w-12 mx-auto mb-component-md text-category-networking opacity-50" aria-hidden="true" />
                     <p className="text-sm font-medium text-muted-foreground mb-component-sm">
                       No ports assigned
                     </p>
@@ -152,12 +152,14 @@ function BridgePortDiagramComponent({
 
       {/* Available Interfaces Section */}
       <div className="space-y-component-md">
-        <h3 className="text-lg font-semibold">Available Interfaces</h3>
+        <div className="flex items-center gap-component-sm">
+          <h3 className="text-lg font-semibold">Available Interfaces</h3>
+        </div>
 
         {/* Error State */}
         {hasInterfacesError && (
           <Alert variant="destructive">
-            <Icon icon={AlertCircle} className="h-4 w-4" aria-hidden="true" />
+            <Icon icon={AlertCircle} className="h-4 w-4 text-error" aria-hidden="true" />
             <AlertDescription>
               Failed to load interfaces: {hasInterfacesError.message}
             </AlertDescription>

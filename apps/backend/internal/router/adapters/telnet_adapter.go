@@ -101,7 +101,8 @@ func (a *TelnetAdapter) Connect(ctx context.Context) error {
 	start := time.Now()
 
 	// Establish TCP connection with timeout
-	conn, err := net.DialTimeout("tcp", address, timeout)
+	dialer := &net.Dialer{Timeout: timeout}
+	conn, err := dialer.DialContext(ctx, "tcp", address)
 	if err != nil {
 		a.health.Status = router.StatusError
 		a.health.ErrorMessage = err.Error()
@@ -336,7 +337,7 @@ func (a *TelnetAdapter) readUntilLogin() error {
 	for {
 		b, err := a.reader.ReadByte()
 		if err != nil {
-			return err
+			return fmt.Errorf("reading byte for login prompt: %w", err)
 		}
 
 		// Handle Telnet IAC commands
@@ -363,7 +364,7 @@ func (a *TelnetAdapter) readUntilLogin() error {
 func (a *TelnetAdapter) handleTelnetCommand() error {
 	cmd, err := a.reader.ReadByte()
 	if err != nil {
-		return err
+		return fmt.Errorf("reading telnet command: %w", err)
 	}
 
 	switch cmd {
@@ -371,7 +372,7 @@ func (a *TelnetAdapter) handleTelnetCommand() error {
 		// Read the option byte
 		opt, err := a.reader.ReadByte()
 		if err != nil {
-			return err
+			return fmt.Errorf("reading telnet option byte: %w", err)
 		}
 		// Respond with WONT for all DO requests
 		_, _ = a.conn.Write([]byte{telnetIAC, telnetWONT, opt}) //nolint:errcheck // best effort write
@@ -380,7 +381,7 @@ func (a *TelnetAdapter) handleTelnetCommand() error {
 		// Read the option byte
 		opt, err := a.reader.ReadByte()
 		if err != nil {
-			return err
+			return fmt.Errorf("reading telnet option byte: %w", err)
 		}
 		// Respond with DONT for all WILL requests
 		_, _ = a.conn.Write([]byte{telnetIAC, telnetDONT, opt}) //nolint:errcheck // best effort write
@@ -390,13 +391,13 @@ func (a *TelnetAdapter) handleTelnetCommand() error {
 		for {
 			b, err := a.reader.ReadByte()
 			if err != nil {
-				return err
+				return fmt.Errorf("reading telnet sub-negotiation byte: %w", err)
 			}
 
 			if b == telnetIAC {
 				next, err := a.reader.ReadByte()
 				if err != nil {
-					return err
+					return fmt.Errorf("reading telnet sub-negotiation end: %w", err)
 				}
 
 				if next == telnetSE {
@@ -415,7 +416,7 @@ func (a *TelnetAdapter) readUntil(marker string) error {
 	for {
 		b, err := a.reader.ReadByte()
 		if err != nil {
-			return err
+			return fmt.Errorf("reading until marker %q: %w", marker, err)
 		}
 
 		// Handle Telnet IAC commands
@@ -439,7 +440,7 @@ func (a *TelnetAdapter) readUntilPrompt() error {
 	for {
 		b, err := a.reader.ReadByte()
 		if err != nil {
-			return err
+			return fmt.Errorf("reading until prompt: %w", err)
 		}
 
 		// Handle Telnet IAC commands
@@ -479,7 +480,7 @@ func (a *TelnetAdapter) runCommand(ctx context.Context, command string) (string,
 	// Read response until next prompt
 	output, err := a.readCommandOutput(ctx, command)
 	if err != nil {
-		return output, err
+		return output, fmt.Errorf("reading command output: %w", err)
 	}
 
 	return output, nil
@@ -500,13 +501,13 @@ func (a *TelnetAdapter) readCommandOutput(ctx context.Context, sentCommand strin
 
 		b, err := a.reader.ReadByte()
 		if err != nil {
-			return output.String(), err
+			return output.String(), fmt.Errorf("reading command output: %w", err)
 		}
 
 		// Handle Telnet IAC commands
 		if b == telnetIAC {
 			if err := a.handleTelnetCommand(); err != nil {
-				return output.String(), err
+				return output.String(), fmt.Errorf("handling telnet command: %w", err)
 			}
 			continue
 		}
@@ -555,7 +556,7 @@ func isTelnetPrompt(line string) bool {
 }
 
 // getRouterInfo fetches router information via Telnet CLI.
-func (a *TelnetAdapter) getRouterInfo(ctx context.Context) (*router.RouterInfo, error) { //nolint:dupl // telnet-specific version parsing differs from SSH
+func (a *TelnetAdapter) getRouterInfo(ctx context.Context) (*router.RouterInfo, error) {
 	// Get system resource
 	output, err := a.runCommand(ctx, "/system resource print")
 	if err != nil {

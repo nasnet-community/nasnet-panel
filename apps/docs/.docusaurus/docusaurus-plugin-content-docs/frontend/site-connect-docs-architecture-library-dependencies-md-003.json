@@ -1,0 +1,24 @@
+{
+  "id": "architecture/library-dependencies",
+  "title": "Monorepo Library Dependency Graph",
+  "description": "NasNetConnect is an Nx monorepo. The apps/connect application depends on a set of shared libraries",
+  "source": "@site/../connect/docs/architecture/library-dependencies.md",
+  "sourceDirName": "architecture",
+  "slug": "/architecture/library-dependencies",
+  "permalink": "/docs/frontend/architecture/library-dependencies",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../connect/docs/architecture/library-dependencies.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Build System",
+    "permalink": "/docs/frontend/architecture/build-system"
+  },
+  "next": {
+    "title": "Architecture Overview",
+    "permalink": "/docs/frontend/architecture/overview"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/delete-resource-payload",
+  "title": "DeleteResourcePayload",
+  "description": "No description",
+  "source": "@site/docs/api/types/objects/delete-resource-payload.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/delete-resource-payload",
+  "permalink": "/api/types/objects/delete-resource-payload",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "delete-resource-payload",
+    "title": "DeleteResourcePayload"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "DeletePayload",
+    "permalink": "/api/types/objects/delete-payload"
+  },
+  "next": {
+    "title": "DeleteResult",
+    "permalink": "/api/types/objects/delete-result"
+  }
+}

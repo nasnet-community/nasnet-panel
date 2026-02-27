@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/validation-issue",
+  "title": "ValidationIssue",
+  "description": "A validation issue (error or warning)",
+  "source": "@site/docs/api/types/objects/validation-issue.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/validation-issue",
+  "permalink": "/api/types/objects/validation-issue",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "validation-issue",
+    "title": "ValidationIssue"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ValidationError",
+    "permalink": "/api/types/objects/validation-error"
+  },
+  "next": {
+    "title": "ValidationResult",
+    "permalink": "/api/types/objects/validation-result"
+  }
+}

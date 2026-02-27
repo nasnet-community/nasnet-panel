@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/service-instance-health",
+  "title": "ServiceInstanceHealth",
+  "description": "Comprehensive health status for a service instance",
+  "source": "@site/docs/api/types/objects/service-instance-health.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/service-instance-health",
+  "permalink": "/api/types/objects/service-instance-health",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "service-instance-health",
+    "title": "ServiceInstanceHealth"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ServiceInstanceHealthConfig",
+    "permalink": "/api/types/objects/service-instance-health-config"
+  },
+  "next": {
+    "title": "ServiceInstancePayload",
+    "permalink": "/api/types/objects/service-instance-payload"
+  }
+}

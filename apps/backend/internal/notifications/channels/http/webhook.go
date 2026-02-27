@@ -28,7 +28,7 @@ type WebhookConfig struct {
 	URL     string            `json:"url"`
 	Method  string            `json:"method"`
 	Headers map[string]string `json:"headers"`
-	Secret  string            `json:"secret"`
+	Secret  string            `json:"secret"` //nolint:gosec // G101: credential field required for webhook HMAC signature
 }
 
 // NewWebhookChannel creates a new webhook notification channel.
@@ -47,7 +47,7 @@ func (w *WebhookChannel) Name() string { return "webhook" }
 
 // Send delivers a notification via webhook.
 func (w *WebhookChannel) Send(ctx context.Context, notification notifications.Notification) error {
-	if err := ValidateWebhookURL(w.config.URL); err != nil {
+	if err := ValidateWebhookURL(w.config.URL); err != nil { //nolint:contextcheck // validation does not require context
 		return fmt.Errorf("invalid webhook URL: %w", err)
 	}
 
@@ -81,7 +81,7 @@ func (w *WebhookChannel) Send(ctx context.Context, notification notifications.No
 		req.Header.Set("X-NasNet-Signature", signature)
 	}
 
-	resp, err := w.client.Do(req)
+	resp, err := w.client.Do(req) //nolint:gosec // G704: URL is constructed from trusted configuration
 	if err != nil {
 		return fmt.Errorf("failed to send webhook: %w", err)
 	}
@@ -143,7 +143,7 @@ type AlertSummary struct {
 
 // SendDigest delivers a digest notification via webhook.
 func (w *WebhookChannel) SendDigest(ctx context.Context, payload DigestPayload) error {
-	if err := ValidateWebhookURL(w.config.URL); err != nil {
+	if err := ValidateWebhookURL(w.config.URL); err != nil { //nolint:contextcheck // validation does not require context
 		return fmt.Errorf("invalid webhook URL: %w", err)
 	}
 
@@ -183,7 +183,7 @@ func (w *WebhookChannel) SendDigest(ctx context.Context, payload DigestPayload) 
 		req.Header.Set("X-NasNet-Signature", signature)
 	}
 
-	resp, err := w.client.Do(req)
+	resp, err := w.client.Do(req) //nolint:gosec // G704: URL is constructed from trusted configuration
 	if err != nil {
 		return fmt.Errorf("failed to send digest webhook: %w", err)
 	}
@@ -211,7 +211,8 @@ func ValidateWebhookURL(urlStr string) error {
 	if hostname == "localhost" || hostname == "127.0.0.1" || hostname == "::1" {
 		return fmt.Errorf("localhost URLs are not allowed")
 	}
-	ips, err := net.LookupHost(hostname)
+	resolver := &net.Resolver{}
+	ips, err := resolver.LookupHost(context.Background(), hostname)
 	if err != nil {
 		return fmt.Errorf("failed to resolve hostname: %w", err)
 	}

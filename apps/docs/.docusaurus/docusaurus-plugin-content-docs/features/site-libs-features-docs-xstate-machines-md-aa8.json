@@ -1,0 +1,20 @@
+{
+  "id": "xstate-machines",
+  "title": "XState Machines Reference",
+  "description": "This document catalogues every XState machine in NasNetConnect. Machines are used for workflows where simple boolean flags or Zustand state become insufficient — specifically where there are multiple sequential async steps, guards that prevent invalid transitions, and rollback/error recovery paths.",
+  "source": "@site/../../libs/features/docs/xstate-machines.md",
+  "sourceDirName": ".",
+  "slug": "/xstate-machines",
+  "permalink": "/docs/features/xstate-machines",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/features/docs/xstate-machines.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Testing and Storybook",
+    "permalink": "/docs/features/testing-and-storybook"
+  }
+}

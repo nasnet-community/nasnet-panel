@@ -1,0 +1,24 @@
+{
+  "id": "state-management",
+  "title": "State Management Guide",
+  "description": "This document covers all state management patterns used in NasNetConnect. The application uses four distinct tools, each with a well-defined role. Choosing the wrong tool for a given situation is the most common source of bugs and unnecessary re-renders.",
+  "source": "@site/../../libs/features/docs/state-management.md",
+  "sourceDirName": ".",
+  "slug": "/state-management",
+  "permalink": "/docs/features/state-management",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/features/docs/state-management.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Routing and Navigation Architecture",
+    "permalink": "/docs/features/routing-and-navigation"
+  },
+  "next": {
+    "title": "Testing and Storybook",
+    "permalink": "/docs/features/testing-and-storybook"
+  }
+}

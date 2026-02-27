@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/virtual-interface",
+  "title": "virtualInterface",
+  "description": "Get a specific virtual interface for a service instance.",
+  "source": "@site/docs/api/operations/queries/virtual-interface.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/virtual-interface",
+  "permalink": "/api/operations/queries/virtual-interface",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "virtual-interface",
+    "title": "virtualInterface"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "version",
+    "permalink": "/api/operations/queries/version"
+  },
+  "next": {
+    "title": "virtualInterfaces",
+    "permalink": "/api/operations/queries/virtual-interfaces"
+  }
+}

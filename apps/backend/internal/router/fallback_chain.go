@@ -197,13 +197,12 @@ func (fc *FallbackChain) Connect(ctx context.Context) error {
 	}
 
 	// Publish error status
-	errMsg := ""
 	if lastErr != nil {
-		errMsg = lastErr.Error()
+		fc.publishStatusChange(ctx, events.RouterStatusError, "", lastErr.Error())
+		return fmt.Errorf("all protocols failed: %w", lastErr)
 	}
-	fc.publishStatusChange(ctx, events.RouterStatusError, "", errMsg)
-
-	return fmt.Errorf("all protocols failed, last error: %w", lastErr)
+	fc.publishStatusChange(ctx, events.RouterStatusError, "", "no protocols available")
+	return fmt.Errorf("all protocols failed: no protocols available")
 }
 
 // tryConnect attempts to connect with a specific protocol.
@@ -215,7 +214,7 @@ func (fc *FallbackChain) tryConnect(ctx context.Context, proto Protocol) (interf
 
 	err = adapter.Connect(ctx)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to connect with protocol %s: %w", proto.String(), err)
 	}
 
 	fc.currentPort = adapter
@@ -232,7 +231,10 @@ func (fc *FallbackChain) Disconnect() error {
 		fc.currentPort = nil
 		// Publish disconnected event
 		fc.publishStatusChange(context.Background(), events.RouterStatusDisconnected, "", "")
-		return err
+		if err != nil {
+			return fmt.Errorf("failed to disconnect adapter: %w", err)
+		}
+		return nil
 	}
 	return nil
 }
@@ -282,7 +284,7 @@ func (fc *FallbackChain) ExecuteCommand(ctx context.Context, cmd Command) (*Comm
 			fc.logger.Warn("circuit breaker opened, attempting reconnect", zap.String("protocol", proto.String()))
 			go fc.attemptReconnect(context.Background()) //nolint:contextcheck // background reconnect intentional
 		}
-		return nil, err
+		return nil, fmt.Errorf("failed to execute command via circuit breaker: %w", err)
 	}
 
 	return result.(*CommandResult), nil //nolint:forcetypeassert,errcheck // safe within circuit breaker Execute
@@ -309,7 +311,7 @@ func (fc *FallbackChain) QueryState(ctx context.Context, query StateQuery) (*Sta
 		if cb.State() == gobreaker.StateOpen {
 			go fc.attemptReconnect(context.Background()) //nolint:contextcheck // background reconnect intentional
 		}
-		return nil, err
+		return nil, fmt.Errorf("failed to query state via circuit breaker: %w", err)
 	}
 
 	return result.(*StateResult), nil //nolint:forcetypeassert,errcheck // safe within circuit breaker Execute
@@ -449,7 +451,11 @@ func (fc *FallbackChain) Info() (*RouterInfo, error) {
 		return nil, fmt.Errorf("not connected")
 	}
 
-	return adapter.Info()
+	info, err := adapter.Info()
+	if err != nil {
+		return nil, fmt.Errorf("get adapter info: %w", err)
+	}
+	return info, nil
 }
 
 // Capabilities returns capabilities from current adapter.

@@ -65,17 +65,18 @@ function MetricDisplayDesktopComponent(props: MetricDisplayProps) {
     return (
       <div
         className={cn(
-          'bg-card dark:bg-slate-800 rounded-xl border border-border dark:border-slate-700',
+          'bg-card border border-border rounded-[var(--semantic-radius-card)]',
+          'shadow-[var(--semantic-shadow-card)] dark:shadow-none',
           sizeClasses.container,
           className
         )}
       >
-        <div className="flex items-start justify-between">
-          <div>
+        <div className="flex items-center gap-4">
+          <div className="flex-1">
             <Skeleton className="h-4 w-16 mb-2" />
             <Skeleton className="h-7 w-24" />
           </div>
-          <Skeleton className="h-6 w-6 rounded flex-shrink-0" />
+          <Skeleton className="h-10 w-10 rounded-lg flex-shrink-0" />
         </div>
       </div>
     );
@@ -89,44 +90,52 @@ function MetricDisplayDesktopComponent(props: MetricDisplayProps) {
       onClick={onClick}
       onKeyDown={handleKeyDown}
       className={cn(
-        'text-left bg-card dark:bg-slate-800 rounded-xl border border-border dark:border-slate-700',
+        'text-left bg-card border border-border rounded-[var(--semantic-radius-card)]',
+        'shadow-[var(--semantic-shadow-card)] dark:shadow-none',
         'transition-all duration-150',
         isInteractive && [
           'cursor-pointer',
-          'hover:shadow-md hover:border-primary/20 dark:hover:border-slate-600',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950',
+          'hover:shadow-[var(--semantic-shadow-card)] hover:border-primary/20',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
         ],
         sizeClasses.container,
         className
       )}
     >
-      <div className="flex items-start justify-between">
-        {/* Content */}
-        <div className="flex-1 min-w-0">
-          {/* Label */}
-          <span
+      <div className="flex items-center gap-4">
+        {/* Icon */}
+        {Icon && (
+          <div
             className={cn(
-              'block font-medium text-muted-foreground mb-1',
-              sizeClasses.label
+              'h-10 w-10 rounded-lg bg-muted flex items-center justify-center flex-shrink-0',
+              'text-muted-foreground'
             )}
           >
+            <Icon className={cn(sizeClasses.icon)} />
+          </div>
+        )}
+
+        {/* Content */}
+        <div className="flex-1 min-w-0">
+          {/* Value */}
+          <span className={cn('text-2xl font-bold font-display block', valueClasses)}>
+            {formattedValue}
+          </span>
+
+          {/* Label */}
+          <span className="text-sm text-muted-foreground block">
             {label}
           </span>
 
-          {/* Value with trend inline */}
-          <div className="flex items-baseline gap-2 flex-wrap">
-            <span className={cn(sizeClasses.value, valueClasses)}>{formattedValue}</span>
-
-            {/* Trend indicator */}
-            {TrendIcon && props.trendValue && (
-              <span
-                className={cn('flex items-center gap-0.5', trendClasses, sizeClasses.trend)}
-              >
-                <TrendIcon className="w-3 h-3" />
-                <span>{props.trendValue}</span>
-              </span>
-            )}
-          </div>
+          {/* Trend indicator */}
+          {TrendIcon && props.trendValue && (
+            <span
+              className={cn('inline-flex items-center gap-0.5 text-xs font-medium mt-1', trendClasses)}
+            >
+              <TrendIcon className="w-3 h-3" />
+              <span>{props.trendValue}</span>
+            </span>
+          )}
 
           {/* Description */}
           {description && (
@@ -135,16 +144,6 @@ function MetricDisplayDesktopComponent(props: MetricDisplayProps) {
             </p>
           )}
         </div>
-
-        {/* Icon */}
-        {Icon && (
-          <Icon
-            className={cn(
-              'text-muted-foreground flex-shrink-0 ml-3',
-              sizeClasses.icon
-            )}
-          />
-        )}
       </div>
     </Component>
   );

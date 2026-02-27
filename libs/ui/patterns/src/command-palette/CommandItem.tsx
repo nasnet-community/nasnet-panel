@@ -94,7 +94,7 @@ function formatShortcut(shortcut: string): string[] {
  */
 function Kbd({ children }: { children: React.ReactNode }) {
   return (
-    <kbd className="inline-flex h-5 min-w-5 items-center justify-center rounded bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
+    <kbd className="bg-muted text-muted-foreground inline-flex h-5 min-w-5 items-center justify-center rounded px-1.5 font-mono text-xs">
       {children}
     </kbd>
   );
@@ -116,17 +116,7 @@ function Kbd({ children }: { children: React.ReactNode }) {
  */
 const CommandItem = React.memo(
   React.forwardRef<HTMLDivElement, CommandItemProps>(
-    (
-      {
-        command,
-        selected,
-        showShortcut = true,
-        isOnline = true,
-        onSelect,
-        className,
-      },
-      ref
-    ) => {
+    ({ command, selected, showShortcut = true, isOnline = true, onSelect, className }, ref) => {
       const Icon = command.icon;
       const isDisabled = command.requiresNetwork && !isOnline;
       const shortcutKeys = command.shortcut ? formatShortcut(command.shortcut) : [];
@@ -140,9 +130,8 @@ const CommandItem = React.memo(
           data-selected={selected}
           data-disabled={isDisabled}
           className={cn(
-            'flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 outline-none transition-colors',
-            'hover:bg-accent hover:text-accent-foreground',
-            'focus:bg-accent focus:text-accent-foreground',
+            'flex cursor-pointer items-center gap-3 rounded-lg outline-none transition-colors duration-150',
+            'hover:bg-muted',
             selected && 'bg-accent text-accent-foreground',
             isDisabled && 'cursor-not-allowed opacity-50',
             className
@@ -157,24 +146,31 @@ const CommandItem = React.memo(
           tabIndex={-1}
         >
           {/* Icon */}
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-muted">
-            <Icon className="h-4 w-4" aria-hidden="true" />
+          <div className="text-muted-foreground flex h-5 w-5 shrink-0 items-center justify-center">
+            <Icon
+              className="h-5 w-5"
+              aria-hidden="true"
+            />
           </div>
 
           {/* Label and description */}
           <div className="flex min-w-0 flex-1 flex-col">
-            <span className="truncate text-sm font-medium">{command.label}</span>
+            <span className="text-foreground truncate text-sm">{command.label}</span>
             {command.description && (
-              <span className="truncate text-xs text-muted-foreground">
-                {command.description}
-              </span>
+              <span className="text-muted-foreground truncate text-xs">{command.description}</span>
             )}
           </div>
 
           {/* Offline badge */}
           {command.requiresNetwork && !isOnline && (
-            <div className="flex items-center gap-1 rounded bg-destructive/10 px-1.5 py-0.5 text-xs text-destructive" title="This command requires network connectivity">
-              <IconComponent icon={WifiOff} size="sm" />
+            <div
+              className="bg-destructive/10 text-destructive flex items-center gap-1 rounded px-1.5 py-0.5 text-xs"
+              title="This command requires network connectivity"
+            >
+              <IconComponent
+                icon={WifiOff}
+                size="sm"
+              />
               <span>Offline</span>
             </div>
           )}

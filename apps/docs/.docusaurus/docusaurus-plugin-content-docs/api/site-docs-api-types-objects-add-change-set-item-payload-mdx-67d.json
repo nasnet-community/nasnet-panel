@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/add-change-set-item-payload",
+  "title": "AddChangeSetItemPayload",
+  "description": "No description",
+  "source": "@site/docs/api/types/objects/add-change-set-item-payload.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/add-change-set-item-payload",
+  "permalink": "/api/types/objects/add-change-set-item-payload",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "add-change-set-item-payload",
+    "title": "AddChangeSetItemPayload"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "Objects",
+    "permalink": "/category/objects"
+  },
+  "next": {
+    "title": "AddRouterPayload",
+    "permalink": "/api/types/objects/add-router-payload"
+  }
+}

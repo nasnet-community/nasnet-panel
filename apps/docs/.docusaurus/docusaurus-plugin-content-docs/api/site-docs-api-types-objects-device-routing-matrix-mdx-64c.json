@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/device-routing-matrix",
+  "title": "DeviceRoutingMatrix",
+  "description": "Complete device routing matrix.",
+  "source": "@site/docs/api/types/objects/device-routing-matrix.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/device-routing-matrix",
+  "permalink": "/api/types/objects/device-routing-matrix",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "device-routing-matrix",
+    "title": "DeviceRoutingMatrix"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "DeviceRoutingMatrixStats",
+    "permalink": "/api/types/objects/device-routing-matrix-stats"
+  },
+  "next": {
+    "title": "DeviceRouting",
+    "permalink": "/api/types/objects/device-routing"
+  }
+}

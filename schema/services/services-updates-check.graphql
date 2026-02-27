@@ -1,0 +1,14 @@
+# ============================================
+# UPDATE CHECK MUTATION
+# ============================================
+
+extend type Mutation {
+  """
+  Manually trigger update check for all instances.
+  Queries GitHub Releases API for new versions.
+  """
+  checkForUpdates(
+    """Router ID"""
+    routerID: ID!
+  ): Int!
+}

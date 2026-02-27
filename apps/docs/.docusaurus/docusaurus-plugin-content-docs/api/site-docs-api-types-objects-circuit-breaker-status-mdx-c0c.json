@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/circuit-breaker-status",
+  "title": "CircuitBreakerStatus",
+  "description": "Circuit breaker status for a router",
+  "source": "@site/docs/api/types/objects/circuit-breaker-status.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/circuit-breaker-status",
+  "permalink": "/api/types/objects/circuit-breaker-status",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "circuit-breaker-status",
+    "title": "CircuitBreakerStatus"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "CircuitBreakerEvent",
+    "permalink": "/api/types/objects/circuit-breaker-event"
+  },
+  "next": {
+    "title": "CompositeResource",
+    "permalink": "/api/types/objects/composite-resource"
+  }
+}

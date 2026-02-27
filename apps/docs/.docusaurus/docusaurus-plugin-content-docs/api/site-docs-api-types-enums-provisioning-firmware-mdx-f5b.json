@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/provisioning-firmware",
+  "title": "ProvisioningFirmware",
+  "description": "Target firmware for provisioning",
+  "source": "@site/docs/api/types/enums/provisioning-firmware.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/provisioning-firmware",
+  "permalink": "/api/types/enums/provisioning-firmware",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "provisioning-firmware",
+    "title": "ProvisioningFirmware"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ProvisioningApplyStatus",
+    "permalink": "/api/types/enums/provisioning-apply-status"
+  },
+  "next": {
+    "title": "ProvisioningMode",
+    "permalink": "/api/types/enums/provisioning-mode"
+  }
+}

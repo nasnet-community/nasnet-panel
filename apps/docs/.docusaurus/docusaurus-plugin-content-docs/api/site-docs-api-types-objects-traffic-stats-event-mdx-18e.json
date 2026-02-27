@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/traffic-stats-event",
+  "title": "TrafficStatsEvent",
+  "description": "Traffic statistics update event for subscriptions.",
+  "source": "@site/docs/api/types/objects/traffic-stats-event.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/traffic-stats-event",
+  "permalink": "/api/types/objects/traffic-stats-event",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "traffic-stats-event",
+    "title": "TrafficStatsEvent"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "TrafficQuota",
+    "permalink": "/api/types/objects/traffic-quota"
+  },
+  "next": {
+    "title": "TroubleshootFixSuggestion",
+    "permalink": "/api/types/objects/troubleshoot-fix-suggestion"
+  }
+}

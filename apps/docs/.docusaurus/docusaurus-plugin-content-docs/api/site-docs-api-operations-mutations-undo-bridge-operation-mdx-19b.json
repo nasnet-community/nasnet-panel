@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/undo-bridge-operation",
+  "title": "undoBridgeOperation",
+  "description": "Undo a bridge operation (within 10-second window)",
+  "source": "@site/docs/api/operations/mutations/undo-bridge-operation.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/undo-bridge-operation",
+  "permalink": "/api/operations/mutations/undo-bridge-operation",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "undo-bridge-operation",
+    "title": "undoBridgeOperation"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "triggerDigestNow",
+    "permalink": "/api/operations/mutations/trigger-digest-now"
+  },
+  "next": {
+    "title": "updateAlertRule",
+    "permalink": "/api/operations/mutations/update-alert-rule"
+  }
+}

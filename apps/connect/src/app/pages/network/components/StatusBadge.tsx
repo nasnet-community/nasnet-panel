@@ -41,33 +41,36 @@ export const StatusBadge = memo(function StatusBadge({
     <span
       role="status"
       aria-label={isRunning ? t('interfaces.running') : t('interfaces.disabled')}
+      aria-live="polite"
       className={cn(
-        'inline-flex items-center gap-1.5 rounded-full font-medium',
+        'inline-flex items-center gap-1.5 rounded-full font-medium text-xs',
         sizeClasses[size],
         isRunning
-          ? 'bg-success/10 text-success'
-          : 'bg-muted text-muted-foreground',
+          ? 'bg-success/15 text-success'
+          : 'bg-error/15 text-error',
         className
       )}
     >
-      <span className="relative flex">
+      <span className="relative flex flex-shrink-0">
         <span
           className={cn(
             'rounded-full',
             dotSizeClasses[size],
-            isRunning ? 'bg-success' : 'bg-muted-foreground'
+            isRunning ? 'bg-success' : 'bg-error'
           )}
+          aria-hidden="true"
         />
         {isRunning && (
           <span
             className={cn(
-              'absolute inset-0 rounded-full bg-success animate-ping opacity-75',
+              'absolute inset-0 rounded-full bg-success animate-pulse opacity-75',
               dotSizeClasses[size]
             )}
+            aria-hidden="true"
           />
         )}
       </span>
-      {showLabel && (isRunning ? t('interfaces.running') : t('interfaces.disabled'))}
+      {showLabel && <span className="font-medium">{isRunning ? t('interfaces.running') : t('interfaces.disabled')}</span>}
     </span>
   );
 });

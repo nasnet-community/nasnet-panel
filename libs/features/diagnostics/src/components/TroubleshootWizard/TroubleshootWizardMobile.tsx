@@ -133,13 +133,13 @@ export const TroubleshootWizardMobile = memo(function TroubleshootWizardMobile({
             <ChevronLeft className="h-5 w-5" aria-hidden="true" />
           </Button>
         )}
-        <h1 className="text-lg font-semibold text-foreground">No Internet Help</h1>
+        <h1 className="text-lg font-semibold text-category-networking">No Internet Help</h1>
       </div>
 
       {/* Progress Bar */}
       {!wizard.isIdle && (
         <div className="p-component-md border-b bg-background" role="progressbar" aria-valuenow={Math.round(wizard.progress.percentage)} aria-valuemin={0} aria-valuemax={100} aria-label={`Diagnostic progress: step ${wizard.progress.current} of ${wizard.progress.total}`}>
-          <div className="flex justify-between items-center mb-2 text-sm">
+          <div className="flex justify-between items-center mb-component-sm text-sm">
             <span className="text-muted-foreground">
               Step {wizard.progress.current} of {wizard.progress.total}
             </span>
@@ -156,7 +156,7 @@ export const TroubleshootWizardMobile = memo(function TroubleshootWizardMobile({
             <h2 className="text-lg font-semibold text-foreground mb-3">
               Ready to troubleshoot?
             </h2>
-            <p className="text-sm text-muted-foreground mb-6">
+            <p className="text-sm text-muted-foreground mb-component-lg">
               We'll run automated tests to find and fix internet issues.
             </p>
             <Button onClick={wizard.start} className="w-full min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" aria-label="Start diagnostic troubleshooting">
@@ -202,7 +202,7 @@ export const TroubleshootWizardMobile = memo(function TroubleshootWizardMobile({
       {/* Fix Action Buttons (Fixed Bottom) */}
       {wizard.isAwaitingFixDecision && wizard.currentStep.fix && !showFixSheet && (
         <div className="p-component-md border-t bg-background sticky bottom-0 z-20">
-          <div className="flex gap-component-md">
+          <div className="flex gap-component-sm">
             <Button
               variant="outline"
               onClick={wizard.skipFix}
@@ -239,7 +239,7 @@ export const TroubleshootWizardMobile = memo(function TroubleshootWizardMobile({
           <SheetHeader>
             <SheetTitle>{wizard.currentStep.fix?.title}</SheetTitle>
           </SheetHeader>
-          <div className="mt-4">
+          <div className="mt-component-md">
             {wizard.currentStep.fix && (
               <FixSuggestion
                 fix={wizard.currentStep.fix}

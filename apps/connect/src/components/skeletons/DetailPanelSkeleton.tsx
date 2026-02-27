@@ -109,7 +109,7 @@ export function DetailPanelSkeleton({
             {Array.from({ length: 3 }).map((_, i) => (
               <div
                 key={i}
-                className="flex items-center gap-3 p-2 rounded-md bg-muted/30"
+                className="flex items-center gap-3 p-2 rounded-md bg-muted/30 shadow-sm"
               >
                 <Skeleton className="h-8 w-8 rounded" />
                 <div className="flex-1 space-y-1">

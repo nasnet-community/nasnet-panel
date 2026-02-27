@@ -7,16 +7,16 @@ package resolver
 
 import (
 	"backend/graph/model"
-	"backend/internal/errors"
+	"backend/internal/apperrors"
 	"context"
 )
 
 // ChangeSetProgress is the resolver for the changeSetProgress field.
 func (r *subscriptionResolver) ChangeSetProgress(ctx context.Context, changeSetID string) (<-chan *model.ChangeSetProgressEvent, error) {
-	panic(errors.NewProtocolError("NOT_IMPLEMENTED", "ChangeSetProgress - changeSetProgress", "graphql"))
+	panic(apperrors.NewProtocolError("NOT_IMPLEMENTED", "ChangeSetProgress - changeSetProgress", "graphql"))
 }
 
 // ChangeSetStatusChanged is the resolver for the changeSetStatusChanged field.
 func (r *subscriptionResolver) ChangeSetStatusChanged(ctx context.Context, routerID string) (<-chan *model.ChangeSetStatusEvent, error) {
-	panic(errors.NewProtocolError("NOT_IMPLEMENTED", "ChangeSetStatusChanged - changeSetStatusChanged", "graphql"))
+	panic(apperrors.NewProtocolError("NOT_IMPLEMENTED", "ChangeSetStatusChanged - changeSetStatusChanged", "graphql"))
 }

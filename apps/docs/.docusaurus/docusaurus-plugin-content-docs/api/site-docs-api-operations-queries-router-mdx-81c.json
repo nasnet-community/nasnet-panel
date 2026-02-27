@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/router",
+  "title": "router",
+  "description": "Get a router by ID",
+  "source": "@site/docs/api/operations/queries/router.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/router",
+  "permalink": "/api/operations/queries/router",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "router",
+    "title": "router"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "routerHealth",
+    "permalink": "/api/operations/queries/router-health"
+  },
+  "next": {
+    "title": "routers",
+    "permalink": "/api/operations/queries/routers"
+  }
+}

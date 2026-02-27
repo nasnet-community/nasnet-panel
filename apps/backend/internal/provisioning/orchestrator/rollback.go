@@ -30,6 +30,10 @@ type RollbackError struct {
 func (o *Orchestrator) Rollback(ctx context.Context, results []PhaseResult) *RollbackResult {
 	summary := &RollbackResult{}
 
+	if len(results) == 0 {
+		return summary
+	}
+
 	// Iterate phases in reverse order.
 	for i := len(results) - 1; i >= 0; i-- {
 		phaseResult := results[i]

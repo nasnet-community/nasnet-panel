@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/nat-action",
+  "title": "NatAction",
+  "description": "NAT action types for firewall NAT rules.",
+  "source": "@site/docs/api/types/enums/nat-action.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/nat-action",
+  "permalink": "/api/types/enums/nat-action",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "nat-action",
+    "title": "NatAction"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "MultiLinkStrategy",
+    "permalink": "/api/types/enums/multi-link-strategy"
+  },
+  "next": {
+    "title": "NatChain",
+    "permalink": "/api/types/enums/nat-chain"
+  }
+}

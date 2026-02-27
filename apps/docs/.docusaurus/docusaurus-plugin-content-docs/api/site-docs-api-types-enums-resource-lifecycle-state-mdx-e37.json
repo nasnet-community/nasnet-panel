@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/resource-lifecycle-state",
+  "title": "ResourceLifecycleState",
+  "description": "Resource lifecycle states for state machine",
+  "source": "@site/docs/api/types/enums/resource-lifecycle-state.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/resource-lifecycle-state",
+  "permalink": "/api/types/enums/resource-lifecycle-state",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "resource-lifecycle-state",
+    "title": "ResourceLifecycleState"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ResourceLayer",
+    "permalink": "/api/types/enums/resource-layer"
+  },
+  "next": {
+    "title": "ResourceRelationshipType",
+    "permalink": "/api/types/enums/resource-relationship-type"
+  }
+}

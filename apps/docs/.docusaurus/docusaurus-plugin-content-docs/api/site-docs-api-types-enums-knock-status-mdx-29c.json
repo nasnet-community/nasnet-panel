@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/knock-status",
+  "title": "KnockStatus",
+  "description": "Status of knock attempt.",
+  "source": "@site/docs/api/types/enums/knock-status.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/knock-status",
+  "permalink": "/api/types/enums/knock-status",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "knock-status",
+    "title": "KnockStatus"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "KnockProtocol",
+    "permalink": "/api/types/enums/knock-protocol"
+  },
+  "next": {
+    "title": "LogLevel",
+    "permalink": "/api/types/enums/log-level"
+  }
+}

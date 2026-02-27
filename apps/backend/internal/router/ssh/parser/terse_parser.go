@@ -2,6 +2,7 @@ package parser
 
 import (
 	"context"
+	"fmt"
 	"strings"
 )
 
@@ -77,7 +78,7 @@ func (p *terseParser) Parse(ctx context.Context, raw string, hints ParseHints) (
 		// Check context cancellation
 		select {
 		case <-ctx.Done():
-			return nil, ctx.Err()
+			return nil, fmt.Errorf("parse terse: %w", ctx.Err())
 		default:
 		}
 

@@ -81,12 +81,16 @@ func NewCircuitBreaker(routerID string, config CircuitBreakerConfig, opts ...Cir
 
 // Execute runs a function with circuit breaker protection.
 func (c *CircuitBreaker) Execute(fn func() (any, error)) (any, error) {
-	return c.cb.Execute(fn)
+	result, err := c.cb.Execute(fn)
+	if err != nil {
+		return nil, fmt.Errorf("open circuit: %w", err)
+	}
+	return result, nil
 }
 
 // ExecuteWithContext runs a function with circuit breaker protection and context.
 func (c *CircuitBreaker) ExecuteWithContext(ctx context.Context, fn func(ctx context.Context) (any, error)) (any, error) {
-	return c.cb.Execute(func() (any, error) {
+	result, err := c.cb.Execute(func() (any, error) {
 		select {
 		case <-ctx.Done():
 			return nil, ctx.Err()
@@ -94,6 +98,10 @@ func (c *CircuitBreaker) ExecuteWithContext(ctx context.Context, fn func(ctx con
 			return fn(ctx)
 		}
 	})
+	if err != nil {
+		return nil, fmt.Errorf("open circuit: %w", err)
+	}
+	return result, nil
 }
 
 // State returns the current state of the circuit breaker.

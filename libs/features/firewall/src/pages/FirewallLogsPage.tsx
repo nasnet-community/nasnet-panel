@@ -142,7 +142,7 @@ const AutoRefreshControls = React.memo(function AutoRefreshControlsComponent({
 
       {/* Export Button */}
       <Button variant="outline" size="sm" onClick={onExport} className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
-        <Download className="h-4 w-4 mr-2" aria-hidden="true" />
+        <Download className="h-4 w-4 mr-component-sm" aria-hidden="true" />
         {t('logs.controls.export')}
       </Button>
     </div>
@@ -188,7 +188,7 @@ const DesktopLayout = React.memo(function DesktopLayoutComponent({
       {/* Left Sidebar - Filters */}
       <div className="w-80 border-r border-border bg-muted/30 p-component-md overflow-y-auto">
         <div className="mb-component-md">
-          <h2 className="text-lg font-semibold font-display mb-2">{t('logs.filters.title')}</h2>
+          <h2 className="text-lg font-semibold font-display mb-component-sm">{t('logs.filters.title')}</h2>
         </div>
         <FirewallLogFilters
           filters={filters}
@@ -306,10 +306,10 @@ const MobileLayout = React.memo(function MobileLayoutComponent({
             className="ml-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             aria-label={`Open filters${activeFilterCount > 0 ? ` (${activeFilterCount} active)` : ''}`}
           >
-            <Filter className="h-4 w-4 mr-2" aria-hidden="true" />
+            <Filter className="h-4 w-4 mr-component-sm" aria-hidden="true" />
             {t('logs.filters.title')}
             {activeFilterCount > 0 && (
-              <span className="ml-2 px-component-sm py-0.5 text-xs bg-primary text-primary-foreground rounded-[var(--semantic-radius-badge)] font-semibold" aria-label={`${activeFilterCount} active filters`}>
+              <span className="ml-component-sm px-component-sm py-component-xs text-xs bg-primary text-primary-foreground rounded-[var(--semantic-radius-badge)] font-semibold" aria-label={`${activeFilterCount} active filters`}>
                 {activeFilterCount}
               </span>
             )}

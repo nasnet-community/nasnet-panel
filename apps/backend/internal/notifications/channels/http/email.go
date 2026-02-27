@@ -27,7 +27,7 @@ type EmailConfig struct {
 	SMTPHost    string   `json:"smtp_host"`
 	SMTPPort    int      `json:"smtp_port"`
 	Username    string   `json:"username"`
-	Password    string   `json:"password"`
+	Password    string   `json:"password"` //nolint:gosec // G101: credential field required for SMTP authentication
 	FromAddress string   `json:"from_address"`
 	FromName    string   `json:"from_name"`
 	UseTLS      bool     `json:"use_tls"`
@@ -53,7 +53,7 @@ func (e *EmailChannel) Send(ctx context.Context, notification notifications.Noti
 	if err != nil {
 		return fmt.Errorf("failed to build email message: %w", err)
 	}
-	return e.sendSMTP(message)
+	return e.sendSMTP(message) //nolint:contextcheck // SMTP send is self-contained
 }
 
 func (e *EmailChannel) buildTemplateData(notification notifications.Notification) map[string]interface{} {
@@ -133,19 +133,19 @@ func (e *EmailChannel) buildMultipartMessage(data map[string]interface{}) ([]byt
 		alertID = id
 	}
 
-	buf.WriteString(fmt.Sprintf("From: %s\r\n", from))
-	buf.WriteString(fmt.Sprintf("To: %s\r\n", strings.Join(e.config.ToAddresses, ", ")))
-	buf.WriteString(fmt.Sprintf("Subject: %s\r\n", subject))
+	fmt.Fprintf(&buf, "From: %s\r\n", from)
+	fmt.Fprintf(&buf, "To: %s\r\n", strings.Join(e.config.ToAddresses, ", "))
+	fmt.Fprintf(&buf, "Subject: %s\r\n", subject)
 	buf.WriteString("MIME-Version: 1.0\r\n")
 
 	if alertID != "" {
-		buf.WriteString(fmt.Sprintf("X-NasNet-Alert-ID: %s\r\n", alertID))
+		fmt.Fprintf(&buf, "X-NasNet-Alert-ID: %s\r\n", alertID)
 	}
-	buf.WriteString(fmt.Sprintf("X-NasNet-Severity: %s\r\n", severity))
+	fmt.Fprintf(&buf, "X-NasNet-Severity: %s\r\n", severity)
 
 	writer := multipart.NewWriter(&buf)
 	boundary := writer.Boundary()
-	buf.WriteString(fmt.Sprintf("Content-Type: multipart/alternative; boundary=%s\r\n", boundary))
+	fmt.Fprintf(&buf, "Content-Type: multipart/alternative; boundary=%s\r\n", boundary)
 	buf.WriteString("\r\n")
 
 	plaintext, err := e.renderTemplate("default-body.txt", data)
@@ -224,14 +224,19 @@ func (e *EmailChannel) sendSMTP(message []byte) error {
 	if e.config.UseTLS {
 		return e.sendWithTLS(addr, auth, message)
 	}
-	return smtp.SendMail(addr, auth, e.config.FromAddress, e.config.ToAddresses, message)
+	if err := smtp.SendMail(addr, auth, e.config.FromAddress, e.config.ToAddresses, message); err != nil {
+		return fmt.Errorf("failed to send email via SMTP: %w", err)
+	}
+	return nil
 }
 
 func (e *EmailChannel) sendWithTLS(addr string, auth smtp.Auth, message []byte) error {
-	conn, err := tls.Dial("tcp", addr, &tls.Config{
+	ctx := context.Background()
+	dialer := &tls.Dialer{Config: &tls.Config{
 		ServerName:         e.config.SMTPHost,
 		InsecureSkipVerify: e.config.SkipVerify, //nolint:gosec // G402: user-configurable TLS verification for SMTP
-	})
+	}}
+	conn, err := dialer.DialContext(ctx, "tcp", addr)
 	if err != nil {
 		return fmt.Errorf("failed to connect to SMTP server: %w", err)
 	}
@@ -271,7 +276,10 @@ func (e *EmailChannel) sendWithTLS(addr string, auth smtp.Auth, message []byte) 
 	if err != nil {
 		return fmt.Errorf("failed to close message writer: %w", err)
 	}
-	return client.Quit()
+	if err := client.Quit(); err != nil {
+		return fmt.Errorf("failed to quit SMTP client: %w", err)
+	}
+	return nil
 }
 
 // ParseEmailConfig converts a map to EmailConfig.

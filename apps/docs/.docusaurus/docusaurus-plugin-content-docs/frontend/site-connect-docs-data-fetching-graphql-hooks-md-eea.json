@@ -1,0 +1,24 @@
+{
+  "id": "data-fetching/graphql-hooks",
+  "title": "GraphQL Hooks",
+  "description": "All GraphQL operations are wrapped in custom hooks under libs/api-client/queries/src/. Each domain has its own subdirectory. This document provides a comprehensive inventory and shows the standard patterns.",
+  "source": "@site/../connect/docs/data-fetching/graphql-hooks.md",
+  "sourceDirName": "data-fetching",
+  "slug": "/data-fetching/graphql-hooks",
+  "permalink": "/docs/frontend/data-fetching/graphql-hooks",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../connect/docs/data-fetching/graphql-hooks.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "GraphQL Code Generation",
+    "permalink": "/docs/frontend/data-fetching/codegen"
+  },
+  "next": {
+    "title": "Offline Support",
+    "permalink": "/docs/frontend/data-fetching/offline-support"
+  }
+}

@@ -146,9 +146,9 @@ export const FirewallStatusHero = memo(function FirewallStatusHero({ className }
             key={i}
             className="bg-card rounded-[var(--semantic-radius-card)] border border-border p-component-md animate-pulse"
           >
-            <div className="h-4 bg-muted rounded w-16 mb-2" />
-            <div className="h-7 bg-muted rounded w-12 mb-1" />
-            <div className="h-3 bg-muted rounded w-20 mt-2" />
+            <div className="h-4 bg-muted rounded w-16 mb-component-sm" />
+            <div className="h-7 bg-muted rounded w-12 mb-component-xs" />
+            <div className="h-3 bg-muted rounded w-20 mt-component-sm" />
           </div>
         ))}
       </div>
@@ -164,7 +164,7 @@ export const FirewallStatusHero = memo(function FirewallStatusHero({ className }
       <div
         className={cn('rounded-[var(--semantic-radius-card)] border p-component-md', currentStatus.bgColor, currentStatus.borderColor)}
       >
-        <div className="flex items-center gap-2 mb-1">
+        <div className="flex items-center gap-component-sm mb-component-xs">
           <StatusIcon className={`w-4 h-4 ${currentStatus.iconColor}`} aria-hidden="true" />
           <p className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
             Status
@@ -173,14 +173,14 @@ export const FirewallStatusHero = memo(function FirewallStatusHero({ className }
         <p className={`text-xl font-bold ${currentStatus.textColor}`}>
           {currentStatus.label}
         </p>
-        <p className="text-xs text-muted-foreground mt-1">
+        <p className="text-xs text-muted-foreground mt-component-xs">
           {currentStatus.description}
         </p>
       </div>
 
       {/* Total Rules */}
       <div className="bg-card rounded-[var(--semantic-radius-card)] border border-border p-component-md">
-        <div className="flex items-center gap-component-sm mb-1">
+        <div className="flex items-center gap-component-sm mb-component-xs">
           <FileText className="w-4 h-4 text-secondary" aria-hidden="true" />
           <p className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
             Total Rules
@@ -189,14 +189,14 @@ export const FirewallStatusHero = memo(function FirewallStatusHero({ className }
         <p className="text-xl md:text-2xl font-bold text-foreground">
           {stats.totalRules}
         </p>
-        <p className="text-xs text-muted-foreground mt-1">
+        <p className="text-xs text-muted-foreground mt-component-xs">
           {stats.totalFilter} filter, {stats.totalNAT} NAT
         </p>
       </div>
 
       {/* Active Rules */}
       <div className="bg-card rounded-[var(--semantic-radius-card)] border border-border p-component-md">
-        <div className="flex items-center gap-component-sm mb-1">
+        <div className="flex items-center gap-component-sm mb-component-xs">
           <Shield className="w-4 h-4 text-success" aria-hidden="true" />
           <p className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
             Active
@@ -204,12 +204,12 @@ export const FirewallStatusHero = memo(function FirewallStatusHero({ className }
         </div>
         <p className="text-xl md:text-2xl font-bold text-foreground">
           {stats.activeRules}
-          <span className="text-muted-foreground text-sm font-normal ml-1">
+          <span className="text-muted-foreground text-sm font-normal ml-component-xs">
             /{stats.totalRules}
           </span>
         </p>
         {stats.disabledRules > 0 && (
-          <p className="text-xs text-muted-foreground mt-1">
+          <p className="text-xs text-muted-foreground mt-component-xs">
             {stats.disabledRules} disabled
           </p>
         )}
@@ -217,7 +217,7 @@ export const FirewallStatusHero = memo(function FirewallStatusHero({ className }
 
       {/* Last Updated */}
       <div className="bg-card rounded-[var(--semantic-radius-card)] border border-border p-component-md">
-        <div className="flex items-center justify-between mb-1">
+        <div className="flex items-center justify-between mb-component-xs">
           <div className="flex items-center gap-component-sm">
             <Clock className="w-4 h-4 text-muted-foreground" aria-hidden="true" />
             <p className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
@@ -227,7 +227,7 @@ export const FirewallStatusHero = memo(function FirewallStatusHero({ className }
           <button
             onClick={handleRefresh}
             disabled={isFetching}
-            className="p-1 rounded-[var(--semantic-radius-button)] hover:bg-muted transition-colors disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className="p-component-xs rounded-[var(--semantic-radius-button)] hover:bg-muted transition-colors disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             aria-label={isFetching ? 'Refreshing firewall data' : 'Refresh firewall data'}
           >
             <RefreshCw
@@ -244,7 +244,7 @@ export const FirewallStatusHero = memo(function FirewallStatusHero({ className }
               })
             : '-'}
         </p>
-        <p className="text-xs text-muted-foreground mt-1">
+        <p className="text-xs text-muted-foreground mt-component-xs">
           {lastUpdated
             ? lastUpdated.toLocaleDateString([], {
                 month: 'short',

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/configure-external-storage-input",
+  "title": "ConfigureExternalStorageInput",
+  "description": "Input for configuring external storage.",
+  "source": "@site/docs/api/types/inputs/configure-external-storage-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/configure-external-storage-input",
+  "permalink": "/api/types/inputs/configure-external-storage-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "configure-external-storage-input",
+    "title": "ConfigureExternalStorageInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "CleanupOrphanedPortsInput",
+    "permalink": "/api/types/inputs/cleanup-orphaned-ports-input"
+  },
+  "next": {
+    "title": "ConfigureHealthCheckInput",
+    "permalink": "/api/types/inputs/configure-health-check-input"
+  }
+}

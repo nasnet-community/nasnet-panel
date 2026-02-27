@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/provisioning-router-mode",
+  "title": "ProvisioningRouterMode",
+  "description": "Router operational mode for provisioning",
+  "source": "@site/docs/api/types/enums/provisioning-router-mode.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/provisioning-router-mode",
+  "permalink": "/api/types/enums/provisioning-router-mode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "provisioning-router-mode",
+    "title": "ProvisioningRouterMode"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ProvisioningMode",
+    "permalink": "/api/types/enums/provisioning-mode"
+  },
+  "next": {
+    "title": "ProvisioningWANLinkType",
+    "permalink": "/api/types/enums/provisioning-wanlink-type"
+  }
+}

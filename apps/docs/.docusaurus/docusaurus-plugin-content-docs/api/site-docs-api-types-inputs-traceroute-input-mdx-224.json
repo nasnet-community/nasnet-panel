@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/traceroute-input",
+  "title": "TracerouteInput",
+  "description": "Input parameters for starting a traceroute",
+  "source": "@site/docs/api/types/inputs/traceroute-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/traceroute-input",
+  "permalink": "/api/types/inputs/traceroute-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "traceroute-input",
+    "title": "TracerouteInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ThrottleConfigInput",
+    "permalink": "/api/types/inputs/throttle-config-input"
+  },
+  "next": {
+    "title": "TunnelInput",
+    "permalink": "/api/types/inputs/tunnel-input"
+  }
+}

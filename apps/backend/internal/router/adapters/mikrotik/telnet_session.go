@@ -57,7 +57,7 @@ func (c *TelnetClient) readCommandOutput(ctx context.Context, sentCommand string
 
 		b, err := c.reader.ReadByte()
 		if err != nil {
-			return output.String(), err
+			return output.String(), fmt.Errorf("reading command output: %w", err)
 		}
 
 		if b == telnetIAC {
@@ -109,7 +109,7 @@ func (c *TelnetClient) RunCommands(ctx context.Context, commands []string) ([]Te
 	for i, cmd := range commands {
 		select {
 		case <-ctx.Done():
-			return results, ctx.Err()
+			return results, fmt.Errorf("context canceled: %w", ctx.Err())
 		default:
 		}
 
@@ -164,7 +164,7 @@ func (p *TelnetClientPool) Get(cfg TelnetClientConfig) (*TelnetClient, error) {
 
 	client, err := NewTelnetClient(cfg)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("new telnet client: %w", err)
 	}
 
 	p.mu.Lock()

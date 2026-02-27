@@ -190,12 +190,12 @@ export const AddServiceDialog = React.memo(function AddServiceDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-component-lg">
           {/* Service Name Field */}
-          <div className="space-y-2">
+          <div className="space-y-component-sm">
             <Label htmlFor="service" className="text-sm font-medium">
               {t('servicePorts.fields.name')}
-              <span className="text-error ml-1">*</span>
+              <span className="text-error ml-component-xs">*</span>
             </Label>
             <Input
               id="service"
@@ -207,7 +207,7 @@ export const AddServiceDialog = React.memo(function AddServiceDialog({
               aria-describedby={errors.service ? 'service-error' : 'service-help'}
             />
             {errors.service && (
-              <Alert variant="destructive" className="mt-2">
+              <Alert variant="destructive" className="mt-component-sm">
                 <AlertCircle className="h-4 w-4" aria-hidden="true" />
                 <AlertDescription id="service-error">{errors.service.message}</AlertDescription>
               </Alert>
@@ -220,29 +220,29 @@ export const AddServiceDialog = React.memo(function AddServiceDialog({
           </div>
 
           {/* Protocol Field */}
-          <div className="space-y-2">
+          <div className="space-y-component-sm">
             <Label className="text-sm font-medium">
               {t('servicePorts.fields.protocol')}
-              <span className="text-error ml-1">*</span>
+              <span className="text-error ml-component-xs">*</span>
             </Label>
             <RadioGroup
               value={protocol}
               onValueChange={(value) => form.setValue('protocol', value as 'tcp' | 'udp' | 'both')}
-              className="flex flex-col space-y-2"
+              className="flex flex-col space-y-component-sm"
             >
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-component-sm">
                 <RadioGroupItem value="tcp" id="protocol-tcp" />
                 <Label htmlFor="protocol-tcp" className="font-normal cursor-pointer">
                   {t('servicePorts.protocols.tcp')}
                 </Label>
               </div>
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-component-sm">
                 <RadioGroupItem value="udp" id="protocol-udp" />
                 <Label htmlFor="protocol-udp" className="font-normal cursor-pointer">
                   {t('servicePorts.protocols.udp')}
                 </Label>
               </div>
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-component-sm">
                 <RadioGroupItem value="both" id="protocol-both" />
                 <Label htmlFor="protocol-both" className="font-normal cursor-pointer">
                   {t('servicePorts.protocols.both')}
@@ -255,10 +255,10 @@ export const AddServiceDialog = React.memo(function AddServiceDialog({
           </div>
 
           {/* Port Field */}
-          <div className="space-y-2">
+          <div className="space-y-component-sm">
             <Label htmlFor="port" className="text-sm font-medium">
               {t('servicePorts.fields.port')}
-              <span className="text-error ml-1">*</span>
+              <span className="text-error ml-component-xs">*</span>
             </Label>
             <Input
               id="port"
@@ -284,10 +284,10 @@ export const AddServiceDialog = React.memo(function AddServiceDialog({
           </div>
 
           {/* Description Field (Optional) */}
-          <div className="space-y-2">
+          <div className="space-y-component-sm">
             <Label htmlFor="description" className="text-sm font-medium">
               {t('servicePorts.fields.description')}
-              <span className="text-muted-foreground ml-1 text-xs">(optional)</span>
+              <span className="text-muted-foreground ml-component-xs text-xs">(optional)</span>
             </Label>
             <Textarea
               id="description"
@@ -311,7 +311,7 @@ export const AddServiceDialog = React.memo(function AddServiceDialog({
           </div>
 
           {/* Dialog Footer */}
-          <DialogFooter className="gap-2">
+          <DialogFooter className="gap-component-sm">
             <Button
               type="button"
               variant="outline"

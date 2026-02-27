@@ -133,11 +133,11 @@ function RecentLogsComponent({ deviceId, className }: RecentLogsProps) {
   if (error) {
     return (
       <Card className={className}>
-        <CardHeader className="pb-3">
+        <CardHeader className="pb-component-sm">
           <CardTitle className="text-base">Recent Logs</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col items-center gap-2 py-6 text-center">
+          <div className="flex flex-col items-center gap-component-sm py-component-lg text-center">
             <p className="text-sm text-error">Failed to load logs</p>
             <p className="text-xs text-muted-foreground">{error.message}</p>
             <Button
@@ -159,9 +159,9 @@ function RecentLogsComponent({ deviceId, className }: RecentLogsProps) {
    */
   return (
     <Card className={className}>
-      <CardHeader className="flex flex-row items-center justify-between pb-3">
+      <CardHeader className="flex flex-row items-center justify-between pb-component-sm">
         <CardTitle className="text-base">Recent Logs</CardTitle>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-component-sm">
           <TopicFilter
             selectedTopics={selectedTopics}
             onSelectionChange={handleTopicChange}
@@ -190,23 +190,23 @@ function RecentLogsComponent({ deviceId, className }: RecentLogsProps) {
           aria-live="polite"
           aria-atomic="false"
           className={cn(
-            'space-y-1 overflow-hidden',
+            'space-y-component-xs overflow-hidden',
             platform === 'mobile' ? 'max-h-[280px]' : 'max-h-[320px]'
           )}
         >
           {logs.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-8 text-center">
+            <div className="flex flex-col items-center justify-center py-component-lg text-center">
               <p className="text-sm text-muted-foreground">
                 No logs found for selected topics
               </p>
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="text-xs text-muted-foreground mt-component-xs">
                 Try selecting different topics or check router connection
               </p>
               {selectedTopics.length > 0 && (
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="mt-2"
+                  className="mt-component-sm"
                   onClick={handleClearFilters}
                   aria-label="Clear all log topic filters"
                 >

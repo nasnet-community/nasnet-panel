@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/cache-scope",
+  "title": "CacheScope",
+  "description": "No description",
+  "source": "@site/docs/api/types/enums/cache-scope.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/cache-scope",
+  "permalink": "/api/types/enums/cache-scope",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "cache-scope",
+    "title": "CacheScope"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "BridgePortFrameTypes",
+    "permalink": "/api/types/enums/bridge-port-frame-types"
+  },
+  "next": {
+    "title": "CapabilityLevel",
+    "permalink": "/api/types/enums/capability-level"
+  }
+}

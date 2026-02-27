@@ -216,7 +216,7 @@ export function WANManagementPage() {
         </TabsContent>
 
         <TabsContent value="health" className="space-y-6">
-          <div className="rounded-card-lg border border-border bg-card p-component-lg">
+          <div className="rounded-[var(--semantic-radius-card)] border border-border bg-card px-component-lg py-component-lg">
             <p className="text-sm text-muted-foreground">
               Configure health checks for each WAN interface to monitor
               connectivity and detect link failures.
@@ -252,7 +252,7 @@ export function WANManagementPage() {
                 <button
                   onClick={() => setConfigMode('dhcp')}
                   className={cn(
-                    'flex items-start gap-3 p-4 rounded-lg border text-left',
+                    'flex items-start gap-component-xs px-component-sm py-component-sm rounded-lg border border-border text-left',
                     'hover:border-primary hover:bg-primary/5 transition-colors'
                   )}
                   aria-label="Configure DHCP client connection"
@@ -269,7 +269,7 @@ export function WANManagementPage() {
                 <button
                   onClick={() => setConfigMode('pppoe')}
                   className={cn(
-                    'flex items-start gap-3 p-4 rounded-lg border text-left',
+                    'flex items-start gap-component-xs px-component-sm py-component-sm rounded-lg border border-border text-left',
                     'hover:border-primary hover:bg-primary/5 transition-colors'
                   )}
                   aria-label="Configure PPPoE connection"
@@ -286,7 +286,7 @@ export function WANManagementPage() {
                 <button
                   onClick={() => setConfigMode('static')}
                   className={cn(
-                    'flex items-start gap-3 p-4 rounded-lg border text-left',
+                    'flex items-start gap-component-xs px-component-sm py-component-sm rounded-lg border border-border text-left',
                     'hover:border-primary hover:bg-primary/5 transition-colors'
                   )}
                   aria-label="Configure static IP connection"
@@ -303,7 +303,7 @@ export function WANManagementPage() {
                 <button
                   onClick={() => setConfigMode('lte')}
                   className={cn(
-                    'flex items-start gap-3 p-4 rounded-lg border text-left',
+                    'flex items-start gap-component-xs px-component-sm py-component-sm rounded-lg border border-border text-left',
                     'hover:border-primary hover:bg-primary/5 transition-colors'
                   )}
                   aria-label="Configure LTE/4G modem connection"
@@ -320,7 +320,7 @@ export function WANManagementPage() {
                 <button
                   onClick={() => setConfigMode('health')}
                   className={cn(
-                    'flex items-start gap-3 p-4 rounded-lg border text-left',
+                    'flex items-start gap-component-xs px-component-sm py-component-sm rounded-lg border border-border text-left',
                     'hover:border-primary hover:bg-primary/5 transition-colors'
                   )}
                   aria-label="Configure health check monitoring"

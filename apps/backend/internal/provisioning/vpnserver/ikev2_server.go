@@ -128,7 +128,7 @@ func (s *Service) createServerIPPool(
 	cmd := router.Command{Path: "/ip/pool", Action: "add", Args: args}
 	result, err := s.routerPort.ExecuteCommand(ctx, cmd)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to create IP pool: %w", err)
 	}
 	if !result.Success {
 		return "", fmt.Errorf("failed to create ip pool: %w", result.Error)
@@ -183,7 +183,7 @@ func (s *Service) createServerIPSecProfile(
 	cmd := router.Command{Path: "/ip/ipsec/profile", Action: "add", Args: args}
 	result, err := s.routerPort.ExecuteCommand(ctx, cmd)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to create IPsec profile: %w", err)
 	}
 	if !result.Success {
 		return "", fmt.Errorf("failed to create profile: %w", result.Error)
@@ -232,7 +232,7 @@ func (s *Service) createServerIPSecProposal(
 	cmd := router.Command{Path: "/ip/ipsec/proposal", Action: "add", Args: args}
 	result, err := s.routerPort.ExecuteCommand(ctx, cmd)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to create IPsec proposal: %w", err)
 	}
 	if !result.Success {
 		return "", fmt.Errorf("failed to create proposal: %w", result.Error)
@@ -252,7 +252,7 @@ func (s *Service) createServerIPSecPolicyGroup(
 	cmd := router.Command{Path: "/ip/ipsec/policy/group", Action: "add", Args: args}
 	result, err := s.routerPort.ExecuteCommand(ctx, cmd)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to create IPsec policy group: %w", err)
 	}
 	if !result.Success {
 		return "", fmt.Errorf("failed to create policy group: %w", result.Error)
@@ -282,7 +282,7 @@ func (s *Service) createServerIPSecPeer(
 	cmd := router.Command{Path: "/ip/ipsec/peer", Action: "add", Args: args}
 	result, err := s.routerPort.ExecuteCommand(ctx, cmd)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to create IPsec peer: %w", err)
 	}
 	if !result.Success {
 		return "", fmt.Errorf("failed to create peer: %w", result.Error)
@@ -291,20 +291,23 @@ func (s *Service) createServerIPSecPeer(
 }
 
 // createServerIPSecModeConfig creates /ip/ipsec/mode-config as responder with address pool.
+// Matches TS Ikev2Server which sets system-dns=yes and address-prefix-length=32.
 func (s *Service) createServerIPSecModeConfig(
 	ctx context.Context, name, poolName, comment string,
 ) (string, error) {
 
 	args := map[string]string{
-		"name":         fmt.Sprintf("ike2-server-modeconf-%s", name),
-		"responder":    "yes",
-		"address-pool": poolName,
-		"comment":      comment,
+		"name":                  fmt.Sprintf("ike2-server-modeconf-%s", name),
+		"responder":             "yes",
+		"address-pool":          poolName,
+		"address-prefix-length": "32",
+		"system-dns":            "yes",
+		"comment":               comment,
 	}
 	cmd := router.Command{Path: "/ip/ipsec/mode-config", Action: "add", Args: args}
 	result, err := s.routerPort.ExecuteCommand(ctx, cmd)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to create IPsec mode-config: %w", err)
 	}
 	if !result.Success {
 		return "", fmt.Errorf("failed to create mode-config: %w", result.Error)
@@ -354,7 +357,7 @@ func (s *Service) createServerIPSecIdentity(
 	cmd := router.Command{Path: "/ip/ipsec/identity", Action: "add", Args: args}
 	result, err := s.routerPort.ExecuteCommand(ctx, cmd)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to create IPsec identity: %w", err)
 	}
 	if !result.Success {
 		return "", fmt.Errorf("failed to create identity: %w", result.Error)
@@ -393,7 +396,7 @@ func (s *Service) createServerIPSecPolicy(
 	cmd := router.Command{Path: "/ip/ipsec/policy", Action: "add", Args: args}
 	result, err := s.routerPort.ExecuteCommand(ctx, cmd)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to create IPsec policy: %w", err)
 	}
 	if !result.Success {
 		return "", fmt.Errorf("failed to create policy: %w", result.Error)

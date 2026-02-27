@@ -456,9 +456,13 @@ func (pr *PortRegistry) GetAllocationsByRouter(ctx context.Context, routerID str
 	pr.mu.RLock()
 	defer pr.mu.RUnlock()
 
-	return pr.store.PortAllocation().Query().
+	allocations, err := pr.store.PortAllocation().Query().
 		Where(portallocation.RouterIDEQ(routerID)).
 		All(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query allocations for router: %w", err)
+	}
+	return allocations, nil
 }
 
 // GetAllocationsByInstance returns all port allocations for a given service instance.
@@ -466,7 +470,11 @@ func (pr *PortRegistry) GetAllocationsByInstance(ctx context.Context, instanceID
 	pr.mu.RLock()
 	defer pr.mu.RUnlock()
 
-	return pr.store.PortAllocation().Query().
+	allocations, err := pr.store.PortAllocation().Query().
 		Where(portallocation.InstanceIDEQ(instanceID)).
 		All(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query allocations for instance: %w", err)
+	}
+	return allocations, nil
 }

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/validation-error",
+  "title": "ValidationError",
+  "description": "Field-level validation error with suggestions for fixing.",
+  "source": "@site/docs/api/types/objects/validation-error.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/validation-error",
+  "permalink": "/api/types/objects/validation-error",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "validation-error",
+    "title": "ValidationError"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ValidateResourcePayload",
+    "permalink": "/api/types/objects/validate-resource-payload"
+  },
+  "next": {
+    "title": "ValidationIssue",
+    "permalink": "/api/types/objects/validation-issue"
+  }
+}

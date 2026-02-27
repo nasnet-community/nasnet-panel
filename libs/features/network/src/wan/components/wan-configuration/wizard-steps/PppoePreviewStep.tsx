@@ -11,6 +11,7 @@ import type { UseStepperReturn } from '@nasnet/ui/patterns';
 import { cn } from '@nasnet/ui/utils';
 import { Code, Network, User, Settings } from 'lucide-react';
 
+
 interface PppoeInterfaceData {
   name?: string;
   interface?: string;
@@ -84,7 +85,7 @@ export function PppoePreviewStep({
       >
         <div className="space-y-component-md">
           {/* Interface Summary */}
-          <div className="rounded-[var(--semantic-radius-card)] border bg-muted/50 p-component-md">
+          <div className="rounded-[var(--semantic-radius-card)] border border-border bg-muted px-component-md py-component-md">
             <div className="flex items-center gap-component-sm mb-3">
               <Network
                 className="h-4 w-4 text-primary"
@@ -94,14 +95,14 @@ export function PppoePreviewStep({
             </div>
             <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
               <dt className="text-muted-foreground">PPPoE Interface:</dt>
-              <dd className="font-mono">{interfaceData?.name || '-'}</dd>
+              <dd className="font-mono text-foreground">{interfaceData?.name || '-'}</dd>
               <dt className="text-muted-foreground">Physical Interface:</dt>
-              <dd className="font-mono">{interfaceData?.interface || '-'}</dd>
+              <dd className="font-mono text-foreground">{interfaceData?.interface || '-'}</dd>
             </dl>
           </div>
 
           {/* Credentials Summary */}
-          <div className="rounded-[var(--semantic-radius-card)] border bg-muted/50 p-component-md">
+          <div className="rounded-[var(--semantic-radius-card)] border border-border bg-muted px-component-md py-component-md">
             <div className="flex items-center gap-component-sm mb-3">
               <User
                 className="h-4 w-4 text-primary"
@@ -111,22 +112,22 @@ export function PppoePreviewStep({
             </div>
             <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
               <dt className="text-muted-foreground">Username:</dt>
-              <dd className="font-mono">{credentialsData?.username || '-'}</dd>
+              <dd className="font-mono text-foreground">{credentialsData?.username || '-'}</dd>
               <dt className="text-muted-foreground">Password:</dt>
-              <dd className="font-mono">
+              <dd className="font-mono text-foreground">
                 {credentialsData?.password ? '••••••••' : '-'}
               </dd>
               {credentialsData?.serviceName && (
                 <>
                   <dt className="text-muted-foreground">Service Name:</dt>
-                  <dd className="font-mono">{credentialsData.serviceName}</dd>
+                  <dd className="font-mono text-foreground">{credentialsData.serviceName}</dd>
                 </>
               )}
             </dl>
           </div>
 
           {/* Options Summary */}
-          <div className="rounded-[var(--semantic-radius-card)] border bg-muted/50 p-component-md">
+          <div className="rounded-[var(--semantic-radius-card)] border border-border bg-muted px-component-md py-component-md">
             <div className="flex items-center gap-component-sm mb-3">
               <Settings
                 className="h-4 w-4 text-primary"
@@ -136,9 +137,9 @@ export function PppoePreviewStep({
             </div>
             <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
               <dt className="text-muted-foreground">MTU:</dt>
-              <dd className="font-mono">{optionsData?.mtu || 1492} bytes</dd>
+              <dd className="font-mono text-foreground">{optionsData?.mtu || 1492} bytes</dd>
               <dt className="text-muted-foreground">MRU:</dt>
-              <dd className="font-mono">{optionsData?.mru || 1492} bytes</dd>
+              <dd className="font-mono text-foreground">{optionsData?.mru || 1492} bytes</dd>
               <dt className="text-muted-foreground">Default Route:</dt>
               <dd>
                 {optionsData?.addDefaultRoute ? (
@@ -171,7 +172,7 @@ export function PppoePreviewStep({
         title="RouterOS Commands"
         description="The following commands will be executed on the router"
       >
-        <div className="rounded-[var(--semantic-radius-card)] border bg-muted p-component-md">
+        <div className="rounded-[var(--semantic-radius-card)] border border-border bg-muted px-component-md py-component-md">
           <div className="flex items-center gap-component-sm mb-3">
             <Code
               className="h-4 w-4 text-primary"
@@ -179,7 +180,7 @@ export function PppoePreviewStep({
             />
             <h4 className="font-medium text-sm">Command Preview</h4>
           </div>
-          <pre className="text-xs font-mono overflow-x-auto bg-background p-component-sm rounded-[var(--semantic-radius-card)] border">
+          <pre className="text-xs font-mono overflow-x-auto bg-background px-component-sm py-component-sm rounded-[var(--semantic-radius-card)] border border-border">
             {commandPreview}
           </pre>
           <p className="text-xs text-muted-foreground mt-2">

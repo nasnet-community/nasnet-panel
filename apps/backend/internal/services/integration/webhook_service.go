@@ -98,7 +98,7 @@ func NewService(cfg Config) *Service {
 // Returns WebhookCreateResult with webhook + plaintext signing secret (ONE TIME ONLY).
 func (s *Service) CreateWebhook(ctx context.Context, input CreateWebhookInput) (*WebhookCreateResult, error) {
 	// Validate URL with SSRF protection
-	if err := validateWebhookURL(input.URL); err != nil {
+	if err := validateWebhookURL(input.URL); err != nil { //nolint:contextcheck // validation is synchronous, does not need context
 		s.log.Errorw("webhook URL validation failed", "url", input.URL, "error", err)
 		return nil, fmt.Errorf("invalid webhook URL: %w", err)
 	}
@@ -106,7 +106,7 @@ func (s *Service) CreateWebhook(ctx context.Context, input CreateWebhookInput) (
 	// Generate signing secret (32 bytes)
 	signingSecret := make([]byte, 32)
 	if _, err := io.ReadFull(rand.Reader, signingSecret); err != nil {
-		return nil, fmt.Errorf("failed to generate signing secret: %w", err)
+		return nil, fmt.Errorf("generate signing secret: %w", err)
 	}
 	plaintextSecret := base64.StdEncoding.EncodeToString(signingSecret)
 
@@ -252,7 +252,7 @@ func (s *Service) UpdateWebhook(ctx context.Context, webhookID string, input Upd
 
 	if input.URL != nil {
 		// Validate new URL with SSRF protection
-		if urlErr := validateWebhookURL(*input.URL); urlErr != nil {
+		if urlErr := validateWebhookURL(*input.URL); urlErr != nil { //nolint:contextcheck // validation is synchronous, does not need context
 			return nil, fmt.Errorf("invalid webhook URL: %w", urlErr)
 		}
 		updateBuilder.SetURL(*input.URL)
@@ -394,5 +394,8 @@ func extractNonce(encryptedBase64 string) ([]byte, error) {
 // validateWebhookURL validates a webhook URL for SSRF protection.
 // Uses the SSRF protection from internal/notifications/webhook.go.
 func validateWebhookURL(urlStr string) error {
-	return channelshttp.ValidateWebhookURL(urlStr)
+	if err := channelshttp.ValidateWebhookURL(urlStr); err != nil {
+		return fmt.Errorf("validate webhook url: %w", err)
+	}
+	return nil
 }

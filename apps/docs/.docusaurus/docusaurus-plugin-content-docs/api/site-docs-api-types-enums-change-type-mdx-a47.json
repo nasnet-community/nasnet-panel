@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/change-type",
+  "title": "ChangeType",
+  "description": "Type of change for resource events",
+  "source": "@site/docs/api/types/enums/change-type.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/change-type",
+  "permalink": "/api/types/enums/change-type",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "change-type",
+    "title": "ChangeType"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ChangeSetStatus",
+    "permalink": "/api/types/enums/change-set-status"
+  },
+  "next": {
+    "title": "ChannelType",
+    "permalink": "/api/types/enums/channel-type"
+  }
+}

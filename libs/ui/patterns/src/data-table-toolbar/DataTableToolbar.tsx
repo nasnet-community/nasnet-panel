@@ -55,7 +55,7 @@ const DataTableToolbarInner = React.forwardRef<
     role="toolbar"
     aria-label="Table controls"
     className={cn(
-      'flex items-center justify-between gap-4 rounded-lg border border-border bg-card p-4',
+      'flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4',
       className
     )}
   >

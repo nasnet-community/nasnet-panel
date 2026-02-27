@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/open-vpndeployment",
+  "title": "OpenVPNDeployment",
+  "description": "OpenVPN deployment state (router-generated)",
+  "source": "@site/docs/api/types/objects/open-vpndeployment.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/open-vpndeployment",
+  "permalink": "/api/types/objects/open-vpndeployment",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "open-vpndeployment",
+    "title": "OpenVPNDeployment"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "OpenVPNClient",
+    "permalink": "/api/types/objects/open-vpnclient"
+  },
+  "next": {
+    "title": "OpenVPNRuntime",
+    "permalink": "/api/types/objects/open-vpnruntime"
+  }
+}

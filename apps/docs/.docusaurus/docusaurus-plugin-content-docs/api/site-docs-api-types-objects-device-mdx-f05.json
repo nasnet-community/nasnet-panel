@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/device",
+  "title": "Device",
+  "description": "Device (router) for querying resource metrics",
+  "source": "@site/docs/api/types/objects/device.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/device",
+  "permalink": "/api/types/objects/device",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "device",
+    "title": "Device"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "DeviceTrafficBreakdown",
+    "permalink": "/api/types/objects/device-traffic-breakdown"
+  },
+  "next": {
+    "title": "DhcpClient",
+    "permalink": "/api/types/objects/dhcp-client"
+  }
+}

@@ -49,15 +49,15 @@ const getEventDisplay = (eventType: string) => {
     case 'DISCONNECTED':
       return {
         icon: <XCircle className="h-4 w-4" />,
-        color: 'text-destructive',
-        bgColor: 'bg-destructive/10',
+        color: 'text-error',
+        bgColor: 'bg-error/10',
         label: 'Disconnected',
       };
     case 'AUTH_FAILED':
       return {
         icon: <AlertCircle className="h-4 w-4" />,
-        color: 'text-destructive',
-        bgColor: 'bg-destructive/10',
+        color: 'text-error',
+        bgColor: 'bg-error/10',
         label: 'Auth Failed',
       };
     case 'IP_CHANGED':
@@ -123,7 +123,7 @@ function ConnectionEventCardComponent({
       {/* Timeline dot and line */}
       <div className="flex flex-col items-center">
         <div
-          className={cn('rounded-full p-component-sm', display.bgColor, display.color)}
+          className={cn('rounded-full px-component-sm py-component-sm', display.bgColor, display.color)}
           aria-hidden="true"
         >
           {display.icon}
@@ -159,7 +159,7 @@ function ConnectionEventCardComponent({
           {event.publicIP && (
             <div className="flex items-center gap-component-sm text-sm">
               <span className="text-muted-foreground">IP:</span>
-              <code className="text-xs font-mono bg-muted px-2 py-0.5 rounded-[var(--semantic-radius-button)]">
+              <code className="text-xs font-mono bg-muted px-2 py-0.5 rounded-[var(--semantic-radius-button)] text-foreground">
                 {event.publicIP}
               </code>
             </div>
@@ -169,7 +169,7 @@ function ConnectionEventCardComponent({
           {event.gateway && (
             <div className="flex items-center gap-component-sm text-sm">
               <span className="text-muted-foreground">Gateway:</span>
-              <code className="text-xs font-mono bg-muted px-2 py-0.5 rounded-[var(--semantic-radius-button)]">
+              <code className="text-xs font-mono bg-muted px-2 py-0.5 rounded-[var(--semantic-radius-button)] text-foreground">
                 {event.gateway}
               </code>
             </div>
@@ -219,9 +219,9 @@ function ConnectionEventCardCompactComponent({
   );
 
   return (
-    <div className={cn('flex items-start gap-component-md p-component-sm rounded-[var(--semantic-radius-card)] border', className)}>
+    <div className={cn('flex items-start gap-component-md px-component-sm py-component-sm rounded-[var(--semantic-radius-card)] border border-border', className)}>
       <div
-        className={cn('rounded-full p-component-sm', display.bgColor, display.color)}
+        className={cn('rounded-full px-component-sm py-component-sm', display.bgColor, display.color)}
         aria-hidden="true"
       >
         {display.icon}
@@ -236,7 +236,7 @@ function ConnectionEventCardCompactComponent({
         </div>
 
         {event.publicIP && (
-          <code className="text-xs font-mono bg-muted px-2 py-0.5 rounded-[var(--semantic-radius-button)]">
+          <code className="text-xs font-mono bg-muted px-2 py-0.5 rounded-[var(--semantic-radius-button)] text-foreground">
             {event.publicIP}
           </code>
         )}

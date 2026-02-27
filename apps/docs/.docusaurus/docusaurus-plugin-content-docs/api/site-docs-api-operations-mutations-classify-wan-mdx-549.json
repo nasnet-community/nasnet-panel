@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/classify-wan",
+  "title": "classifyWAN",
+  "description": "Classify a WAN interface for traffic routing.",
+  "source": "@site/docs/api/operations/mutations/classify-wan.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/classify-wan",
+  "permalink": "/api/operations/mutations/classify-wan",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "classify-wan",
+    "title": "classifyWAN"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "checkRouterHealth",
+    "permalink": "/api/operations/mutations/check-router-health"
+  },
+  "next": {
+    "title": "cleanupOrphanedPorts",
+    "permalink": "/api/operations/mutations/cleanup-orphaned-ports"
+  }
+}

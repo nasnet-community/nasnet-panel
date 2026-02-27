@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/cancel-change-set",
+  "title": "cancelChangeSet",
+  "description": "Cancel an in-progress change set application",
+  "source": "@site/docs/api/operations/mutations/cancel-change-set.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/cancel-change-set",
+  "permalink": "/api/operations/mutations/cancel-change-set",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "cancel-change-set",
+    "title": "cancelChangeSet"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "bulkCreateAddressListEntries",
+    "permalink": "/api/operations/mutations/bulk-create-address-list-entries"
+  },
+  "next": {
+    "title": "cancelScan",
+    "permalink": "/api/operations/mutations/cancel-scan"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/ingress-routing-mode",
+  "title": "IngressRoutingMode",
+  "description": "Ingress VLAN routing mode.",
+  "source": "@site/docs/api/types/enums/ingress-routing-mode.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/ingress-routing-mode",
+  "permalink": "/api/types/enums/ingress-routing-mode",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "ingress-routing-mode",
+    "title": "IngressRoutingMode"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "HopStatus",
+    "permalink": "/api/types/enums/hop-status"
+  },
+  "next": {
+    "title": "IngressVLANStatus",
+    "permalink": "/api/types/enums/ingress-vlanstatus"
+  }
+}

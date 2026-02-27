@@ -1,0 +1,24 @@
+{
+  "id": "ui-system/layouts",
+  "title": "Layouts",
+  "description": "The layouts library (libs/ui/layouts/src/) provides the structural scaffolding for the entire",
+  "source": "@site/../connect/docs/ui-system/layouts.md",
+  "sourceDirName": "ui-system",
+  "slug": "/ui-system/layouts",
+  "permalink": "/docs/frontend/ui-system/layouts",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../connect/docs/ui-system/layouts.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Design Tokens",
+    "permalink": "/docs/frontend/ui-system/design-tokens"
+  },
+  "next": {
+    "title": "UI System Overview",
+    "permalink": "/docs/frontend/ui-system/overview"
+  }
+}

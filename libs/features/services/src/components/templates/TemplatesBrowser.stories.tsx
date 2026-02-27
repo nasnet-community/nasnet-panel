@@ -183,9 +183,9 @@ function MockDesktopBrowser({
 
         {error && (
           <div className="p-6">
-            <Card className="border-destructive" role="alert">
+            <Card className="border-error" role="alert">
               <CardContent className="p-6">
-                <h3 className="font-semibold text-destructive mb-2">
+                <h3 className="font-semibold text-error mb-2">
                   Failed to load templates
                 </h3>
                 <p className="text-sm text-muted-foreground mb-4">
@@ -288,7 +288,7 @@ function MockMobileBrowser({
       {error && (
         <div className="p-4">
           <div
-            className="rounded-lg bg-destructive/10 p-4 text-destructive"
+            className="rounded-lg bg-error/10 p-4 text-error"
             role="alert"
           >
             <p className="font-medium">Failed to load templates</p>

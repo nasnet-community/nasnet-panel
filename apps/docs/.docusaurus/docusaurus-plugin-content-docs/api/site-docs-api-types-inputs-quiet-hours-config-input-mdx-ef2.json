@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/quiet-hours-config-input",
+  "title": "QuietHoursConfigInput",
+  "description": "Quiet hours configuration input",
+  "source": "@site/docs/api/types/inputs/quiet-hours-config-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/quiet-hours-config-input",
+  "permalink": "/api/types/inputs/quiet-hours-config-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "quiet-hours-config-input",
+    "title": "QuietHoursConfigInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "ProvisioningRelationshipsInput",
+    "permalink": "/api/types/inputs/provisioning-relationships-input"
+  },
+  "next": {
+    "title": "RemoveDependencyInput",
+    "permalink": "/api/types/inputs/remove-dependency-input"
+  }
+}

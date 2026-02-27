@@ -155,19 +155,19 @@ export const ProtocolSelector = memo(function ProtocolSelector({
   );
 
   return (
-    <div className={cn('space-y-4', className)}>
+    <div className={cn('space-y-component-md', className)}>
       {/* Header */}
       <div>
         <h3 className="text-sm font-medium text-foreground">
           Select Connection Method
         </h3>
-        <p className="text-xs text-muted-foreground mt-1">
+        <p className="text-xs text-muted-foreground mt-component-sm">
           Choose how to apply the configuration to your router
         </p>
       </div>
 
       {/* Protocol Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-component-md">
         {protocols.map((protocol) => {
           const Icon = protocol.icon;
           const isSelected = value === protocol.id;
@@ -184,7 +184,7 @@ export const ProtocolSelector = memo(function ProtocolSelector({
               whileHover={!isDisabled ? { scale: 1.02 } : {}}
               whileTap={!isDisabled ? { scale: 0.98 } : {}}
               className={`
-                relative p-4 rounded-xl border-2 text-left transition-all min-h-[44px]
+                relative p-component-md rounded-xl border-2 text-left transition-all min-h-[44px]
                 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2
                 ${
                   isSelected
@@ -216,7 +216,7 @@ export const ProtocolSelector = memo(function ProtocolSelector({
               {/* Icon */}
               <div
                 className={`
-                  w-10 h-10 rounded-lg flex items-center justify-center mb-3
+                  w-10 h-10 rounded-lg flex items-center justify-center mb-component-md
                   ${
                     isSelected
                       ? 'bg-primary text-primary-foreground'
@@ -243,7 +243,7 @@ export const ProtocolSelector = memo(function ProtocolSelector({
                   {protocol.name}
                 </h4>
                 <p
-                  className={`text-xs mt-0.5 ${
+                  className={`text-xs mt-component-sm ${
                     isDisabled
                       ? 'text-muted-foreground'
                       : 'text-muted-foreground'
@@ -254,7 +254,7 @@ export const ProtocolSelector = memo(function ProtocolSelector({
               </div>
 
               {/* Status indicator */}
-              <div className="mt-3 flex items-center gap-1.5" role="status">
+              <div className="mt-component-md flex items-center gap-component-sm" role="status">
                 <span
                   aria-hidden="true"
                   className={`w-1.5 h-1.5 rounded-full ${
@@ -278,7 +278,7 @@ export const ProtocolSelector = memo(function ProtocolSelector({
 
       {/* Loading indicator */}
       {isLoading && (
-        <div className="flex items-center justify-center gap-2 py-2 text-muted-foreground" role="status" aria-label="Checking available services">
+        <div className="flex items-center justify-center gap-component-sm py-component-sm text-muted-foreground" role="status" aria-label="Checking available services">
           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current" aria-hidden="true" />
           <span className="text-sm">Checking available services...</span>
         </div>
@@ -286,13 +286,13 @@ export const ProtocolSelector = memo(function ProtocolSelector({
 
       {/* No protocols available warning */}
       {hasNoEnabledProtocols && (
-        <div className="flex items-start gap-3 p-3 bg-warning/10 border border-warning/30 rounded-lg" role="alert">
+        <div className="flex items-start gap-component-md p-component-md bg-warning/10 border border-warning/30 rounded-lg" role="alert">
           <AlertCircle className="w-5 h-5 text-warning flex-shrink-0 mt-0.5" aria-hidden="true" />
           <div>
             <p className="text-sm font-medium text-warning">
               No connection methods available
             </p>
-            <p className="text-xs text-muted-foreground mt-0.5">
+            <p className="text-xs text-muted-foreground mt-component-sm">
               Please enable API, SSH, or Telnet service on your router to apply configuration.
             </p>
           </div>

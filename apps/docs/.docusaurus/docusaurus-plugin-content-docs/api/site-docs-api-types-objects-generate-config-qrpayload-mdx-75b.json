@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/generate-config-qrpayload",
+  "title": "GenerateConfigQRPayload",
+  "description": "Payload for generate config QR mutation.",
+  "source": "@site/docs/api/types/objects/generate-config-qrpayload.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/generate-config-qrpayload",
+  "permalink": "/api/types/objects/generate-config-qrpayload",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "generate-config-qrpayload",
+    "title": "GenerateConfigQRPayload"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "GatewayReachabilityResult",
+    "permalink": "/api/types/objects/gateway-reachability-result"
+  },
+  "next": {
+    "title": "GRETunnelConfig",
+    "permalink": "/api/types/objects/gretunnel-config"
+  }
+}

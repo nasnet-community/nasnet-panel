@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/dns-benchmark-result",
+  "title": "DnsBenchmarkResult",
+  "description": "Complete benchmark result comparing all configured DNS servers",
+  "source": "@site/docs/api/types/objects/dns-benchmark-result.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/dns-benchmark-result",
+  "permalink": "/api/types/objects/dns-benchmark-result",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "dns-benchmark-result",
+    "title": "DnsBenchmarkResult"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "DiscoveredWAN",
+    "permalink": "/api/types/objects/discovered-wan"
+  },
+  "next": {
+    "title": "DnsBenchmarkServerResult",
+    "permalink": "/api/types/objects/dns-benchmark-server-result"
+  }
+}

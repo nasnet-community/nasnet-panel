@@ -318,10 +318,10 @@ func isValidListName(name string) bool {
 	}
 
 	for _, ch := range name {
-		if !((ch >= 'a' && ch <= 'z') ||
-			(ch >= 'A' && ch <= 'Z') ||
-			(ch >= '0' && ch <= '9') ||
-			ch == '_' || ch == '-') {
+		if (ch < 'a' || ch > 'z') &&
+			(ch < 'A' || ch > 'Z') &&
+			(ch < '0' || ch > '9') &&
+			ch != '_' && ch != '-' {
 
 			return false
 		}

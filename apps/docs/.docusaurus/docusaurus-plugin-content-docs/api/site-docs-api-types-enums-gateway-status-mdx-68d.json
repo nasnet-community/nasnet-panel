@@ -1,0 +1,26 @@
+{
+  "id": "api/types/enums/gateway-status",
+  "title": "GatewayStatus",
+  "description": "Gateway runtime status.",
+  "source": "@site/docs/api/types/enums/gateway-status.mdx",
+  "sourceDirName": "api/types/enums",
+  "slug": "/api/types/enums/gateway-status",
+  "permalink": "/api/types/enums/gateway-status",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "gateway-status",
+    "title": "GatewayStatus"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "GatewayState",
+    "permalink": "/api/types/enums/gateway-state"
+  },
+  "next": {
+    "title": "GatewayType",
+    "permalink": "/api/types/enums/gateway-type"
+  }
+}

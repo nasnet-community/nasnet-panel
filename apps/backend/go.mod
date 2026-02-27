@@ -32,7 +32,9 @@ require (
 require (
 	github.com/ThreeDotsLabs/watermill v1.5.1
 	github.com/go-routeros/routeros/v3 v3.0.1
+	github.com/google/wire v0.6.0
 	github.com/sony/gobreaker v1.0.0
+	github.com/vishvananda/netlink v1.3.0
 	golang.org/x/sys v0.39.0
 	golang.org/x/text v0.33.0
 )
@@ -70,6 +72,7 @@ require (
 	github.com/urfave/cli/v3 v3.6.1 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
+	github.com/vishvananda/netns v0.0.5 // indirect
 	github.com/zclconf/go-cty v1.14.4 // indirect
 	github.com/zclconf/go-cty-yaml v1.1.0 // indirect
 	go.uber.org/multierr v1.10.0 // indirect

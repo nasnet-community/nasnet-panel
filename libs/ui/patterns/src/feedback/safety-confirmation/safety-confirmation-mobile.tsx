@@ -105,7 +105,8 @@ export function SafetyConfirmationMobile({
       <SheetContent
         side="bottom"
         className={cn(
-          'rounded-t-2xl border-t-2 border-destructive/50',
+          'rounded-t-[var(--semantic-radius-card)] border-t border-border',
+          'bg-card',
           'max-h-[85vh] overflow-y-auto',
           'pb-safe' // Safe area for notched devices
         )}
@@ -171,13 +172,13 @@ export function SafetyConfirmationMobile({
           )}
         </div>
 
-        <SheetFooter className="flex flex-col gap-3 pt-2">
+        <SheetFooter className="flex flex-col-reverse gap-3 pt-2 sm:flex-row-reverse">
           {/* Confirm button first (primary action at bottom on mobile) */}
           <Button
             variant="destructive"
             onClick={handleConfirm}
             disabled={!canConfirm || isProcessing}
-            className="h-12 w-full text-base"
+            className="h-12 w-full text-base bg-error hover:bg-error/90"
             aria-label={isProcessing ? 'Processing confirmation' : `Confirm ${title}`}
           >
             {isProcessing ? (
@@ -196,7 +197,7 @@ export function SafetyConfirmationMobile({
 
           {/* Cancel button */}
           <Button
-            variant="outline"
+            variant="secondary"
             onClick={() => {
               cancel();
               onOpenChange(false);

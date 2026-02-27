@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/dependency-graph-edge",
+  "title": "DependencyGraphEdge",
+  "description": "DependencyGraphEdge represents a dependency relationship edge in the graph.",
+  "source": "@site/docs/api/types/objects/dependency-graph-edge.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/dependency-graph-edge",
+  "permalink": "/api/types/objects/dependency-graph-edge",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "dependency-graph-edge",
+    "title": "DependencyGraphEdge"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "DeleteRouterPayload",
+    "permalink": "/api/types/objects/delete-router-payload"
+  },
+  "next": {
+    "title": "DependencyGraphNode",
+    "permalink": "/api/types/objects/dependency-graph-node"
+  }
+}

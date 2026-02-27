@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/router-edge",
+  "title": "RouterEdge",
+  "description": "No description",
+  "source": "@site/docs/api/types/objects/router-edge.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/router-edge",
+  "permalink": "/api/types/objects/router-edge",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "router-edge",
+    "title": "RouterEdge"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "RouterCredentials",
+    "permalink": "/api/types/objects/router-credentials"
+  },
+  "next": {
+    "title": "RouterOSInfo",
+    "permalink": "/api/types/objects/router-osinfo"
+  }
+}

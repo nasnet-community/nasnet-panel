@@ -1,0 +1,26 @@
+{
+  "id": "api/types/directives/realtime",
+  "title": "realtime",
+  "description": "No description",
+  "source": "@site/docs/api/types/directives/realtime.mdx",
+  "sourceDirName": "api/types/directives",
+  "slug": "/api/types/directives/realtime",
+  "permalink": "/api/types/directives/realtime",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "realtime",
+    "title": "realtime"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "openwrt",
+    "permalink": "/api/types/directives/openwrt"
+  },
+  "next": {
+    "title": "sensitive",
+    "permalink": "/api/types/directives/sensitive"
+  }
+}

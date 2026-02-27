@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/troubleshoot-session",
+  "title": "troubleshootSession",
+  "description": "Get a troubleshooting session by ID",
+  "source": "@site/docs/api/operations/queries/troubleshoot-session.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/troubleshoot-session",
+  "permalink": "/api/operations/queries/troubleshoot-session",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "troubleshoot-session",
+    "title": "troubleshootSession"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "systemResources",
+    "permalink": "/api/operations/queries/system-resources"
+  },
+  "next": {
+    "title": "tunnel",
+    "permalink": "/api/operations/queries/tunnel"
+  }
+}

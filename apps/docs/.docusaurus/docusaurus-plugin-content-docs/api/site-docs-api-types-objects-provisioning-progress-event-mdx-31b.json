@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/provisioning-progress-event",
+  "title": "ProvisioningProgressEvent",
+  "description": "Progress event for provisioning operations (validation, apply, etc.)",
+  "source": "@site/docs/api/types/objects/provisioning-progress-event.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/provisioning-progress-event",
+  "permalink": "/api/types/objects/provisioning-progress-event",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "provisioning-progress-event",
+    "title": "ProvisioningProgressEvent"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "PPTPRuntime",
+    "permalink": "/api/types/objects/pptpruntime"
+  },
+  "next": {
+    "title": "ProvisioningSessionConnection",
+    "permalink": "/api/types/objects/provisioning-session-connection"
+  }
+}

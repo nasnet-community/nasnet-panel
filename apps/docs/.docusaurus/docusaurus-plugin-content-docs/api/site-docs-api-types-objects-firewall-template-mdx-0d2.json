@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/firewall-template",
+  "title": "FirewallTemplate",
+  "description": "Firewall template with pre-configured rule sets.",
+  "source": "@site/docs/api/types/objects/firewall-template.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/firewall-template",
+  "permalink": "/api/types/objects/firewall-template",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "firewall-template",
+    "title": "FirewallTemplate"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "FirewallTemplateVariable",
+    "permalink": "/api/types/objects/firewall-template-variable"
+  },
+  "next": {
+    "title": "FlushDnsCacheResult",
+    "permalink": "/api/types/objects/flush-dns-cache-result"
+  }
+}

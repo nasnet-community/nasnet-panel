@@ -1,1 +1,0 @@
-{"version":3,"file":"SecurityLevelBadge.d.ts","sourceRoot":"","sources":["SecurityLevelBadge.tsx"],"names":[],"mappings":"AAAA;;;;;GAKG;AAEH,OAAO,KAAK,KAAK,MAAM,OAAO,CAAC;AAE/B,OAAO,EAAE,KAAK,aAAa,EAAE,MAAM,oBAAoB,CAAC;AAGxD,MAAM,WAAW,uBAAuB;IACtC,gCAAgC;IAChC,KAAK,EAAE,aAAa,CAAC;IACrB,6BAA6B;IAC7B,SAAS,CAAC,EAAE,MAAM,CAAC;CACpB;AAED;;;;;GAKG;AACH,eAAO,MAAM,kBAAkB,qDAoB7B,CAAC"}

@@ -92,7 +92,7 @@ export function VlanListDesktop({
         key: 'name',
         header: 'Name',
         cell: (vlan) => (
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-component-xs">
             <span className="font-medium">{vlan.name}</span>
             {vlan.comment && (
               <span className="text-sm text-muted-foreground">
@@ -115,8 +115,8 @@ export function VlanListDesktop({
         key: 'interface',
         header: 'Parent Interface',
         cell: (vlan) => (
-          <div className="flex flex-col gap-1">
-            <span className="font-medium">{vlan.interface.name}</span>
+          <div className="flex flex-col gap-component-xs">
+            <span className="font-medium font-mono">{vlan.interface.name}</span>
             <span className="text-xs text-muted-foreground capitalize">
               {vlan.interface.type}
             </span>
@@ -150,7 +150,7 @@ export function VlanListDesktop({
         key: 'actions',
         header: '',
         cell: (vlan) => (
-          <div className="flex items-center gap-2 justify-end">
+          <div className="flex items-center gap-component-sm justify-end">
             <Button
               variant="ghost"
               size="sm"
@@ -187,17 +187,17 @@ export function VlanListDesktop({
   }, [vlanToDelete, handleDelete]);
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-component-md">
       {/* Toolbar */}
       <DataTableToolbar>
-        <div className="flex items-center gap-2 flex-1">
+        <div className="flex items-center gap-component-sm flex-1">
           <div className="relative flex-1 max-w-sm">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search VLANs..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9"
+              className="pl-9 font-mono"
             />
           </div>
 
@@ -208,7 +208,7 @@ export function VlanListDesktop({
               setParentInterfaceFilter(value === 'all' ? null : value)
             }
           >
-            <SelectTrigger className="w-[200px]">
+            <SelectTrigger className="w-[200px] font-mono">
               <Filter className="h-4 w-4 mr-2" />
               <SelectValue placeholder="All Interfaces" />
             </SelectTrigger>

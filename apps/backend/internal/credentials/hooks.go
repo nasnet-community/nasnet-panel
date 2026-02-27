@@ -54,7 +54,7 @@ func encryptionHook(encService *encryption.Service) ent.Hook {
 					if !isEncrypted(username) {
 						encrypted, err := encService.Encrypt(string(username))
 						if err != nil {
-							return nil, fmt.Errorf("failed to encrypt [REDACTED]: %w", err)
+							return nil, fmt.Errorf("encrypt username in hook: %w", err)
 						}
 						m.SetEncryptedUsername([]byte(encrypted))
 					}
@@ -67,7 +67,7 @@ func encryptionHook(encService *encryption.Service) ent.Hook {
 					if !isEncrypted(password) {
 						encrypted, err := encService.Encrypt(string(password))
 						if err != nil {
-							return nil, fmt.Errorf("failed to encrypt [REDACTED]: %w", err)
+							return nil, fmt.Errorf("encrypt password in hook: %w", err)
 						}
 						m.SetEncryptedPassword([]byte(encrypted))
 					}
@@ -120,19 +120,27 @@ func isBase64Char(b byte) bool {
 // CreateWithPlaintext is a helper that creates RouterSecret with plaintext credentials.
 // The hook will automatically encrypt them.
 func CreateWithPlaintext(ctx context.Context, client *ent.Client, routerID, username, password string) (*ent.RouterSecret, error) {
-	return client.RouterSecret.Create().
+	secret, err := client.RouterSecret.Create().
 		SetRouterID(routerID).
 		SetEncryptedUsername([]byte(username)). // Hook will encrypt
 		SetEncryptedPassword([]byte(password)). // Hook will encrypt
 		SetEncryptionNonce([]byte{}).           // Not used, nonce is in ciphertext
 		Save(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("create router secret: %w", err)
+	}
+	return secret, nil
 }
 
 // UpdateWithPlaintext is a helper that updates RouterSecret with plaintext credentials.
 // The hook will automatically encrypt them.
 func UpdateWithPlaintext(ctx context.Context, secret *ent.RouterSecret, username, password string) (*ent.RouterSecret, error) {
-	return secret.Update().
+	updated, err := secret.Update().
 		SetEncryptedUsername([]byte(username)). // Hook will encrypt
 		SetEncryptedPassword([]byte(password)). // Hook will encrypt
 		Save(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("update router secret: %w", err)
+	}
+	return updated, nil
 }

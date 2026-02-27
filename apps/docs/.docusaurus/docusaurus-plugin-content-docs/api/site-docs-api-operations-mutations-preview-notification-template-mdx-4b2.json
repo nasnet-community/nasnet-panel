@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/preview-notification-template",
+  "title": "previewNotificationTemplate",
+  "description": "Preview how a notification template will render with sample data",
+  "source": "@site/docs/api/operations/mutations/preview-notification-template.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/preview-notification-template",
+  "permalink": "/api/operations/mutations/preview-notification-template",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "preview-notification-template",
+    "title": "previewNotificationTemplate"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "prevProvisioningStep",
+    "permalink": "/api/operations/mutations/prev-provisioning-step"
+  },
+  "next": {
+    "title": "reconnectRouter",
+    "permalink": "/api/operations/mutations/reconnect-router"
+  }
+}

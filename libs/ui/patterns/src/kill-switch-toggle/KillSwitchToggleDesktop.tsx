@@ -150,7 +150,7 @@ export function KillSwitchToggleDesktop(props: KillSwitchToggleProps) {
                   </SelectContent>
                 </Select>
                 {availableInterfaces.length === 0 && (
-                  <p className="flex items-center gap-1 text-xs text-destructive">
+                  <p className="flex items-center gap-1 text-xs text-error">
                     <AlertCircle className="size-3" />
                     No fallback services available
                   </p>
@@ -161,11 +161,11 @@ export function KillSwitchToggleDesktop(props: KillSwitchToggleProps) {
 
           {/* Active state indicator */}
           {isActive && activationTimeText && (
-            <div className="mt-4 rounded-md border border-destructive/50 bg-destructive/10 p-3">
+            <div className="mt-4 rounded-md border border-l-4 border-l-error border-error bg-error-light p-3 transition-colors duration-150">
               <div className="flex items-start gap-2">
-                <ShieldAlert className="mt-0.5 size-4 text-destructive" />
+                <ShieldAlert className="mt-0.5 size-4 text-error" />
                 <div className="flex-1 space-y-1">
-                  <p className="text-sm font-medium text-destructive">
+                  <p className="text-sm font-medium text-error-dark">
                     Kill Switch Active
                   </p>
                   <p className="text-xs text-muted-foreground">

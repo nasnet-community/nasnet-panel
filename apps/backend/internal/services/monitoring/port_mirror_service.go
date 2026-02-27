@@ -35,7 +35,7 @@ func NewPortMirrorService(config base.ServiceConfig) *PortMirrorService {
 func (s *PortMirrorService) GetPortMirrors(ctx context.Context, routerID string) ([]*model.PortMirror, error) {
 	// Check connection
 	if err := s.EnsureConnected(ctx); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("ensure connected: %w", err)
 	}
 
 	// Execute RouterOS command via adapter
@@ -49,7 +49,7 @@ func (s *PortMirrorService) GetPortMirrors(ctx context.Context, routerID string)
 
 	mirrors, err := adapter.GetPortMirrors(ctx, routerID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get port mirrors: %w", err)
+		return nil, fmt.Errorf("get port mirrors: %w", err)
 	}
 
 	// Enrich with statistics
@@ -67,7 +67,7 @@ func (s *PortMirrorService) GetPortMirrors(ctx context.Context, routerID string)
 // The ID corresponds to the destination interface name.
 func (s *PortMirrorService) GetPortMirror(ctx context.Context, routerID, mirrorID string) (*model.PortMirror, error) {
 	if err := s.EnsureConnected(ctx); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("ensure connected: %w", err)
 	}
 
 	adapter, ok := s.Port().(interface {
@@ -79,7 +79,7 @@ func (s *PortMirrorService) GetPortMirror(ctx context.Context, routerID, mirrorI
 
 	mirror, err := adapter.GetPortMirror(ctx, routerID, mirrorID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get port mirror: %w", err)
+		return nil, fmt.Errorf("get port mirror: %w", err)
 	}
 
 	// Enrich with statistics
@@ -104,7 +104,7 @@ func (s *PortMirrorService) CreatePortMirror(
 	}
 
 	if err := s.EnsureConnected(ctx); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("ensure connected: %w", err)
 	}
 
 	adapter, ok := s.Port().(interface {
@@ -116,7 +116,7 @@ func (s *PortMirrorService) CreatePortMirror(
 
 	mirror, err := adapter.CreatePortMirror(ctx, routerID, input)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create port mirror: %w", err)
+		return nil, fmt.Errorf("create port mirror: %w", err)
 	}
 
 	// Publish port mirror created event
@@ -151,7 +151,7 @@ func (s *PortMirrorService) UpdatePortMirror(
 	}
 
 	if err := s.EnsureConnected(ctx); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("ensure connected: %w", err)
 	}
 
 	adapter, ok := s.Port().(interface {
@@ -163,7 +163,7 @@ func (s *PortMirrorService) UpdatePortMirror(
 
 	mirror, err := adapter.UpdatePortMirror(ctx, routerID, mirrorID, input)
 	if err != nil {
-		return nil, fmt.Errorf("failed to update port mirror: %w", err)
+		return nil, fmt.Errorf("update port mirror: %w", err)
 	}
 
 	// Publish port mirror updated event
@@ -188,7 +188,7 @@ func (s *PortMirrorService) UpdatePortMirror(
 // This clears the mirror-ingress and mirror-egress properties on all source ports.
 func (s *PortMirrorService) DeletePortMirror(ctx context.Context, routerID, mirrorID string) error {
 	if err := s.EnsureConnected(ctx); err != nil {
-		return err
+		return fmt.Errorf("ensure connected: %w", err)
 	}
 
 	adapter, ok := s.Port().(interface {
@@ -199,7 +199,7 @@ func (s *PortMirrorService) DeletePortMirror(ctx context.Context, routerID, mirr
 	}
 
 	if err := adapter.DeletePortMirror(ctx, routerID, mirrorID); err != nil {
-		return fmt.Errorf("failed to delete port mirror: %w", err)
+		return fmt.Errorf("delete port mirror: %w", err)
 	}
 
 	// Publish port mirror deleted event

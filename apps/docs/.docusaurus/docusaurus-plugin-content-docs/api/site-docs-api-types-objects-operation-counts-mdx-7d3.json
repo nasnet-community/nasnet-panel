@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/operation-counts",
+  "title": "OperationCounts",
+  "description": "Operation counts by type",
+  "source": "@site/docs/api/types/objects/operation-counts.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/operation-counts",
+  "permalink": "/api/types/objects/operation-counts",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "operation-counts",
+    "title": "OperationCounts"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "OpenVPNRuntime",
+    "permalink": "/api/types/objects/open-vpnruntime"
+  },
+  "next": {
+    "title": "OrphanCleanupPayload",
+    "permalink": "/api/types/objects/orphan-cleanup-payload"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/instance-status-changed",
+  "title": "InstanceStatusChanged",
+  "description": "Instance status change event.",
+  "source": "@site/docs/api/types/objects/instance-status-changed.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/instance-status-changed",
+  "permalink": "/api/types/objects/instance-status-changed",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "instance-status-changed",
+    "title": "InstanceStatusChanged"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "InstanceResourceUsage",
+    "permalink": "/api/types/objects/instance-resource-usage"
+  },
+  "next": {
+    "title": "InterfaceConnection",
+    "permalink": "/api/types/objects/interface-connection"
+  }
+}

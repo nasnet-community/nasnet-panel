@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/platform-feature",
+  "title": "PlatformFeature",
+  "description": "A platform-specific feature",
+  "source": "@site/docs/api/types/objects/platform-feature.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/platform-feature",
+  "permalink": "/api/types/objects/platform-feature",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "platform-feature",
+    "title": "PlatformFeature"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "PlatformCapabilities",
+    "permalink": "/api/types/objects/platform-capabilities"
+  },
+  "next": {
+    "title": "PlatformInfo",
+    "permalink": "/api/types/objects/platform-info"
+  }
+}

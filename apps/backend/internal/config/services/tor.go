@@ -165,14 +165,18 @@ func (g *TorGenerator) Generate(instanceID string, config map[string]interface{}
 	data := cfglib.NewTemplateData(instanceID, bindIP, config)
 
 	// Render template
-	return g.RenderTemplate(data)
+	rendered, err := g.RenderTemplate(data)
+	if err != nil {
+		return nil, fmt.Errorf("render tor template: %w", err)
+	}
+	return rendered, nil
 }
 
 // Validate performs Tor-specific validation.
 func (g *TorGenerator) Validate(config map[string]interface{}, bindIP string) error {
 	// Base validation (schema + bind IP)
 	if configErr := g.ValidateConfig(config, bindIP); configErr != nil {
-		return configErr
+		return fmt.Errorf("validate tor config: %w", configErr)
 	}
 
 	// Tor-specific validation
@@ -193,7 +197,7 @@ func (g *TorGenerator) Validate(config map[string]interface{}, bindIP string) er
 	// Validate contact_info is an email
 	contactInfo, _ := config["contact_info"].(string) //nolint:errcheck // type assertion uses zero value default
 	if emailErr := cfglib.ValidateEmail(contactInfo); emailErr != nil {
-		return fmt.Errorf("contact_info must be a valid email: %w", emailErr)
+		return fmt.Errorf("validate tor contact_info email: %w", emailErr)
 	}
 
 	return nil

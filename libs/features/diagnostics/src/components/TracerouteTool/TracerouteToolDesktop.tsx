@@ -173,9 +173,9 @@ export const TracerouteToolDesktop = memo(function TracerouteToolDesktop({
           <CardTitle>Traceroute Diagnostic Tool</CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-component-lg">
             {/* Target input */}
-            <div className="space-y-2">
+            <div className="space-y-component-sm">
               <Label htmlFor="traceroute-target">
                 Target <span className="text-error">*</span>
               </Label>
@@ -188,11 +188,11 @@ export const TracerouteToolDesktop = memo(function TracerouteToolDesktop({
                 className="font-mono"
                 {...register('target')}
               />
-              <p id="traceroute-target-description" className="text-sm text-muted-foreground">
+              <p id="traceroute-target-description" className="text-xs text-muted-foreground">
                 IPv4, IPv6 address, or hostname to trace route to
               </p>
               {errors.target && (
-                <p className="text-sm text-error" role="alert">
+                <p className="text-xs text-error" role="alert">
                   {errors.target.message}
                 </p>
               )}
@@ -201,12 +201,12 @@ export const TracerouteToolDesktop = memo(function TracerouteToolDesktop({
             <Separator />
 
             {/* Advanced options */}
-            <div className="space-y-4">
+            <div className="space-y-component-lg">
               <h4 className="text-sm font-semibold">Advanced Options</h4>
 
-              <div className="grid grid-cols-2 gap-component-md">
+              <div className="grid grid-cols-2 gap-component-lg">
                 {/* Max Hops */}
-                <div className="space-y-2">
+                <div className="space-y-component-sm">
                   <Label htmlFor="traceroute-max-hops">Max Hops</Label>
                   <Input
                     id="traceroute-max-hops"
@@ -217,14 +217,14 @@ export const TracerouteToolDesktop = memo(function TracerouteToolDesktop({
                     {...register('maxHops', { valueAsNumber: true })}
                   />
                   {errors.maxHops && (
-                    <p className="text-sm text-error" role="alert">
+                    <p className="text-xs text-error" role="alert">
                       {errors.maxHops.message}
                     </p>
                   )}
                 </div>
 
                 {/* Timeout */}
-                <div className="space-y-2">
+                <div className="space-y-component-sm">
                   <Label htmlFor="traceroute-timeout">Timeout (ms)</Label>
                   <Input
                     id="traceroute-timeout"
@@ -236,14 +236,14 @@ export const TracerouteToolDesktop = memo(function TracerouteToolDesktop({
                     {...register('timeout', { valueAsNumber: true })}
                   />
                   {errors.timeout && (
-                    <p className="text-sm text-error" role="alert">
+                    <p className="text-xs text-error" role="alert">
                       {errors.timeout.message}
                     </p>
                   )}
                 </div>
 
                 {/* Probe Count */}
-                <div className="space-y-2">
+                <div className="space-y-component-sm">
                   <Label htmlFor="traceroute-probe-count">Probes per Hop</Label>
                   <Input
                     id="traceroute-probe-count"
@@ -254,14 +254,14 @@ export const TracerouteToolDesktop = memo(function TracerouteToolDesktop({
                     {...register('probeCount', { valueAsNumber: true })}
                   />
                   {errors.probeCount && (
-                    <p className="text-sm text-error" role="alert">
+                    <p className="text-xs text-error" role="alert">
                       {errors.probeCount.message}
                     </p>
                   )}
                 </div>
 
                 {/* Protocol */}
-                <div className="space-y-2">
+                <div className="space-y-component-sm">
                   <Label htmlFor="traceroute-protocol">Protocol</Label>
                   <Select
                     value={protocol}
@@ -278,7 +278,7 @@ export const TracerouteToolDesktop = memo(function TracerouteToolDesktop({
                     </SelectContent>
                   </Select>
                   {errors.protocol && (
-                    <p className="text-sm text-error" role="alert">
+                    <p className="text-xs text-error" role="alert">
                       {errors.protocol.message}
                     </p>
                   )}
@@ -289,7 +289,7 @@ export const TracerouteToolDesktop = memo(function TracerouteToolDesktop({
             <Separator />
 
             {/* Action buttons */}
-            <div className="flex gap-component-sm">
+            <div className="flex gap-component-md">
               {!traceroute.isRunning ? (
                 <Button
                   type="submit"
@@ -318,7 +318,7 @@ export const TracerouteToolDesktop = memo(function TracerouteToolDesktop({
       </Card>
 
       {/* Right column: Results */}
-      <div className="space-y-4">
+      <div className="space-y-component-lg">
         {/* Status bar */}
         {statusMessage && (
           <Alert variant={traceroute.error ? 'destructive' : 'default'}>
@@ -336,8 +336,8 @@ export const TracerouteToolDesktop = memo(function TracerouteToolDesktop({
 
         {/* Progress bar */}
         {traceroute.isRunning && (
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm">
+          <div className="space-y-component-md">
+            <div className="flex justify-between text-xs">
               <span>Progress</span>
               <span>{Math.round(traceroute.progress)}%</span>
             </div>
@@ -350,7 +350,7 @@ export const TracerouteToolDesktop = memo(function TracerouteToolDesktop({
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Network Hops ({traceroute.hops.length})</CardTitle>
-              <div className="flex gap-component-sm">
+              <div className="flex gap-component-md">
                 <Button
                   variant="outline"
                   size="sm"
@@ -387,10 +387,10 @@ export const TracerouteToolDesktop = memo(function TracerouteToolDesktop({
         {/* Empty state */}
         {!traceroute.isRunning && traceroute.hops.length === 0 && !traceroute.error && (
           <Card>
-            <CardContent className="flex flex-col items-center justify-center p-component-lg text-center">
+            <CardContent className="flex flex-col items-center justify-center p-component-xl text-center">
               <div className="text-muted-foreground">
-                <p className="text-lg font-medium mb-2">No results yet</p>
-                <p className="text-sm">Enter a target and click "Start Traceroute" to begin</p>
+                <p className="text-lg font-medium mb-component-md">No results yet</p>
+                <p className="text-xs">Enter a target and click "Start Traceroute" to begin</p>
               </div>
             </CardContent>
           </Card>

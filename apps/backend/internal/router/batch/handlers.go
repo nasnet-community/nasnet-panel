@@ -15,7 +15,7 @@ import (
 type SubmitRequest struct {
 	RouterIP        string   `json:"router_ip"`
 	Username        string   `json:"username"`
-	Password        string   `json:"password"`
+	Password        string   `json:"password"` //nolint:gosec // G101: password field required for authentication
 	UseTLS          bool     `json:"use_tls"`
 	Protocol        string   `json:"protocol,omitempty"`
 	SSHPrivateKey   string   `json:"ssh_private_key,omitempty"`
@@ -171,6 +171,11 @@ func handleStatus(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if job == nil {
+		errorResp(w, http.StatusInternalServerError, "internal_error", "Job object is nil")
+		return
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(job.GetStatus()) //nolint:errcheck,errchkjson // HTTP response already committed
 }
@@ -190,6 +195,11 @@ func handleRollback(w http.ResponseWriter, r *http.Request) {
 	job, ok := DefaultJobStore.Get(jobID)
 	if !ok {
 		errorResp(w, http.StatusNotFound, "job_not_found", "Job not found: "+jobID)
+		return
+	}
+
+	if job == nil {
+		errorResp(w, http.StatusInternalServerError, "internal_error", "Job object is nil")
 		return
 	}
 
@@ -253,6 +263,11 @@ func handleCancel(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if job == nil {
+		errorResp(w, http.StatusInternalServerError, "internal_error", "Job object is nil")
+		return
+	}
+
 	if job.Status != JobStatusRunning && job.Status != JobStatusPending {
 		errorResp(w, http.StatusBadRequest, "invalid_state",
 			fmt.Sprintf("Job cannot be canceled in state: %s", job.Status))
@@ -275,9 +290,14 @@ func handleDelete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, ok := DefaultJobStore.Get(jobID)
+	job, ok := DefaultJobStore.Get(jobID)
 	if !ok {
 		errorResp(w, http.StatusNotFound, "job_not_found", "Job not found: "+jobID)
+		return
+	}
+
+	if job == nil {
+		errorResp(w, http.StatusInternalServerError, "internal_error", "Job object is nil")
 		return
 	}
 

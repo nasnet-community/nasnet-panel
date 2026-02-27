@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/mutations/add-bridge-port",
+  "title": "addBridgePort",
+  "description": "Add a port to a bridge",
+  "source": "@site/docs/api/operations/mutations/add-bridge-port.mdx",
+  "sourceDirName": "api/operations/mutations",
+  "slug": "/api/operations/mutations/add-bridge-port",
+  "permalink": "/api/operations/mutations/add-bridge-port",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "add-bridge-port",
+    "title": "addBridgePort"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "acknowledgeAlerts",
+    "permalink": "/api/operations/mutations/acknowledge-alerts"
+  },
+  "next": {
+    "title": "addChangeSetItem",
+    "permalink": "/api/operations/mutations/add-change-set-item"
+  }
+}

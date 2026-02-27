@@ -1,0 +1,26 @@
+{
+  "id": "api/types/inputs/create-bridge-vlan-input",
+  "title": "CreateBridgeVlanInput",
+  "description": "No description",
+  "source": "@site/docs/api/types/inputs/create-bridge-vlan-input.mdx",
+  "sourceDirName": "api/types/inputs",
+  "slug": "/api/types/inputs/create-bridge-vlan-input",
+  "permalink": "/api/types/inputs/create-bridge-vlan-input",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "create-bridge-vlan-input",
+    "title": "CreateBridgeVlanInput"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "CreateBridgeInput",
+    "permalink": "/api/types/inputs/create-bridge-input"
+  },
+  "next": {
+    "title": "CreateChangeSetInput",
+    "permalink": "/api/types/inputs/create-change-set-input"
+  }
+}

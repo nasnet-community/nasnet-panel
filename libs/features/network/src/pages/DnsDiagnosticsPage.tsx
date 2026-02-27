@@ -43,7 +43,7 @@ export const DnsDiagnosticsPage = memo(function DnsDiagnosticsPage({
           <span className="text-foreground" aria-current="page">Diagnostics</span>
         </nav>
         <h1 className="text-2xl font-bold text-foreground font-display">DNS Diagnostics</h1>
-        <p className="text-muted-foreground mt-1">
+        <p className="text-muted-foreground mt-component-sm">
           Test DNS resolution, benchmark server performance, and manage DNS cache
         </p>
       </div>

@@ -1,0 +1,26 @@
+{
+  "id": "api/operations/queries/change-sets",
+  "title": "changeSets",
+  "description": "List change sets for a router",
+  "source": "@site/docs/api/operations/queries/change-sets.mdx",
+  "sourceDirName": "api/operations/queries",
+  "slug": "/api/operations/queries/change-sets",
+  "permalink": "/api/operations/queries/change-sets",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "change-sets",
+    "title": "changeSets"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "changeSet",
+    "permalink": "/api/operations/queries/change-set"
+  },
+  "next": {
+    "title": "checkGatewayReachability",
+    "permalink": "/api/operations/queries/check-gateway-reachability"
+  }
+}

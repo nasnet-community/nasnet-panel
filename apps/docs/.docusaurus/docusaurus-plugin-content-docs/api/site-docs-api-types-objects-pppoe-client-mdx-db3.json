@@ -1,0 +1,26 @@
+{
+  "id": "api/types/objects/pppoe-client",
+  "title": "PppoeClient",
+  "description": "PPPoE client configuration for dial-up WAN",
+  "source": "@site/docs/api/types/objects/pppoe-client.mdx",
+  "sourceDirName": "api/types/objects",
+  "slug": "/api/types/objects/pppoe-client",
+  "permalink": "/api/types/objects/pppoe-client",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "pppoe-client",
+    "title": "PppoeClient"
+  },
+  "sidebar": "defaultSidebar",
+  "previous": {
+    "title": "PortStatus",
+    "permalink": "/api/types/objects/port-status"
+  },
+  "next": {
+    "title": "PPPServerConfig",
+    "permalink": "/api/types/objects/pppserver-config"
+  }
+}

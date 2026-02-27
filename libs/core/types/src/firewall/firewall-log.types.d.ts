@@ -152,29 +152,29 @@ export declare const ParsedFirewallLogSchema: z.ZodObject<{
     prefix: z.ZodOptional<z.ZodString>;
     length: z.ZodOptional<z.ZodNumber>;
 }, "strip", z.ZodTypeAny, {
-    chain: "input" | "forward" | "output";
-    action: "unknown" | "accept" | "drop" | "reject";
+    action: "accept" | "unknown" | "drop" | "reject";
+    chain: "input" | "output" | "forward";
     protocol: "unknown" | "TCP" | "UDP" | "ICMP" | "IPv6-ICMP" | "GRE" | "ESP" | "AH" | "IGMP";
     length?: number | undefined;
+    prefix?: string | undefined;
     srcPort?: number | undefined;
     dstPort?: number | undefined;
     srcIp?: string | undefined;
     dstIp?: string | undefined;
     interfaceIn?: string | undefined;
     interfaceOut?: string | undefined;
-    prefix?: string | undefined;
 }, {
-    chain: "input" | "forward" | "output";
-    action: "unknown" | "accept" | "drop" | "reject";
+    action: "accept" | "unknown" | "drop" | "reject";
+    chain: "input" | "output" | "forward";
     protocol: "unknown" | "TCP" | "UDP" | "ICMP" | "IPv6-ICMP" | "GRE" | "ESP" | "AH" | "IGMP";
     length?: number | undefined;
+    prefix?: string | undefined;
     srcPort?: number | undefined;
     dstPort?: number | undefined;
     srcIp?: string | undefined;
     dstIp?: string | undefined;
     interfaceIn?: string | undefined;
     interfaceOut?: string | undefined;
-    prefix?: string | undefined;
 }>;
 /**
  * Zod schema for complete firewall log entry validation
@@ -212,29 +212,29 @@ export declare const FirewallLogEntrySchema: z.ZodObject<{
         prefix: z.ZodOptional<z.ZodString>;
         length: z.ZodOptional<z.ZodNumber>;
     }, "strip", z.ZodTypeAny, {
-        chain: "input" | "forward" | "output";
-        action: "unknown" | "accept" | "drop" | "reject";
+        action: "accept" | "unknown" | "drop" | "reject";
+        chain: "input" | "output" | "forward";
         protocol: "unknown" | "TCP" | "UDP" | "ICMP" | "IPv6-ICMP" | "GRE" | "ESP" | "AH" | "IGMP";
         length?: number | undefined;
+        prefix?: string | undefined;
         srcPort?: number | undefined;
         dstPort?: number | undefined;
         srcIp?: string | undefined;
         dstIp?: string | undefined;
         interfaceIn?: string | undefined;
         interfaceOut?: string | undefined;
-        prefix?: string | undefined;
     }, {
-        chain: "input" | "forward" | "output";
-        action: "unknown" | "accept" | "drop" | "reject";
+        action: "accept" | "unknown" | "drop" | "reject";
+        chain: "input" | "output" | "forward";
         protocol: "unknown" | "TCP" | "UDP" | "ICMP" | "IPv6-ICMP" | "GRE" | "ESP" | "AH" | "IGMP";
         length?: number | undefined;
+        prefix?: string | undefined;
         srcPort?: number | undefined;
         dstPort?: number | undefined;
         srcIp?: string | undefined;
         dstIp?: string | undefined;
         interfaceIn?: string | undefined;
         interfaceOut?: string | undefined;
-        prefix?: string | undefined;
     }>;
 }, "strip", z.ZodTypeAny, {
     id: string;
@@ -243,17 +243,17 @@ export declare const FirewallLogEntrySchema: z.ZodObject<{
     timestamp: Date;
     topic: "firewall";
     parsed: {
-        chain: "input" | "forward" | "output";
-        action: "unknown" | "accept" | "drop" | "reject";
+        action: "accept" | "unknown" | "drop" | "reject";
+        chain: "input" | "output" | "forward";
         protocol: "unknown" | "TCP" | "UDP" | "ICMP" | "IPv6-ICMP" | "GRE" | "ESP" | "AH" | "IGMP";
         length?: number | undefined;
+        prefix?: string | undefined;
         srcPort?: number | undefined;
         dstPort?: number | undefined;
         srcIp?: string | undefined;
         dstIp?: string | undefined;
         interfaceIn?: string | undefined;
         interfaceOut?: string | undefined;
-        prefix?: string | undefined;
     };
 }, {
     id: string;
@@ -262,17 +262,17 @@ export declare const FirewallLogEntrySchema: z.ZodObject<{
     timestamp: Date;
     topic: "firewall";
     parsed: {
-        chain: "input" | "forward" | "output";
-        action: "unknown" | "accept" | "drop" | "reject";
+        action: "accept" | "unknown" | "drop" | "reject";
+        chain: "input" | "output" | "forward";
         protocol: "unknown" | "TCP" | "UDP" | "ICMP" | "IPv6-ICMP" | "GRE" | "ESP" | "AH" | "IGMP";
         length?: number | undefined;
+        prefix?: string | undefined;
         srcPort?: number | undefined;
         dstPort?: number | undefined;
         srcIp?: string | undefined;
         dstIp?: string | undefined;
         interfaceIn?: string | undefined;
         interfaceOut?: string | undefined;
-        prefix?: string | undefined;
     };
 }>;
 /**

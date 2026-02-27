@@ -101,7 +101,7 @@ func backupWithCheckpoint(ctx context.Context, db *sql.DB, sourcePath, backupPat
 	// Copy database file using atomic write (temp file + rename)
 	src, err := os.Open(sourcePath)
 	if err != nil {
-		return fmt.Errorf("open source: %w", err)
+		return fmt.Errorf("open source database file: %w", err)
 	}
 	defer src.Close()
 
@@ -109,40 +109,40 @@ func backupWithCheckpoint(ctx context.Context, db *sql.DB, sourcePath, backupPat
 	backupDir := filepath.Dir(backupPath)
 	tempFile, err := os.CreateTemp(backupDir, ".backup-temp-")
 	if err != nil {
-		return fmt.Errorf("create temp file: %w", err)
+		return fmt.Errorf("create temporary backup file: %w", err)
 	}
 	tempPath := tempFile.Name()
 
 	// Set restrictive permissions (0o600) on temp file
 	if err := tempFile.Chmod(0o600); err != nil {
 		tempFile.Close()
-		os.Remove(tempPath)
-		return fmt.Errorf("set temp file permissions: %w", err)
+		os.Remove(tempPath) //nolint:gosec // G703: paths from internal computation, not user input
+		return fmt.Errorf("set backup temp file permissions: %w", err)
 	}
 
 	// Copy data to temp file
 	if _, err := io.Copy(tempFile, src); err != nil {
 		tempFile.Close()
-		os.Remove(tempPath)
-		return fmt.Errorf("copy data: %w", err)
+		os.Remove(tempPath) //nolint:gosec // G703: paths from internal computation, not user input
+		return fmt.Errorf("copy database to backup temp file: %w", err)
 	}
 
 	// Sync to disk
 	if err := tempFile.Sync(); err != nil {
 		tempFile.Close()
-		os.Remove(tempPath)
-		return fmt.Errorf("sync temp file: %w", err)
+		os.Remove(tempPath) //nolint:gosec // G703: paths from internal computation, not user input
+		return fmt.Errorf("sync backup temp file to disk: %w", err)
 	}
 
 	if err := tempFile.Close(); err != nil {
-		os.Remove(tempPath)
-		return fmt.Errorf("close temp file: %w", err)
+		os.Remove(tempPath) //nolint:gosec // G703: paths from internal computation, not user input
+		return fmt.Errorf("close backup temp file: %w", err)
 	}
 
 	// Atomic rename (only succeeds if source and dest are on same filesystem)
-	if err := os.Rename(tempPath, backupPath); err != nil {
-		os.Remove(tempPath) // Cleanup temp file on failure
-		return fmt.Errorf("atomic rename: %w", err)
+	if err := os.Rename(tempPath, backupPath); err != nil { //nolint:gosec // G304: paths from internal database service
+		os.Remove(tempPath) //nolint:gosec // G703: paths from internal computation, not user input // Cleanup temp file on failure
+		return fmt.Errorf("atomically rename backup to final path: %w", err)
 	}
 
 	return nil
@@ -153,7 +153,7 @@ func cleanupOldBackups(backupDir, baseName string, keepCount int) error {
 	pattern := filepath.Join(backupDir, baseName+".*"+BackupSuffix)
 	matches, err := filepath.Glob(pattern)
 	if err != nil {
-		return err
+		return fmt.Errorf("glob backup files: %w", err)
 	}
 
 	if len(matches) <= keepCount {
@@ -213,7 +213,7 @@ func RestoreDatabase(ctx context.Context, backupPath, targetPath string) error {
 func atomicCopyFile(src, dst string) error {
 	srcFile, err := os.Open(src)
 	if err != nil {
-		return err
+		return fmt.Errorf("open source file for atomic copy: %w", err)
 	}
 	defer srcFile.Close()
 
@@ -221,40 +221,40 @@ func atomicCopyFile(src, dst string) error {
 	dstDir := filepath.Dir(dst)
 	tmpFile, err := os.CreateTemp(dstDir, ".copy-temp-")
 	if err != nil {
-		return err
+		return fmt.Errorf("create temporary copy file: %w", err)
 	}
 	tmpPath := tmpFile.Name()
 
 	// Set restrictive permissions (0o600) on temp file
 	if err := tmpFile.Chmod(0o600); err != nil {
 		tmpFile.Close()
-		os.Remove(tmpPath)
-		return err
+		os.Remove(tmpPath) //nolint:gosec // G703: paths from internal computation, not user input
+		return fmt.Errorf("set permissions on temporary copy file: %w", err)
 	}
 
 	// Copy data
 	if _, err := io.Copy(tmpFile, srcFile); err != nil {
 		tmpFile.Close()
-		os.Remove(tmpPath)
-		return err
+		os.Remove(tmpPath) //nolint:gosec // G703: paths from internal computation, not user input
+		return fmt.Errorf("copy file data: %w", err)
 	}
 
 	// Sync to disk
 	if err := tmpFile.Sync(); err != nil {
 		tmpFile.Close()
-		os.Remove(tmpPath)
-		return err
+		os.Remove(tmpPath) //nolint:gosec // G703: paths from internal computation, not user input
+		return fmt.Errorf("sync copy file to disk: %w", err)
 	}
 
 	if err := tmpFile.Close(); err != nil {
-		os.Remove(tmpPath)
-		return err
+		os.Remove(tmpPath) //nolint:gosec // G703: paths from internal computation, not user input
+		return fmt.Errorf("close temporary copy file: %w", err)
 	}
 
 	// Atomic rename
-	if err := os.Rename(tmpPath, dst); err != nil {
-		os.Remove(tmpPath) // Cleanup on failure
-		return err
+	if err := os.Rename(tmpPath, dst); err != nil { //nolint:gosec // G703: paths from internal computation
+		os.Remove(tmpPath) //nolint:gosec // G703: paths from internal computation, not user input // Cleanup on failure
+		return fmt.Errorf("atomically rename temporary copy file: %w", err)
 	}
 
 	return nil
@@ -265,7 +265,7 @@ func ListBackups(backupDir, baseName string) ([]BackupResult, error) {
 	pattern := filepath.Join(backupDir, baseName+".*"+BackupSuffix)
 	matches, err := filepath.Glob(pattern)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("list backups glob pattern: %w", err)
 	}
 
 	results := make([]BackupResult, 0, len(matches))
@@ -293,7 +293,7 @@ func ListBackups(backupDir, baseName string) ([]BackupResult, error) {
 func GetLatestBackup(backupDir, baseName string) (*BackupResult, error) {
 	backups, err := ListBackups(backupDir, baseName)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("get latest backup list: %w", err)
 	}
 	if len(backups) == 0 {
 		return nil, NewError(ErrCodeDBBackupFailed, "no backups found", nil).

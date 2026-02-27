@@ -1,0 +1,20 @@
+{
+  "id": "sub-libraries/utils",
+  "title": "Core Utils Library Reference",
+  "description": "Complete reference for all utility functions exported from @nasnet/core/utils. This library provides network validation, data formatting, React hooks, dependency graph algorithms, log export, and device detection utilities.",
+  "source": "@site/../../libs/core/docs/sub-libraries/utils.md",
+  "sourceDirName": "sub-libraries",
+  "slug": "/sub-libraries/utils",
+  "permalink": "/docs/core/sub-libraries/utils",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/nasnet-community/nasnet-panel/tree/main/../../libs/core/docs/sub-libraries/utils.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "sidebar",
+  "previous": {
+    "title": "Core Types Reference",
+    "permalink": "/docs/core/sub-libraries/types"
+  }
+}
